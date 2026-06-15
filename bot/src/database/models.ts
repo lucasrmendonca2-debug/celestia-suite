@@ -11,7 +11,7 @@ import { Schema, model, type InferSchemaType } from "mongoose";
 /* ---------------- Guild & Config ---------------- */
 const guildSchema = new Schema(
   {
-    _id: { type: String, required: true }, // discord guild id
+    _id: { type: String, required: true },
     name: { type: String, required: true },
     premium: { type: Boolean, default: false },
     premiumUntil: { type: Date, default: null },
@@ -55,16 +55,36 @@ const guildConfigSchema = new Schema(
     logMemberLeave: { type: Boolean, default: true },
     logModeration: { type: Boolean, default: true },
 
+    // AutoMod
     antiSpamEnabled: { type: Boolean, default: false },
+    antiSpamThreshold: { type: Number, default: 5 }, // msgs
+    antiSpamWindowMs: { type: Number, default: 5000 },
+    antiSpamAction: { type: String, enum: ["delete", "warn", "mute"], default: "delete" },
     antiLinkEnabled: { type: Boolean, default: false },
     antiInviteEnabled: { type: Boolean, default: false },
     antiRaidEnabled: { type: Boolean, default: false },
     blacklistedWords: { type: [String], default: [] },
+    automodWhitelistRoles: { type: [String], default: [] },
+    automodWhitelistChannels: { type: [String], default: [] },
 
+    // Economy
     economyEnabled: { type: Boolean, default: true },
+    economyCurrencyName: { type: String, default: "Zen" },
+    economyCurrencyEmoji: { type: String, default: "💜" },
+    economyDailyAmount: { type: Number, default: 250 },
+    economyWorkMin: { type: Number, default: 80 },
+    economyWorkMax: { type: Number, default: 320 },
+    economyVipMultiplier: { type: Number, default: 2 },
+
+    // Levels
     levelEnabled: { type: Boolean, default: true },
     levelMultiplier: { type: Number, default: 1.0 },
+    levelMessage: {
+      type: String,
+      default: "🎉 Parabéns {user}! Você subiu para o **nível {level}**.",
+    },
     noXpChannels: { type: [String], default: [] },
+    noXpRoles: { type: [String], default: [] },
   },
   { timestamps: true },
 );
@@ -74,7 +94,7 @@ export type GuildConfigDoc = InferSchemaType<typeof guildConfigSchema> & { _id: 
 /* ---------------- Users ---------------- */
 const userSchema = new Schema(
   {
-    _id: { type: String, required: true }, // discord user id
+    _id: { type: String, required: true },
     username: { type: String, default: null },
     blacklisted: { type: Boolean, default: false },
     blacklistReason: { type: String, default: null },
@@ -171,28 +191,62 @@ vipSchema.index({ guildId: 1, userId: 1 }, { unique: true });
 vipSchema.index({ active: 1, expiresAt: 1 });
 export const VipMembership = model("VipMembership", vipSchema);
 
-/* ---------------- Economy / Level (stubs prontos) ---------------- */
+/* ---------------- Economy ---------------- */
 const economySchema = new Schema(
   {
     guildId: { type: String, required: true },
     userId: { type: String, required: true },
     wallet: { type: Number, default: 0 },
     bank: { type: Number, default: 0 },
+    bankCap: { type: Number, default: 10_000 },
     lastDaily: { type: Date, default: null },
     lastWork: { type: Date, default: null },
     lastCrime: { type: Date, default: null },
     lastRob: { type: Date, default: null },
+    streakDaily: { type: Number, default: 0 },
   },
   { timestamps: true },
 );
 economySchema.index({ guildId: 1, userId: 1 }, { unique: true });
 export const EconomyAccount = model("EconomyAccount", economySchema);
 
+const shopItemSchema = new Schema(
+  {
+    guildId: { type: String, required: true, index: true },
+    name: { type: String, required: true },
+    description: { type: String, default: "" },
+    price: { type: Number, required: true, min: 0 },
+    stock: { type: Number, default: -1 }, // -1 = ilimitado
+    roleId: { type: String, default: null }, // dá esse cargo ao comprar
+    consumable: { type: Boolean, default: true },
+    emoji: { type: String, default: "🛒" },
+    enabled: { type: Boolean, default: true },
+  },
+  { timestamps: true },
+);
+shopItemSchema.index({ guildId: 1, name: 1 }, { unique: true });
+export const ShopItem = model("ShopItem", shopItemSchema);
+
+const inventoryItemSchema = new Schema(
+  {
+    guildId: { type: String, required: true, index: true },
+    userId: { type: String, required: true, index: true },
+    itemId: { type: Schema.Types.ObjectId, ref: "ShopItem", required: true },
+    name: { type: String, required: true },
+    quantity: { type: Number, default: 1, min: 0 },
+  },
+  { timestamps: true },
+);
+inventoryItemSchema.index({ guildId: 1, userId: 1, itemId: 1 }, { unique: true });
+export const InventoryItem = model("InventoryItem", inventoryItemSchema);
+
+/* ---------------- Level ---------------- */
 const levelSchema = new Schema(
   {
     guildId: { type: String, required: true },
     userId: { type: String, required: true },
     xp: { type: Number, default: 0 },
+    totalXp: { type: Number, default: 0 },
     level: { type: Number, default: 0 },
     lastXpAt: { type: Date, default: null },
   },
@@ -200,6 +254,94 @@ const levelSchema = new Schema(
 );
 levelSchema.index({ guildId: 1, userId: 1 }, { unique: true });
 export const LevelAccount = model("LevelAccount", levelSchema);
+
+const levelRewardSchema = new Schema(
+  {
+    guildId: { type: String, required: true, index: true },
+    level: { type: Number, required: true, min: 1 },
+    roleId: { type: String, required: true },
+    removePrevious: { type: Boolean, default: false },
+  },
+  { timestamps: true },
+);
+levelRewardSchema.index({ guildId: 1, level: 1 }, { unique: true });
+export const LevelReward = model("LevelReward", levelRewardSchema);
+
+/* ---------------- Marriage / Interação ---------------- */
+const marriageSchema = new Schema(
+  {
+    userA: { type: String, required: true, index: true },
+    userB: { type: String, required: true, index: true },
+    proposedAt: { type: Date, default: Date.now },
+    marriedAt: { type: Date, default: null },
+    status: { type: String, enum: ["PENDING", "MARRIED", "DIVORCED"], default: "PENDING" },
+  },
+  { timestamps: true },
+);
+marriageSchema.index({ userA: 1, userB: 1, status: 1 });
+export const Marriage = model("Marriage", marriageSchema);
+
+/* ---------------- Giveaway / Eventos ---------------- */
+const giveawaySchema = new Schema(
+  {
+    guildId: { type: String, required: true, index: true },
+    channelId: { type: String, required: true },
+    messageId: { type: String, default: null, index: true },
+    hostId: { type: String, required: true },
+    prize: { type: String, required: true },
+    winnersCount: { type: Number, default: 1, min: 1 },
+    endsAt: { type: Date, required: true, index: true },
+    ended: { type: Boolean, default: false, index: true },
+    participants: { type: [String], default: [] },
+    winners: { type: [String], default: [] },
+    requiredRoleId: { type: String, default: null },
+  },
+  { timestamps: true },
+);
+export const Giveaway = model("Giveaway", giveawaySchema);
+
+/* ---------------- Custom Commands (premium) ---------------- */
+const customCommandSchema = new Schema(
+  {
+    guildId: { type: String, required: true, index: true },
+    name: { type: String, required: true, lowercase: true, trim: true },
+    response: { type: String, required: true },
+    embed: { type: Boolean, default: false },
+    deleteTrigger: { type: Boolean, default: false },
+    enabled: { type: Boolean, default: true },
+    uses: { type: Number, default: 0 },
+    createdBy: { type: String, required: true },
+  },
+  { timestamps: true },
+);
+customCommandSchema.index({ guildId: 1, name: 1 }, { unique: true });
+export const CustomCommand = model("CustomCommand", customCommandSchema);
+
+/* ---------------- Embed Templates ---------------- */
+const embedTemplateSchema = new Schema(
+  {
+    guildId: { type: String, required: true, index: true },
+    name: { type: String, required: true },
+    payload: { type: Schema.Types.Mixed, default: {} },
+    createdBy: { type: String, required: true },
+  },
+  { timestamps: true },
+);
+embedTemplateSchema.index({ guildId: 1, name: 1 }, { unique: true });
+export const EmbedTemplate = model("EmbedTemplate", embedTemplateSchema);
+
+/* ---------------- AutoMod Incidents ---------------- */
+const autoModIncidentSchema = new Schema(
+  {
+    guildId: { type: String, required: true, index: true },
+    userId: { type: String, required: true, index: true },
+    rule: { type: String, required: true },
+    action: { type: String, required: true },
+    content: { type: String, default: "" },
+  },
+  { timestamps: { createdAt: true, updatedAt: false } },
+);
+export const AutoModIncident = model("AutoModIncident", autoModIncidentSchema);
 
 /* ---------------- Logs ---------------- */
 const logEntrySchema = new Schema(

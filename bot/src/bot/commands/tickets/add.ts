@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, TextChannel, PermissionFlagsBits } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
-import { prisma } from "../../../database/client.js";
+import { Ticket } from "../../../database/models.js";
 
 const command: SlashCommand = {
   category: "tickets",
@@ -14,7 +14,7 @@ const command: SlashCommand = {
     .addUserOption((o) => o.setName("usuario").setDescription("Usuário a adicionar").setRequired(true)),
   async execute(interaction) {
     const channel = interaction.channel as TextChannel;
-    const ticket = await prisma.ticket.findUnique({ where: { channelId: channel.id } });
+    const ticket = await Ticket.findOne({ channelId: channel.id });
     if (!ticket || ticket.status !== "OPEN") {
       return interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Este canal não é um ticket aberto" })], ephemeral: true });
     }

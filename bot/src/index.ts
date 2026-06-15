@@ -4,10 +4,12 @@ import { logger } from "./bot/utils/logger.js";
 import { loadCommands } from "./bot/handlers/commands.js";
 import { loadEvents } from "./bot/handlers/events.js";
 import { startSchedulers } from "./bot/systems/scheduler.js";
+import { connectDatabase, disconnectDatabase } from "./database/connection.js";
 import type { ZenoxClient } from "./types/command.js";
-import { prisma } from "./database/client.js";
 
 async function bootstrap() {
+  await connectDatabase();
+
   const client = new Client({
     intents: [
       GatewayIntentBits.Guilds,
@@ -38,7 +40,7 @@ async function bootstrap() {
   const shutdown = async (sig: string) => {
     logger.info({ sig }, "Encerrando bot...");
     await client.destroy();
-    await prisma.$disconnect();
+    await disconnectDatabase();
     process.exit(0);
   };
   process.on("SIGINT", () => void shutdown("SIGINT"));

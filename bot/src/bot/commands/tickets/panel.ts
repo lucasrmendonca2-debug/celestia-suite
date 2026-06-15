@@ -8,7 +8,7 @@ import {
 } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
-import { prisma } from "../../../database/client.js";
+import { TicketPanel } from "../../../database/models.js";
 
 const command: SlashCommand = {
   category: "tickets",
@@ -31,29 +31,28 @@ const command: SlashCommand = {
     const role = interaction.options.getRole("cargo_suporte");
     const channel = interaction.channel as TextChannel;
 
-    const panel = await prisma.ticketPanel.create({
-      data: {
-        guildId: interaction.guildId!,
-        channelId: channel.id,
-        title,
-        description,
-        buttonLabel,
-        categoryId: category?.id ?? null,
-        supportRoleId: role?.id ?? null,
-      },
+    const panel = await TicketPanel.create({
+      guildId: interaction.guildId!,
+      channelId: channel.id,
+      title,
+      description,
+      buttonLabel,
+      categoryId: category?.id ?? null,
+      supportRoleId: role?.id ?? null,
     });
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder().setCustomId(`ticket:open:${panel.id}`).setLabel(buttonLabel).setStyle(ButtonStyle.Primary).setEmoji("🎫"),
+      new ButtonBuilder().setCustomId(`ticket:open:${panel._id}`).setLabel(buttonLabel).setStyle(ButtonStyle.Primary).setEmoji("🎫"),
     );
 
-    const msg = await channel.send({
-      embeds: [brandEmbed({ title, description })],
-      components: [row],
-    });
+    const msg = await channel.send({ embeds: [brandEmbed({ title, description })], components: [row] });
+    panel.messageId = msg.id;
+    await panel.save();
 
-    await prisma.ticketPanel.update({ where: { id: panel.id }, data: { messageId: msg.id } });
-    await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Painel criado", description: `ID: \`${panel.id}\`` })], ephemeral: true });
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "success", title: "Painel criado", description: `ID: \`${panel._id}\`` })],
+      ephemeral: true,
+    });
   },
 };
 

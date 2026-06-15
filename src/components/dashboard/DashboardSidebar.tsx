@@ -12,6 +12,7 @@ import {
   Smile,
   Terminal,
   FileCode2,
+  Ticket,
   type LucideIcon,
 } from "lucide-react";
 
@@ -41,6 +42,10 @@ const SECTIONS: { title: string; items: Item[] }[] = [
       { to: "autorole", label: "Autorole", icon: UserPlus },
       { to: "reaction-roles", label: "Cargos por reação", icon: Smile },
     ],
+  },
+  {
+    title: "Atendimento",
+    items: [{ to: "tickets", label: "Tickets", icon: Ticket }],
   },
   {
     title: "Moderação",

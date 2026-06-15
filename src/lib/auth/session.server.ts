@@ -11,6 +11,7 @@ export interface ZenoxSession {
   avatar?: string | null;
   accessToken?: string;
   refreshToken?: string;
+  oauthRedirectUri?: string;
   expiresAt?: number; // epoch ms
 }
 

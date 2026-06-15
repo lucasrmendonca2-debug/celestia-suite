@@ -67,9 +67,27 @@ export function getOAuthConfig() {
   return { clientId, clientSecret };
 }
 
-export function makeDiscordCallbackUri(request: Request): string {
+function safeBrowserOrigin(origin: string | null): string | null {
+  if (!origin) return null;
+  try {
+    const url = new URL(origin);
+    const isLocal = url.hostname === "localhost" || url.hostname === "127.0.0.1";
+    const isLovable = url.hostname === "lovable.app" || url.hostname.endsWith(".lovable.app");
+    if ((url.protocol === "https:" && isLovable) || (url.protocol === "http:" && isLocal)) {
+      return url.origin;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+export function makeDiscordCallbackUri(request: Request, browserOrigin?: string | null): string {
   const explicitRedirectUri = process.env.DISCORD_REDIRECT_URI?.trim();
   if (explicitRedirectUri) return explicitRedirectUri;
+
+  const origin = safeBrowserOrigin(browserOrigin ?? null);
+  if (origin) return `${origin}/api/auth/discord/callback`;
 
   const requestUrl = new URL(request.url);
   const forwarded = request.headers.get("forwarded") ?? "";

@@ -20,6 +20,11 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
+  function startDiscordLogin(event: React.MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault();
+    window.location.href = `/api/auth/discord/login?origin=${encodeURIComponent(window.location.origin)}`;
+  }
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-background text-foreground">
       <div className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,theme(colors.primary/0.25),transparent_60%)]" />
@@ -35,6 +40,7 @@ function Landing() {
             </Link>
             <a
               href="/api/auth/discord/login"
+              onClick={startDiscordLogin}
               className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
             >
               Entrar com Discord
@@ -59,6 +65,7 @@ function Landing() {
           <div className="flex flex-wrap gap-3">
             <a
               href="/api/auth/discord/login"
+              onClick={startDiscordLogin}
               className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
             >
               Entrar com Discord

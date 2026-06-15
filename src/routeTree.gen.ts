@@ -9,38 +9,142 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
+import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
+import { Route as AuthenticatedDashboardGuildIdRouteImport } from './routes/_authenticated/dashboard.$guildId'
+import { Route as ApiAuthDiscordLoginRouteImport } from './routes/api/auth/discord/login'
+import { Route as ApiAuthDiscordCallbackRouteImport } from './routes/api/auth/discord/callback'
 
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardIndexRoute =
+  AuthenticatedDashboardIndexRouteImport.update({
+    id: '/dashboard/',
+    path: '/dashboard/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
+  id: '/api/auth/logout',
+  path: '/api/auth/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedDashboardGuildIdRoute =
+  AuthenticatedDashboardGuildIdRouteImport.update({
+    id: '/dashboard/$guildId',
+    path: '/dashboard/$guildId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const ApiAuthDiscordLoginRoute = ApiAuthDiscordLoginRouteImport.update({
+  id: '/api/auth/discord/login',
+  path: '/api/auth/discord/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthDiscordCallbackRoute = ApiAuthDiscordCallbackRouteImport.update({
+  id: '/api/auth/discord/callback',
+  path: '/api/auth/discord/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
+  '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
+  '/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
+  '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/login': typeof LoginRoute
+  '/_authenticated/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
+  '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/dashboard/$guildId'
+    | '/api/auth/logout'
+    | '/dashboard/'
+    | '/api/auth/discord/callback'
+    | '/api/auth/discord/login'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/login'
+    | '/dashboard/$guildId'
+    | '/api/auth/logout'
+    | '/dashboard'
+    | '/api/auth/discord/callback'
+    | '/api/auth/discord/login'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/login'
+    | '/_authenticated/dashboard/$guildId'
+    | '/api/auth/logout'
+    | '/_authenticated/dashboard/'
+    | '/api/auth/discord/callback'
+    | '/api/auth/discord/login'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  LoginRoute: typeof LoginRoute
+  ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
+  ApiAuthDiscordCallbackRoute: typeof ApiAuthDiscordCallbackRoute
+  ApiAuthDiscordLoginRoute: typeof ApiAuthDiscordLoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,11 +152,65 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard/': {
+      id: '/_authenticated/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/api/auth/logout': {
+      id: '/api/auth/logout'
+      path: '/api/auth/logout'
+      fullPath: '/api/auth/logout'
+      preLoaderRoute: typeof ApiAuthLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/dashboard/$guildId': {
+      id: '/_authenticated/dashboard/$guildId'
+      path: '/dashboard/$guildId'
+      fullPath: '/dashboard/$guildId'
+      preLoaderRoute: typeof AuthenticatedDashboardGuildIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/api/auth/discord/login': {
+      id: '/api/auth/discord/login'
+      path: '/api/auth/discord/login'
+      fullPath: '/api/auth/discord/login'
+      preLoaderRoute: typeof ApiAuthDiscordLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/discord/callback': {
+      id: '/api/auth/discord/callback'
+      path: '/api/auth/discord/callback'
+      fullPath: '/api/auth/discord/callback'
+      preLoaderRoute: typeof ApiAuthDiscordCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedDashboardGuildIdRoute: typeof AuthenticatedDashboardGuildIdRoute
+  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDashboardGuildIdRoute: AuthenticatedDashboardGuildIdRoute,
+  AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  LoginRoute: LoginRoute,
+  ApiAuthLogoutRoute: ApiAuthLogoutRoute,
+  ApiAuthDiscordCallbackRoute: ApiAuthDiscordCallbackRoute,
+  ApiAuthDiscordLoginRoute: ApiAuthDiscordLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -18,6 +18,7 @@ import { Route as AuthenticatedDashboardGuildIdRouteImport } from './routes/_aut
 import { Route as ApiAuthDiscordLoginRouteImport } from './routes/api/auth/discord/login'
 import { Route as ApiAuthDiscordCallbackRouteImport } from './routes/api/auth/discord/callback'
 import { Route as AuthenticatedDashboardGuildIdWelcomeRouteImport } from './routes/_authenticated/dashboard.$guildId.welcome'
+import { Route as AuthenticatedDashboardGuildIdTicketsRouteImport } from './routes/_authenticated/dashboard.$guildId.tickets'
 import { Route as AuthenticatedDashboardGuildIdReactionRolesRouteImport } from './routes/_authenticated/dashboard.$guildId.reaction-roles'
 import { Route as AuthenticatedDashboardGuildIdModerationRouteImport } from './routes/_authenticated/dashboard.$guildId.moderation'
 import { Route as AuthenticatedDashboardGuildIdLogsRouteImport } from './routes/_authenticated/dashboard.$guildId.logs'
@@ -73,6 +74,12 @@ const AuthenticatedDashboardGuildIdWelcomeRoute =
   AuthenticatedDashboardGuildIdWelcomeRouteImport.update({
     id: '/welcome',
     path: '/welcome',
+    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+  } as any)
+const AuthenticatedDashboardGuildIdTicketsRoute =
+  AuthenticatedDashboardGuildIdTicketsRouteImport.update({
+    id: '/tickets',
+    path: '/tickets',
     getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
   } as any)
 const AuthenticatedDashboardGuildIdReactionRolesRoute =
@@ -145,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
   '/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
   '/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
+  '/dashboard/$guildId/tickets': typeof AuthenticatedDashboardGuildIdTicketsRoute
   '/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
@@ -164,6 +172,7 @@ export interface FileRoutesByTo {
   '/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
   '/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
   '/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
+  '/dashboard/$guildId/tickets': typeof AuthenticatedDashboardGuildIdTicketsRoute
   '/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
@@ -185,6 +194,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
   '/_authenticated/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
   '/_authenticated/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
+  '/_authenticated/dashboard/$guildId/tickets': typeof AuthenticatedDashboardGuildIdTicketsRoute
   '/_authenticated/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
@@ -206,6 +216,7 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId/logs'
     | '/dashboard/$guildId/moderation'
     | '/dashboard/$guildId/reaction-roles'
+    | '/dashboard/$guildId/tickets'
     | '/dashboard/$guildId/welcome'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
@@ -225,6 +236,7 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId/logs'
     | '/dashboard/$guildId/moderation'
     | '/dashboard/$guildId/reaction-roles'
+    | '/dashboard/$guildId/tickets'
     | '/dashboard/$guildId/welcome'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
@@ -245,6 +257,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/$guildId/logs'
     | '/_authenticated/dashboard/$guildId/moderation'
     | '/_authenticated/dashboard/$guildId/reaction-roles'
+    | '/_authenticated/dashboard/$guildId/tickets'
     | '/_authenticated/dashboard/$guildId/welcome'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
@@ -324,6 +337,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardGuildIdWelcomeRouteImport
       parentRoute: typeof AuthenticatedDashboardGuildIdRoute
     }
+    '/_authenticated/dashboard/$guildId/tickets': {
+      id: '/_authenticated/dashboard/$guildId/tickets'
+      path: '/tickets'
+      fullPath: '/dashboard/$guildId/tickets'
+      preLoaderRoute: typeof AuthenticatedDashboardGuildIdTicketsRouteImport
+      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+    }
     '/_authenticated/dashboard/$guildId/reaction-roles': {
       id: '/_authenticated/dashboard/$guildId/reaction-roles'
       path: '/reaction-roles'
@@ -400,6 +420,7 @@ interface AuthenticatedDashboardGuildIdRouteChildren {
   AuthenticatedDashboardGuildIdLogsRoute: typeof AuthenticatedDashboardGuildIdLogsRoute
   AuthenticatedDashboardGuildIdModerationRoute: typeof AuthenticatedDashboardGuildIdModerationRoute
   AuthenticatedDashboardGuildIdReactionRolesRoute: typeof AuthenticatedDashboardGuildIdReactionRolesRoute
+  AuthenticatedDashboardGuildIdTicketsRoute: typeof AuthenticatedDashboardGuildIdTicketsRoute
   AuthenticatedDashboardGuildIdWelcomeRoute: typeof AuthenticatedDashboardGuildIdWelcomeRoute
 }
 
@@ -423,6 +444,8 @@ const AuthenticatedDashboardGuildIdRouteChildren: AuthenticatedDashboardGuildIdR
       AuthenticatedDashboardGuildIdModerationRoute,
     AuthenticatedDashboardGuildIdReactionRolesRoute:
       AuthenticatedDashboardGuildIdReactionRolesRoute,
+    AuthenticatedDashboardGuildIdTicketsRoute:
+      AuthenticatedDashboardGuildIdTicketsRoute,
     AuthenticatedDashboardGuildIdWelcomeRoute:
       AuthenticatedDashboardGuildIdWelcomeRoute,
   }

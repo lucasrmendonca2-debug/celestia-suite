@@ -25,7 +25,7 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
         }
 
         try {
-          const token = await exchangeCode(code, makeDiscordCallbackUri(request));
+          const token = await exchangeCode(code, session.data.oauthRedirectUri || makeDiscordCallbackUri(request));
           const user = await fetchDiscordUser(token.access_token);
           await session.update({
             userId: user.id,
@@ -34,6 +34,7 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
             avatar: user.avatar,
             accessToken: token.access_token,
             refreshToken: token.refresh_token,
+            oauthRedirectUri: undefined,
             expiresAt: Date.now() + token.expires_in * 1000,
           });
         } catch (err) {

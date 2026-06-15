@@ -521,6 +521,381 @@ export type Database = {
         }
         Relationships: []
       }
+      ticket_access_levels: {
+        Row: {
+          created_at: string
+          guild_id: string
+          id: string
+          key: string
+          name: string
+          rank: number
+          role_ids: string[]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          guild_id: string
+          id?: string
+          key: string
+          name: string
+          rank?: number
+          role_ids?: string[]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          guild_id?: string
+          id?: string
+          key?: string
+          name?: string
+          rank?: number
+          role_ids?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ticket_categories: {
+        Row: {
+          active: boolean
+          allowed_access_levels: string[]
+          blocked_role_ids: string[]
+          created_at: string
+          description: string | null
+          discord_category_id: string | null
+          emoji: string | null
+          guild_id: string
+          id: string
+          max_open_tickets_per_user: number | null
+          name: string
+          position: number
+          priority: boolean
+          required_role_ids: string[]
+          support_role_id: string | null
+          updated_at: string
+          welcome_message: string | null
+        }
+        Insert: {
+          active?: boolean
+          allowed_access_levels?: string[]
+          blocked_role_ids?: string[]
+          created_at?: string
+          description?: string | null
+          discord_category_id?: string | null
+          emoji?: string | null
+          guild_id: string
+          id?: string
+          max_open_tickets_per_user?: number | null
+          name: string
+          position?: number
+          priority?: boolean
+          required_role_ids?: string[]
+          support_role_id?: string | null
+          updated_at?: string
+          welcome_message?: string | null
+        }
+        Update: {
+          active?: boolean
+          allowed_access_levels?: string[]
+          blocked_role_ids?: string[]
+          created_at?: string
+          description?: string | null
+          discord_category_id?: string | null
+          emoji?: string | null
+          guild_id?: string
+          id?: string
+          max_open_tickets_per_user?: number | null
+          name?: string
+          position?: number
+          priority?: boolean
+          required_role_ids?: string[]
+          support_role_id?: string | null
+          updated_at?: string
+          welcome_message?: string | null
+        }
+        Relationships: []
+      }
+      ticket_configs: {
+        Row: {
+          allow_user_close_ticket: boolean
+          category_id: string | null
+          close_message: string
+          created_at: string
+          default_support_role_id: string | null
+          enabled: boolean
+          guild_id: string
+          log_channel_id: string | null
+          max_open_tickets_per_user: number
+          panel_button_emoji: string
+          panel_button_label: string
+          panel_channel_id: string | null
+          panel_color: number
+          panel_description: string
+          panel_message_id: string | null
+          panel_title: string
+          rating_enabled: boolean
+          ticket_welcome_message: string
+          transcript_enabled: boolean
+          updated_at: string
+          use_single_panel: boolean
+        }
+        Insert: {
+          allow_user_close_ticket?: boolean
+          category_id?: string | null
+          close_message?: string
+          created_at?: string
+          default_support_role_id?: string | null
+          enabled?: boolean
+          guild_id: string
+          log_channel_id?: string | null
+          max_open_tickets_per_user?: number
+          panel_button_emoji?: string
+          panel_button_label?: string
+          panel_channel_id?: string | null
+          panel_color?: number
+          panel_description?: string
+          panel_message_id?: string | null
+          panel_title?: string
+          rating_enabled?: boolean
+          ticket_welcome_message?: string
+          transcript_enabled?: boolean
+          updated_at?: string
+          use_single_panel?: boolean
+        }
+        Update: {
+          allow_user_close_ticket?: boolean
+          category_id?: string | null
+          close_message?: string
+          created_at?: string
+          default_support_role_id?: string | null
+          enabled?: boolean
+          guild_id?: string
+          log_channel_id?: string | null
+          max_open_tickets_per_user?: number
+          panel_button_emoji?: string
+          panel_button_label?: string
+          panel_channel_id?: string | null
+          panel_color?: number
+          panel_description?: string
+          panel_message_id?: string | null
+          panel_title?: string
+          rating_enabled?: boolean
+          ticket_welcome_message?: string
+          transcript_enabled?: boolean
+          updated_at?: string
+          use_single_panel?: boolean
+        }
+        Relationships: []
+      }
+      ticket_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json
+          guild_id: string
+          id: string
+          ticket_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json
+          guild_id: string
+          id?: string
+          ticket_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json
+          guild_id?: string
+          id?: string
+          ticket_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_logs_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_messages: {
+        Row: {
+          attachments: Json
+          author_id: string
+          author_name: string
+          content: string | null
+          created_at: string
+          id: string
+          ticket_id: string
+        }
+        Insert: {
+          attachments?: Json
+          author_id: string
+          author_name: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          ticket_id: string
+        }
+        Update: {
+          attachments?: Json
+          author_id?: string
+          author_name?: string
+          content?: string | null
+          created_at?: string
+          id?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_permission_roles: {
+        Row: {
+          access_level: string
+          can_add_user: boolean
+          can_claim_ticket: boolean
+          can_close_ticket: boolean
+          can_delete_ticket: boolean
+          can_generate_transcript: boolean
+          can_manage_config: boolean
+          can_open_priority_ticket: boolean
+          can_open_ticket: boolean
+          can_remove_user: boolean
+          can_reopen_ticket: boolean
+          can_view_history: boolean
+          can_view_panel: boolean
+          can_view_ratings: boolean
+          created_at: string
+          guild_id: string
+          id: string
+          role_id: string
+          updated_at: string
+        }
+        Insert: {
+          access_level?: string
+          can_add_user?: boolean
+          can_claim_ticket?: boolean
+          can_close_ticket?: boolean
+          can_delete_ticket?: boolean
+          can_generate_transcript?: boolean
+          can_manage_config?: boolean
+          can_open_priority_ticket?: boolean
+          can_open_ticket?: boolean
+          can_remove_user?: boolean
+          can_reopen_ticket?: boolean
+          can_view_history?: boolean
+          can_view_panel?: boolean
+          can_view_ratings?: boolean
+          created_at?: string
+          guild_id: string
+          id?: string
+          role_id: string
+          updated_at?: string
+        }
+        Update: {
+          access_level?: string
+          can_add_user?: boolean
+          can_claim_ticket?: boolean
+          can_close_ticket?: boolean
+          can_delete_ticket?: boolean
+          can_generate_transcript?: boolean
+          can_manage_config?: boolean
+          can_open_priority_ticket?: boolean
+          can_open_ticket?: boolean
+          can_remove_user?: boolean
+          can_reopen_ticket?: boolean
+          can_view_history?: boolean
+          can_view_panel?: boolean
+          can_view_ratings?: boolean
+          created_at?: string
+          guild_id?: string
+          id?: string
+          role_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      tickets: {
+        Row: {
+          category_id: string | null
+          category_name: string | null
+          channel_id: string
+          claimed_by: string | null
+          close_reason: string | null
+          closed_at: string | null
+          closed_by: string | null
+          created_at: string
+          guild_id: string
+          id: string
+          priority: boolean
+          rating: number | null
+          status: string
+          transcript_url: string | null
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          category_id?: string | null
+          category_name?: string | null
+          channel_id: string
+          claimed_by?: string | null
+          close_reason?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
+          created_at?: string
+          guild_id: string
+          id?: string
+          priority?: boolean
+          rating?: number | null
+          status?: string
+          transcript_url?: string | null
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          category_id?: string | null
+          category_name?: string | null
+          channel_id?: string
+          claimed_by?: string | null
+          close_reason?: string | null
+          closed_at?: string | null
+          closed_by?: string | null
+          created_at?: string
+          guild_id?: string
+          id?: string
+          priority?: boolean
+          rating?: number | null
+          status?: string
+          transcript_url?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "ticket_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_economy: {
         Row: {
           balance: number

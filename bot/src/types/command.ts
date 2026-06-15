@@ -2,6 +2,7 @@ import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
   SlashCommandSubcommandsOnlyBuilder,
+  SlashCommandOptionsOnlyBuilder,
   Collection,
   PermissionResolvable,
   Client,
@@ -10,6 +11,7 @@ import {
 export type SlashBuilder =
   | SlashCommandBuilder
   | SlashCommandSubcommandsOnlyBuilder
+  | SlashCommandOptionsOnlyBuilder
   | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
 
 export interface SlashCommand {

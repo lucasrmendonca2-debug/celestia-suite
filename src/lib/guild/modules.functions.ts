@@ -66,18 +66,27 @@ export const getLogsConfig = createServerFn({ method: "GET" })
     return row ?? { guild_id: data.guildId, ...LOGS_DEFAULTS };
   });
 
-const LogsInput = z
-  .object({
-    guildId: guildIdSchema,
-    log_channel_id: snowflakeNullable,
-  })
-  .extend(
-    Object.fromEntries(
-      Object.keys(LOGS_DEFAULTS)
-        .filter((k) => k !== "log_channel_id")
-        .map((k) => [k, z.boolean()]),
-    ) as Record<string, z.ZodBoolean>,
-  );
+const LogsInput = z.object({
+  guildId: guildIdSchema,
+  log_channel_id: snowflakeNullable,
+  member_join: z.boolean(),
+  member_leave: z.boolean(),
+  member_ban: z.boolean(),
+  member_unban: z.boolean(),
+  member_kick: z.boolean(),
+  member_role_update: z.boolean(),
+  member_nickname_update: z.boolean(),
+  message_delete: z.boolean(),
+  message_edit: z.boolean(),
+  message_bulk_delete: z.boolean(),
+  channel_create: z.boolean(),
+  channel_delete: z.boolean(),
+  channel_update: z.boolean(),
+  role_create: z.boolean(),
+  role_delete: z.boolean(),
+  role_update: z.boolean(),
+  voice_state_update: z.boolean(),
+});
 
 export const updateLogsConfig = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => LogsInput.parse(d))

@@ -1,9 +1,23 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Hash, Users } from "lucide-react";
+import {
+  Hash,
+  Users,
+  Shield,
+  Ticket,
+  Coins,
+  TrendingUp,
+  Sparkles,
+  ScrollText,
+  PartyPopper,
+  Lock,
+  Gem,
+} from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
+import { ModuleCard } from "@/components/dashboard/ModuleCard";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard/$guildId")({
   loader: async ({ context, params }) => {
@@ -77,14 +91,27 @@ function GuildOverview() {
             <StatCard label="Configurações salvas" value="—" hint="Disponível na Onda 3" />
           </section>
 
-          <section className="mt-6 rounded-2xl border border-dashed border-border bg-card/40 p-8 text-sm text-muted-foreground">
-            <p className="font-medium text-foreground">Edição de módulos chegando na próxima onda</p>
-            <p className="mt-1">
-              Boas-vindas, AutoMod, Economia, Level, Logs e Tickets — tudo configurável aqui,
-              salvando direto no MongoDB que o bot já lê. Por enquanto a Onda 2 entrega o login,
-              a lista de servidores e o shell do dashboard.
-            </p>
+          <section className="mt-8">
+            <div className="mb-3">
+              <h3 className="text-base font-semibold">Módulos</h3>
+              <p className="text-xs text-muted-foreground">
+                Configure cada sistema do bot. Tudo salvo aqui é lido em tempo real pelo bot.
+              </p>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <ModuleCard to="." icon={Sparkles} title="Boas-vindas" description="Mensagem de entrada, saída e DM personalizada para novos membros." soon />
+              <ModuleCard to="." icon={ScrollText} title="Logs" description="Entradas, saídas, mensagens editadas e ações de moderação." soon />
+              <ModuleCard to="." icon={Shield} title="Moderação" description="Ban, kick, mute, warns e histórico completo de punições." soon />
+              <ModuleCard to="." icon={Lock} title="Segurança / AutoMod" description="Anti-spam, anti-link, anti-invite, anti-raid e palavras proibidas." soon />
+              <ModuleCard to="." icon={Ticket} title="Tickets" description="Painéis de suporte com categorias, cargos e avaliação ao fechar." soon />
+              <ModuleCard to="." icon={Coins} title="Economia" description="Moeda própria, daily, work, loja e inventário por servidor." soon />
+              <ModuleCard to="." icon={TrendingUp} title="Level" description="XP por mensagem, mensagem de level up e recompensas por cargo." soon />
+              <ModuleCard to="." icon={PartyPopper} title="Diversão" description="Giveaways, comandos custom, embeds e mini-games." soon />
+              <ModuleCard to="." icon={Gem} title="VIP / Premium" description="Planos pagos por servidor com benefícios exclusivos." soon />
+            </div>
           </section>
+
         </main>
       </div>
     </div>

@@ -4,11 +4,6 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 
-function callbackUri(request: Request): string {
-  const url = new URL(request.url);
-  return `${url.origin}/api/auth/discord/callback`;
-}
-
 export const Route = createFileRoute("/api/auth/discord/callback")({
   server: {
     handlers: {
@@ -20,7 +15,7 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
           return new Response("Faltam parâmetros code/state.", { status: 400 });
         }
 
-        const { exchangeCode, fetchDiscordUser } = await import("@/lib/auth/discord.server");
+        const { exchangeCode, fetchDiscordUser, makeDiscordCallbackUri } = await import("@/lib/auth/discord.server");
         const { getSession } = await import("@/lib/auth/session.server");
 
         const session = await getSession();
@@ -30,7 +25,7 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
         }
 
         try {
-          const token = await exchangeCode(code, callbackUri(request));
+          const token = await exchangeCode(code, makeDiscordCallbackUri(request));
           const user = await fetchDiscordUser(token.access_token);
           await session.update({
             userId: user.id,

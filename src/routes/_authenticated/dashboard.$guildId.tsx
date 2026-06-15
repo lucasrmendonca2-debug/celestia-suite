@@ -4,14 +4,15 @@ import {
   Hash,
   Users,
   Shield,
-  Ticket,
   Coins,
   TrendingUp,
   Sparkles,
   ScrollText,
-  PartyPopper,
   Lock,
-  Gem,
+  UserPlus,
+  Smile,
+  Terminal,
+  FileCode2,
 } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";

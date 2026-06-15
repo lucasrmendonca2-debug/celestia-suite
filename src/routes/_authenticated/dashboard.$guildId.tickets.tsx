@@ -3,11 +3,12 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Ticket, Save, AlertCircle } from "lucide-react";
+import { Ticket, Save, AlertCircle, Send } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getTicketConfig,
   getTicketStats,
+  sendTicketPanel,
   updateTicketConfig,
 } from "@/lib/guild/tickets.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";

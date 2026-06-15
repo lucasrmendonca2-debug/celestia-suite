@@ -101,15 +101,16 @@ function GuildOverview() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <ModuleCard to="/dashboard/$guildId/welcome" params={{ guildId: guild.id }} icon={Sparkles} title="Boas-vindas" description="Mensagem de entrada, saída e DM personalizada para novos membros." />
-              <ModuleCard to="." icon={ScrollText} title="Logs" description="Entradas, saídas, mensagens editadas e ações de moderação." soon />
-              <ModuleCard to="." icon={Shield} title="Moderação" description="Ban, kick, mute, warns e histórico completo de punições." soon />
-              <ModuleCard to="." icon={Lock} title="Segurança / AutoMod" description="Anti-spam, anti-link, anti-invite, anti-raid e palavras proibidas." soon />
-              <ModuleCard to="." icon={Ticket} title="Tickets" description="Painéis de suporte com categorias, cargos e avaliação ao fechar." soon />
-              <ModuleCard to="." icon={Coins} title="Economia" description="Moeda própria, daily, work, loja e inventário por servidor." soon />
-              <ModuleCard to="." icon={TrendingUp} title="Level" description="XP por mensagem, mensagem de level up e recompensas por cargo." soon />
-              <ModuleCard to="." icon={PartyPopper} title="Diversão" description="Giveaways, comandos custom, embeds e mini-games." soon />
-              <ModuleCard to="." icon={Gem} title="VIP / Premium" description="Planos pagos por servidor com benefícios exclusivos." soon />
+              <ModuleCard to="/dashboard/$guildId/welcome" params={{ guildId: guild.id }} icon={Sparkles} title="Boas-vindas" description="Mensagem de entrada com variáveis e embed personalizável." />
+              <ModuleCard to="/dashboard/$guildId/logs" params={{ guildId: guild.id }} icon={ScrollText} title="Logs" description="Canal de logs + toggle por evento (mensagens, membros, canais, cargos)." />
+              <ModuleCard to="/dashboard/$guildId/autorole" params={{ guildId: guild.id }} icon={UserPlus} title="Autorole" description="Cargos atribuídos automaticamente a novos membros e bots." />
+              <ModuleCard to="/dashboard/$guildId/reaction-roles" params={{ guildId: guild.id }} icon={Smile} title="Cargos por reação" description="Membros pegam cargos reagindo a mensagens do bot." />
+              <ModuleCard to="/dashboard/$guildId/moderation" params={{ guildId: guild.id }} icon={Shield} title="Moderação" description="Histórico de warns, mutes, kicks e bans com casos numerados." />
+              <ModuleCard to="/dashboard/$guildId/automod" params={{ guildId: guild.id }} icon={Lock} title="AutoMod" description="Anti-spam, anti-link, anti-invite, caps, mentions e blacklist." />
+              <ModuleCard to="/dashboard/$guildId/leveling" params={{ guildId: guild.id }} icon={TrendingUp} title="Níveis & XP" description="XP por mensagem, ranking, mensagem de level up e cargos por nível." />
+              <ModuleCard to="/dashboard/$guildId/economy" params={{ guildId: guild.id }} icon={Coins} title="Economia" description="Moeda própria, daily, work, loja de cargos e inventário." />
+              <ModuleCard to="/dashboard/$guildId/commands" params={{ guildId: guild.id }} icon={Terminal} title="Comandos custom" description="Crie /comandos próprios com texto, embed ou ações." />
+              <ModuleCard to="/dashboard/$guildId/embeds" params={{ guildId: guild.id }} icon={FileCode2} title="Embeds" description="Editor visual de embeds reutilizáveis com preview ao vivo." />
             </div>
           </section>
 

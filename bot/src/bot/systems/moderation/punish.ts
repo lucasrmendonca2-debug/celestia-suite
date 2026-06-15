@@ -7,10 +7,9 @@ import {
   TextChannel,
 } from "discord.js";
 import ms from "ms";
-import { prisma } from "../../../database/client.js";
+import { Punishment, type PunishmentType } from "../../../database/models.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { sendLog } from "../logs/sender.js";
-import type { PunishmentType } from "@prisma/client";
 
 interface BaseArgs {
   guildId: string;
@@ -21,16 +20,14 @@ interface BaseArgs {
 export async function recordPunishment(
   args: BaseArgs & { userId: string; type: PunishmentType; durationMs?: number },
 ) {
-  return prisma.punishment.create({
-    data: {
-      guildId: args.guildId,
-      userId: args.userId,
-      moderatorId: args.moderatorId,
-      type: args.type,
-      reason: args.reason ?? null,
-      durationMs: args.durationMs ?? null,
-      expiresAt: args.durationMs ? new Date(Date.now() + args.durationMs) : null,
-    },
+  return Punishment.create({
+    guildId: args.guildId,
+    userId: args.userId,
+    moderatorId: args.moderatorId,
+    type: args.type,
+    reason: args.reason ?? null,
+    durationMs: args.durationMs ?? null,
+    expiresAt: args.durationMs ? new Date(Date.now() + args.durationMs) : null,
   });
 }
 
@@ -51,11 +48,7 @@ export async function logModeration(
   await sendLog(
     member.guild,
     "modLogChannelId",
-    brandEmbed({
-      kind: type === "WARN" ? "warn" : "error",
-      title: `🛡️ ${type}`,
-      fields,
-    }),
+    brandEmbed({ kind: type === "WARN" ? "warn" : "error", title: `🛡️ ${type}`, fields }),
     "moderation",
     { type, userId: member.id, moderatorId, reason, duration },
   );

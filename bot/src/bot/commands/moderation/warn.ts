@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
-import { prisma } from "../../../database/client.js";
+import { Warning } from "../../../database/models.js";
 import { logModeration } from "../../systems/moderation/punish.js";
 
 const command: SlashCommand = {
@@ -17,8 +17,11 @@ const command: SlashCommand = {
   async execute(interaction) {
     const user = interaction.options.getUser("usuario", true);
     const reason = interaction.options.getString("motivo", true);
-    const warn = await prisma.warning.create({
-      data: { guildId: interaction.guildId!, userId: user.id, moderatorId: interaction.user.id, reason },
+    const warn = await Warning.create({
+      guildId: interaction.guildId!,
+      userId: user.id,
+      moderatorId: interaction.user.id,
+      reason,
     });
     const member = await interaction.guild!.members.fetch(user.id).catch(() => null);
     if (member) await logModeration(member, "WARN", interaction.user.id, reason);
@@ -30,7 +33,7 @@ const command: SlashCommand = {
           description: `<@${user.id}> recebeu uma advertência.`,
           fields: [
             { name: "Motivo", value: reason },
-            { name: "ID", value: `\`${warn.id}\``, inline: true },
+            { name: "ID", value: `\`${warn._id}\``, inline: true },
           ],
         }),
       ],

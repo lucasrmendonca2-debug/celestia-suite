@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
-import { prisma } from "../../../database/client.js";
+import { Warning, Punishment } from "../../../database/models.js";
 
 const command: SlashCommand = {
   category: "moderation",
@@ -15,8 +15,8 @@ const command: SlashCommand = {
   async execute(interaction) {
     const user = interaction.options.getUser("usuario", true);
     const [warns, punishments] = await Promise.all([
-      prisma.warning.findMany({ where: { guildId: interaction.guildId!, userId: user.id }, orderBy: { createdAt: "desc" }, take: 10 }),
-      prisma.punishment.findMany({ where: { guildId: interaction.guildId!, userId: user.id }, orderBy: { createdAt: "desc" }, take: 10 }),
+      Warning.find({ guildId: interaction.guildId!, userId: user.id }).sort({ createdAt: -1 }).limit(10).lean(),
+      Punishment.find({ guildId: interaction.guildId!, userId: user.id }).sort({ createdAt: -1 }).limit(10).lean(),
     ]);
     await interaction.reply({
       embeds: [
@@ -27,13 +27,19 @@ const command: SlashCommand = {
             {
               name: `Advertências (${warns.length})`,
               value: warns.length
-                ? warns.map((w) => `• <t:${Math.floor(w.createdAt.getTime() / 1000)}:R> — ${w.reason}`).join("\n").slice(0, 1024)
+                ? warns
+                    .map((w) => `• <t:${Math.floor(new Date(w.createdAt as unknown as Date).getTime() / 1000)}:R> — ${w.reason}`)
+                    .join("\n")
+                    .slice(0, 1024)
                 : "Nenhuma",
             },
             {
               name: `Punições (${punishments.length})`,
               value: punishments.length
-                ? punishments.map((p) => `• \`${p.type}\` <t:${Math.floor(p.createdAt.getTime() / 1000)}:R> ${p.reason ?? ""}`).join("\n").slice(0, 1024)
+                ? punishments
+                    .map((p) => `• \`${p.type}\` <t:${Math.floor(new Date(p.createdAt as unknown as Date).getTime() / 1000)}:R> ${p.reason ?? ""}`)
+                    .join("\n")
+                    .slice(0, 1024)
                 : "Nenhuma",
             },
           ],

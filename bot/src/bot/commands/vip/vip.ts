@@ -1,10 +1,9 @@
 import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
 import ms from "ms";
 import type { SlashCommand } from "../../../types/command.js";
-import type { VipTier } from "@prisma/client";
+import { VipMembership, type VipTier } from "../../../database/models.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { grantVip, revokeVip, isVip } from "../../systems/vip/vip.js";
-import { prisma } from "../../../database/client.js";
 
 const command: SlashCommand = {
   category: "vip",
@@ -49,9 +48,7 @@ const command: SlashCommand = {
 
     if (sub === "info") {
       const user = interaction.options.getUser("usuario") ?? interaction.user;
-      const m = await prisma.vipMembership.findUnique({
-        where: { guildId_userId: { guildId: interaction.guildId!, userId: user.id } },
-      });
+      const m = await VipMembership.findOne({ guildId: interaction.guildId!, userId: user.id });
       const active = m && (await isVip(interaction.guildId!, user.id));
       return interaction.reply({
         embeds: [
@@ -67,7 +64,6 @@ const command: SlashCommand = {
       });
     }
 
-    // Admin
     const member = await interaction.guild!.members.fetch(interaction.user.id);
     if (!member.permissions.has(PermissionFlagsBits.ManageGuild)) {
       return interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Permissão insuficiente" })], ephemeral: true });

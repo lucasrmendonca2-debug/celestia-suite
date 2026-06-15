@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, PermissionFlagsBits, ChannelType } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
-import { prisma } from "../../../database/client.js";
+import { GuildConfig } from "../../../database/models.js";
 
 const command: SlashCommand = {
   category: "config",
@@ -49,9 +49,7 @@ const command: SlashCommand = {
             )
             .addStringOption((o) => o.setName("mensagem").setDescription("Use {user}, {server}, {memberCount}")),
         )
-        .addSubcommand((s) =>
-          s.setName("toggle").setDescription("Ativa/desativa boas-vindas"),
-        ),
+        .addSubcommand((s) => s.setName("toggle").setDescription("Ativa/desativa boas-vindas")),
     )
     .addSubcommandGroup((g) =>
       g
@@ -70,10 +68,9 @@ const command: SlashCommand = {
     const guildId = interaction.guildId!;
 
     if (group === "logs" && sub === "set") {
-      const tipo = interaction.options.getString("tipo", true) as
-        | "modLogChannelId" | "messageLogChannelId" | "memberLogChannelId" | "ticketLogChannelId";
+      const tipo = interaction.options.getString("tipo", true);
       const canal = interaction.options.getChannel("canal", true);
-      await prisma.guildConfig.update({ where: { guildId }, data: { [tipo]: canal.id } });
+      await GuildConfig.updateOne({ guildId }, { $set: { [tipo]: canal.id } }, { upsert: true });
       return interaction.reply({
         embeds: [brandEmbed({ kind: "success", title: "Canal de log atualizado", description: `${tipo} → <#${canal.id}>` })],
         ephemeral: true,
@@ -83,10 +80,11 @@ const command: SlashCommand = {
     if (group === "welcome" && sub === "set") {
       const canal = interaction.options.getChannel("canal", true);
       const msg = interaction.options.getString("mensagem") ?? undefined;
-      await prisma.guildConfig.update({
-        where: { guildId },
-        data: { welcomeChannelId: canal.id, welcomeEnabled: true, ...(msg ? { welcomeMessage: msg } : {}) },
-      });
+      await GuildConfig.updateOne(
+        { guildId },
+        { $set: { welcomeChannelId: canal.id, welcomeEnabled: true, ...(msg ? { welcomeMessage: msg } : {}) } },
+        { upsert: true },
+      );
       return interaction.reply({
         embeds: [brandEmbed({ kind: "success", title: "Boas-vindas configuradas", description: `Canal: <#${canal.id}>` })],
         ephemeral: true,
@@ -94,20 +92,18 @@ const command: SlashCommand = {
     }
 
     if (group === "welcome" && sub === "toggle") {
-      const cfg = await prisma.guildConfig.findUnique({ where: { guildId } });
-      const updated = await prisma.guildConfig.update({
-        where: { guildId },
-        data: { welcomeEnabled: !cfg?.welcomeEnabled },
-      });
+      const cfg = await GuildConfig.findOne({ guildId });
+      const next = !cfg?.welcomeEnabled;
+      await GuildConfig.updateOne({ guildId }, { $set: { welcomeEnabled: next } }, { upsert: true });
       return interaction.reply({
-        embeds: [brandEmbed({ kind: "info", title: `Boas-vindas ${updated.welcomeEnabled ? "ativadas" : "desativadas"}` })],
+        embeds: [brandEmbed({ kind: "info", title: `Boas-vindas ${next ? "ativadas" : "desativadas"}` })],
         ephemeral: true,
       });
     }
 
     if (group === "vip" && sub === "role") {
       const cargo = interaction.options.getRole("cargo", true);
-      await prisma.guildConfig.update({ where: { guildId }, data: { vipRoleId: cargo.id } });
+      await GuildConfig.updateOne({ guildId }, { $set: { vipRoleId: cargo.id } }, { upsert: true });
       return interaction.reply({
         embeds: [brandEmbed({ kind: "success", title: "Cargo VIP atualizado", description: `<@&${cargo.id}>` })],
         ephemeral: true,

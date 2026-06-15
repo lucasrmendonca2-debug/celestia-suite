@@ -1,13 +1,12 @@
 import { Client } from "discord.js";
-import { prisma } from "../../../database/client.js";
-import { logger } from "../../utils/logger.js";
-import { getConfig } from "../../utils/guildCache.js";
-import { sendLog } from "../logs/sender.js";
-import { brandEmbed } from "../../utils/embed.js";
+import { VipMembership, Punishment } from "../../database/models.js";
+import { logger } from "../utils/logger.js";
+import { getConfig } from "../utils/guildCache.js";
+import { sendLog } from "./logs/sender.js";
+import { brandEmbed } from "../utils/embed.js";
 
 const INTERVAL_MS = 60_000;
 
-/** Job periódico: expira VIPs, tempbans e tempmutes. */
 export function startSchedulers(client: Client) {
   setInterval(() => {
     void tick(client).catch((err) => logger.error({ err }, "scheduler tick falhou"));
@@ -18,13 +17,10 @@ export function startSchedulers(client: Client) {
 async function tick(client: Client) {
   const now = new Date();
 
-  // VIPs expirados
-  const expiredVips = await prisma.vipMembership.findMany({
-    where: { active: true, expiresAt: { not: null, lte: now } },
-    take: 100,
-  });
+  const expiredVips = await VipMembership.find({ active: true, expiresAt: { $ne: null, $lte: now } }).limit(100);
   for (const v of expiredVips) {
-    await prisma.vipMembership.update({ where: { id: v.id }, data: { active: false } });
+    v.active = false;
+    await v.save();
     const guild = client.guilds.cache.get(v.guildId);
     if (!guild) continue;
     const cfg = await getConfig(v.guildId).catch(() => null);
@@ -42,15 +38,12 @@ async function tick(client: Client) {
     );
   }
 
-  // Tempbans expirados
-  const expiredBans = await prisma.punishment.findMany({
-    where: { active: true, type: "TEMPBAN", expiresAt: { not: null, lte: now } },
-    take: 50,
-  });
+  const expiredBans = await Punishment.find({ active: true, type: "TEMPBAN", expiresAt: { $ne: null, $lte: now } }).limit(50);
   for (const p of expiredBans) {
     const guild = client.guilds.cache.get(p.guildId);
     if (!guild) continue;
     await guild.bans.remove(p.userId, "tempban expirou").catch(() => {});
-    await prisma.punishment.update({ where: { id: p.id }, data: { active: false } });
+    p.active = false;
+    await p.save();
   }
 }

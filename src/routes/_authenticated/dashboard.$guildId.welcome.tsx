@@ -64,8 +64,8 @@ function WelcomePage() {
     onSuccess: (saved) => {
       setForm(saved);
       toast.success("Configurações salvas. O bot já está usando.");
-      router.invalidate();
     },
+
     onError: (err) => toast.error((err as Error).message ?? "Falha ao salvar."),
   });
 

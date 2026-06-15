@@ -185,10 +185,27 @@ export async function fetchDiscordUser(accessToken: string): Promise<DiscordUser
   return (await res.json()) as DiscordUser;
 }
 
+const guildsCache = new Map<string, { at: number; data: DiscordGuild[] }>();
+const GUILDS_TTL_MS = 60_000;
+
 export async function fetchUserGuilds(accessToken: string): Promise<DiscordGuild[]> {
+  const cached = guildsCache.get(accessToken);
+  const now = Date.now();
+  if (cached && now - cached.at < GUILDS_TTL_MS) return cached.data;
+
   const res = await fetch(`${DISCORD_API}/users/@me/guilds`, {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
-  if (!res.ok) throw new Error(`/users/@me/guilds falhou: ${res.status}`);
-  return (await res.json()) as DiscordGuild[];
+  if (res.status === 429 && cached) return cached.data;
+  if (!res.ok) {
+    if (cached) return cached.data;
+    throw new Error(`/users/@me/guilds falhou: ${res.status}`);
+  }
+  const data = (await res.json()) as DiscordGuild[];
+  guildsCache.set(accessToken, { at: now, data });
+  if (guildsCache.size > 200) {
+    const oldest = [...guildsCache.entries()].sort((a, b) => a[1].at - b[1].at)[0];
+    if (oldest) guildsCache.delete(oldest[0]);
+  }
+  return data;
 }

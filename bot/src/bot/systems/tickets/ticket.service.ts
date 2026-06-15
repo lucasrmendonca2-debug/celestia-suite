@@ -1,0 +1,189 @@
+import { supabase } from "../../../database/supabase.js";
+import { logger } from "../../utils/logger.js";
+
+export type TicketStatus = "open" | "closed" | "deleted";
+
+export interface TicketConfig {
+  guild_id: string;
+  enabled: boolean;
+  panel_channel_id: string | null;
+  panel_message_id: string | null;
+  category_id: string | null;
+  default_support_role_id: string | null;
+  log_channel_id: string | null;
+  max_open_tickets_per_user: number;
+  panel_title: string;
+  panel_description: string;
+  panel_button_label: string;
+  panel_button_emoji: string;
+  panel_color: number;
+  ticket_welcome_message: string;
+  close_message: string;
+  transcript_enabled: boolean;
+  rating_enabled: boolean;
+  allow_user_close_ticket: boolean;
+  use_single_panel: boolean;
+}
+
+export interface TicketRow {
+  id: string;
+  guild_id: string;
+  channel_id: string;
+  user_id: string;
+  username: string;
+  category_id: string | null;
+  category_name: string | null;
+  status: TicketStatus;
+  priority: boolean;
+  claimed_by: string | null;
+  closed_by: string | null;
+  close_reason: string | null;
+  rating: number | null;
+  created_at: string;
+  closed_at: string | null;
+}
+
+const DEFAULT_CONFIG: Omit<TicketConfig, "guild_id"> = {
+  enabled: false,
+  panel_channel_id: null,
+  panel_message_id: null,
+  category_id: null,
+  default_support_role_id: null,
+  log_channel_id: null,
+  max_open_tickets_per_user: 1,
+  panel_title: "🎫 Central de Atendimento",
+  panel_description:
+    "Precisa de ajuda? Abra um ticket clicando no botão abaixo. Nossa equipe vai te atender por aqui em instantes.",
+  panel_button_label: "Abrir ticket",
+  panel_button_emoji: "🎫",
+  panel_color: 0x7c3aed,
+  ticket_welcome_message:
+    "Olá {user}! 👋 Conta pra gente como podemos te ajudar — alguém da equipe já vem aqui.",
+  close_message:
+    "Este ticket foi fechado por {staff}. Se precisar continuar o atendimento, peça pra equipe reabrir.",
+  transcript_enabled: true,
+  rating_enabled: false,
+  allow_user_close_ticket: true,
+  use_single_panel: true,
+};
+
+export async function getTicketConfig(guildId: string): Promise<TicketConfig> {
+  const { data, error } = await supabase
+    .from("ticket_configs")
+    .select("*")
+    .eq("guild_id", guildId)
+    .maybeSingle();
+  if (error) {
+    logger.error({ err: error, guildId }, "getTicketConfig falhou");
+  }
+  if (data) return data as TicketConfig;
+  return { guild_id: guildId, ...DEFAULT_CONFIG };
+}
+
+export async function upsertTicketConfig(
+  cfg: Partial<TicketConfig> & { guild_id: string },
+): Promise<TicketConfig> {
+  const { data, error } = await supabase
+    .from("ticket_configs")
+    .upsert(cfg, { onConflict: "guild_id" })
+    .select()
+    .single();
+  if (error) throw error;
+  return data as TicketConfig;
+}
+
+export async function countOpenTickets(guildId: string, userId: string): Promise<number> {
+  const { count, error } = await supabase
+    .from("tickets")
+    .select("id", { count: "exact", head: true })
+    .eq("guild_id", guildId)
+    .eq("user_id", userId)
+    .eq("status", "open");
+  if (error) {
+    logger.error({ err: error }, "countOpenTickets falhou");
+    return 0;
+  }
+  return count ?? 0;
+}
+
+export async function createTicketRow(input: {
+  guild_id: string;
+  channel_id: string;
+  user_id: string;
+  username: string;
+  category_name?: string | null;
+  priority?: boolean;
+}): Promise<TicketRow> {
+  const { data, error } = await supabase
+    .from("tickets")
+    .insert({
+      guild_id: input.guild_id,
+      channel_id: input.channel_id,
+      user_id: input.user_id,
+      username: input.username,
+      category_name: input.category_name ?? null,
+      priority: input.priority ?? false,
+      status: "open" as TicketStatus,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return data as TicketRow;
+}
+
+export async function findTicketByChannel(channelId: string): Promise<TicketRow | null> {
+  const { data, error } = await supabase
+    .from("tickets")
+    .select("*")
+    .eq("channel_id", channelId)
+    .maybeSingle();
+  if (error) {
+    logger.error({ err: error }, "findTicketByChannel falhou");
+    return null;
+  }
+  return (data as TicketRow | null) ?? null;
+}
+
+export async function closeTicketRow(
+  ticketId: string,
+  closedBy: string,
+  reason?: string,
+): Promise<void> {
+  const { error } = await supabase
+    .from("tickets")
+    .update({
+      status: "closed",
+      closed_by: closedBy,
+      close_reason: reason ?? null,
+      closed_at: new Date().toISOString(),
+    })
+    .eq("id", ticketId);
+  if (error) throw error;
+}
+
+export async function setPanelMessage(
+  guildId: string,
+  channelId: string,
+  messageId: string,
+): Promise<void> {
+  await supabase
+    .from("ticket_configs")
+    .update({ panel_channel_id: channelId, panel_message_id: messageId })
+    .eq("guild_id", guildId);
+}
+
+export async function writeLog(
+  guildId: string,
+  ticketId: string | null,
+  action: string,
+  userId: string,
+  details: Record<string, unknown> = {},
+): Promise<void> {
+  await supabase.from("ticket_logs").insert({
+    guild_id: guildId,
+    ticket_id: ticketId,
+    action,
+    user_id: userId,
+    details,
+  });
+}

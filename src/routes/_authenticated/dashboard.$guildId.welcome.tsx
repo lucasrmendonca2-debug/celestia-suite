@@ -44,8 +44,8 @@ export const Route = createFileRoute("/_authenticated/dashboard/$guildId/welcome
 
 function WelcomePage() {
   const { user, guild, config } = Route.useLoaderData();
-  const router = useRouter();
   const updateFn = useServerFn(updateWelcomeConfig);
+
 
   const [form, setForm] = useState<WelcomeConfig>(config);
 

@@ -17,6 +17,7 @@ import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
 import { Route as AuthenticatedDashboardGuildIdRouteImport } from './routes/_authenticated/dashboard.$guildId'
 import { Route as ApiAuthDiscordLoginRouteImport } from './routes/api/auth/discord/login'
 import { Route as ApiAuthDiscordCallbackRouteImport } from './routes/api/auth/discord/callback'
+import { Route as AuthenticatedDashboardGuildIdWelcomeRouteImport } from './routes/_authenticated/dashboard.$guildId.welcome'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -59,22 +60,30 @@ const ApiAuthDiscordCallbackRoute = ApiAuthDiscordCallbackRouteImport.update({
   path: '/api/auth/discord/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedDashboardGuildIdWelcomeRoute =
+  AuthenticatedDashboardGuildIdWelcomeRouteImport.update({
+    id: '/welcome',
+    path: '/welcome',
+    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRoute
+  '/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRoute
+  '/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
 }
@@ -83,9 +92,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
-  '/_authenticated/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRoute
+  '/_authenticated/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/_authenticated/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
 }
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId'
     | '/api/auth/logout'
     | '/dashboard/'
+    | '/dashboard/$guildId/welcome'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
   fileRoutesByTo: FileRoutesByTo
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId'
     | '/api/auth/logout'
     | '/dashboard'
+    | '/dashboard/$guildId/welcome'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
   id:
@@ -116,6 +128,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/$guildId'
     | '/api/auth/logout'
     | '/_authenticated/dashboard/'
+    | '/_authenticated/dashboard/$guildId/welcome'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
   fileRoutesById: FileRoutesById
@@ -187,16 +200,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthDiscordCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/dashboard/$guildId/welcome': {
+      id: '/_authenticated/dashboard/$guildId/welcome'
+      path: '/welcome'
+      fullPath: '/dashboard/$guildId/welcome'
+      preLoaderRoute: typeof AuthenticatedDashboardGuildIdWelcomeRouteImport
+      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+    }
   }
 }
 
+interface AuthenticatedDashboardGuildIdRouteChildren {
+  AuthenticatedDashboardGuildIdWelcomeRoute: typeof AuthenticatedDashboardGuildIdWelcomeRoute
+}
+
+const AuthenticatedDashboardGuildIdRouteChildren: AuthenticatedDashboardGuildIdRouteChildren =
+  {
+    AuthenticatedDashboardGuildIdWelcomeRoute:
+      AuthenticatedDashboardGuildIdWelcomeRoute,
+  }
+
+const AuthenticatedDashboardGuildIdRouteWithChildren =
+  AuthenticatedDashboardGuildIdRoute._addFileChildren(
+    AuthenticatedDashboardGuildIdRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
-  AuthenticatedDashboardGuildIdRoute: typeof AuthenticatedDashboardGuildIdRoute
+  AuthenticatedDashboardGuildIdRoute: typeof AuthenticatedDashboardGuildIdRouteWithChildren
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedDashboardGuildIdRoute: AuthenticatedDashboardGuildIdRoute,
+  AuthenticatedDashboardGuildIdRoute:
+    AuthenticatedDashboardGuildIdRouteWithChildren,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
 }
 
@@ -215,13 +251,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

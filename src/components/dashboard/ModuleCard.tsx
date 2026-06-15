@@ -3,6 +3,7 @@ import { ArrowRight, type LucideIcon } from "lucide-react";
 
 interface ModuleCardProps {
   to: string;
+  params?: Record<string, string>;
   icon: LucideIcon;
   title: string;
   description: string;
@@ -10,7 +11,15 @@ interface ModuleCardProps {
   accent?: string;
 }
 
-export function ModuleCard({ to, icon: Icon, title, description, soon, accent }: ModuleCardProps) {
+export function ModuleCard({
+  to,
+  params,
+  icon: Icon,
+  title,
+  description,
+  soon,
+  accent,
+}: ModuleCardProps) {
   const content = (
     <>
       <div className="flex items-start justify-between">
@@ -48,7 +57,7 @@ export function ModuleCard({ to, icon: Icon, title, description, soon, accent }:
   }
 
   return (
-    <Link to={to} className={className}>
+    <Link to={to} params={params} className={className}>
       {content}
     </Link>
   );

@@ -1,11 +1,12 @@
 import { Client } from "discord.js";
-import { VipMembership, Punishment } from "../../database/models.js";
+import { VipMembership, Punishment, Giveaway } from "../../database/models.js";
 import { logger } from "../utils/logger.js";
 import { getConfig } from "../utils/guildCache.js";
 import { sendLog } from "./logs/sender.js";
 import { brandEmbed } from "../utils/embed.js";
+import { endGiveaway } from "./giveaway/giveaway.js";
 
-const INTERVAL_MS = 60_000;
+const INTERVAL_MS = 30_000;
 
 export function startSchedulers(client: Client) {
   setInterval(() => {
@@ -45,5 +46,13 @@ async function tick(client: Client) {
     await guild.bans.remove(p.userId, "tempban expirou").catch(() => {});
     p.active = false;
     await p.save();
+  }
+
+  // Giveaways prontos para encerrar
+  const ending = await Giveaway.find({ ended: false, endsAt: { $lte: now } }).limit(50);
+  for (const g of ending) {
+    await endGiveaway(client, String(g._id)).catch((err) =>
+      logger.error({ err, giveawayId: String(g._id) }, "endGiveaway falhou"),
+    );
   }
 }

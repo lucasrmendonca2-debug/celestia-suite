@@ -22,6 +22,8 @@ export interface SlashCommand {
     | "economy"
     | "level"
     | "fun"
+    | "interaction"
+    | "events"
     | "utility"
     | "config"
     | "admin";

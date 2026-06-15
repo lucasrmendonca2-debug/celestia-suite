@@ -9,6 +9,8 @@ const CATEGORIES = [
   { key: "economy", label: "💰 Economia" },
   { key: "level", label: "📈 Level" },
   { key: "fun", label: "🎉 Diversão" },
+  { key: "interaction", label: "💞 Interação" },
+  { key: "events", label: "🎊 Eventos" },
   { key: "utility", label: "🧰 Utilidades" },
   { key: "config", label: "⚙️ Configuração" },
   { key: "admin", label: "👑 Admin" },

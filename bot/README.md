@@ -1,9 +1,21 @@
 # 🟣 Zenox — Bot Discord multifuncional
 
-Bot profissional para Discord com **moderação, tickets, VIP, logs, welcome, economia e level**.
-Stack moderna, código modular e escalável.
+Bot Discord profissional, modular e escalável com:
 
-> ⚠️ **Onde isso roda?** O bot é um processo Node.js **persistente** (precisa de WebSocket sempre conectado). Hospede em **Railway**, **Fly.io**, **Render**, **VPS** ou similar — não funciona em ambientes serverless de borda (Cloudflare Workers, Vercel Edge).
+- 🛡️ **Moderação** — ban/tempban, kick, mute, warn, clear, lock/unlock, slowmode
+- 🎫 **Tickets** — painéis com botão, permissões, claim, logs
+- 💎 **VIP/Premium** — tiers, cargos automáticos, expiração programada, multiplicadores
+- 💰 **Economia** — `/balance`, `/daily` (com streak), `/work`, `/crime`, `/rob`, `/pay`, `/deposit`, `/withdraw`, `/shop` (add/remove/buy), `/inventory`, `/top`
+- 📈 **Level/XP** — XP por mensagem (com cooldown anti-spam), `/rank` com barra de progresso, `/leveltop`, `/levelreward` (cargos automáticos por nível)
+- 💞 **Interação** — `/hug`, `/kiss`, `/slap`, `/pat`, `/bonk`, `/cuddle`, `/poke`, `/ship` (shippômetro), `/marry`, `/divorce`
+- 🎉 **Diversão** — `/8ball`, `/avatar`, `/coinflip`, `/dice`, `/meme`
+- 🎊 **Eventos** — `/giveaway start/end/reroll/list` com botão de participação e sorteio automático
+- 🤖 **AutoMod** — anti-link, anti-invite, anti-spam, blacklist de palavras, whitelist por cargo/canal
+- 🧠 **Custom Commands** — `/customcommand add` com variáveis `{user}`, `{server}`, `{channel}`, opção de embed (limite 10 free / 100 VIP)
+- 🎨 **Editor de Embeds** — `/embed send` com cores/imagens/footer + templates salvos
+- ⚙️ **Configuração granular** — `/config` para logs, welcome, VIP role, moeda, multiplicadores
+
+> ⚠️ **Onde isso roda?** O bot é um processo Node.js **persistente** (precisa de WebSocket sempre conectado). Hospede em **Railway**, **Fly.io**, **Render**, **VPS** ou similar — não funciona em ambientes serverless de borda.
 
 ---
 
@@ -11,7 +23,7 @@ Stack moderna, código modular e escalável.
 
 - **Node 20+**, **TypeScript** (ESM)
 - **discord.js v14**
-- **Prisma ORM** + **PostgreSQL** (Supabase recomendado)
+- **MongoDB** + **Mongoose**
 - **Zod** para validação de env
 - **Pino** para logs estruturados
 

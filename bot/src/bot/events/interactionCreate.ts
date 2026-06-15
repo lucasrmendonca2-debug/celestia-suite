@@ -10,16 +10,15 @@ import { checkPermissions, denyWith } from "../guards/permissions.js";
 import { consumeCooldown } from "../guards/cooldown.js";
 import { ensureGuild, ensureUser } from "../utils/guildCache.js";
 import { handleTicketButton } from "../systems/tickets/handlers.js";
+import { handleGiveawayButton } from "../systems/giveaway/giveaway.js";
 
 const event: BotEvent<"interactionCreate"> = {
   name: "interactionCreate",
   async execute(client, interaction: Interaction) {
     try {
-      // Buttons / Selects (tickets, etc.)
       if (interaction.isButton()) {
-        if (interaction.customId.startsWith("ticket:")) {
-          await handleTicketButton(interaction);
-        }
+        if (interaction.customId.startsWith("ticket:")) await handleTicketButton(interaction);
+        else if (interaction.customId.startsWith("giveaway:")) await handleGiveawayButton(interaction);
         return;
       }
 

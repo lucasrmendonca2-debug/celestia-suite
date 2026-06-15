@@ -4,8 +4,6 @@ import {
   ButtonStyle,
   EmbedBuilder,
   type APIEmbed,
-  type APIActionRowComponent,
-  type APIMessageActionRowComponent,
 } from "discord.js";
 import type { TicketConfig } from "./ticket.service.js";
 
@@ -18,9 +16,7 @@ export function buildPanelEmbed(cfg: TicketConfig, guildName: string): APIEmbed 
     .toJSON();
 }
 
-export function buildPanelComponents(
-  cfg: TicketConfig,
-): APIActionRowComponent<APIMessageActionRowComponent>[] {
+export function buildPanelComponents(cfg: TicketConfig) {
   const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
     new ButtonBuilder()
       .setCustomId("ticket:open:default")
@@ -28,7 +24,7 @@ export function buildPanelComponents(
       .setEmoji(cfg.panel_button_emoji || "🎫")
       .setStyle(ButtonStyle.Primary),
   );
-  return [row.toJSON()];
+  return [row];
 }
 
 export function buildWelcomeEmbed(

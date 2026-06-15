@@ -100,7 +100,7 @@ function GuildOverview() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <ModuleCard to="." icon={Sparkles} title="Boas-vindas" description="Mensagem de entrada, saída e DM personalizada para novos membros." soon />
+              <ModuleCard to="/dashboard/$guildId/welcome" params={{ guildId: guild.id }} icon={Sparkles} title="Boas-vindas" description="Mensagem de entrada, saída e DM personalizada para novos membros." />
               <ModuleCard to="." icon={ScrollText} title="Logs" description="Entradas, saídas, mensagens editadas e ações de moderação." soon />
               <ModuleCard to="." icon={Shield} title="Moderação" description="Ban, kick, mute, warns e histórico completo de punições." soon />
               <ModuleCard to="." icon={Lock} title="Segurança / AutoMod" description="Anti-spam, anti-link, anti-invite, anti-raid e palavras proibidas." soon />

@@ -47,7 +47,7 @@ const command: SlashCommand = {
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guildId!;
-    const cfg = await GuildConfig.findOneAndUpdate({ guildId }, { $setOnInsert: { guildId } }, { upsert: true, new: true, setDefaultsOnInsert: true });
+    const cfg = (await GuildConfig.findOneAndUpdate({ guildId }, { $setOnInsert: { guildId } }, { upsert: true, new: true, setDefaultsOnInsert: true }))!;
 
     if (sub === "toggle") {
       const key = interaction.options.getString("filtro", true) as

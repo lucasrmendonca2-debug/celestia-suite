@@ -15,12 +15,11 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
           return new Response("Faltam parâmetros code/state.", { status: 400 });
         }
 
-        const { exchangeCode, fetchDiscordUser, makeDiscordCallbackUri } = await import("@/lib/auth/discord.server");
+        const { exchangeCode, fetchDiscordUser, makeDiscordCallbackUri, verifyOAuthState } = await import("@/lib/auth/discord.server");
         const { getSession } = await import("@/lib/auth/session.server");
 
         const session = await getSession();
-        const expected = session.data.refreshToken;
-        if (!expected || expected !== `oauth_state:${state}`) {
+        if (!verifyOAuthState(state)) {
           return new Response("State inválido. Tente fazer login de novo.", { status: 400 });
         }
 

@@ -10,7 +10,7 @@ import {
   PermissionFlagsBits,
   TextChannel,
 } from "discord.js";
-import { prisma } from "../../../database/client.js";
+import { Ticket, TicketPanel } from "../../../database/models.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { getConfig } from "../../utils/guildCache.js";
 import { sendLog } from "../logs/sender.js";
@@ -18,14 +18,12 @@ import { sendLog } from "../logs/sender.js";
 const MAX_OPEN_PER_USER = 1;
 
 export async function openTicket(guild: Guild, member: GuildMember, panelId?: string) {
-  const open = await prisma.ticket.count({
-    where: { guildId: guild.id, userId: member.id, status: "OPEN" },
-  });
+  const open = await Ticket.countDocuments({ guildId: guild.id, userId: member.id, status: "OPEN" });
   if (open >= MAX_OPEN_PER_USER) {
     throw new Error(`Você já tem **${open}** ticket(s) aberto(s). Feche antes de abrir outro.`);
   }
 
-  const panel = panelId ? await prisma.ticketPanel.findUnique({ where: { id: panelId } }) : null;
+  const panel = panelId ? await TicketPanel.findById(panelId) : null;
   const cfg = await getConfig(guild.id);
   const supportRoleId = panel?.supportRoleId ?? cfg.supportRoleId ?? null;
   const parentId = panel?.categoryId ?? null;
@@ -61,27 +59,24 @@ export async function openTicket(guild: Guild, member: GuildMember, panelId?: st
     ],
   });
 
-  const ticket = await prisma.ticket.create({
-    data: {
-      guildId: guild.id,
-      panelId: panel?.id,
-      channelId: channel.id,
-      userId: member.id,
-      status: "OPEN",
-    },
+  const ticket = await Ticket.create({
+    guildId: guild.id,
+    panelId: panel?._id,
+    channelId: channel.id,
+    userId: member.id,
+    status: "OPEN",
   });
 
   const embed = brandEmbed({
     kind: "default",
     title: `🎫 Ticket aberto`,
-    description:
-      `Olá <@${member.id}>! Descreva sua dúvida com calma — a equipe ${supportRoleId ? `<@&${supportRoleId}>` : "de suporte"} já foi notificada.`,
-    fields: [{ name: "ID", value: `\`${ticket.id}\``, inline: true }],
+    description: `Olá <@${member.id}>! Descreva sua dúvida com calma — a equipe ${supportRoleId ? `<@&${supportRoleId}>` : "de suporte"} já foi notificada.`,
+    fields: [{ name: "ID", value: `\`${ticket._id}\``, inline: true }],
   });
 
   const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder().setCustomId(`ticket:close:${ticket.id}`).setLabel("Fechar").setStyle(ButtonStyle.Danger).setEmoji("🔒"),
-    new ButtonBuilder().setCustomId(`ticket:claim:${ticket.id}`).setLabel("Assumir").setStyle(ButtonStyle.Secondary).setEmoji("✋"),
+    new ButtonBuilder().setCustomId(`ticket:close:${ticket._id}`).setLabel("Fechar").setStyle(ButtonStyle.Danger).setEmoji("🔒"),
+    new ButtonBuilder().setCustomId(`ticket:claim:${ticket._id}`).setLabel("Assumir").setStyle(ButtonStyle.Secondary).setEmoji("✋"),
   );
 
   await channel.send({
@@ -93,53 +88,36 @@ export async function openTicket(guild: Guild, member: GuildMember, panelId?: st
   await sendLog(
     guild,
     "ticketLogChannelId",
-    brandEmbed({
-      kind: "info",
-      title: "Ticket aberto",
-      description: `Por <@${member.id}> em <#${channel.id}>`,
-    }),
+    brandEmbed({ kind: "info", title: "Ticket aberto", description: `Por <@${member.id}> em <#${channel.id}>` }),
     "ticket.open",
-    { ticketId: ticket.id, userId: member.id, channelId: channel.id },
+    { ticketId: String(ticket._id), userId: member.id, channelId: channel.id },
   );
 
   return { ticket, channel };
 }
 
 export async function closeTicket(channel: TextChannel, closedById: string) {
-  const ticket = await prisma.ticket.findUnique({ where: { channelId: channel.id } });
+  const ticket = await Ticket.findOne({ channelId: channel.id });
   if (!ticket || ticket.status !== "OPEN") throw new Error("Este canal não é um ticket aberto.");
 
-  await prisma.ticket.update({
-    where: { id: ticket.id },
-    data: { status: "CLOSED", closedById, closedAt: new Date() },
-  });
+  ticket.status = "CLOSED";
+  ticket.closedById = closedById;
+  ticket.closedAt = new Date();
+  await ticket.save();
 
   await channel.send({
-    embeds: [
-      brandEmbed({
-        kind: "warn",
-        title: "Ticket fechado",
-        description: `Fechado por <@${closedById}>. O canal será arquivado em instantes.`,
-      }),
-    ],
+    embeds: [brandEmbed({ kind: "warn", title: "Ticket fechado", description: `Fechado por <@${closedById}>. O canal será arquivado em instantes.` })],
   });
 
   await sendLog(
     channel.guild,
     "ticketLogChannelId",
-    brandEmbed({
-      kind: "warn",
-      title: "Ticket fechado",
-      description: `Ticket \`${ticket.id}\` fechado por <@${closedById}>.`,
-    }),
+    brandEmbed({ kind: "warn", title: "Ticket fechado", description: `Ticket \`${ticket._id}\` fechado por <@${closedById}>.` }),
     "ticket.close",
-    { ticketId: ticket.id, closedById },
+    { ticketId: String(ticket._id), closedById },
   );
 
-  // Soft archive: remove acesso do autor para não poder mais escrever.
-  await channel.permissionOverwrites
-    .edit(ticket.userId, { SendMessages: false })
-    .catch(() => {});
+  await channel.permissionOverwrites.edit(ticket.userId, { SendMessages: false }).catch(() => {});
 }
 
 export async function handleTicketButton(interaction: ButtonInteraction) {
@@ -147,14 +125,9 @@ export async function handleTicketButton(interaction: ButtonInteraction) {
   if (!interaction.guild || !interaction.channel?.isTextBased()) return;
 
   if (action === "open") {
-    // ticket:open:<panelId>
     const panelId = ticketId;
     try {
-      const { channel } = await openTicket(
-        interaction.guild,
-        interaction.member as GuildMember,
-        panelId,
-      );
+      const { channel } = await openTicket(interaction.guild, interaction.member as GuildMember, panelId);
       await interaction.reply({
         embeds: [brandEmbed({ kind: "success", title: "Ticket criado", description: `Veja em <#${channel.id}>` })],
         ephemeral: true,

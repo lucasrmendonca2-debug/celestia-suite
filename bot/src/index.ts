@@ -30,9 +30,14 @@ async function bootstrap() {
 
   client.on("error", (err) => logger.error({ err }, "Discord client error"));
   client.on("shardError", (err) => logger.error({ err }, "Shard error"));
+  client.on("warn", (msg) => logger.warn({ msg }, "Discord warn"));
 
+  // Anti-crash global — bot nunca deve cair silenciosamente.
   process.on("unhandledRejection", (err) => logger.error({ err }, "unhandledRejection"));
   process.on("uncaughtException", (err) => logger.error({ err }, "uncaughtException"));
+  process.on("uncaughtExceptionMonitor", (err) =>
+    logger.fatal({ err }, "uncaughtExceptionMonitor"),
+  );
 
   await client.login(env.DISCORD_TOKEN);
   startSchedulers(client);

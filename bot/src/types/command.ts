@@ -37,6 +37,12 @@ export interface SlashCommand {
   ownerOnly?: boolean;
   /** Apenas em servidor (guild). */
   guildOnly?: boolean;
+  /** Marca o comando como exclusivo do Zenox Premium (indicativo no /help). */
+  premium?: boolean;
+  /** Descrição estendida usada pelo /help. Fallback: data.description. */
+  longDescription?: string;
+  /** Exemplos opcionais para o /help. */
+  examples?: string[];
   execute: (interaction: ChatInputCommandInteraction, ctx: CommandContext) => Promise<void>;
 }
 

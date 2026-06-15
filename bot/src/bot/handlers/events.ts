@@ -8,7 +8,7 @@ import { logger } from "../utils/logger.js";
 export interface BotEvent<K extends keyof ClientEvents = keyof ClientEvents> {
   name: K;
   once?: boolean;
-  execute: (client: ZenoxClient, ...args: ClientEvents[K]) => Promise<void> | void;
+  execute: (client: ZenoxClient, ...args: ClientEvents[K]) => Promise<unknown> | unknown;
 }
 
 export async function loadEvents(client: ZenoxClient): Promise<void> {

@@ -2,6 +2,7 @@ import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
   SlashCommandSubcommandsOnlyBuilder,
+  SlashCommandOptionsOnlyBuilder,
   Collection,
   PermissionResolvable,
   Client,
@@ -10,6 +11,7 @@ import {
 export type SlashBuilder =
   | SlashCommandBuilder
   | SlashCommandSubcommandsOnlyBuilder
+  | SlashCommandOptionsOnlyBuilder
   | Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
 
 export interface SlashCommand {
@@ -43,7 +45,7 @@ export interface SlashCommand {
   longDescription?: string;
   /** Exemplos opcionais para o /help. */
   examples?: string[];
-  execute: (interaction: ChatInputCommandInteraction, ctx: CommandContext) => Promise<void>;
+  execute: (interaction: ChatInputCommandInteraction, ctx: CommandContext) => Promise<unknown>;
 }
 
 export interface CommandContext {

@@ -82,7 +82,7 @@ const command: SlashCommand = {
       const pool = g.participants.filter((p) => !g.winners.includes(p));
       const newWinners: string[] = [];
       while (newWinners.length < g.winnersCount && pool.length) {
-        newWinners.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]);
+        newWinners.push(pool.splice(Math.floor(Math.random() * pool.length), 1)[0]!);
       }
       g.winners = newWinners;
       await g.save();

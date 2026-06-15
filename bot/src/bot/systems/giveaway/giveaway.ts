@@ -114,7 +114,7 @@ export async function endGiveaway(client: Client, giveawayId: string) {
   const winners: string[] = [];
   while (winners.length < g.winnersCount && pool.length) {
     const idx = Math.floor(Math.random() * pool.length);
-    winners.push(pool.splice(idx, 1)[0]);
+    winners.push(pool.splice(idx, 1)[0]!);
   }
   g.winners = winners;
   await g.save();

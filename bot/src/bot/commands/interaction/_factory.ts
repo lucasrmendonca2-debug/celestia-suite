@@ -58,7 +58,7 @@ function build(action: keyof typeof TEMPLATES, desc: string): SlashCommand {
       await interaction.reply({
         embeds: [
           brandEmbed({
-            description: TEMPLATES[action](`<@${interaction.user.id}>`, `<@${target.id}>`),
+            description: TEMPLATES[action]!(`<@${interaction.user.id}>`, `<@${target.id}>`),
             image: gif,
           }),
         ],

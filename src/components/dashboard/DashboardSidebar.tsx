@@ -31,7 +31,7 @@ const SECTIONS: { title: string; items: Item[] }[] = [
     title: "Configuração",
     items: [
       { to: "settings", label: "Configurações", icon: Settings, soon: true },
-      { to: "welcome", label: "Boas-vindas", icon: Sparkles, soon: true },
+      { to: "welcome", label: "Boas-vindas", icon: Sparkles },
       { to: "logs", label: "Logs", icon: ScrollText, soon: true },
     ],
   },

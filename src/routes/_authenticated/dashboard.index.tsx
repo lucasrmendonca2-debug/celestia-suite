@@ -4,7 +4,7 @@ import { Crown, ShieldCheck } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
 
-export const Route = createFileRoute("/_authenticated/dashboard")({
+export const Route = createFileRoute("/_authenticated/dashboard/")({
   loader: async ({ context }) => {
     const [user, guilds] = await Promise.all([
       requireUser(),

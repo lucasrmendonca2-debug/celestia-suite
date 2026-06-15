@@ -17,7 +17,7 @@ export const Route = createFileRoute("/api/auth/discord/login")({
         const session = await getSession();
         await session.update({ ...session.data, oauthRedirectUri: redirectUri });
 
-        const url = buildAuthorizeUrl(redirectUri, state);
+        const url = buildAuthorizeUrl(state);
         return new Response(null, { status: 302, headers: { Location: url } });
       },
     },

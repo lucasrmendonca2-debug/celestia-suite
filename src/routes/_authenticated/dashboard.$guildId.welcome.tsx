@@ -210,8 +210,3 @@ function WelcomePage() {
     </div>
   );
 }
-
-// Refresh cache hook (Query)
-function _unused() {
-  useSuspenseQuery({ queryKey: ["my-guilds"], queryFn: () => listMyGuilds() });
-}

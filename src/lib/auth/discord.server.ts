@@ -86,7 +86,7 @@ export function makeDiscordCallbackUri(request: Request, browserOrigin?: string 
   const explicitRedirectUri = process.env.DISCORD_REDIRECT_URI?.trim();
   if (explicitRedirectUri) return explicitRedirectUri;
 
-  const origin = safeBrowserOrigin(browserOrigin ?? null);
+  const origin = safeBrowserOrigin(browserOrigin ?? null) || safeBrowserOrigin(process.env.APP_URL?.trim() ?? null);
   if (origin) return `${origin}/api/auth/discord/callback`;
 
   const requestUrl = new URL(request.url);

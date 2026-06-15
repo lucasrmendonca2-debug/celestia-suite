@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      guild_configs: {
+        Row: {
+          created_at: string
+          guild_id: string
+          updated_at: string
+          updated_by: string | null
+          welcome_channel_id: string | null
+          welcome_embed_color: string
+          welcome_embed_enabled: boolean
+          welcome_enabled: boolean
+          welcome_message: string
+        }
+        Insert: {
+          created_at?: string
+          guild_id: string
+          updated_at?: string
+          updated_by?: string | null
+          welcome_channel_id?: string | null
+          welcome_embed_color?: string
+          welcome_embed_enabled?: boolean
+          welcome_enabled?: boolean
+          welcome_message?: string
+        }
+        Update: {
+          created_at?: string
+          guild_id?: string
+          updated_at?: string
+          updated_by?: string | null
+          welcome_channel_id?: string | null
+          welcome_embed_color?: string
+          welcome_embed_enabled?: boolean
+          welcome_enabled?: boolean
+          welcome_message?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

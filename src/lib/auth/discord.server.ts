@@ -2,8 +2,10 @@
  * Cliente da Discord API + utilidades de OAuth2.
  * Server-only (usa process.env.DISCORD_CLIENT_SECRET).
  */
+import { createHmac, timingSafeEqual } from "crypto";
 
 export const DISCORD_API = "https://discord.com/api/v10";
+const DEFAULT_DISCORD_ORIGIN = "https://id-preview--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app";
 
 export interface DiscordUser {
   id: string;
@@ -67,6 +69,32 @@ export function getOAuthConfig() {
   return { clientId, clientSecret };
 }
 
+function oauthStateSecret(): string {
+  return process.env.SESSION_SECRET ?? "dev-only-secret-please-change-32+chars";
+}
+
+export function createOAuthState(): string {
+  const payload = Buffer.from(JSON.stringify({ nonce: crypto.randomUUID(), iat: Date.now() })).toString("base64url");
+  const signature = createHmac("sha256", oauthStateSecret()).update(payload).digest("base64url");
+  return `${payload}.${signature}`;
+}
+
+export function verifyOAuthState(state: string): boolean {
+  const [payload, signature] = state.split(".");
+  if (!payload || !signature) return false;
+  const expected = createHmac("sha256", oauthStateSecret()).update(payload).digest("base64url");
+  const givenBuffer = Buffer.from(signature);
+  const expectedBuffer = Buffer.from(expected);
+  if (givenBuffer.length !== expectedBuffer.length || !timingSafeEqual(givenBuffer, expectedBuffer)) return false;
+
+  try {
+    const data = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as { iat?: number };
+    return typeof data.iat === "number" && Date.now() - data.iat < 10 * 60 * 1000;
+  } catch {
+    return false;
+  }
+}
+
 function safeBrowserOrigin(origin: string | null): string | null {
   if (!origin) return null;
   try {
@@ -86,7 +114,10 @@ export function makeDiscordCallbackUri(request: Request, browserOrigin?: string 
   const explicitRedirectUri = process.env.DISCORD_REDIRECT_URI?.trim();
   if (explicitRedirectUri) return explicitRedirectUri;
 
-  const origin = safeBrowserOrigin(process.env.APP_URL?.trim() ?? null) || safeBrowserOrigin(browserOrigin ?? null);
+  const origin = safeBrowserOrigin(process.env.DISCORD_APP_URL?.trim() ?? null)
+    || safeBrowserOrigin(DEFAULT_DISCORD_ORIGIN)
+    || safeBrowserOrigin(process.env.APP_URL?.trim() ?? null)
+    || safeBrowserOrigin(browserOrigin ?? null);
   if (origin) return `${origin}/api/auth/discord/callback`;
 
   const requestUrl = new URL(request.url);

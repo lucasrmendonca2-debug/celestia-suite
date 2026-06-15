@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
 import { Route as AuthenticatedDashboardGuildIdRouteImport } from './routes/_authenticated/dashboard.$guildId'
+import { Route as AuthenticatedDashboardGuildIdIndexRouteImport } from './routes/_authenticated/dashboard.$guildId.index'
 import { Route as ApiAuthDiscordLoginRouteImport } from './routes/api/auth/discord/login'
 import { Route as ApiAuthDiscordCallbackRouteImport } from './routes/api/auth/discord/callback'
 import { Route as AuthenticatedDashboardGuildIdWelcomeRouteImport } from './routes/_authenticated/dashboard.$guildId.welcome'
@@ -59,6 +60,12 @@ const AuthenticatedDashboardGuildIdRoute =
     id: '/dashboard/$guildId',
     path: '/dashboard/$guildId',
     getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDashboardGuildIdIndexRoute =
+  AuthenticatedDashboardGuildIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
   } as any)
 const ApiAuthDiscordLoginRoute = ApiAuthDiscordLoginRouteImport.update({
   id: '/api/auth/discord/login',
@@ -156,11 +163,11 @@ export interface FileRoutesByFullPath {
   '/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
+  '/dashboard/$guildId/': typeof AuthenticatedDashboardGuildIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/$guildId/automod': typeof AuthenticatedDashboardGuildIdAutomodRoute
@@ -176,6 +183,7 @@ export interface FileRoutesByTo {
   '/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
+  '/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -198,6 +206,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
+  '/_authenticated/dashboard/$guildId/': typeof AuthenticatedDashboardGuildIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -220,11 +229,11 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId/welcome'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
+    | '/dashboard/$guildId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/login'
-    | '/dashboard/$guildId'
     | '/api/auth/logout'
     | '/dashboard'
     | '/dashboard/$guildId/automod'
@@ -240,6 +249,7 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId/welcome'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
+    | '/dashboard/$guildId'
   id:
     | '__root__'
     | '/'
@@ -261,6 +271,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/$guildId/welcome'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
+    | '/_authenticated/dashboard/$guildId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -315,6 +326,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/$guildId'
       preLoaderRoute: typeof AuthenticatedDashboardGuildIdRouteImport
       parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dashboard/$guildId/': {
+      id: '/_authenticated/dashboard/$guildId/'
+      path: '/'
+      fullPath: '/dashboard/$guildId/'
+      preLoaderRoute: typeof AuthenticatedDashboardGuildIdIndexRouteImport
+      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
     }
     '/api/auth/discord/login': {
       id: '/api/auth/discord/login'
@@ -422,6 +440,7 @@ interface AuthenticatedDashboardGuildIdRouteChildren {
   AuthenticatedDashboardGuildIdReactionRolesRoute: typeof AuthenticatedDashboardGuildIdReactionRolesRoute
   AuthenticatedDashboardGuildIdTicketsRoute: typeof AuthenticatedDashboardGuildIdTicketsRoute
   AuthenticatedDashboardGuildIdWelcomeRoute: typeof AuthenticatedDashboardGuildIdWelcomeRoute
+  AuthenticatedDashboardGuildIdIndexRoute: typeof AuthenticatedDashboardGuildIdIndexRoute
 }
 
 const AuthenticatedDashboardGuildIdRouteChildren: AuthenticatedDashboardGuildIdRouteChildren =
@@ -448,6 +467,8 @@ const AuthenticatedDashboardGuildIdRouteChildren: AuthenticatedDashboardGuildIdR
       AuthenticatedDashboardGuildIdTicketsRoute,
     AuthenticatedDashboardGuildIdWelcomeRoute:
       AuthenticatedDashboardGuildIdWelcomeRoute,
+    AuthenticatedDashboardGuildIdIndexRoute:
+      AuthenticatedDashboardGuildIdIndexRoute,
   }
 
 const AuthenticatedDashboardGuildIdRouteWithChildren =

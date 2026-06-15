@@ -121,3 +121,84 @@ export const getTicketStats = createServerFn({ method: "GET" })
       total: totalRes.count ?? 0,
     };
   });
+
+/* ----------- Enviar painel pelo dashboard (via Discord REST) ----------- */
+export const sendTicketPanel = createServerFn({ method: "POST" })
+  .inputValidator((d: { guildId: string; channelId?: string | null }) =>
+    z
+      .object({
+        guildId: guildIdSchema,
+        channelId: snowflakeNullable.optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const token = process.env.DISCORD_BOT_TOKEN;
+    if (!token) throw new Error("DISCORD_BOT_TOKEN não configurado no servidor.");
+
+    const sb = await admin();
+    const { data: cfg, error: cfgErr } = await sb
+      .from("ticket_configs")
+      .select("*")
+      .eq("guild_id", data.guildId)
+      .maybeSingle();
+    if (cfgErr) throw new Error(cfgErr.message);
+    if (!cfg) throw new Error("Configure e salve o sistema antes de enviar o painel.");
+    if (!cfg.enabled) throw new Error("Ative o sistema de tickets antes de enviar o painel.");
+
+    const channelId = data.channelId ?? cfg.panel_channel_id;
+    if (!channelId) throw new Error("Defina o canal do painel antes de enviar.");
+
+    const body = {
+      embeds: [
+        {
+          title: cfg.panel_title,
+          description: cfg.panel_description,
+          color: cfg.panel_color,
+        },
+      ],
+      components: [
+        {
+          type: 1,
+          components: [
+            {
+              type: 2,
+              style: 1,
+              custom_id: "ticket:open:default",
+              label: cfg.panel_button_label,
+              emoji: cfg.panel_button_emoji
+                ? { name: cfg.panel_button_emoji }
+                : undefined,
+            },
+          ],
+        },
+      ],
+    };
+
+    const res = await fetch(
+      `https://discord.com/api/v10/channels/${channelId}/messages`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bot ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      },
+    );
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(
+        `Discord recusou (${res.status}). Confira se o bot está no servidor e tem acesso ao canal. ${text.slice(0, 200)}`,
+      );
+    }
+    const msg = (await res.json()) as { id: string };
+
+    await sb
+      .from("ticket_configs")
+      .update({ panel_channel_id: channelId, panel_message_id: msg.id })
+      .eq("guild_id", data.guildId);
+
+    return { ok: true, channelId, messageId: msg.id };
+  });

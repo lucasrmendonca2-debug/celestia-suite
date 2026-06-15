@@ -45,7 +45,7 @@ export interface SlashCommand {
   longDescription?: string;
   /** Exemplos opcionais para o /help. */
   examples?: string[];
-  execute: (interaction: ChatInputCommandInteraction, ctx: CommandContext) => Promise<void>;
+  execute: (interaction: ChatInputCommandInteraction, ctx: CommandContext) => Promise<unknown>;
 }
 
 export interface CommandContext {

@@ -2,16 +2,16 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
   Shield,
-  Ticket,
   Coins,
   TrendingUp,
   Sparkles,
-  Wrench,
   Settings,
-  Gem,
   ScrollText,
-  PartyPopper,
   Lock,
+  UserPlus,
+  Smile,
+  Terminal,
+  FileCode2,
   type LucideIcon,
 } from "lucide-react";
 
@@ -30,26 +30,38 @@ const SECTIONS: { title: string; items: Item[] }[] = [
   {
     title: "Configuração",
     items: [
-      { to: "settings", label: "Configurações", icon: Settings, soon: true },
       { to: "welcome", label: "Boas-vindas", icon: Sparkles },
-      { to: "logs", label: "Logs", icon: ScrollText, soon: true },
+      { to: "logs", label: "Logs", icon: ScrollText },
+      { to: "settings", label: "Configurações", icon: Settings, soon: true },
     ],
   },
   {
-    title: "Módulos",
+    title: "Membros",
     items: [
-      { to: "moderation", label: "Moderação", icon: Shield, soon: true },
-      { to: "automod", label: "Segurança", icon: Lock, soon: true },
-      { to: "tickets", label: "Tickets", icon: Ticket, soon: true },
-      { to: "economy", label: "Economia", icon: Coins, soon: true },
-      { to: "level", label: "Level", icon: TrendingUp, soon: true },
-      { to: "fun", label: "Diversão", icon: PartyPopper, soon: true },
-      { to: "utility", label: "Utilidades", icon: Wrench, soon: true },
+      { to: "autorole", label: "Autorole", icon: UserPlus },
+      { to: "reaction-roles", label: "Cargos por reação", icon: Smile },
     ],
   },
   {
-    title: "Premium",
-    items: [{ to: "vip", label: "VIP", icon: Gem, soon: true }],
+    title: "Moderação",
+    items: [
+      { to: "moderation", label: "Casos", icon: Shield },
+      { to: "automod", label: "AutoMod", icon: Lock },
+    ],
+  },
+  {
+    title: "Engajamento",
+    items: [
+      { to: "leveling", label: "Níveis & XP", icon: TrendingUp },
+      { to: "economy", label: "Economia", icon: Coins },
+    ],
+  },
+  {
+    title: "Personalização",
+    items: [
+      { to: "commands", label: "Comandos custom", icon: Terminal },
+      { to: "embeds", label: "Embeds", icon: FileCode2 },
+    ],
   },
 ];
 
@@ -63,7 +75,7 @@ export function DashboardSidebar({ guildId }: { guildId: string }) {
         <div className="size-7 rounded-lg bg-primary/20 ring-1 ring-primary/40" />
         <span className="text-base font-semibold tracking-tight">Zenox</span>
       </div>
-      <nav className="flex-1 space-y-6 overflow-y-auto px-3 pb-6">
+      <nav className="flex-1 space-y-5 overflow-y-auto px-3 pb-6">
         {SECTIONS.map((s) => (
           <div key={s.title}>
             <p className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">

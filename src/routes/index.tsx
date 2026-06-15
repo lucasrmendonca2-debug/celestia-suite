@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import type { MouseEvent } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -20,7 +21,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Landing() {
-  function startDiscordLogin(event: React.MouseEvent<HTMLAnchorElement>) {
+  function startDiscordLogin(event: MouseEvent<HTMLAnchorElement>) {
     event.preventDefault();
     window.location.href = `/api/auth/discord/login?origin=${encodeURIComponent(window.location.origin)}`;
   }

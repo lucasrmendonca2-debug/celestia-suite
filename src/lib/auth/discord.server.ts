@@ -67,12 +67,45 @@ export function getOAuthConfig() {
   return { clientId, clientSecret };
 }
 
-export function makeDiscordCallbackUri(request: Request): string {
+function safeBrowserOrigin(origin: string | null): string | null {
+  if (!origin) return null;
+  try {
+    const url = new URL(origin);
+    const isLocal = url.hostname === "localhost" || url.hostname === "127.0.0.1";
+    const isLovable = url.hostname === "lovable.app" || url.hostname.endsWith(".lovable.app");
+    if ((url.protocol === "https:" && isLovable) || (url.protocol === "http:" && isLocal)) {
+      return url.origin;
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
+export function makeDiscordCallbackUri(request: Request, browserOrigin?: string | null): string {
+  const explicitRedirectUri = process.env.DISCORD_REDIRECT_URI?.trim();
+  if (explicitRedirectUri) return explicitRedirectUri;
+
+  const origin = safeBrowserOrigin(browserOrigin ?? null) || safeBrowserOrigin(process.env.APP_URL?.trim() ?? null);
+  if (origin) return `${origin}/api/auth/discord/callback`;
+
   const requestUrl = new URL(request.url);
-  const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
-  const forwardedProto = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
-  const host = forwardedHost || request.headers.get("host") || requestUrl.host;
-  const protocol = forwardedProto || requestUrl.protocol.replace(":", "") || "https";
+  const forwarded = request.headers.get("forwarded") ?? "";
+  const forwardedHost = forwarded.match(/host=([^;,]+)/i)?.[1]?.replaceAll('"', "").trim();
+  const forwardedProto = forwarded.match(/proto=([^;,]+)/i)?.[1]?.replaceAll('"', "").trim();
+  const referer = request.headers.get("referer");
+  const refererUrl = referer ? new URL(referer) : null;
+  const headerHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim()
+    || request.headers.get("x-original-host")
+    || request.headers.get("x-real-host")
+    || forwardedHost
+    || request.headers.get("host")
+    || requestUrl.host;
+  const isInternalHost = /^(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?$/.test(headerHost);
+  const host = isInternalHost && refererUrl?.host ? refererUrl.host : headerHost;
+  const protocol = host.includes("localhost")
+    ? "http"
+    : request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() || forwardedProto || refererUrl?.protocol.replace(":", "") || "https";
 
   return `${protocol}://${host}/api/auth/discord/callback`;
 }

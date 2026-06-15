@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import type { MouseEvent } from "react";
 
 export const Route = createFileRoute("/login")({
   head: () => ({
@@ -11,6 +12,11 @@ export const Route = createFileRoute("/login")({
 });
 
 function LoginPage() {
+  function startDiscordLogin(event: MouseEvent<HTMLAnchorElement>) {
+    event.preventDefault();
+    window.location.href = `/api/auth/discord/login?origin=${encodeURIComponent(window.location.origin)}`;
+  }
+
   return (
     <main className="relative flex min-h-screen items-center justify-center bg-background px-6">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,theme(colors.primary/0.25),transparent_60%)]" />
@@ -26,6 +32,7 @@ function LoginPage() {
         </p>
         <a
           href="/api/auth/discord/login"
+          onClick={startDiscordLogin}
           className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-md bg-[#5865F2] px-4 py-2.5 text-sm font-medium text-white transition hover:bg-[#4752c4]"
         >
           <svg viewBox="0 0 24 24" className="size-5" fill="currentColor" aria-hidden>

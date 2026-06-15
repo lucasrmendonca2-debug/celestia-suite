@@ -43,7 +43,7 @@ export async function logModeration(
     { name: "Moderador", value: `<@${moderatorId}>`, inline: true },
   ];
   if (duration) fields.push({ name: "Duração", value: duration, inline: true });
-  fields.push({ name: "Motivo", value: reason ?? "Sem motivo informado" });
+  fields.push({ name: "Motivo", value: reason ?? "Sem motivo informado", inline: false });
 
   await sendLog(
     member.guild,

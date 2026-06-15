@@ -55,8 +55,9 @@ export async function runAutoMod(msg: Message): Promise<boolean> {
 
 async function act(msg: Message, rule: string, reason: string): Promise<boolean> {
   await msg.delete().catch(() => {});
-  await msg.channel
-    .send({ content: `<@${msg.author.id}> ⚠️ ${reason}` })
+  const ch = msg.channel as { send?: (payload: unknown) => Promise<{ delete: () => Promise<unknown> }> };
+  await ch
+    .send?.({ content: `<@${msg.author.id}> ⚠️ ${reason}` })
     .then((m) => setTimeout(() => m.delete().catch(() => {}), 5000))
     .catch(() => {});
   await AutoModIncident.create({

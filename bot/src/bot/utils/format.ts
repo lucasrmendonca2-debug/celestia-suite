@@ -19,10 +19,10 @@ export function fmtDuration(ms: number) {
 export function parseDuration(input: string): number | null {
   const m = /^(\d+)\s*(s|m|h|d|w)$/i.exec(input.trim());
   if (!m) return null;
-  const n = Number(m[1]);
-  const unit = m[2].toLowerCase();
+  const n = Number(m[1]!);
+  const unit = m[2]!.toLowerCase();
   const mult: Record<string, number> = { s: 1e3, m: 60e3, h: 3600e3, d: 86400e3, w: 604800e3 };
-  return n * mult[unit];
+  return n * mult[unit]!;
 }
 
 /** Aplica variáveis estilo {user}, {server}, {memberCount}, {level}... */

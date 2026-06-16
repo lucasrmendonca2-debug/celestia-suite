@@ -222,9 +222,11 @@ export async function closeTicket(
 
   // Transcript opcional
   let transcript: Awaited<ReturnType<typeof buildTranscript>> | null = null;
+  let transcriptForDm: Awaited<ReturnType<typeof buildTranscript>> | null = null;
   if (cfg.transcript_enabled) {
     try {
       transcript = await buildTranscript(channel);
+      transcriptForDm = await buildTranscript(channel);
     } catch {
       /* ignora */
     }
@@ -232,6 +234,14 @@ export async function closeTicket(
 
   await writeLog(guild.id, ticket.id, "closed", member.id, { reason: reason ?? null });
   await sendClosedLog(guild, cfg, channel, member, ticket.user_id, transcript);
+  await sendClosureDm(
+    guild,
+    cfg,
+    ticket.id,
+    ticket.user_id,
+    member.id,
+    transcriptForDm,
+  );
 
   // renomeia opcionalmente
   await channel.setName(`closed-${ticket.username}`.slice(0, 90)).catch(() => {});

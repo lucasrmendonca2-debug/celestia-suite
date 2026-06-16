@@ -331,30 +331,54 @@ function GeneralTab({
           </div>
         </div>
         <div>
-          <Label className="text-sm">Descrição do painel</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-sm">Descrição do painel</Label>
+            <PresetMenu
+              presets={PANEL_DESC_PRESETS}
+              onPick={(v) => setForm({ ...form, panel_description: v })}
+            />
+          </div>
           <Textarea
             value={form.panel_description}
             onChange={(e) => setForm({ ...form, panel_description: e.target.value })}
             rows={3}
             className="mt-1"
+            placeholder={PANEL_DESC_PRESETS[0].text}
           />
         </div>
         <div>
-          <Label className="text-sm">Mensagem de boas-vindas dentro do ticket</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-sm">Mensagem de boas-vindas dentro do ticket</Label>
+            <PresetMenu
+              presets={WELCOME_PRESETS}
+              onPick={(v) => setForm({ ...form, ticket_welcome_message: v })}
+            />
+          </div>
           <Textarea
             value={form.ticket_welcome_message}
             onChange={(e) => setForm({ ...form, ticket_welcome_message: e.target.value })}
             rows={3}
             className="mt-1"
+            placeholder={WELCOME_PRESETS[0].text}
           />
+          <p className="mt-1 text-xs text-muted-foreground">
+            Use <code>{"{user}"}</code> pra mencionar quem abriu e <code>{"{staff}"}</code> pro cargo de suporte.
+          </p>
         </div>
         <div>
-          <Label className="text-sm">Mensagem ao fechar o ticket</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-sm">Mensagem ao fechar o ticket</Label>
+            <PresetMenu
+              presets={CLOSE_PRESETS}
+              onPick={(v) => setForm({ ...form, close_message: v })}
+            />
+          </div>
           <Textarea
             value={form.close_message}
             onChange={(e) => setForm({ ...form, close_message: e.target.value })}
             rows={2}
             className="mt-1"
+            placeholder={CLOSE_PRESETS[0].text}
           />
         </div>
 

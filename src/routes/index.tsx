@@ -85,6 +85,14 @@ function Landing() {
             </Link>
           </div>
         </section>
+
+        <section className="mt-16 overflow-hidden rounded-2xl border border-primary/20 bg-card/40 shadow-2xl shadow-primary/10">
+          <img
+            src={zenoxBanner.url}
+            alt="Zenox — Discord Bot"
+            className="h-auto w-full object-cover"
+          />
+        </section>
       </div>
     </main>
   );

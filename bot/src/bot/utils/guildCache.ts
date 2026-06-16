@@ -3,6 +3,7 @@ import { Guild, GuildConfig, User } from "../../database/models.js";
 import { supabase } from "../../database/supabase.js";
 import { logger } from "./logger.js";
 
+
 export async function ensureGuild(guild: DiscordGuild) {
   await Guild.updateOne(
     { _id: guild.id },

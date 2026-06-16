@@ -18,8 +18,10 @@ import {
   Crown,
   Users,
   Lock,
+  ImageIcon,
   type LucideIcon,
 } from "lucide-react";
+
 import { getGuildPremiumStatus } from "@/lib/guild/premium.functions";
 import { getGuildConfig } from "@/lib/guild/guild.functions";
 
@@ -86,10 +88,12 @@ const SECTIONS: Section[] = [
   {
     title: "Admin",
     items: [
+      { to: "assets", label: "Identidade Visual", icon: ImageIcon },
       { to: "permissoes", label: "Permissões", icon: Lock },
       { to: "premium", label: "Premium", icon: Crown, premium: true },
     ],
   },
+
 ];
 
 export function SidebarNav({

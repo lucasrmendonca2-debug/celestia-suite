@@ -116,7 +116,36 @@ const command: SlashCommand = {
         await interaction.reply({ ephemeral: true, content: "✅ Banner atualizado." });
         return;
       }
+      if (sub === "accent" || sub === "fundo" || sub === "texto") {
+        const raw = (interaction.options.getString("cor") ?? "").trim();
+        const valor = raw === "" ? null : raw;
+        if (valor && !isValidColor(valor)) {
+          await interaction.reply({ ephemeral: true, content: "❌ Cor inválida. Use formato `#RRGGBB` ou deixe vazio." });
+          return;
+        }
+        const patch =
+          sub === "accent" ? { accent_color: valor }
+          : sub === "fundo" ? { background_color: valor }
+          : { text_color: valor };
+        await updateProfile(guildId, interaction.user.id, patch);
+        await interaction.reply({
+          ephemeral: true,
+          content: valor ? `✅ Cor atualizada para \`${valor}\`.` : "✅ Removido — usando padrão do servidor.",
+        });
+        return;
+      }
+      if (sub === "estilo") {
+        const valor = interaction.options.getString("valor", true);
+        if (!isValidCardStyle(valor)) {
+          await interaction.reply({ ephemeral: true, content: "❌ Estilo inválido." });
+          return;
+        }
+        await updateProfile(guildId, interaction.user.id, { card_style: valor });
+        await interaction.reply({ ephemeral: true, content: `✅ Estilo atualizado para \`${valor}\`.` });
+        return;
+      }
     }
+
 
     if (sub === "resetar") {
       const isAdmin = interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild) ?? false;

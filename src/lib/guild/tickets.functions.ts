@@ -30,6 +30,7 @@ const TICKET_DEFAULTS = {
   category_id: null as string | null,
   default_support_role_id: null as string | null,
   log_channel_id: null as string | null,
+  rating_channel_id: null as string | null,
   max_open_tickets_per_user: 5,
   panel_title: "🎫 Central de Atendimento",
   panel_description:

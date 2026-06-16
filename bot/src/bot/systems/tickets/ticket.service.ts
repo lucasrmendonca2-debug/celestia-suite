@@ -51,6 +51,7 @@ const DEFAULT_CONFIG: Omit<TicketConfig, "guild_id"> = {
   category_id: null,
   default_support_role_id: null,
   log_channel_id: null,
+  rating_channel_id: null,
   max_open_tickets_per_user: 5,
   panel_title: "🎫 Central de Atendimento",
   panel_description:

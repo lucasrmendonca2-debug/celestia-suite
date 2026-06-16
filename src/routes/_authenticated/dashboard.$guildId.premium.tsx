@@ -269,6 +269,43 @@ function PremiumPage() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="config" className="space-y-4">
+          <Card className="p-6 space-y-4">
+            <div>
+              <h3 className="font-semibold">Cargos automáticos</h3>
+              <p className="text-sm text-muted-foreground">
+                IDs dos cargos atribuídos automaticamente a membros VIP e quando o servidor é premium.
+                O bot precisa ter permissão de gerenciar cargos e o cargo dele deve estar acima.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="vipRole">Cargo VIP (usuário)</Label>
+                <Input
+                  id="vipRole"
+                  placeholder="123456789012345678"
+                  value={vipRoleId}
+                  onChange={(e) => setVipRoleId(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="premiumRole">Cargo Premium (servidor)</Label>
+                <Input
+                  id="premiumRole"
+                  placeholder="123456789012345678"
+                  value={premiumRoleId}
+                  onChange={(e) => setPremiumRoleId(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button onClick={() => saveConfig.mutate()} disabled={saveConfig.isPending}>
+                {saveConfig.isPending ? "Salvando..." : "Salvar configuração"}
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="logs" className="space-y-2">
           <Card className="p-6">
             {logs && logs.length > 0 ? (

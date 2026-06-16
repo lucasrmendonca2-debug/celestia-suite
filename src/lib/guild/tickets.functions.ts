@@ -150,15 +150,20 @@ export const sendTicketPanel = createServerFn({ method: "POST" })
     const channelId = data.channelId ?? cfg.panel_channel_id;
     if (!channelId) throw new Error("Defina o canal do painel antes de enviar.");
 
-    const body = {
-      embeds: [
-        {
-          title: cfg.panel_title,
-          description: cfg.panel_description,
-          color: cfg.panel_color,
-        },
-      ],
-      components: [
+    // Carrega categorias ativas pra montar painel multi-categoria (fase 2)
+    const { data: cats } = await sb
+      .from("ticket_categories")
+      .select("id,name,emoji,active,priority,position")
+      .eq("guild_id", data.guildId)
+      .eq("active", true)
+      .order("position", { ascending: true })
+      .order("created_at", { ascending: true });
+
+    const activeCats = cats ?? [];
+
+    let components: unknown[];
+    if (activeCats.length === 0) {
+      components = [
         {
           type: 1,
           components: [
@@ -173,7 +178,49 @@ export const sendTicketPanel = createServerFn({ method: "POST" })
             },
           ],
         },
+      ];
+    } else if (activeCats.length <= 5) {
+      components = [
+        {
+          type: 1,
+          components: activeCats.map((c) => ({
+            type: 2,
+            style: c.priority ? 4 : 1,
+            custom_id: `ticket:open:${c.id}`,
+            label: c.name.slice(0, 80),
+            emoji: c.emoji ? { name: c.emoji } : undefined,
+          })),
+        },
+      ];
+    } else {
+      components = [
+        {
+          type: 1,
+          components: [
+            {
+              type: 3,
+              custom_id: "ticket:select",
+              placeholder: "Escolha o tipo de atendimento…",
+              options: activeCats.slice(0, 25).map((c) => ({
+                label: c.name.slice(0, 100),
+                value: c.id,
+                emoji: c.emoji ? { name: c.emoji } : undefined,
+              })),
+            },
+          ],
+        },
+      ];
+    }
+
+    const body = {
+      embeds: [
+        {
+          title: cfg.panel_title,
+          description: cfg.panel_description,
+          color: cfg.panel_color,
+        },
       ],
+      components,
     };
 
     const res = await fetch(
@@ -201,4 +248,203 @@ export const sendTicketPanel = createServerFn({ method: "POST" })
       .eq("guild_id", data.guildId);
 
     return { ok: true, channelId, messageId: msg.id };
+  });
+
+/* =====================================================================
+ * FASE 2 — Categorias, Permissões por cargo e Níveis de acesso
+ * =================================================================== */
+
+/* ---------------- Categorias ---------------- */
+
+const CategoryInput = z.object({
+  guildId: guildIdSchema,
+  id: z.string().uuid().optional().nullable(),
+  name: z.string().min(1).max(80),
+  description: z.string().max(500).nullable().optional(),
+  emoji: z.string().min(1).max(8).default("🎫"),
+  support_role_id: snowflakeNullable.optional(),
+  discord_category_id: snowflakeNullable.optional(),
+  active: z.boolean().default(true),
+  priority: z.boolean().default(false),
+  required_role_ids: z.array(z.string().regex(/^\d{5,32}$/)).default([]),
+  blocked_role_ids: z.array(z.string().regex(/^\d{5,32}$/)).default([]),
+  allowed_access_levels: z.array(z.string().min(1).max(60)).default([]),
+  max_open_tickets_per_user: z.number().int().min(1).max(20).nullable().optional(),
+  welcome_message: z.string().max(2000).nullable().optional(),
+  position: z.number().int().min(0).max(999).default(0),
+});
+
+export const listTicketCategories = createServerFn({ method: "GET" })
+  .inputValidator((d: { guildId: string }) =>
+    z.object({ guildId: guildIdSchema }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { data: rows, error } = await sb
+      .from("ticket_categories")
+      .select("*")
+      .eq("guild_id", data.guildId)
+      .order("position", { ascending: true })
+      .order("created_at", { ascending: true });
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+export const upsertTicketCategory = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => CategoryInput.parse(d))
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { guildId, id, ...rest } = data;
+    const payload = { guild_id: guildId, ...rest };
+    const query = id
+      ? sb.from("ticket_categories").update(payload).eq("id", id).eq("guild_id", guildId)
+      : sb.from("ticket_categories").insert(payload);
+    const { data: row, error } = await query.select().single();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+export const deleteTicketCategory = createServerFn({ method: "POST" })
+  .inputValidator((d: { guildId: string; id: string }) =>
+    z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { error } = await sb
+      .from("ticket_categories")
+      .delete()
+      .eq("id", data.id)
+      .eq("guild_id", data.guildId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/* ---------------- Níveis de acesso ---------------- */
+
+const AccessLevelInput = z.object({
+  guildId: guildIdSchema,
+  id: z.string().uuid().optional().nullable(),
+  key: z.string().min(1).max(60).regex(/^[a-z0-9_-]+$/i, "use só letras, números, _ ou -"),
+  name: z.string().min(1).max(80),
+  rank: z.number().int().min(0).max(1000).default(0),
+  role_ids: z.array(z.string().regex(/^\d{5,32}$/)).default([]),
+});
+
+export const listAccessLevels = createServerFn({ method: "GET" })
+  .inputValidator((d: { guildId: string }) =>
+    z.object({ guildId: guildIdSchema }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { data: rows, error } = await sb
+      .from("ticket_access_levels")
+      .select("*")
+      .eq("guild_id", data.guildId)
+      .order("rank", { ascending: false });
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+export const upsertAccessLevel = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => AccessLevelInput.parse(d))
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { guildId, id, ...rest } = data;
+    const payload = { guild_id: guildId, ...rest };
+    const query = id
+      ? sb.from("ticket_access_levels").update(payload).eq("id", id).eq("guild_id", guildId)
+      : sb.from("ticket_access_levels").upsert(payload, { onConflict: "guild_id,key" });
+    const { data: row, error } = await query.select().single();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+export const deleteAccessLevel = createServerFn({ method: "POST" })
+  .inputValidator((d: { guildId: string; id: string }) =>
+    z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { error } = await sb
+      .from("ticket_access_levels")
+      .delete()
+      .eq("id", data.id)
+      .eq("guild_id", data.guildId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/* ---------------- Permissões por cargo ---------------- */
+
+const PermissionRoleInput = z.object({
+  guildId: guildIdSchema,
+  id: z.string().uuid().optional().nullable(),
+  role_id: z.string().regex(/^\d{5,32}$/),
+  access_level: z.string().min(1).max(60).default("member"),
+  can_view_panel: z.boolean().default(true),
+  can_open_ticket: z.boolean().default(true),
+  can_open_priority_ticket: z.boolean().default(false),
+  can_close_ticket: z.boolean().default(false),
+  can_reopen_ticket: z.boolean().default(false),
+  can_delete_ticket: z.boolean().default(false),
+  can_claim_ticket: z.boolean().default(false),
+  can_add_user: z.boolean().default(false),
+  can_remove_user: z.boolean().default(false),
+  can_generate_transcript: z.boolean().default(false),
+  can_view_history: z.boolean().default(false),
+  can_view_ratings: z.boolean().default(false),
+  can_manage_config: z.boolean().default(false),
+});
+
+export const listPermissionRoles = createServerFn({ method: "GET" })
+  .inputValidator((d: { guildId: string }) =>
+    z.object({ guildId: guildIdSchema }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { data: rows, error } = await sb
+      .from("ticket_permission_roles")
+      .select("*")
+      .eq("guild_id", data.guildId)
+      .order("created_at", { ascending: true });
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+export const upsertPermissionRole = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => PermissionRoleInput.parse(d))
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { guildId, id, ...rest } = data;
+    const payload = { guild_id: guildId, ...rest };
+    const query = id
+      ? sb.from("ticket_permission_roles").update(payload).eq("id", id).eq("guild_id", guildId)
+      : sb.from("ticket_permission_roles").upsert(payload, { onConflict: "guild_id,role_id" });
+    const { data: row, error } = await query.select().single();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+export const deletePermissionRole = createServerFn({ method: "POST" })
+  .inputValidator((d: { guildId: string; id: string }) =>
+    z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { error } = await sb
+      .from("ticket_permission_roles")
+      .delete()
+      .eq("id", data.id)
+      .eq("guild_id", data.guildId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });

@@ -10,7 +10,7 @@ import { Msg } from "../utils/messages.js";
 import { checkPermissions, denyWith } from "../guards/permissions.js";
 import { consumeCooldown } from "../guards/cooldown.js";
 import { ensureGuild, ensureUser } from "../utils/guildCache.js";
-import { handleTicketButton } from "../systems/tickets/handlers.js";
+import { handleTicketButton, handleTicketSelect } from "../systems/tickets/handlers.js";
 import { handleGiveawayButton } from "../systems/giveaway/giveaway.js";
 import {
   HELP_CATEGORIES,
@@ -35,6 +35,11 @@ const event: BotEvent<"interactionCreate"> = {
       if (interaction.isButton()) {
         if (interaction.customId.startsWith("ticket:")) await handleTicketButton(interaction);
         else if (interaction.customId.startsWith("giveaway:")) await handleGiveawayButton(interaction);
+        return;
+      }
+
+      if (interaction.isStringSelectMenu() && interaction.customId === "ticket:select") {
+        await handleTicketSelect(interaction);
         return;
       }
 

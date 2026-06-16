@@ -111,6 +111,7 @@ export async function createTicketRow(input: {
   channel_id: string;
   user_id: string;
   username: string;
+  category_id?: string | null;
   category_name?: string | null;
   priority?: boolean;
 }): Promise<TicketRow> {
@@ -121,6 +122,7 @@ export async function createTicketRow(input: {
       channel_id: input.channel_id,
       user_id: input.user_id,
       username: input.username,
+      category_id: input.category_id ?? null,
       category_name: input.category_name ?? null,
       priority: input.priority ?? false,
       status: "open" as TicketStatus,
@@ -186,4 +188,101 @@ export async function writeLog(
     user_id: userId,
     details,
   });
+}
+
+/* =============== Fase 2: categorias, permissões, níveis =============== */
+
+export interface TicketCategory {
+  id: string;
+  guild_id: string;
+  name: string;
+  description: string | null;
+  emoji: string | null;
+  support_role_id: string | null;
+  discord_category_id: string | null;
+  active: boolean;
+  priority: boolean;
+  required_role_ids: string[];
+  blocked_role_ids: string[];
+  allowed_access_levels: string[];
+  max_open_tickets_per_user: number | null;
+  welcome_message: string | null;
+  position: number;
+}
+
+export interface TicketAccessLevel {
+  id: string;
+  guild_id: string;
+  key: string;
+  name: string;
+  rank: number;
+  role_ids: string[];
+}
+
+export interface TicketPermissionRole {
+  id: string;
+  guild_id: string;
+  role_id: string;
+  access_level: string;
+  can_open_ticket: boolean;
+  can_open_priority_ticket: boolean;
+  can_close_ticket: boolean;
+  can_claim_ticket: boolean;
+}
+
+export async function listActiveCategories(guildId: string): Promise<TicketCategory[]> {
+  const { data, error } = await supabase
+    .from("ticket_categories")
+    .select("*")
+    .eq("guild_id", guildId)
+    .eq("active", true)
+    .order("position", { ascending: true })
+    .order("created_at", { ascending: true });
+  if (error) {
+    logger.error({ err: error, guildId }, "listActiveCategories falhou");
+    return [];
+  }
+  return (data ?? []) as TicketCategory[];
+}
+
+export async function getCategoryById(
+  guildId: string,
+  id: string,
+): Promise<TicketCategory | null> {
+  const { data, error } = await supabase
+    .from("ticket_categories")
+    .select("*")
+    .eq("guild_id", guildId)
+    .eq("id", id)
+    .maybeSingle();
+  if (error) {
+    logger.error({ err: error }, "getCategoryById falhou");
+    return null;
+  }
+  return (data as TicketCategory | null) ?? null;
+}
+
+export async function listAccessLevels(guildId: string): Promise<TicketAccessLevel[]> {
+  const { data, error } = await supabase
+    .from("ticket_access_levels")
+    .select("*")
+    .eq("guild_id", guildId)
+    .order("rank", { ascending: false });
+  if (error) {
+    logger.error({ err: error }, "listAccessLevels falhou");
+    return [];
+  }
+  return (data ?? []) as TicketAccessLevel[];
+}
+
+export async function listPermissionRoles(guildId: string): Promise<TicketPermissionRole[]> {
+  const { data, error } = await supabase
+    .from("ticket_permission_roles")
+    .select("*")
+    .eq("guild_id", guildId);
+  if (error) {
+    logger.error({ err: error }, "listPermissionRoles falhou");
+    return [];
+  }
+  return (data ?? []) as TicketPermissionRole[];
 }

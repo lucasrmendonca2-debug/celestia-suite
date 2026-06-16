@@ -4,8 +4,10 @@ import {
   ChatInputCommandInteraction,
   Guild,
   GuildMember,
+  Interaction,
   OverwriteType,
   PermissionFlagsBits,
+  StringSelectMenuInteraction,
   TextChannel,
 } from "discord.js";
 import { brandEmbed } from "../../utils/embed.js";
@@ -14,8 +16,12 @@ import {
   countOpenTickets,
   createTicketRow,
   findTicketByChannel,
+  getCategoryById,
   getTicketConfig,
+  listAccessLevels,
+  listPermissionRoles,
   writeLog,
+  type TicketCategory,
   type TicketConfig,
 } from "./ticket.service.js";
 import {
@@ -24,13 +30,18 @@ import {
   buildTicketActions,
   buildWelcomeEmbed,
 } from "./ticket.components.js";
-import { canMemberClose } from "./ticket.permissions.js";
+import {
+  canMemberClose,
+  canOpenCategory,
+  resolveAccessLevel,
+} from "./ticket.permissions.js";
 
 /* ===================== OPEN ===================== */
 
 export async function openTicket(
   guild: Guild,
   member: GuildMember,
+  categoryId?: string | null,
 ): Promise<{ channelId: string; ticketId: string }> {
   const cfg = await getTicketConfig(guild.id);
 
@@ -38,11 +49,32 @@ export async function openTicket(
     throw new Error("O sistema de tickets ainda não foi ativado neste servidor.");
   }
 
-  // limite
+  // Carrega categoria (se houver) + níveis/permissões
+  let category: TicketCategory | null = null;
+  if (categoryId && categoryId !== "default") {
+    category = await getCategoryById(guild.id, categoryId);
+    if (!category || !category.active) {
+      throw new Error("Categoria de ticket indisponível.");
+    }
+  }
+
+  // checagens de permissão (categoria + nível)
+  if (category) {
+    const [levels, perms] = await Promise.all([
+      listAccessLevels(guild.id),
+      listPermissionRoles(guild.id),
+    ]);
+    const lvl = resolveAccessLevel(member, levels, perms);
+    const denial = canOpenCategory(member, category, lvl);
+    if (denial) throw new Error(denial);
+  }
+
+  // limite (categoria sobrescreve global, se definido)
+  const limit = category?.max_open_tickets_per_user ?? cfg.max_open_tickets_per_user;
   const open = await countOpenTickets(guild.id, member.id);
-  if (open >= cfg.max_open_tickets_per_user) {
+  if (open >= limit) {
     throw new Error(
-      `Você já possui o número máximo de tickets abertos (${cfg.max_open_tickets_per_user}). Feche algum antes de abrir outro.`,
+      `Você já possui o número máximo de tickets abertos (${limit}). Feche algum antes de abrir outro.`,
     );
   }
 
@@ -54,20 +86,21 @@ export async function openTicket(
     );
   }
 
-  const supportRoleId = cfg.default_support_role_id;
-  const parentId = cfg.category_id;
-
-  // nome seguro
-  const safeName = `ticket-${member.user.username}`
+  const supportRoleId = category?.support_role_id ?? cfg.default_support_role_id;
+  const parentId = category?.discord_category_id ?? cfg.category_id;
+  const categoryName = category?.name ?? "Geral";
+  const slugBase = category ? `${category.name}-${member.user.username}` : `ticket-${member.user.username}`;
+  const safeName = slugBase
     .toLowerCase()
-    .replace(/[^a-z0-9-]/g, "")
+    .replace(/[^a-z0-9-]/g, "-")
+    .replace(/-+/g, "-")
     .slice(0, 90);
 
   const channel = await guild.channels.create({
     name: safeName,
     type: ChannelType.GuildText,
     parent: parentId ?? undefined,
-    topic: `Ticket de ${member.user.tag} • ${member.id}`,
+    topic: `${categoryName} • Ticket de ${member.user.tag} • ${member.id}`,
     permissionOverwrites: [
       {
         id: guild.roles.everyone.id,
@@ -121,11 +154,17 @@ export async function openTicket(
     channel_id: channel.id,
     user_id: member.id,
     username: member.user.username,
-    category_name: "Geral",
+    category_id: category?.id ?? null,
+    category_name: categoryName,
+    priority: category?.priority ?? false,
   });
 
-  const welcome = buildWelcomeEmbed(cfg, ticket.id, member.id, supportRoleId);
-  const actions = buildTicketActions(true);
+  // Mensagem de boas-vindas: categoria sobrescreve a global se definida
+  const welcomeCfg: TicketConfig = category?.welcome_message
+    ? { ...cfg, ticket_welcome_message: category.welcome_message }
+    : cfg;
+  const welcome = buildWelcomeEmbed(welcomeCfg, ticket.id, member.id, supportRoleId);
+  const actions = buildTicketActions(cfg.allow_user_close_ticket);
 
   await channel.send({
     content: [`<@${member.id}>`, supportRoleId ? `<@&${supportRoleId}>` : ""]
@@ -137,6 +176,7 @@ export async function openTicket(
 
   await writeLog(guild.id, ticket.id, "opened", member.id, {
     channelId: channel.id,
+    categoryId: category?.id ?? null,
   });
   await sendOpenedLog(guild, cfg, channel, member);
 
@@ -242,10 +282,12 @@ export async function handleTicketButton(interaction: ButtonInteraction): Promis
   const [, action] = interaction.customId.split(":");
 
   if (action === "open") {
+    const [, , categoryId] = interaction.customId.split(":");
     try {
       const { channelId } = await openTicket(
         interaction.guild,
         interaction.member as GuildMember,
+        categoryId ?? null,
       );
       await interaction.reply({
         embeds: [
@@ -319,4 +361,47 @@ export async function closeTicketSlash(interaction: ChatInputCommandInteraction)
     interaction.member as GuildMember,
     reason,
   );
+}
+
+/* ===================== SELECT MENU (multi-categoria) ===================== */
+
+export async function handleTicketSelect(
+  interaction: StringSelectMenuInteraction,
+): Promise<void> {
+  if (!interaction.guild) return;
+  const categoryId = interaction.values[0];
+  try {
+    const { channelId } = await openTicket(
+      interaction.guild,
+      interaction.member as GuildMember,
+      categoryId,
+    );
+    await interaction.reply({
+      embeds: [
+        brandEmbed({
+          kind: "success",
+          title: "Prontinho!",
+          description: `Seu ticket foi criado em <#${channelId}>.`,
+        }),
+      ],
+      ephemeral: true,
+    });
+  } catch (err) {
+    await interaction.reply({
+      embeds: [
+        brandEmbed({
+          kind: "error",
+          title: "Não foi possível abrir o ticket",
+          description: (err as Error).message,
+        }),
+      ],
+      ephemeral: true,
+    });
+  }
+}
+
+export function isTicketInteraction(interaction: Interaction): boolean {
+  if (interaction.isButton()) return interaction.customId.startsWith("ticket:");
+  if (interaction.isStringSelectMenu()) return interaction.customId === "ticket:select";
+  return false;
 }

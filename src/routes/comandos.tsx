@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowUpRight, Search, ChevronDown, Clock, Shield, Terminal } from "lucide-react";
+import { ArrowUpRight, Search, ChevronDown, Clock, Shield, Terminal, X, ChevronRight } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeProvider";
 
 export const Route = createFileRoute("/comandos")({

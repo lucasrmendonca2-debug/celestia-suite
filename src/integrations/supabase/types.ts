@@ -1161,6 +1161,371 @@ export type Database = {
         }
         Relationships: []
       }
+      premium_activation_codes: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          created_by: string | null
+          duration_days: number | null
+          expires_at: string | null
+          id: string
+          max_uses: number
+          notes: string | null
+          plan_id: string
+          type: string
+          updated_at: string
+          used_count: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          created_by?: string | null
+          duration_days?: number | null
+          expires_at?: string | null
+          id?: string
+          max_uses?: number
+          notes?: string | null
+          plan_id: string
+          type: string
+          updated_at?: string
+          used_count?: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          duration_days?: number | null
+          expires_at?: string | null
+          id?: string
+          max_uses?: number
+          notes?: string | null
+          plan_id?: string
+          type?: string
+          updated_at?: string
+          used_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "premium_activation_codes_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "premium_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      premium_activations: {
+        Row: {
+          activated_at: string
+          code_id: string
+          guild_id: string | null
+          id: string
+          subscription_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          activated_at?: string
+          code_id: string
+          guild_id?: string | null
+          id?: string
+          subscription_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          activated_at?: string
+          code_id?: string
+          guild_id?: string | null
+          id?: string
+          subscription_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "premium_activations_code_id_fkey"
+            columns: ["code_id"]
+            isOneToOne: false
+            referencedRelation: "premium_activation_codes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "premium_activations_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "premium_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      premium_audit_log: {
+        Row: {
+          action: string
+          admin_id: string | null
+          created_at: string
+          details: Json
+          id: string
+          plan_id: string | null
+          target_guild_id: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          admin_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          plan_id?: string | null
+          target_guild_id?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string | null
+          created_at?: string
+          details?: Json
+          id?: string
+          plan_id?: string | null
+          target_guild_id?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "premium_audit_log_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "premium_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      premium_benefits: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          id: string
+          key: string
+          name: string
+          plan_id: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          key: string
+          name: string
+          plan_id: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          id?: string
+          key?: string
+          name?: string
+          plan_id?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "premium_benefits_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "premium_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      premium_feature_usage: {
+        Row: {
+          created_at: string
+          feature_key: string
+          guild_id: string | null
+          id: string
+          limit_amount: number
+          reset_at: string | null
+          updated_at: string
+          used_amount: number
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          feature_key: string
+          guild_id?: string | null
+          id?: string
+          limit_amount?: number
+          reset_at?: string | null
+          updated_at?: string
+          used_amount?: number
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          feature_key?: string
+          guild_id?: string | null
+          id?: string
+          limit_amount?: number
+          reset_at?: string | null
+          updated_at?: string
+          used_amount?: number
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      premium_guild_config: {
+        Row: {
+          allow_vip_shop_items: boolean
+          allow_vip_tickets: boolean
+          appearance: Json
+          created_at: string
+          guild_id: string
+          premium_log_channel_id: string | null
+          premium_role_id: string | null
+          show_premium_badges: boolean
+          updated_at: string
+          vip_role_id: string | null
+        }
+        Insert: {
+          allow_vip_shop_items?: boolean
+          allow_vip_tickets?: boolean
+          appearance?: Json
+          created_at?: string
+          guild_id: string
+          premium_log_channel_id?: string | null
+          premium_role_id?: string | null
+          show_premium_badges?: boolean
+          updated_at?: string
+          vip_role_id?: string | null
+        }
+        Update: {
+          allow_vip_shop_items?: boolean
+          allow_vip_tickets?: boolean
+          appearance?: Json
+          created_at?: string
+          guild_id?: string
+          premium_log_channel_id?: string | null
+          premium_role_id?: string | null
+          show_premium_badges?: boolean
+          updated_at?: string
+          vip_role_id?: string | null
+        }
+        Relationships: []
+      }
+      premium_plans: {
+        Row: {
+          active: boolean
+          created_at: string
+          currency: string | null
+          description: string | null
+          duration_days: number | null
+          features: Json
+          id: string
+          limits: Json
+          name: string
+          price: number | null
+          slug: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          duration_days?: number | null
+          features?: Json
+          id?: string
+          limits?: Json
+          name: string
+          price?: number | null
+          slug: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          currency?: string | null
+          description?: string | null
+          duration_days?: number | null
+          features?: Json
+          id?: string
+          limits?: Json
+          name?: string
+          price?: number | null
+          slug?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      premium_subscriptions: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          guild_id: string | null
+          id: string
+          notes: string | null
+          plan_id: string
+          source: string | null
+          starts_at: string
+          status: string
+          type: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          guild_id?: string | null
+          id?: string
+          notes?: string | null
+          plan_id: string
+          source?: string | null
+          starts_at?: string
+          status?: string
+          type: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          guild_id?: string | null
+          id?: string
+          notes?: string | null
+          plan_id?: string
+          source?: string | null
+          starts_at?: string
+          status?: string
+          type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "premium_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "premium_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       punishments: {
         Row: {
           active: boolean

@@ -84,14 +84,14 @@ export const ASSET_KEYS = {
     name: "Banner de boas-vindas",
     module: "WELCOME",
     type: "BANNER",
-    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/0068bdbe-fd14-4cbf-8899-b1faec347604/welcome-banner.png",
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/f4bc3ffe-b7f0-4d89-a803-f694b31bbf3f/welcome-banner.png",
   },
   "welcome.goodbye_banner": {
     key: "welcome.goodbye_banner",
     name: "Banner de saída",
     module: "WELCOME",
     type: "BANNER",
-    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/5f7098c5-afb7-414a-a142-55742f4cd52f/goodbye-banner.png",
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/2544aca9-fe28-4cc6-a23d-12ea6372695e/goodbye-banner.png",
   },
   "welcome.card_background": {
     key: "welcome.card_background",
@@ -107,7 +107,7 @@ export const ASSET_KEYS = {
     name: "Banner do painel de tickets",
     module: "TICKETS",
     type: "BANNER",
-    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/4c5f0884-173b-44d9-aaff-86d197cd2d1a/tickets-panel.png",
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/7db130c7-10b7-4b66-b064-56021434ef59/tickets-panel.png",
   },
   "tickets.icon_support": {
     key: "tickets.icon_support",
@@ -165,7 +165,7 @@ export const ASSET_KEYS = {
     name: "Banner da economia",
     module: "ECONOMY",
     type: "BANNER",
-    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/4c51b6f3-0d3f-4601-9adf-7a4d067e2dbc/economy-banner.png",
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/0e78c66a-3055-4176-aead-0dcd142d1943/economy-banner.png",
   },
   "economy.currency_icon": {
     key: "economy.currency_icon",
@@ -179,14 +179,14 @@ export const ASSET_KEYS = {
     name: "Imagem do /daily",
     module: "ECONOMY",
     type: "IMAGE",
-    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/a661aeef-19c3-4302-b13b-2908e6f9ca4f/economy-daily.png",
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/ec8c77b5-bd03-49b0-8110-82c545409d4c/economy-daily.png",
   },
   "economy.work_image": {
     key: "economy.work_image",
     name: "Imagem do /work",
     module: "ECONOMY",
     type: "IMAGE",
-    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/f790f172-825a-4f22-8e37-603b1142f3c6/economy-work.png",
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/f53fe9ae-c286-44c9-b77f-98fcd7899e41/economy-work.png",
   },
   "economy.crime_image": {
     key: "economy.crime_image",
@@ -200,14 +200,14 @@ export const ASSET_KEYS = {
     name: "Imagem da loja",
     module: "ECONOMY",
     type: "IMAGE",
-    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/b6549235-8077-4d37-a098-37a55800320b/economy-shop.png",
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/866bf101-5fe1-4470-bec8-109e49bb7f10/economy-shop.png",
   },
   "economy.top_image": {
     key: "economy.top_image",
     name: "Imagem do ranking",
     module: "ECONOMY",
     type: "IMAGE",
-    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/51aefb23-35c8-4334-88b9-e69af00b21e8/economy-top.png",
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/8bf41940-02ec-4e16-99f1-1a49dcf861eb/economy-top.png",
   },
 
   // SOCIAL / LEVEL
@@ -230,7 +230,7 @@ export const ASSET_KEYS = {
     name: "Banner de level up",
     module: "LEVEL",
     type: "BANNER",
-    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/d7d3ee65-9ff8-44c3-8207-cb611b3e3617/levelup-banner.png",
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/8a6496f1-1a08-42a2-a44b-b5703b537c42/levelup-banner.png",
   },
   "social.frame_common": {
     key: "social.frame_common",
@@ -274,7 +274,7 @@ export const ASSET_KEYS = {
     name: "Banner premium",
     module: "PREMIUM",
     type: "BANNER",
-    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/0ad171e6-731d-463d-b621-76fdc7766b1c/premium-banner.png",
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/7e9e8cad-15eb-41ee-894b-a38e6414461e/premium-banner.png",
   },
   "premium.vip_badge": {
     key: "premium.vip_badge",
@@ -288,7 +288,7 @@ export const ASSET_KEYS = {
     name: "Imagem de recurso bloqueado",
     module: "PREMIUM",
     type: "IMAGE",
-    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/64a2e490-220c-4e45-944d-a7034b5c25f0/premium-locked.png",
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/84e98988-e085-4aec-8f34-d2571dc35579/premium-locked.png",
   },
   "premium.plan_image": {
     key: "premium.plan_image",
@@ -331,7 +331,7 @@ export const ASSET_KEYS = {
     name: "Banner do automod",
     module: "MODERATION",
     type: "BANNER",
-    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/6e4d9b64-48e2-4600-9bc8-c0648a69a052/moderation-banner.png",
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/75b107f6-737d-406c-8d39-bede5819df3a/moderation-banner.png",
   },
   "logs.icon_message_deleted": {
     key: "logs.icon_message_deleted",

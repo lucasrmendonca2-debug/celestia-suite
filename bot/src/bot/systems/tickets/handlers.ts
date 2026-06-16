@@ -362,3 +362,46 @@ export async function closeTicketSlash(interaction: ChatInputCommandInteraction)
     reason,
   );
 }
+
+/* ===================== SELECT MENU (multi-categoria) ===================== */
+
+export async function handleTicketSelect(
+  interaction: StringSelectMenuInteraction,
+): Promise<void> {
+  if (!interaction.guild) return;
+  const categoryId = interaction.values[0];
+  try {
+    const { channelId } = await openTicket(
+      interaction.guild,
+      interaction.member as GuildMember,
+      categoryId,
+    );
+    await interaction.reply({
+      embeds: [
+        brandEmbed({
+          kind: "success",
+          title: "Prontinho!",
+          description: `Seu ticket foi criado em <#${channelId}>.`,
+        }),
+      ],
+      ephemeral: true,
+    });
+  } catch (err) {
+    await interaction.reply({
+      embeds: [
+        brandEmbed({
+          kind: "error",
+          title: "Não foi possível abrir o ticket",
+          description: (err as Error).message,
+        }),
+      ],
+      ephemeral: true,
+    });
+  }
+}
+
+export function isTicketInteraction(interaction: Interaction): boolean {
+  if (interaction.isButton()) return interaction.customId.startsWith("ticket:");
+  if (interaction.isStringSelectMenu()) return interaction.customId === "ticket:select";
+  return false;
+}

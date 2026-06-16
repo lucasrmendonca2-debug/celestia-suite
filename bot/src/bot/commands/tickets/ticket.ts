@@ -12,7 +12,10 @@ import { env } from "../../../config/env.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import {
+  addUserToTicket,
   closeTicketSlash,
+  removeUserFromTicket,
+  reopenTicket,
 } from "../../systems/tickets/handlers.js";
 import {
   getTicketConfig,
@@ -54,6 +57,25 @@ const command: SlashCommand = {
         ),
     )
     .addSubcommand((s) =>
+      s.setName("reabrir").setDescription("Reabre este ticket fechado."),
+    )
+    .addSubcommand((s) =>
+      s
+        .setName("adicionar")
+        .setDescription("Adiciona um usuário a este ticket.")
+        .addUserOption((o) =>
+          o.setName("usuario").setDescription("Usuário a adicionar").setRequired(true),
+        ),
+    )
+    .addSubcommand((s) =>
+      s
+        .setName("remover")
+        .setDescription("Remove um usuário deste ticket.")
+        .addUserOption((o) =>
+          o.setName("usuario").setDescription("Usuário a remover").setRequired(true),
+        ),
+    )
+    .addSubcommand((s) =>
       s.setName("configurar").setDescription("Mostra a configuração atual do sistema de tickets."),
     ),
   async execute(interaction: ChatInputCommandInteraction) {
@@ -61,6 +83,9 @@ const command: SlashCommand = {
 
     if (sub === "painel") return runPainel(interaction);
     if (sub === "fechar") return runFechar(interaction);
+    if (sub === "reabrir") return runReabrir(interaction);
+    if (sub === "adicionar") return runAdicionar(interaction);
+    if (sub === "remover") return runRemover(interaction);
     if (sub === "configurar") return runConfigurar(interaction);
   },
 };
@@ -161,6 +186,64 @@ async function runFechar(interaction: ChatInputCommandInteraction) {
           description: (err as Error).message,
         }),
       ],
+      ephemeral: true,
+    });
+  }
+}
+
+async function runReabrir(interaction: ChatInputCommandInteraction) {
+  try {
+    await reopenTicket(
+      interaction.channel as TextChannel,
+      interaction.member as import("discord.js").GuildMember,
+    );
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "success", title: "Ticket reaberto" })],
+      ephemeral: true,
+    });
+  } catch (err) {
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "error", title: "Erro", description: (err as Error).message })],
+      ephemeral: true,
+    });
+  }
+}
+
+async function runAdicionar(interaction: ChatInputCommandInteraction) {
+  const user = interaction.options.getUser("usuario", true);
+  try {
+    await addUserToTicket(
+      interaction.channel as TextChannel,
+      interaction.member as import("discord.js").GuildMember,
+      user.id,
+    );
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "success", title: "Usuário adicionado" })],
+      ephemeral: true,
+    });
+  } catch (err) {
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "error", title: "Erro", description: (err as Error).message })],
+      ephemeral: true,
+    });
+  }
+}
+
+async function runRemover(interaction: ChatInputCommandInteraction) {
+  const user = interaction.options.getUser("usuario", true);
+  try {
+    await removeUserFromTicket(
+      interaction.channel as TextChannel,
+      interaction.member as import("discord.js").GuildMember,
+      user.id,
+    );
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "success", title: "Usuário removido" })],
+      ephemeral: true,
+    });
+  } catch (err) {
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "error", title: "Erro", description: (err as Error).message })],
       ephemeral: true,
     });
   }

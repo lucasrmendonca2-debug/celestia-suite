@@ -3,17 +3,19 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Save, Sparkles, Trash2, Trophy } from "lucide-react";
+import { Plus, Save, Sparkles, Trash2, Trophy, User } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   addSocialReward,
   getLevelConfig,
+  getMyProfile,
   getSocialConfig,
   getSocialLeaderboard,
   getSocialLogs,
   listSocialRewards,
   removeSocialReward,
   updateLevelConfig,
+  updateMyProfile,
   updateSocialConfig,
 } from "@/lib/guild/social.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
@@ -62,6 +64,10 @@ export const Route = createFileRoute("/_authenticated/dashboard/$guildId/social"
         queryKey: ["social-logs", params.guildId],
         queryFn: () => getSocialLogs({ data: { guildId: params.guildId } }),
       }),
+      context.queryClient.ensureQueryData({
+        queryKey: ["my-profile", params.guildId],
+        queryFn: () => getMyProfile({ data: { guildId: params.guildId } }),
+      }),
     ]);
     return { user, social, level };
   },
@@ -102,6 +108,31 @@ function SocialPage() {
   const logs = useSuspenseQuery({
     queryKey: ["social-logs", guildId],
     queryFn: () => getSocialLogs({ data: { guildId } }),
+  });
+  const myProfile = useSuspenseQuery({
+    queryKey: ["my-profile", guildId],
+    queryFn: () => getMyProfile({ data: { guildId } }),
+  });
+
+  const updMyProfile = useServerFn(updateMyProfile);
+  const [mp, setMp] = useState<any>(myProfile.data);
+
+  const saveMyProfile = useMutation({
+    mutationFn: () =>
+      updMyProfile({
+        data: {
+          guildId,
+          accent_color: mp.accent_color || null,
+          background_color: mp.background_color || null,
+          text_color: mp.text_color || null,
+          card_style: (mp.card_style as "default" | "minimal" | "gradient") ?? "default",
+        },
+      }),
+    onSuccess: () => {
+      toast.success("Seu card foi atualizado.");
+      qc.invalidateQueries({ queryKey: ["my-profile", guildId] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Erro ao salvar."),
   });
 
   const saveSocial = useMutation({
@@ -206,6 +237,7 @@ function SocialPage() {
           <TabsTrigger value="geral">Geral</TabsTrigger>
           <TabsTrigger value="xp">XP & Level</TabsTrigger>
           <TabsTrigger value="card">Card visual</TabsTrigger>
+          <TabsTrigger value="meu-card">Meu card</TabsTrigger>
           <TabsTrigger value="rewards">Recompensas</TabsTrigger>
           <TabsTrigger value="leaderboard">Ranking</TabsTrigger>
           <TabsTrigger value="logs">Logs</TabsTrigger>
@@ -402,7 +434,80 @@ function SocialPage() {
         </TabsContent>
 
 
+        {/* MEU CARD — overrides do membro logado (reflete /perfil editar) */}
+        <TabsContent value="meu-card" className="space-y-4">
+          <Card title="Personalização do meu rank card">
+            <p className="text-sm text-muted-foreground mb-4 flex items-start gap-2">
+              <User className="size-4 mt-0.5 shrink-0" />
+              <span>
+                Estas opções valem somente para o <b>seu</b> rank card neste servidor. Deixe em
+                branco para usar o padrão definido pelo servidor. Equivalente a
+                <code className="mx-1 rounded bg-muted px-1 py-0.5">/perfil editar</code>
+                no Discord — alterações refletem imediatamente aqui e no bot.
+              </span>
+            </p>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Accent (vazio = padrão do servidor)">
+                <div className="flex gap-2 items-center">
+                  <Input type="color" value={mp.accent_color ?? s.card_accent_color ?? "#5865F2"}
+                    onChange={(e) => setMp({ ...mp, accent_color: e.target.value })}
+                    className="h-10 w-16 p-1" />
+                  <Input value={mp.accent_color ?? ""} placeholder="(padrão do servidor)"
+                    onChange={(e) => setMp({ ...mp, accent_color: e.target.value })} className="font-mono" />
+                  <Button size="sm" variant="ghost" onClick={() => setMp({ ...mp, accent_color: null })}>limpar</Button>
+                </div>
+              </Field>
+              <Field label="Fundo (vazio = padrão do servidor)">
+                <div className="flex gap-2 items-center">
+                  <Input type="color" value={mp.background_color ?? s.card_background_color ?? "#0f1117"}
+                    onChange={(e) => setMp({ ...mp, background_color: e.target.value })}
+                    className="h-10 w-16 p-1" />
+                  <Input value={mp.background_color ?? ""} placeholder="(padrão do servidor)"
+                    onChange={(e) => setMp({ ...mp, background_color: e.target.value })} className="font-mono" />
+                  <Button size="sm" variant="ghost" onClick={() => setMp({ ...mp, background_color: null })}>limpar</Button>
+                </div>
+              </Field>
+              <Field label="Texto (vazio = padrão do servidor)">
+                <div className="flex gap-2 items-center">
+                  <Input type="color" value={mp.text_color ?? s.card_text_color ?? "#ffffff"}
+                    onChange={(e) => setMp({ ...mp, text_color: e.target.value })}
+                    className="h-10 w-16 p-1" />
+                  <Input value={mp.text_color ?? ""} placeholder="(padrão do servidor)"
+                    onChange={(e) => setMp({ ...mp, text_color: e.target.value })} className="font-mono" />
+                  <Button size="sm" variant="ghost" onClick={() => setMp({ ...mp, text_color: null })}>limpar</Button>
+                </div>
+              </Field>
+              <Field label="Estilo do card">
+                <select
+                  value={mp.card_style ?? "default"}
+                  onChange={(e) => setMp({ ...mp, card_style: e.target.value })}
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="default">Padrão</option>
+                  <option value="minimal">Minimal</option>
+                  <option value="gradient">Gradient</option>
+                </select>
+              </Field>
+            </div>
+
+            <div className="mt-6">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
+                Pré-visualização (resolvido: seu valor → padrão do servidor)
+              </p>
+              <RankCardPreview
+                accent={mp.accent_color ?? s.card_accent_color ?? "#5865F2"}
+                background={mp.background_color ?? s.card_background_color ?? "#0f1117"}
+                text={mp.text_color ?? s.card_text_color ?? "#ffffff"}
+                style={((mp.card_style as "default" | "minimal" | "gradient") ?? "default")}
+              />
+            </div>
+          </Card>
+
+          <SaveBar onClick={() => saveMyProfile.mutate()} loading={saveMyProfile.isPending} />
+        </TabsContent>
+
         <TabsContent value="rewards" className="space-y-4">
+
           <Card title="Nova recompensa">
             <div className="grid gap-4 md:grid-cols-5">
               <Field label="Nível">

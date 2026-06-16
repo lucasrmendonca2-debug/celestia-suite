@@ -228,3 +228,66 @@ export const getSocialLogs = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return rows ?? [];
   });
+
+// ============================================================
+// MY PROFILE (overrides individuais do membro logado)
+// ============================================================
+const hexColorNullable = z
+  .string()
+  .regex(/^#[0-9a-fA-F]{6}$/, "cor inválida (#RRGGBB)")
+  .nullable();
+
+async function currentUserId(): Promise<string> {
+  const { getSession } = await import("../auth/session.server");
+  const session = await getSession();
+  if (!session.data.userId) throw new Error("Não autenticado.");
+  return session.data.userId;
+}
+
+export const getMyProfile = createServerFn({ method: "GET" })
+  .inputValidator((d: { guildId: string }) => z.object({ guildId: guildIdSchema }).parse(d))
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const userId = await currentUserId();
+    const sb = await admin();
+    const { data: row, error } = await sb
+      .from("social_profiles")
+      .select("accent_color, background_color, text_color, card_style")
+      .eq("guild_id", data.guildId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return (
+      row ?? {
+        accent_color: null as string | null,
+        background_color: null as string | null,
+        text_color: null as string | null,
+        card_style: "default" as string,
+      }
+    );
+  });
+
+const MyProfileInput = z.object({
+  guildId: guildIdSchema,
+  accent_color: hexColorNullable,
+  background_color: hexColorNullable,
+  text_color: hexColorNullable,
+  card_style: z.enum(["default", "minimal", "gradient"]),
+});
+
+export const updateMyProfile = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => MyProfileInput.parse(d))
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const userId = await currentUserId();
+    const sb = await admin();
+    const { guildId, ...rest } = data;
+    const { error } = await sb
+      .from("social_profiles")
+      .upsert(
+        { guild_id: guildId, user_id: userId, ...rest },
+        { onConflict: "guild_id,user_id" },
+      );
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });

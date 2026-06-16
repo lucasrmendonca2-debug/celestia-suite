@@ -200,58 +200,110 @@ export const sendTicketPanel = createServerFn({ method: "POST" })
 
     const activeCats = cats ?? [];
 
-    let components: unknown[];
-    if (activeCats.length === 0) {
-      components = [
-        {
-          type: 1,
-          components: [
+    // Sempre dropdown — mais limpo e escala melhor.
+    const options =
+      activeCats.length === 0
+        ? [
             {
-              type: 2,
-              style: 1,
-              custom_id: "ticket:open:default",
-              label: cfg.panel_button_label,
-              emoji: cfg.panel_button_emoji
-                ? { name: cfg.panel_button_emoji }
-                : undefined,
+              label: cfg.panel_button_label || "Abrir ticket",
+              value: "default",
+              description: "Atendimento geral com a nossa equipe.",
+              emoji: { name: cfg.panel_button_emoji || "🎫" },
             },
-          ],
-        },
-      ];
-    } else if (activeCats.length <= 5) {
-      components = [
-        {
-          type: 1,
-          components: activeCats.map((c) => ({
-            type: 2,
-            style: c.priority ? 4 : 1,
-            custom_id: `ticket:open:${c.id}`,
-            label: c.name.slice(0, 80),
+          ]
+        : activeCats.slice(0, 25).map((c) => ({
+            label: c.name.slice(0, 100),
+            value: c.id,
+            description: c.priority ? "⚡ Prioridade" : undefined,
             emoji: c.emoji ? { name: c.emoji } : undefined,
-          })),
-        },
-      ];
-    } else {
-      components = [
-        {
-          type: 1,
-          components: [
-            {
-              type: 3,
-              custom_id: "ticket:select",
-              placeholder: "Escolha o tipo de atendimento…",
-              options: activeCats.slice(0, 25).map((c) => ({
-                label: c.name.slice(0, 100),
-                value: c.id,
-                emoji: c.emoji ? { name: c.emoji } : undefined,
-              })),
-            },
-          ],
-        },
-      ];
-    }
+          }));
+
+    const components = [
+      {
+        type: 1,
+        components: [
+          {
+            type: 3,
+            custom_id: "ticket:select",
+            placeholder: "Escolha o tipo de atendimento…",
+            min_values: 1,
+            max_values: 1,
+            options,
+          },
+        ],
+      },
+    ];
 
     const body = {
+      embeds: [
+        {
+          title: cfg.panel_title,
+          description: cfg.panel_description,
+          color: cfg.panel_color,
+        },
+      ],
+      components,
+    };
+
+    const res = await fetch(
+      `https://discord.com/api/v10/channels/${channelId}/messages`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bot ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      },
+    );
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      throw new Error(
+        `Discord recusou (${res.status}). Confira se o bot está no servidor e tem acesso ao canal. ${text.slice(0, 200)}`,
+      );
+    }
+    const msg = (await res.json()) as { id: string };
+
+    await sb
+      .from("ticket_configs")
+      .update({ panel_channel_id: channelId, panel_message_id: msg.id })
+      .eq("guild_id", data.guildId);
+
+    return { ok: true, channelId, messageId: msg.id };
+  });
+
+/* ----------- Carrega categorias-modelo (idempotente) ----------- */
+export const seedTicketTemplates = createServerFn({ method: "POST" })
+  .inputValidator((d: { guildId: string }) =>
+    z.object({ guildId: guildIdSchema }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { count } = await sb
+      .from("ticket_categories")
+      .select("id", { count: "exact", head: true })
+      .eq("guild_id", data.guildId);
+    if ((count ?? 0) > 0) {
+      return { ok: true, inserted: 0 };
+    }
+    const rows = TEMPLATE_CATEGORIES.map((t) => ({
+      guild_id: data.guildId,
+      name: t.name,
+      emoji: t.emoji,
+      description: t.description,
+      welcome_message: t.welcome_message,
+      priority: t.priority,
+      position: t.position,
+      active: true,
+      required_role_ids: [],
+      blocked_role_ids: [],
+      allowed_access_levels: [],
+    }));
+    const { error } = await sb.from("ticket_categories").insert(rows);
+    if (error) throw new Error(error.message);
+    return { ok: true, inserted: rows.length };
+  });
       embeds: [
         {
           title: cfg.panel_title,

@@ -358,6 +358,7 @@ async function sendClosedLog(
   channel: TextChannel,
   staff: GuildMember,
   ownerId: string,
+  transcript: import("discord.js").AttachmentBuilder | null = null,
 ) {
   if (!cfg.log_channel_id) return;
   const logCh = guild.channels.cache.get(cfg.log_channel_id);
@@ -375,6 +376,7 @@ async function sendClosedLog(
           ],
         }),
       ],
+      files: transcript ? [transcript] : [],
     })
     .catch(() => {});
 }

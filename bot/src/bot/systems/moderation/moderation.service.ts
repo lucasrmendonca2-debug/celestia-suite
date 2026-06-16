@@ -40,6 +40,13 @@ export interface ModerationConfig {
   embed_footer: string;
   embed_icon_url: string | null;
   enabled_log_events: string[];
+  warn_expiry_days: number;
+  appeal_url: string | null;
+  warn_points_low: number;
+  warn_points_medium: number;
+  warn_points_high: number;
+  logs_retention_days: number;
+  audit_log_enabled: boolean;
 }
 
 const DEFAULT_CONFIG: Omit<ModerationConfig, "guild_id"> = {
@@ -64,7 +71,15 @@ const DEFAULT_CONFIG: Omit<ModerationConfig, "guild_id"> = {
   enabled_log_events: [
     "ban", "unban", "kick", "mute", "unmute", "warn", "removewarn",
     "clear", "lock", "unlock", "slowmode", "automod", "config_change",
+    "note", "purge", "nickname",
   ],
+  warn_expiry_days: 90,
+  appeal_url: null,
+  warn_points_low: 1,
+  warn_points_medium: 2,
+  warn_points_high: 3,
+  logs_retention_days: 180,
+  audit_log_enabled: true,
 };
 
 export async function getModerationConfig(guildId: string): Promise<ModerationConfig> {
@@ -145,6 +160,8 @@ export async function createPunishment(args: CreatePunishmentArgs) {
   return data;
 }
 
+export type WarnSeverity = "LOW" | "MEDIUM" | "HIGH";
+
 export async function createWarning(args: {
   guildId: string;
   userId: string;
@@ -152,6 +169,10 @@ export async function createWarning(args: {
   moderatorId: string;
   moderatorName?: string | null;
   reason?: string | null;
+  severity?: WarnSeverity;
+  points?: number;
+  proofUrl?: string | null;
+  expiresAt?: Date | null;
 }) {
   const { data, error } = await supabase
     .from("warnings")
@@ -162,11 +183,26 @@ export async function createWarning(args: {
       moderator_id: args.moderatorId,
       moderator_name: args.moderatorName ?? null,
       reason: args.reason ?? null,
+      severity: args.severity ?? "MEDIUM",
+      points: args.points ?? 1,
+      proof_url: args.proofUrl ?? null,
+      expires_at: args.expiresAt?.toISOString() ?? null,
     })
     .select()
     .single();
   if (error) throw error;
   return data;
+}
+
+export async function sumActiveWarnPoints(guildId: string, userId: string): Promise<number> {
+  const { data, error } = await supabase
+    .from("warnings")
+    .select("points")
+    .eq("guild_id", guildId)
+    .eq("user_id", userId)
+    .eq("active", true);
+  if (error) throw error;
+  return (data ?? []).reduce((acc, w) => acc + ((w.points as number | null) ?? 1), 0);
 }
 
 export async function countActiveWarnings(guildId: string, userId: string) {

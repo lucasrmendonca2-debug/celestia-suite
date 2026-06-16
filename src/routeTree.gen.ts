@@ -26,6 +26,7 @@ import { Route as AuthenticatedDashboardGuildIdSocialRouteImport } from './route
 import { Route as AuthenticatedDashboardGuildIdSeasonsRouteImport } from './routes/_authenticated/dashboard.$guildId.seasons'
 import { Route as AuthenticatedDashboardGuildIdReactionRolesRouteImport } from './routes/_authenticated/dashboard.$guildId.reaction-roles'
 import { Route as AuthenticatedDashboardGuildIdPremiumRouteImport } from './routes/_authenticated/dashboard.$guildId.premium'
+import { Route as AuthenticatedDashboardGuildIdPermissoesRouteImport } from './routes/_authenticated/dashboard.$guildId.permissoes'
 import { Route as AuthenticatedDashboardGuildIdModerationRouteImport } from './routes/_authenticated/dashboard.$guildId.moderation'
 import { Route as AuthenticatedDashboardGuildIdLogsRouteImport } from './routes/_authenticated/dashboard.$guildId.logs'
 import { Route as AuthenticatedDashboardGuildIdLevelingRouteImport } from './routes/_authenticated/dashboard.$guildId.leveling'
@@ -132,6 +133,12 @@ const AuthenticatedDashboardGuildIdPremiumRoute =
     path: '/premium',
     getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
   } as any)
+const AuthenticatedDashboardGuildIdPermissoesRoute =
+  AuthenticatedDashboardGuildIdPermissoesRouteImport.update({
+    id: '/permissoes',
+    path: '/permissoes',
+    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+  } as any)
 const AuthenticatedDashboardGuildIdModerationRoute =
   AuthenticatedDashboardGuildIdModerationRouteImport.update({
     id: '/moderation',
@@ -218,6 +225,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/$guildId/leveling': typeof AuthenticatedDashboardGuildIdLevelingRoute
   '/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
   '/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
+  '/dashboard/$guildId/permissoes': typeof AuthenticatedDashboardGuildIdPermissoesRoute
   '/dashboard/$guildId/premium': typeof AuthenticatedDashboardGuildIdPremiumRoute
   '/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
   '/dashboard/$guildId/seasons': typeof AuthenticatedDashboardGuildIdSeasonsRoute
@@ -246,6 +254,7 @@ export interface FileRoutesByTo {
   '/dashboard/$guildId/leveling': typeof AuthenticatedDashboardGuildIdLevelingRoute
   '/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
   '/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
+  '/dashboard/$guildId/permissoes': typeof AuthenticatedDashboardGuildIdPermissoesRoute
   '/dashboard/$guildId/premium': typeof AuthenticatedDashboardGuildIdPremiumRoute
   '/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
   '/dashboard/$guildId/seasons': typeof AuthenticatedDashboardGuildIdSeasonsRoute
@@ -277,6 +286,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/$guildId/leveling': typeof AuthenticatedDashboardGuildIdLevelingRoute
   '/_authenticated/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
   '/_authenticated/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
+  '/_authenticated/dashboard/$guildId/permissoes': typeof AuthenticatedDashboardGuildIdPermissoesRoute
   '/_authenticated/dashboard/$guildId/premium': typeof AuthenticatedDashboardGuildIdPremiumRoute
   '/_authenticated/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
   '/_authenticated/dashboard/$guildId/seasons': typeof AuthenticatedDashboardGuildIdSeasonsRoute
@@ -308,6 +318,7 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId/leveling'
     | '/dashboard/$guildId/logs'
     | '/dashboard/$guildId/moderation'
+    | '/dashboard/$guildId/permissoes'
     | '/dashboard/$guildId/premium'
     | '/dashboard/$guildId/reaction-roles'
     | '/dashboard/$guildId/seasons'
@@ -336,6 +347,7 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId/leveling'
     | '/dashboard/$guildId/logs'
     | '/dashboard/$guildId/moderation'
+    | '/dashboard/$guildId/permissoes'
     | '/dashboard/$guildId/premium'
     | '/dashboard/$guildId/reaction-roles'
     | '/dashboard/$guildId/seasons'
@@ -366,6 +378,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/$guildId/leveling'
     | '/_authenticated/dashboard/$guildId/logs'
     | '/_authenticated/dashboard/$guildId/moderation'
+    | '/_authenticated/dashboard/$guildId/permissoes'
     | '/_authenticated/dashboard/$guildId/premium'
     | '/_authenticated/dashboard/$guildId/reaction-roles'
     | '/_authenticated/dashboard/$guildId/seasons'
@@ -508,6 +521,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardGuildIdPremiumRouteImport
       parentRoute: typeof AuthenticatedDashboardGuildIdRoute
     }
+    '/_authenticated/dashboard/$guildId/permissoes': {
+      id: '/_authenticated/dashboard/$guildId/permissoes'
+      path: '/permissoes'
+      fullPath: '/dashboard/$guildId/permissoes'
+      preLoaderRoute: typeof AuthenticatedDashboardGuildIdPermissoesRouteImport
+      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+    }
     '/_authenticated/dashboard/$guildId/moderation': {
       id: '/_authenticated/dashboard/$guildId/moderation'
       path: '/moderation'
@@ -600,6 +620,7 @@ interface AuthenticatedDashboardGuildIdRouteChildren {
   AuthenticatedDashboardGuildIdLevelingRoute: typeof AuthenticatedDashboardGuildIdLevelingRoute
   AuthenticatedDashboardGuildIdLogsRoute: typeof AuthenticatedDashboardGuildIdLogsRoute
   AuthenticatedDashboardGuildIdModerationRoute: typeof AuthenticatedDashboardGuildIdModerationRoute
+  AuthenticatedDashboardGuildIdPermissoesRoute: typeof AuthenticatedDashboardGuildIdPermissoesRoute
   AuthenticatedDashboardGuildIdPremiumRoute: typeof AuthenticatedDashboardGuildIdPremiumRoute
   AuthenticatedDashboardGuildIdReactionRolesRoute: typeof AuthenticatedDashboardGuildIdReactionRolesRoute
   AuthenticatedDashboardGuildIdSeasonsRoute: typeof AuthenticatedDashboardGuildIdSeasonsRoute
@@ -633,6 +654,8 @@ const AuthenticatedDashboardGuildIdRouteChildren: AuthenticatedDashboardGuildIdR
       AuthenticatedDashboardGuildIdLogsRoute,
     AuthenticatedDashboardGuildIdModerationRoute:
       AuthenticatedDashboardGuildIdModerationRoute,
+    AuthenticatedDashboardGuildIdPermissoesRoute:
+      AuthenticatedDashboardGuildIdPermissoesRoute,
     AuthenticatedDashboardGuildIdPremiumRoute:
       AuthenticatedDashboardGuildIdPremiumRoute,
     AuthenticatedDashboardGuildIdReactionRolesRoute:

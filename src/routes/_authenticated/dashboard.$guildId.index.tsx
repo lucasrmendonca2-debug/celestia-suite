@@ -46,6 +46,7 @@ function GuildOverview() {
           user={user}
           title={guild.name}
           subtitle={guild.owner ? "Dono do servidor" : "Pode gerenciar configurações"}
+          guildId={guild.id}
         />
 
         <main className="mx-auto max-w-5xl px-6 py-8">

@@ -73,7 +73,7 @@ function WelcomePage() {
     <div className="flex min-h-screen bg-background text-foreground">
       <DashboardSidebar guildId={guild.id} />
       <div className="flex-1">
-        <DashboardTopbar user={user} title={guild.name} subtitle="Módulo: Boas-vindas" />
+        <DashboardTopbar user={user} title={guild.name} subtitle="Módulo: Boas-vindas" guildId={guild.id} />
 
         <main className="mx-auto max-w-3xl px-6 py-8">
           <Link

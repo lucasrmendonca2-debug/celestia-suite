@@ -121,7 +121,7 @@ const TicketConfigInput = z.object({
   panel_title: z.string().min(1).max(255),
   panel_description: z.string().min(1).max(4000),
   panel_button_label: z.string().min(1).max(80),
-  panel_button_emoji: z.string().min(1).max(8),
+  panel_button_emoji: z.string().min(1).max(64),
   panel_image_url: z.string().url().max(1000).nullable().optional(),
   panel_thumbnail_url: z.string().url().max(1000).nullable().optional(),
   panel_use_guild_banner: z.boolean().optional(),
@@ -188,6 +188,22 @@ function botHeaders(token: string) {
     "Content-Type": "application/json",
   };
 }
+
+/**
+ * Converts a Discord emoji string into the API shape expected by
+ * select-menu options / buttons. Accepts both unicode ("🎫") and custom
+ * emoji mentions ("<:name:id>" / "<a:name:id>").
+ */
+function parseEmoji(
+  raw: string | null | undefined,
+): { name: string; id?: string; animated?: boolean } | undefined {
+  if (!raw) return undefined;
+  const m = raw.match(/^<(a?):([\w~]+):(\d{5,32})>$/);
+  if (m) return { name: m[2], id: m[3], animated: m[1] === "a" };
+  return { name: raw };
+}
+
+
 
 async function discord<T = unknown>(
   url: string,
@@ -269,14 +285,14 @@ export const sendTicketPanel = createServerFn({ method: "POST" })
               label: cfg.panel_button_label || "Abrir ticket",
               value: "default",
               description: "Atendimento geral com a nossa equipe.",
-              emoji: { name: cfg.panel_button_emoji || "🎫" },
+              emoji: parseEmoji(cfg.panel_button_emoji || "🎫"),
             },
           ]
         : activeCats.slice(0, 25).map((c) => ({
             label: c.name.slice(0, 100),
             value: c.id,
             description: c.priority ? "⚡ Prioridade" : undefined,
-            emoji: c.emoji ? { name: c.emoji } : undefined,
+            emoji: parseEmoji(c.emoji),
           }));
 
     const components = [

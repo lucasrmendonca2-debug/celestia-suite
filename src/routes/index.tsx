@@ -111,18 +111,13 @@ function Landing() {
             >
               Módulos
             </a>
-            <a
-              href="#mascot"
-              className="hidden text-muted-foreground hover:text-foreground sm:inline"
-            >
-              O que faço
-            </a>
             <Link
               to="/dashboard"
               className="hidden text-muted-foreground hover:text-foreground sm:inline"
             >
               Dashboard
             </Link>
+
             <ThemeToggle />
             <a
               href="/api/auth/discord/login"
@@ -245,74 +240,39 @@ function Landing() {
           </div>
         </section>
 
-        {/* What I can do */}
-        <section id="mascot" className="mt-28 sm:mt-40">
-          <div className="mb-10 flex items-end justify-between gap-6 border-b border-border pb-4">
-            <div>
+        {/* CTA */}
+        <section className="mt-28 sm:mt-36">
+          <div className="flex flex-col items-start justify-between gap-6 border-t border-border pt-10 sm:flex-row sm:items-end">
+            <div className="max-w-xl">
               <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
                 índice — 02
               </p>
               <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
-                O que posso fazer
+                Configure tudo pelo painel.
               </h2>
+              <p className="mt-3 text-sm text-muted-foreground sm:text-base">
+                Login com Discord, escolhe o servidor, ativa os módulos. Sem comando, sem fricção.
+              </p>
             </div>
-            <p className="hidden max-w-sm text-sm text-muted-foreground sm:block">
-              Seu assistente de servidor, em um chibi só.
-            </p>
-          </div>
-
-          <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.1fr]">
-            <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-2xl border border-border bg-muted/30">
-              <div className="absolute left-3 top-3 z-10 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                fig.02 — apontando
-              </div>
-              <img
-                src={mascot.url}
-                alt="Zenox apontando para os módulos"
-                className="absolute inset-0 size-full object-contain p-6"
-              />
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href="/api/auth/discord/login"
+                onClick={startDiscordLogin}
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+              >
+                Adicionar ao servidor
+                <ArrowUpRight className="size-4" />
+              </a>
+              <Link
+                to="/dashboard"
+                className="px-2 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+              >
+                abrir dashboard →
+              </Link>
             </div>
-
-            <ul className="divide-y divide-border border-y border-border">
-              {[
-                { icon: Shield, label: "Moderação preventiva", text: "Raid, spam, palavrões — antes de você ver." },
-                { icon: Ticket, label: "Tickets v2", text: "SLA, auto-close, tags, transcripts." },
-                { icon: Coins, label: "Economia interna", text: "Moeda, loja, daily, ranking." },
-                { icon: TrendingUp, label: "Leveling", text: "XP por atividade, cards e leaderboard." },
-                { icon: ScrollText, label: "Audit logs", text: "Tudo que acontece, categorizado e filtrável." },
-              ].map((item) => (
-                <li
-                  key={item.label}
-                  className="group flex items-start gap-4 py-4 transition hover:bg-muted/20"
-                >
-                  <item.icon className="mt-0.5 size-4 shrink-0 text-muted-foreground transition group-hover:text-primary" />
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium">{item.label}</p>
-                    <p className="mt-0.5 text-sm text-muted-foreground">{item.text}</p>
-                  </div>
-                  <ArrowUpRight className="mt-0.5 size-3.5 shrink-0 text-muted-foreground opacity-0 transition group-hover:opacity-100" />
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="mt-10 flex flex-wrap items-center gap-3">
-            <a
-              href="/api/auth/discord/login"
-              onClick={startDiscordLogin}
-              className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
-            >
-              Adicionar ao meu servidor
-              <ArrowUpRight className="size-4" />
-            </a>
-            <Link
-              to="/dashboard"
-              className="px-2 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-            >
-              ou explorar o dashboard →
-            </Link>
           </div>
         </section>
+
 
         <footer className="mt-24 flex flex-col items-start justify-between gap-3 border-t border-border pt-6 font-mono text-[11px] uppercase tracking-widest text-muted-foreground sm:flex-row sm:items-center">
           <p>© {new Date().getFullYear()} Zenox — wave 4</p>
@@ -323,9 +283,7 @@ function Landing() {
             <a href="#features" className="hover:text-foreground">
               módulos
             </a>
-            <a href="#mascot" className="hover:text-foreground">
-              o que faço
-            </a>
+
           </div>
         </footer>
       </div>

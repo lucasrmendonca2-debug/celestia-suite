@@ -33,9 +33,12 @@ export function AutomodTab({ guildId, initial }: AutomodTabProps) {
       updateFn({
         data: {
           guildId,
+          enabled: form.enabled ?? false,
           anti_spam_enabled: form.anti_spam_enabled,
           anti_spam_threshold: Number(form.anti_spam_threshold),
           anti_spam_interval: Number(form.anti_spam_interval),
+          anti_flood_enabled: form.anti_flood_enabled ?? false,
+          anti_flood_threshold: Number(form.anti_flood_threshold) || 3,
           anti_invite_enabled: form.anti_invite_enabled,
           anti_link_enabled: form.anti_link_enabled,
           anti_caps_enabled: form.anti_caps_enabled,
@@ -45,7 +48,14 @@ export function AutomodTab({ guildId, initial }: AutomodTabProps) {
           blacklist_words: form.blacklist_words,
           whitelist_channels: form.whitelist_channels,
           whitelist_roles: form.whitelist_roles,
+          whitelist_users: form.whitelist_users ?? [],
           punishment: form.punishment,
+          spam_punishment: form.spam_punishment ?? form.punishment,
+          link_punishment: form.link_punishment ?? form.punishment,
+          invite_punishment: form.invite_punishment ?? form.punishment,
+          blacklist_punishment: form.blacklist_punishment ?? form.punishment,
+          spam_punishment_duration: Number(form.spam_punishment_duration) || 600,
+          warn_user_on_delete: form.warn_user_on_delete ?? true,
         },
       }),
     onSuccess: (saved) => {
@@ -61,6 +71,19 @@ export function AutomodTab({ guildId, initial }: AutomodTabProps) {
 
   return (
     <div className="space-y-4">
+      <SectionCard title="AutoMod geral">
+        <ToggleRow
+          label="AutoMod ativado"
+          checked={form.enabled ?? false}
+          onChange={(v) => setForm({ ...form, enabled: v })}
+        />
+        <ToggleRow
+          label="Avisar usuário ao deletar mensagem"
+          checked={form.warn_user_on_delete ?? true}
+          onChange={(v) => setForm({ ...form, warn_user_on_delete: v })}
+        />
+      </SectionCard>
+
       <SectionCard title="Spam e Caps">
         <ToggleRow
           label="Anti-spam"
@@ -83,6 +106,24 @@ export function AutomodTab({ guildId, initial }: AutomodTabProps) {
               type="number"
               value={form.anti_spam_interval}
               onChange={(e) => setForm({ ...form, anti_spam_interval: Number(e.target.value) || 0 })}
+            />
+          </div>
+        </div>
+
+        <div className="mt-6">
+          <ToggleRow
+            label="Anti-flood"
+            hint={`Detecta repetição rápida acima de ${form.anti_flood_threshold ?? 3} mensagens`}
+            checked={form.anti_flood_enabled ?? false}
+            onChange={(v) => setForm({ ...form, anti_flood_enabled: v })}
+          />
+          <div className="mt-3">
+            <Label className="text-xs">Limite de flood</Label>
+            <Input
+              type="number"
+              className="max-w-[200px]"
+              value={form.anti_flood_threshold ?? 3}
+              onChange={(e) => setForm({ ...form, anti_flood_threshold: Number(e.target.value) || 3 })}
             />
           </div>
         </div>
@@ -180,7 +221,16 @@ export function AutomodTab({ guildId, initial }: AutomodTabProps) {
             <Label className="text-sm">Punição do AutoMod</Label>
             <Select
               value={form.punishment}
-              onValueChange={(v) => setForm({ ...form, punishment: v })}
+              onValueChange={(v) =>
+                setForm({
+                  ...form,
+                  punishment: v,
+                  spam_punishment: v,
+                  link_punishment: v,
+                  invite_punishment: v,
+                  blacklist_punishment: v,
+                })
+              }
             >
               <SelectTrigger className="mt-1">
                 <SelectValue />
@@ -193,6 +243,18 @@ export function AutomodTab({ guildId, initial }: AutomodTabProps) {
                 <SelectItem value="ban">Banir permanentemente</SelectItem>
               </SelectContent>
             </Select>
+          </div>
+          <div>
+            <Label className="text-sm">Duração da punição temporária (segundos)</Label>
+            <Input
+              type="number"
+              min={60}
+              value={form.spam_punishment_duration ?? 600}
+              onChange={(e) =>
+                setForm({ ...form, spam_punishment_duration: Number(e.target.value) || 600 })
+              }
+              className="mt-1 max-w-[240px]"
+            />
           </div>
         </div>
       </SectionCard>

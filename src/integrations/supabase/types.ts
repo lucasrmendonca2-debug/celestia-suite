@@ -460,6 +460,87 @@ export type Database = {
         }
         Relationships: []
       }
+      economy_missions: {
+        Row: {
+          active: boolean
+          created_at: string
+          description: string | null
+          goal: number
+          guild_id: string
+          id: string
+          kind: string
+          reward: number
+          slug: string
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          goal?: number
+          guild_id: string
+          id?: string
+          kind: string
+          reward?: number
+          slug: string
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          description?: string | null
+          goal?: number
+          guild_id?: string
+          id?: string
+          kind?: string
+          reward?: number
+          slug?: string
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      economy_transactions: {
+        Row: {
+          amount: number
+          balance_after: number | null
+          created_at: string
+          guild_id: string
+          id: string
+          kind: string
+          metadata: Json
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after?: number | null
+          created_at?: string
+          guild_id: string
+          id?: string
+          kind: string
+          metadata?: Json
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number | null
+          created_at?: string
+          guild_id?: string
+          id?: string
+          kind?: string
+          metadata?: Json
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       embed_templates: {
         Row: {
           created_at: string
@@ -2892,6 +2973,53 @@ export type Database = {
           xp?: number
         }
         Relationships: []
+      }
+      user_missions: {
+        Row: {
+          claimed_at: string | null
+          completed_at: string | null
+          created_at: string
+          guild_id: string
+          id: string
+          mission_id: string
+          period_start: string
+          progress: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          guild_id: string
+          id?: string
+          mission_id: string
+          period_start: string
+          progress?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string | null
+          completed_at?: string | null
+          created_at?: string
+          guild_id?: string
+          id?: string
+          mission_id?: string
+          period_start?: string
+          progress?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_missions_mission_id_fkey"
+            columns: ["mission_id"]
+            isOneToOne: false
+            referencedRelation: "economy_missions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       warnings: {
         Row: {

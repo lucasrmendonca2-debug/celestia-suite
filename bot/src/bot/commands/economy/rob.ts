@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
-import { brandEmbed } from "../../utils/embed.js";
+import { ui } from "../../systems/ui/embed.factory.js";
 import { fmtCoins, fmtDuration } from "../../utils/format.js";
 import { getAccount, getCurrency } from "../../systems/economy/economy.js";
 import { classifyTarget, economyResponses, pick } from "../../systems/personality/index.js";
@@ -16,48 +16,67 @@ const command: SlashCommand = {
     .setDescription("Tenta roubar outro membro.")
     .addUserOption((o) => o.setName("usuario").setDescription("Alvo").setRequired(true)),
   async execute(interaction) {
+    const guildId = interaction.guildId!;
     const target = interaction.options.getUser("usuario", true);
     const kind = classifyTarget(interaction, target);
     if (kind === "self") {
-      await interaction.reply({ embeds: [brandEmbed({ kind: "warn", description: pick(economyResponses.robSelf) })], ephemeral: true });
+      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.robSelf) })], ephemeral: true });
       return;
     }
     if (kind === "bot_self") {
-      await interaction.reply({ embeds: [brandEmbed({ kind: "warn", description: pick(economyResponses.robBot) })], ephemeral: true });
+      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.robBot) })], ephemeral: true });
       return;
     }
     if (kind === "bot_other") {
-      await interaction.reply({ embeds: [brandEmbed({ kind: "warn", description: pick(economyResponses.robOtherBot) })], ephemeral: true });
+      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.robOtherBot) })], ephemeral: true });
       return;
     }
-    const me = await getAccount(interaction.guildId!, interaction.user.id);
-    const them = await getAccount(interaction.guildId!, target.id);
+    const me = await getAccount(guildId, interaction.user.id);
+    const them = await getAccount(guildId, target.id);
     const now = new Date();
     if (me.lastRob && now.getTime() - me.lastRob.getTime() < COOLDOWN) {
       const remaining = COOLDOWN - (now.getTime() - me.lastRob.getTime());
       await interaction.reply({
-        embeds: [brandEmbed({ kind: "warn", title: "Calma, ladrão", description: `Volte em **${fmtDuration(remaining)}**.` })],
+        embeds: [ui.warn({ title: "Calma, ladrão", description: `Aguarde **${fmtDuration(remaining)}** antes do próximo golpe.` })],
         ephemeral: true,
       });
       return;
     }
     if (them.wallet < 200) {
-      await interaction.reply({ embeds: [brandEmbed({ kind: "warn", title: "Pobre demais", description: `${target} não tem nada de valor.` })], ephemeral: true });
+      await interaction.reply({
+        embeds: [ui.warn({ title: "Alvo sem fundos", description: `${target} não tem nada de valor na carteira.` })],
+        ephemeral: true,
+      });
       return;
     }
     me.lastRob = now;
-    const c = await getCurrency(interaction.guildId!);
+    const c = await getCurrency(guildId);
     if (Math.random() < 0.45) {
       const taken = Math.floor(them.wallet * (0.1 + Math.random() * 0.3));
       them.wallet -= taken;
       me.wallet += taken;
       await Promise.all([me.save(), them.save()]);
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "🦹 Roubo bem-sucedido", description: `Você roubou ${fmtCoins(taken, c.emoji, c.name)} de ${target}` })] });
+      await interaction.reply({
+        embeds: [
+          ui.economy({
+            guildId,
+            title: "Roubo bem-sucedido",
+            description: `🦹 Você levou ${fmtCoins(taken, c.emoji, c.name)} de ${target}.`,
+          }),
+        ],
+      });
     } else {
       const fine = Math.min(me.wallet, Math.floor(150 + Math.random() * 400));
       me.wallet -= fine;
       await me.save();
-      await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "🚓 Falhou!", description: `Você foi pego e pagou ${fmtCoins(fine, c.emoji, c.name)}` })] });
+      await interaction.reply({
+        embeds: [
+          ui.error({
+            title: "Você foi pego!",
+            description: `🚓 A polícia chegou e te multou em ${fmtCoins(fine, c.emoji, c.name)}.`,
+          }),
+        ],
+      });
     }
   },
 };

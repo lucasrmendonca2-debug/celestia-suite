@@ -1,7 +1,15 @@
 import { SlashCommandBuilder } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
-import { brandEmbed } from "../../utils/embed.js";
+import { ui } from "../../systems/ui/embed.factory.js";
 import { pick, utilityResponses } from "../../systems/personality/index.js";
+
+function bar(ms: number): string {
+  if (ms < 100) return "🟢 Excelente";
+  if (ms < 200) return "🟢 Ótimo";
+  if (ms < 400) return "🟡 Normal";
+  if (ms < 700) return "🟠 Lento";
+  return "🔴 Crítico";
+}
 
 const command: SlashCommand = {
   category: "utility",
@@ -17,12 +25,11 @@ const command: SlashCommand = {
     await interaction.editReply({
       content: null,
       embeds: [
-        brandEmbed({
-          kind: "info",
+        ui.info({
           title: pick(pool),
           fields: [
-            { name: "Latência da API", value: `${latency} ms`, inline: true },
-            { name: "WebSocket", value: `${ws} ms`, inline: true },
+            { name: "Latência da API", value: `\`${latency} ms\` · ${bar(latency)}`, inline: true },
+            { name: "WebSocket", value: `\`${ws} ms\` · ${bar(ws)}`, inline: true },
           ],
         }),
       ],

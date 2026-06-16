@@ -724,6 +724,89 @@ export type Database = {
         }
         Relationships: []
       }
+      level_season_users: {
+        Row: {
+          created_at: string
+          guild_id: string
+          id: string
+          level: number
+          messages_count: number
+          season_id: string
+          updated_at: string
+          user_id: string
+          xp: number
+        }
+        Insert: {
+          created_at?: string
+          guild_id: string
+          id?: string
+          level?: number
+          messages_count?: number
+          season_id: string
+          updated_at?: string
+          user_id: string
+          xp?: number
+        }
+        Update: {
+          created_at?: string
+          guild_id?: string
+          id?: string
+          level?: number
+          messages_count?: number
+          season_id?: string
+          updated_at?: string
+          user_id?: string
+          xp?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "level_season_users_season_id_fkey"
+            columns: ["season_id"]
+            isOneToOne: false
+            referencedRelation: "level_seasons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      level_seasons: {
+        Row: {
+          created_at: string
+          description: string | null
+          ends_at: string | null
+          guild_id: string
+          id: string
+          is_active: boolean
+          name: string
+          starts_at: string
+          updated_at: string
+          xp_multiplier: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          guild_id: string
+          id?: string
+          is_active?: boolean
+          name: string
+          starts_at?: string
+          updated_at?: string
+          xp_multiplier?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          ends_at?: string | null
+          guild_id?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          starts_at?: string
+          updated_at?: string
+          xp_multiplier?: number
+        }
+        Relationships: []
+      }
       level_users: {
         Row: {
           created_at: string
@@ -1285,6 +1368,7 @@ export type Database = {
       social_config: {
         Row: {
           achievements_enabled: boolean
+          active_season_id: string | null
           created_at: string
           embed_color: string
           enabled: boolean
@@ -1300,6 +1384,7 @@ export type Database = {
         }
         Insert: {
           achievements_enabled?: boolean
+          active_season_id?: string | null
           created_at?: string
           embed_color?: string
           enabled?: boolean
@@ -1315,6 +1400,7 @@ export type Database = {
         }
         Update: {
           achievements_enabled?: boolean
+          active_season_id?: string | null
           created_at?: string
           embed_color?: string
           enabled?: boolean
@@ -1328,12 +1414,23 @@ export type Database = {
           reputation_enabled?: boolean
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "social_config_active_season_id_fkey"
+            columns: ["active_season_id"]
+            isOneToOne: false
+            referencedRelation: "level_seasons"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       social_profiles: {
         Row: {
+          accent_color: string | null
+          background_color: string | null
           banner_url: string | null
           bio: string
+          card_style: string
           color: string
           created_at: string
           guild_id: string
@@ -1341,13 +1438,17 @@ export type Database = {
           profile_views: number
           reputation: number
           selected_badges: string[]
+          text_color: string | null
           title: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          accent_color?: string | null
+          background_color?: string | null
           banner_url?: string | null
           bio?: string
+          card_style?: string
           color?: string
           created_at?: string
           guild_id: string
@@ -1355,13 +1456,17 @@ export type Database = {
           profile_views?: number
           reputation?: number
           selected_badges?: string[]
+          text_color?: string | null
           title?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          accent_color?: string | null
+          background_color?: string | null
           banner_url?: string | null
           bio?: string
+          card_style?: string
           color?: string
           created_at?: string
           guild_id?: string
@@ -1369,6 +1474,7 @@ export type Database = {
           profile_views?: number
           reputation?: number
           selected_badges?: string[]
+          text_color?: string | null
           title?: string
           updated_at?: string
           user_id?: string

@@ -4,6 +4,7 @@ import { logger } from "../../utils/logger.js";
 import { getLevelConfig, getSocialConfig } from "./social.config.ts";
 import { deriveLevel } from "./formulas.js";
 import { applyLevelRewards } from "./level-rewards.service.js";
+import { recordSeasonXp } from "./season.service.js";
 import { isVip } from "../economy/economy.js";
 import { applyVars } from "../../utils/format.js";
 import { brandEmbed } from "../../utils/embed.js";
@@ -116,6 +117,9 @@ export async function handleSocialXp(msg: Message): Promise<void> {
   pending.username = msg.author.username;
   pending.lastXpAt = new Date(now);
   buffer.set(k, pending);
+
+  // Registra também na temporada ativa (não bloqueia)
+  void recordSeasonXp(guildId, userId, gained);
 
   // Flush antecipado se buffer grande
   if (buffer.size > MAX_BUFFER) void flush();

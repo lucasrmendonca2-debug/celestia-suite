@@ -60,6 +60,22 @@ const command: SlashCommand = {
     const reason = interaction.options.getString("motivo", true);
     const severity = (interaction.options.getString("severidade") ?? "MEDIUM") as WarnSeverity;
     const proof = interaction.options.getString("prova");
+
+    // Personalidade: alvos especiais
+    const { pick } = await import("../../systems/personality/random-responses.js");
+    const { moderationResponses } = await import("../../systems/personality/random-responses.js");
+    if (user.id === interaction.user.id) {
+      return interaction.reply({
+        embeds: [brandEmbed({ kind: "warn", title: "Auto-advertência?", description: pick(moderationResponses.warnSelf) })],
+        ephemeral: true,
+      });
+    }
+    if (user.id === interaction.client.user.id) {
+      return interaction.reply({
+        embeds: [brandEmbed({ kind: "warn", title: "Ei, sou eu!", description: pick(moderationResponses.warnBot) })],
+        ephemeral: true,
+      });
+    }
     if (proof && !/^https?:\/\//i.test(proof)) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Prova deve ser URL http(s)." })],

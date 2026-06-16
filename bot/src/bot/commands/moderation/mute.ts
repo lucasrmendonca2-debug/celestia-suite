@@ -55,6 +55,20 @@ const command: SlashCommand = {
     const durationInput = interaction.options.getString("duracao");
     const reason = interaction.options.getString("motivo") ?? undefined;
 
+    const { pick, moderationResponses } = await import("../../systems/personality/random-responses.js");
+    if (user.id === interaction.user.id) {
+      return interaction.reply({
+        embeds: [brandEmbed({ kind: "warn", title: "Auto-mute?", description: "Se quiser silêncio, fecha o Discord um pouquinho. 😅" })],
+        ephemeral: true,
+      });
+    }
+    if (user.id === interaction.client.user.id) {
+      return interaction.reply({
+        embeds: [brandEmbed({ kind: "warn", title: "Mutar o bot?", description: pick(moderationResponses.muteBot) })],
+        ephemeral: true,
+      });
+    }
+
     let durationSec = parseDurationSeconds(durationInput) ?? config.default_mute_duration ?? 600;
     if (durationSec > MAX_TIMEOUT && !config.mute_role_id) {
       return interaction.reply({

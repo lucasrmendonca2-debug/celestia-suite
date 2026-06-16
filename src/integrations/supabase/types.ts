@@ -14,6 +14,71 @@ export type Database = {
   }
   public: {
     Tables: {
+      achievements: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          description: string
+          emoji: string
+          guild_id: string
+          hidden: boolean
+          id: string
+          name: string
+          points: number
+          reward_badge_id: string | null
+          reward_coins: number
+          reward_xp: number
+          trigger_type: string
+          trigger_value: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          description?: string
+          emoji?: string
+          guild_id: string
+          hidden?: boolean
+          id?: string
+          name: string
+          points?: number
+          reward_badge_id?: string | null
+          reward_coins?: number
+          reward_xp?: number
+          trigger_type?: string
+          trigger_value?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          description?: string
+          emoji?: string
+          guild_id?: string
+          hidden?: boolean
+          id?: string
+          name?: string
+          points?: number
+          reward_badge_id?: string | null
+          reward_coins?: number
+          reward_xp?: number
+          trigger_type?: string
+          trigger_value?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "achievements_reward_badge_id_fkey"
+            columns: ["reward_badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       allowed_domains: {
         Row: {
           created_at: string
@@ -125,6 +190,51 @@ export type Database = {
           whitelist_channels?: string[]
           whitelist_roles?: string[]
           whitelist_users?: string[]
+        }
+        Relationships: []
+      }
+      badges: {
+        Row: {
+          code: string
+          color: string
+          created_at: string
+          description: string
+          emoji: string
+          guild_id: string
+          hidden: boolean
+          icon_url: string | null
+          id: string
+          name: string
+          rarity: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          color?: string
+          created_at?: string
+          description?: string
+          emoji?: string
+          guild_id: string
+          hidden?: boolean
+          icon_url?: string | null
+          id?: string
+          name: string
+          rarity?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          color?: string
+          created_at?: string
+          description?: string
+          emoji?: string
+          guild_id?: string
+          hidden?: boolean
+          icon_url?: string | null
+          id?: string
+          name?: string
+          rarity?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1817,6 +1927,79 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "ticket_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_achievements: {
+        Row: {
+          achievement_id: string
+          guild_id: string
+          id: string
+          progress: number
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          achievement_id: string
+          guild_id: string
+          id?: string
+          progress?: number
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          achievement_id?: string
+          guild_id?: string
+          id?: string
+          progress?: number
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_badges: {
+        Row: {
+          awarded_at: string
+          awarded_by: string | null
+          badge_id: string
+          guild_id: string
+          id: string
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          awarded_at?: string
+          awarded_by?: string | null
+          badge_id: string
+          guild_id: string
+          id?: string
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          awarded_at?: string
+          awarded_by?: string | null
+          badge_id?: string
+          guild_id?: string
+          id?: string
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_badges_badge_id_fkey"
+            columns: ["badge_id"]
+            isOneToOne: false
+            referencedRelation: "badges"
             referencedColumns: ["id"]
           },
         ]

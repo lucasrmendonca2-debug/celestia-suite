@@ -52,6 +52,28 @@ const command: SlashCommand = {
         }),
       ],
     });
+    // Conquistas — reputação recebida
+    try {
+      const { evaluateAchievements } = await import("../../systems/social/achievement.service.js");
+      const targetMember = await interaction.guild!.members.fetch(target.id).catch(() => null);
+      const unlocked = await evaluateAchievements(interaction.guild!, targetMember, target.id, {
+        type: "reputation_received",
+        value: result.newRep ?? 0,
+      });
+      if (unlocked.length > 0 && interaction.channel && "send" in interaction.channel) {
+        await interaction.channel.send({
+          embeds: [
+            brandEmbed({
+              kind: "success",
+              title: `🏆 ${target.username} desbloqueou ${unlocked.length} conquista${unlocked.length > 1 ? "s" : ""}!`,
+              description: unlocked.map((u) => `${u.achievement.emoji} **${u.achievement.name}**`).join("\n"),
+            }),
+          ],
+        });
+      }
+    } catch {
+      /* noop */
+    }
   },
 };
 export default command;

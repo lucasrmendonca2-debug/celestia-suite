@@ -28,8 +28,10 @@ import { Route as AuthenticatedDashboardGuildIdLevelingRouteImport } from './rou
 import { Route as AuthenticatedDashboardGuildIdEmbedsRouteImport } from './routes/_authenticated/dashboard.$guildId.embeds'
 import { Route as AuthenticatedDashboardGuildIdEconomyRouteImport } from './routes/_authenticated/dashboard.$guildId.economy'
 import { Route as AuthenticatedDashboardGuildIdCommandsRouteImport } from './routes/_authenticated/dashboard.$guildId.commands'
+import { Route as AuthenticatedDashboardGuildIdBadgesRouteImport } from './routes/_authenticated/dashboard.$guildId.badges'
 import { Route as AuthenticatedDashboardGuildIdAutoroleRouteImport } from './routes/_authenticated/dashboard.$guildId.autorole'
 import { Route as AuthenticatedDashboardGuildIdAutomodRouteImport } from './routes/_authenticated/dashboard.$guildId.automod'
+import { Route as AuthenticatedDashboardGuildIdAchievementsRouteImport } from './routes/_authenticated/dashboard.$guildId.achievements'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -138,6 +140,12 @@ const AuthenticatedDashboardGuildIdCommandsRoute =
     path: '/commands',
     getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
   } as any)
+const AuthenticatedDashboardGuildIdBadgesRoute =
+  AuthenticatedDashboardGuildIdBadgesRouteImport.update({
+    id: '/badges',
+    path: '/badges',
+    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+  } as any)
 const AuthenticatedDashboardGuildIdAutoroleRoute =
   AuthenticatedDashboardGuildIdAutoroleRouteImport.update({
     id: '/autorole',
@@ -150,6 +158,12 @@ const AuthenticatedDashboardGuildIdAutomodRoute =
     path: '/automod',
     getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
   } as any)
+const AuthenticatedDashboardGuildIdAchievementsRoute =
+  AuthenticatedDashboardGuildIdAchievementsRouteImport.update({
+    id: '/achievements',
+    path: '/achievements',
+    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -157,8 +171,10 @@ export interface FileRoutesByFullPath {
   '/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/dashboard/$guildId/achievements': typeof AuthenticatedDashboardGuildIdAchievementsRoute
   '/dashboard/$guildId/automod': typeof AuthenticatedDashboardGuildIdAutomodRoute
   '/dashboard/$guildId/autorole': typeof AuthenticatedDashboardGuildIdAutoroleRoute
+  '/dashboard/$guildId/badges': typeof AuthenticatedDashboardGuildIdBadgesRoute
   '/dashboard/$guildId/commands': typeof AuthenticatedDashboardGuildIdCommandsRoute
   '/dashboard/$guildId/economy': typeof AuthenticatedDashboardGuildIdEconomyRoute
   '/dashboard/$guildId/embeds': typeof AuthenticatedDashboardGuildIdEmbedsRoute
@@ -178,8 +194,10 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
+  '/dashboard/$guildId/achievements': typeof AuthenticatedDashboardGuildIdAchievementsRoute
   '/dashboard/$guildId/automod': typeof AuthenticatedDashboardGuildIdAutomodRoute
   '/dashboard/$guildId/autorole': typeof AuthenticatedDashboardGuildIdAutoroleRoute
+  '/dashboard/$guildId/badges': typeof AuthenticatedDashboardGuildIdBadgesRoute
   '/dashboard/$guildId/commands': typeof AuthenticatedDashboardGuildIdCommandsRoute
   '/dashboard/$guildId/economy': typeof AuthenticatedDashboardGuildIdEconomyRoute
   '/dashboard/$guildId/embeds': typeof AuthenticatedDashboardGuildIdEmbedsRoute
@@ -202,8 +220,10 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
+  '/_authenticated/dashboard/$guildId/achievements': typeof AuthenticatedDashboardGuildIdAchievementsRoute
   '/_authenticated/dashboard/$guildId/automod': typeof AuthenticatedDashboardGuildIdAutomodRoute
   '/_authenticated/dashboard/$guildId/autorole': typeof AuthenticatedDashboardGuildIdAutoroleRoute
+  '/_authenticated/dashboard/$guildId/badges': typeof AuthenticatedDashboardGuildIdBadgesRoute
   '/_authenticated/dashboard/$guildId/commands': typeof AuthenticatedDashboardGuildIdCommandsRoute
   '/_authenticated/dashboard/$guildId/economy': typeof AuthenticatedDashboardGuildIdEconomyRoute
   '/_authenticated/dashboard/$guildId/embeds': typeof AuthenticatedDashboardGuildIdEmbedsRoute
@@ -226,8 +246,10 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId'
     | '/api/auth/logout'
     | '/dashboard/'
+    | '/dashboard/$guildId/achievements'
     | '/dashboard/$guildId/automod'
     | '/dashboard/$guildId/autorole'
+    | '/dashboard/$guildId/badges'
     | '/dashboard/$guildId/commands'
     | '/dashboard/$guildId/economy'
     | '/dashboard/$guildId/embeds'
@@ -247,8 +269,10 @@ export interface FileRouteTypes {
     | '/login'
     | '/api/auth/logout'
     | '/dashboard'
+    | '/dashboard/$guildId/achievements'
     | '/dashboard/$guildId/automod'
     | '/dashboard/$guildId/autorole'
+    | '/dashboard/$guildId/badges'
     | '/dashboard/$guildId/commands'
     | '/dashboard/$guildId/economy'
     | '/dashboard/$guildId/embeds'
@@ -270,8 +294,10 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/$guildId'
     | '/api/auth/logout'
     | '/_authenticated/dashboard/'
+    | '/_authenticated/dashboard/$guildId/achievements'
     | '/_authenticated/dashboard/$guildId/automod'
     | '/_authenticated/dashboard/$guildId/autorole'
+    | '/_authenticated/dashboard/$guildId/badges'
     | '/_authenticated/dashboard/$guildId/commands'
     | '/_authenticated/dashboard/$guildId/economy'
     | '/_authenticated/dashboard/$guildId/embeds'
@@ -431,6 +457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardGuildIdCommandsRouteImport
       parentRoute: typeof AuthenticatedDashboardGuildIdRoute
     }
+    '/_authenticated/dashboard/$guildId/badges': {
+      id: '/_authenticated/dashboard/$guildId/badges'
+      path: '/badges'
+      fullPath: '/dashboard/$guildId/badges'
+      preLoaderRoute: typeof AuthenticatedDashboardGuildIdBadgesRouteImport
+      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+    }
     '/_authenticated/dashboard/$guildId/autorole': {
       id: '/_authenticated/dashboard/$guildId/autorole'
       path: '/autorole'
@@ -445,12 +478,21 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardGuildIdAutomodRouteImport
       parentRoute: typeof AuthenticatedDashboardGuildIdRoute
     }
+    '/_authenticated/dashboard/$guildId/achievements': {
+      id: '/_authenticated/dashboard/$guildId/achievements'
+      path: '/achievements'
+      fullPath: '/dashboard/$guildId/achievements'
+      preLoaderRoute: typeof AuthenticatedDashboardGuildIdAchievementsRouteImport
+      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+    }
   }
 }
 
 interface AuthenticatedDashboardGuildIdRouteChildren {
+  AuthenticatedDashboardGuildIdAchievementsRoute: typeof AuthenticatedDashboardGuildIdAchievementsRoute
   AuthenticatedDashboardGuildIdAutomodRoute: typeof AuthenticatedDashboardGuildIdAutomodRoute
   AuthenticatedDashboardGuildIdAutoroleRoute: typeof AuthenticatedDashboardGuildIdAutoroleRoute
+  AuthenticatedDashboardGuildIdBadgesRoute: typeof AuthenticatedDashboardGuildIdBadgesRoute
   AuthenticatedDashboardGuildIdCommandsRoute: typeof AuthenticatedDashboardGuildIdCommandsRoute
   AuthenticatedDashboardGuildIdEconomyRoute: typeof AuthenticatedDashboardGuildIdEconomyRoute
   AuthenticatedDashboardGuildIdEmbedsRoute: typeof AuthenticatedDashboardGuildIdEmbedsRoute
@@ -466,10 +508,14 @@ interface AuthenticatedDashboardGuildIdRouteChildren {
 
 const AuthenticatedDashboardGuildIdRouteChildren: AuthenticatedDashboardGuildIdRouteChildren =
   {
+    AuthenticatedDashboardGuildIdAchievementsRoute:
+      AuthenticatedDashboardGuildIdAchievementsRoute,
     AuthenticatedDashboardGuildIdAutomodRoute:
       AuthenticatedDashboardGuildIdAutomodRoute,
     AuthenticatedDashboardGuildIdAutoroleRoute:
       AuthenticatedDashboardGuildIdAutoroleRoute,
+    AuthenticatedDashboardGuildIdBadgesRoute:
+      AuthenticatedDashboardGuildIdBadgesRoute,
     AuthenticatedDashboardGuildIdCommandsRoute:
       AuthenticatedDashboardGuildIdCommandsRoute,
     AuthenticatedDashboardGuildIdEconomyRoute:
@@ -525,13 +571,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

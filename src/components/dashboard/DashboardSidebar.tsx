@@ -12,6 +12,8 @@ import {
   Terminal,
   FileCode2,
   Ticket,
+  Award,
+  Trophy,
   type LucideIcon,
 } from "lucide-react";
 
@@ -54,6 +56,8 @@ const SECTIONS: { title: string; items: Item[] }[] = [
     title: "Engajamento",
     items: [
       { to: "social", label: "Social & Level", icon: TrendingUp },
+      { to: "badges", label: "Badges", icon: Award },
+      { to: "achievements", label: "Conquistas", icon: Trophy },
       { to: "economy", label: "Economia", icon: Coins },
     ],
   },

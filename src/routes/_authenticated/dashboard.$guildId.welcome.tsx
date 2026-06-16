@@ -189,15 +189,11 @@ function WelcomePage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
-              <span className="mr-auto text-xs text-muted-foreground">
+            <div className="border-t border-border pt-4">
+              <span className="text-xs text-muted-foreground">
                 Última atualização:{" "}
                 {new Date(form.updated_at).toLocaleString("pt-BR")}
               </span>
-              <Button type="submit" disabled={mutation.isPending}>
-                <Save className="mr-1.5 size-4" />
-                {mutation.isPending ? "Salvando…" : "Salvar"}
-              </Button>
             </div>
           </form>
 
@@ -205,6 +201,15 @@ function WelcomePage() {
             O bot lê essas configurações do banco em tempo real. Sem reiniciar.
           </p>
         </main>
+
+        <SaveBar
+          dirty={dirty}
+          isPending={mutation.isPending}
+          isSuccess={mutation.isSuccess}
+          errorMessage={mutation.isError ? (mutation.error as Error).message : null}
+          onSave={() => mutation.mutate(form)}
+          onReset={() => setForm(baseline)}
+        />
       </div>
     </div>
   );

@@ -4,6 +4,14 @@ import { brandEmbed } from "../../utils/embed.js";
 import { fmtCoins } from "../../utils/format.js";
 import { ShopItem, InventoryItem } from "../../../database/models.js";
 import { getCurrency, getAccount } from "../../systems/economy/economy.js";
+import {
+  applyRotationPrice,
+  ensureRotation,
+  getActiveRotation,
+  rotateNow,
+} from "../../systems/economy/shop.rotation.js";
+import { logTx } from "../../systems/economy/economy.tx.js";
+
 
 const command: SlashCommand = {
   category: "economy",

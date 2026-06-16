@@ -23,6 +23,7 @@ import { Route as AuthenticatedDashboardGuildIdTicketsRouteImport } from './rout
 import { Route as AuthenticatedDashboardGuildIdSocialRouteImport } from './routes/_authenticated/dashboard.$guildId.social'
 import { Route as AuthenticatedDashboardGuildIdSeasonsRouteImport } from './routes/_authenticated/dashboard.$guildId.seasons'
 import { Route as AuthenticatedDashboardGuildIdReactionRolesRouteImport } from './routes/_authenticated/dashboard.$guildId.reaction-roles'
+import { Route as AuthenticatedDashboardGuildIdPremiumRouteImport } from './routes/_authenticated/dashboard.$guildId.premium'
 import { Route as AuthenticatedDashboardGuildIdModerationRouteImport } from './routes/_authenticated/dashboard.$guildId.moderation'
 import { Route as AuthenticatedDashboardGuildIdLogsRouteImport } from './routes/_authenticated/dashboard.$guildId.logs'
 import { Route as AuthenticatedDashboardGuildIdLevelingRouteImport } from './routes/_authenticated/dashboard.$guildId.leveling'
@@ -111,6 +112,12 @@ const AuthenticatedDashboardGuildIdReactionRolesRoute =
     path: '/reaction-roles',
     getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
   } as any)
+const AuthenticatedDashboardGuildIdPremiumRoute =
+  AuthenticatedDashboardGuildIdPremiumRouteImport.update({
+    id: '/premium',
+    path: '/premium',
+    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+  } as any)
 const AuthenticatedDashboardGuildIdModerationRoute =
   AuthenticatedDashboardGuildIdModerationRouteImport.update({
     id: '/moderation',
@@ -188,6 +195,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/$guildId/leveling': typeof AuthenticatedDashboardGuildIdLevelingRoute
   '/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
   '/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
+  '/dashboard/$guildId/premium': typeof AuthenticatedDashboardGuildIdPremiumRoute
   '/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
   '/dashboard/$guildId/seasons': typeof AuthenticatedDashboardGuildIdSeasonsRoute
   '/dashboard/$guildId/social': typeof AuthenticatedDashboardGuildIdSocialRoute
@@ -212,6 +220,7 @@ export interface FileRoutesByTo {
   '/dashboard/$guildId/leveling': typeof AuthenticatedDashboardGuildIdLevelingRoute
   '/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
   '/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
+  '/dashboard/$guildId/premium': typeof AuthenticatedDashboardGuildIdPremiumRoute
   '/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
   '/dashboard/$guildId/seasons': typeof AuthenticatedDashboardGuildIdSeasonsRoute
   '/dashboard/$guildId/social': typeof AuthenticatedDashboardGuildIdSocialRoute
@@ -239,6 +248,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/$guildId/leveling': typeof AuthenticatedDashboardGuildIdLevelingRoute
   '/_authenticated/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
   '/_authenticated/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
+  '/_authenticated/dashboard/$guildId/premium': typeof AuthenticatedDashboardGuildIdPremiumRoute
   '/_authenticated/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
   '/_authenticated/dashboard/$guildId/seasons': typeof AuthenticatedDashboardGuildIdSeasonsRoute
   '/_authenticated/dashboard/$guildId/social': typeof AuthenticatedDashboardGuildIdSocialRoute
@@ -266,6 +276,7 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId/leveling'
     | '/dashboard/$guildId/logs'
     | '/dashboard/$guildId/moderation'
+    | '/dashboard/$guildId/premium'
     | '/dashboard/$guildId/reaction-roles'
     | '/dashboard/$guildId/seasons'
     | '/dashboard/$guildId/social'
@@ -290,6 +301,7 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId/leveling'
     | '/dashboard/$guildId/logs'
     | '/dashboard/$guildId/moderation'
+    | '/dashboard/$guildId/premium'
     | '/dashboard/$guildId/reaction-roles'
     | '/dashboard/$guildId/seasons'
     | '/dashboard/$guildId/social'
@@ -316,6 +328,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/$guildId/leveling'
     | '/_authenticated/dashboard/$guildId/logs'
     | '/_authenticated/dashboard/$guildId/moderation'
+    | '/_authenticated/dashboard/$guildId/premium'
     | '/_authenticated/dashboard/$guildId/reaction-roles'
     | '/_authenticated/dashboard/$guildId/seasons'
     | '/_authenticated/dashboard/$guildId/social'
@@ -435,6 +448,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardGuildIdReactionRolesRouteImport
       parentRoute: typeof AuthenticatedDashboardGuildIdRoute
     }
+    '/_authenticated/dashboard/$guildId/premium': {
+      id: '/_authenticated/dashboard/$guildId/premium'
+      path: '/premium'
+      fullPath: '/dashboard/$guildId/premium'
+      preLoaderRoute: typeof AuthenticatedDashboardGuildIdPremiumRouteImport
+      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+    }
     '/_authenticated/dashboard/$guildId/moderation': {
       id: '/_authenticated/dashboard/$guildId/moderation'
       path: '/moderation'
@@ -519,6 +539,7 @@ interface AuthenticatedDashboardGuildIdRouteChildren {
   AuthenticatedDashboardGuildIdLevelingRoute: typeof AuthenticatedDashboardGuildIdLevelingRoute
   AuthenticatedDashboardGuildIdLogsRoute: typeof AuthenticatedDashboardGuildIdLogsRoute
   AuthenticatedDashboardGuildIdModerationRoute: typeof AuthenticatedDashboardGuildIdModerationRoute
+  AuthenticatedDashboardGuildIdPremiumRoute: typeof AuthenticatedDashboardGuildIdPremiumRoute
   AuthenticatedDashboardGuildIdReactionRolesRoute: typeof AuthenticatedDashboardGuildIdReactionRolesRoute
   AuthenticatedDashboardGuildIdSeasonsRoute: typeof AuthenticatedDashboardGuildIdSeasonsRoute
   AuthenticatedDashboardGuildIdSocialRoute: typeof AuthenticatedDashboardGuildIdSocialRoute
@@ -549,6 +570,8 @@ const AuthenticatedDashboardGuildIdRouteChildren: AuthenticatedDashboardGuildIdR
       AuthenticatedDashboardGuildIdLogsRoute,
     AuthenticatedDashboardGuildIdModerationRoute:
       AuthenticatedDashboardGuildIdModerationRoute,
+    AuthenticatedDashboardGuildIdPremiumRoute:
+      AuthenticatedDashboardGuildIdPremiumRoute,
     AuthenticatedDashboardGuildIdReactionRolesRoute:
       AuthenticatedDashboardGuildIdReactionRolesRoute,
     AuthenticatedDashboardGuildIdSeasonsRoute:
@@ -594,13 +617,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

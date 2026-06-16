@@ -14,6 +14,7 @@ import {
   Ticket,
   Award,
   Trophy,
+  Crown,
   type LucideIcon,
 } from "lucide-react";
 
@@ -68,6 +69,10 @@ const SECTIONS: { title: string; items: Item[] }[] = [
       { to: "commands", label: "Comandos custom", icon: Terminal },
       { to: "embeds", label: "Embeds", icon: FileCode2 },
     ],
+  },
+  {
+    title: "Premium",
+    items: [{ to: "premium", label: "Premium", icon: Crown }],
   },
 ];
 

@@ -40,6 +40,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/$guildId/seasons
 
 function SeasonsPage() {
   const { guildId } = Route.useParams();
+  const { user } = Route.useLoaderData();
   const qc = useQueryClient();
 
   const { data: seasons } = useSuspenseQuery({

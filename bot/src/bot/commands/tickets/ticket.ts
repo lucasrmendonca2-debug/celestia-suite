@@ -12,7 +12,10 @@ import { env } from "../../../config/env.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import {
+  addUserToTicket,
   closeTicketSlash,
+  removeUserFromTicket,
+  reopenTicket,
 } from "../../systems/tickets/handlers.js";
 import {
   getTicketConfig,

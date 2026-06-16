@@ -273,3 +273,93 @@ export const getModerationStats = createServerFn({ method: "GET" })
       activeWarnings: warnRes.count ?? 0,
     };
   });
+
+/* ---------------- Casos (mod_cases) ---------------- */
+
+export const listModerationCases = createServerFn({ method: "GET" })
+  .inputValidator(
+    (d: {
+      guildId: string;
+      userId?: string | null;
+      moderatorId?: string | null;
+      action?: string | null;
+      source?: string | null;
+      limit?: number;
+    }) =>
+      z
+        .object({
+          guildId: guildIdSchema,
+          userId: snowflakeNullable.optional(),
+          moderatorId: snowflakeNullable.optional(),
+          action: z.string().max(40).nullable().optional(),
+          source: z.enum(["BOT", "DISCORD_UI", "DASHBOARD", "AUTOMOD"]).nullable().optional(),
+          limit: z.number().int().min(1).max(500).optional(),
+        })
+        .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    let q = sb
+      .from("mod_cases")
+      .select("*")
+      .eq("guild_id", data.guildId)
+      .order("case_number", { ascending: false })
+      .limit(data.limit ?? 100);
+    if (data.userId) q = q.eq("user_id", data.userId);
+    if (data.moderatorId) q = q.eq("moderator_id", data.moderatorId);
+    if (data.action) q = q.eq("action", data.action);
+    if (data.source) q = q.eq("source", data.source);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+export const editModerationCaseReason = createServerFn({ method: "POST" })
+  .inputValidator(
+    (d: { guildId: string; caseNumber: number; reason: string; editorId: string }) =>
+      z
+        .object({
+          guildId: guildIdSchema,
+          caseNumber: z.number().int().min(1),
+          reason: z.string().min(1).max(2000),
+          editorId: snowflake,
+        })
+        .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { data: row, error } = await sb
+      .from("mod_cases")
+      .update({
+        reason: data.reason,
+        edited_at: new Date().toISOString(),
+        edited_by: data.editorId,
+      })
+      .eq("guild_id", data.guildId)
+      .eq("case_number", data.caseNumber)
+      .select("*")
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+export const invalidateModerationCase = createServerFn({ method: "POST" })
+  .inputValidator((d: { guildId: string; caseNumber: number }) =>
+    z
+      .object({ guildId: guildIdSchema, caseNumber: z.number().int().min(1) })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { error } = await sb
+      .from("mod_cases")
+      .update({ active: false })
+      .eq("guild_id", data.guildId)
+      .eq("case_number", data.caseNumber);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+

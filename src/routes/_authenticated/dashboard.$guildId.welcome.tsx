@@ -104,7 +104,7 @@ function WelcomePage() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              mutation.mutate(form);
+              if (dirty) mutation.mutate(form);
             }}
             className="space-y-6 rounded-2xl border border-border bg-card p-6"
           >

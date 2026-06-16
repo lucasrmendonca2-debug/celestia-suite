@@ -11,6 +11,10 @@ const schema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(20),
   BRAND_NAME: z.string().default("Zenox"),
   BRAND_COLOR: z.string().default("0x7C3AED"),
+  APP_URL: z
+    .string()
+    .url()
+    .default("https://id-preview--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app"),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   LOG_LEVEL: z.string().default("info"),
 });

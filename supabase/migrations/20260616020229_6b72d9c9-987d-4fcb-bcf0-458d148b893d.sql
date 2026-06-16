@@ -1,0 +1,1 @@
+ALTER TABLE public.ticket_configs ADD COLUMN IF NOT EXISTS rating_channel_id TEXT;

@@ -635,6 +635,7 @@ export type Database = {
           panel_thumbnail_url: string | null
           panel_title: string
           panel_use_guild_banner: boolean
+          rating_channel_id: string | null
           rating_enabled: boolean
           ticket_welcome_message: string
           transcript_enabled: boolean
@@ -666,6 +667,7 @@ export type Database = {
           panel_thumbnail_url?: string | null
           panel_title?: string
           panel_use_guild_banner?: boolean
+          rating_channel_id?: string | null
           rating_enabled?: boolean
           ticket_welcome_message?: string
           transcript_enabled?: boolean
@@ -697,6 +699,7 @@ export type Database = {
           panel_thumbnail_url?: string | null
           panel_title?: string
           panel_use_guild_banner?: boolean
+          rating_channel_id?: string | null
           rating_enabled?: boolean
           ticket_welcome_message?: string
           transcript_enabled?: boolean

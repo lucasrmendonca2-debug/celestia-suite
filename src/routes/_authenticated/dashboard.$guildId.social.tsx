@@ -434,7 +434,80 @@ function SocialPage() {
         </TabsContent>
 
 
+        {/* MEU CARD — overrides do membro logado (reflete /perfil editar) */}
+        <TabsContent value="meu-card" className="space-y-4">
+          <Card title="Personalização do meu rank card">
+            <p className="text-sm text-muted-foreground mb-4 flex items-start gap-2">
+              <User className="size-4 mt-0.5 shrink-0" />
+              <span>
+                Estas opções valem somente para o <b>seu</b> rank card neste servidor. Deixe em
+                branco para usar o padrão definido pelo servidor. Equivalente a
+                <code className="mx-1 rounded bg-muted px-1 py-0.5">/perfil editar</code>
+                no Discord — alterações refletem imediatamente aqui e no bot.
+              </span>
+            </p>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Accent (vazio = padrão do servidor)">
+                <div className="flex gap-2 items-center">
+                  <Input type="color" value={mp.accent_color ?? s.card_accent_color ?? "#5865F2"}
+                    onChange={(e) => setMp({ ...mp, accent_color: e.target.value })}
+                    className="h-10 w-16 p-1" />
+                  <Input value={mp.accent_color ?? ""} placeholder="(padrão do servidor)"
+                    onChange={(e) => setMp({ ...mp, accent_color: e.target.value })} className="font-mono" />
+                  <Button size="sm" variant="ghost" onClick={() => setMp({ ...mp, accent_color: null })}>limpar</Button>
+                </div>
+              </Field>
+              <Field label="Fundo (vazio = padrão do servidor)">
+                <div className="flex gap-2 items-center">
+                  <Input type="color" value={mp.background_color ?? s.card_background_color ?? "#0f1117"}
+                    onChange={(e) => setMp({ ...mp, background_color: e.target.value })}
+                    className="h-10 w-16 p-1" />
+                  <Input value={mp.background_color ?? ""} placeholder="(padrão do servidor)"
+                    onChange={(e) => setMp({ ...mp, background_color: e.target.value })} className="font-mono" />
+                  <Button size="sm" variant="ghost" onClick={() => setMp({ ...mp, background_color: null })}>limpar</Button>
+                </div>
+              </Field>
+              <Field label="Texto (vazio = padrão do servidor)">
+                <div className="flex gap-2 items-center">
+                  <Input type="color" value={mp.text_color ?? s.card_text_color ?? "#ffffff"}
+                    onChange={(e) => setMp({ ...mp, text_color: e.target.value })}
+                    className="h-10 w-16 p-1" />
+                  <Input value={mp.text_color ?? ""} placeholder="(padrão do servidor)"
+                    onChange={(e) => setMp({ ...mp, text_color: e.target.value })} className="font-mono" />
+                  <Button size="sm" variant="ghost" onClick={() => setMp({ ...mp, text_color: null })}>limpar</Button>
+                </div>
+              </Field>
+              <Field label="Estilo do card">
+                <select
+                  value={mp.card_style ?? "default"}
+                  onChange={(e) => setMp({ ...mp, card_style: e.target.value })}
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="default">Padrão</option>
+                  <option value="minimal">Minimal</option>
+                  <option value="gradient">Gradient</option>
+                </select>
+              </Field>
+            </div>
+
+            <div className="mt-6">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
+                Pré-visualização (resolvido: seu valor → padrão do servidor)
+              </p>
+              <RankCardPreview
+                accent={mp.accent_color ?? s.card_accent_color ?? "#5865F2"}
+                background={mp.background_color ?? s.card_background_color ?? "#0f1117"}
+                text={mp.text_color ?? s.card_text_color ?? "#ffffff"}
+                style={((mp.card_style as "default" | "minimal" | "gradient") ?? "default")}
+              />
+            </div>
+          </Card>
+
+          <SaveBar onClick={() => saveMyProfile.mutate()} loading={saveMyProfile.isPending} />
+        </TabsContent>
+
         <TabsContent value="rewards" className="space-y-4">
+
           <Card title="Nova recompensa">
             <div className="grid gap-4 md:grid-cols-5">
               <Field label="Nível">

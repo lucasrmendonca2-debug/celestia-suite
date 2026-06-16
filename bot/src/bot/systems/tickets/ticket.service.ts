@@ -50,17 +50,17 @@ const DEFAULT_CONFIG: Omit<TicketConfig, "guild_id"> = {
   category_id: null,
   default_support_role_id: null,
   log_channel_id: null,
-  max_open_tickets_per_user: 1,
+  max_open_tickets_per_user: 5,
   panel_title: "🎫 Central de Atendimento",
   panel_description:
-    "Precisa de ajuda? Abra um ticket clicando no botão abaixo. Nossa equipe vai te atender por aqui em instantes.",
+    "Precisa de ajuda? Selecione no menu abaixo o tipo de atendimento e nossa equipe te responde aqui em instantes.",
   panel_button_label: "Abrir ticket",
   panel_button_emoji: "🎫",
   panel_color: 0x7c3aed,
   ticket_welcome_message:
-    "Olá {user}! 👋 Conta pra gente como podemos te ajudar — alguém da equipe já vem aqui.",
+    "Olá {user}! 👋 Obrigado por abrir um ticket.\n\nDescreva com calma o que aconteceu, mande prints se ajudar, e a equipe {staff} responde em instantes. ⏳",
   close_message:
-    "Este ticket foi fechado por {staff}. Se precisar continuar o atendimento, peça pra equipe reabrir.",
+    "Este ticket foi fechado por {staff}. Avalie nosso atendimento ou peça reabertura caso ainda precise de ajuda. 💜",
   transcript_enabled: true,
   rating_enabled: false,
   allow_user_close_ticket: true,

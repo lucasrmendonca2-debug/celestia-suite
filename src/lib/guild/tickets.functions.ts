@@ -30,22 +30,61 @@ const TICKET_DEFAULTS = {
   category_id: null as string | null,
   default_support_role_id: null as string | null,
   log_channel_id: null as string | null,
-  max_open_tickets_per_user: 1,
+  max_open_tickets_per_user: 5,
   panel_title: "🎫 Central de Atendimento",
   panel_description:
-    "Precisa de ajuda? Abra um ticket clicando no botão abaixo. Nossa equipe vai te atender por aqui em instantes.",
+    "Precisa de ajuda? Selecione no menu abaixo o tipo de atendimento e nossa equipe te responde aqui em instantes.",
   panel_button_label: "Abrir ticket",
   panel_button_emoji: "🎫",
   panel_color: 8141549,
   ticket_welcome_message:
-    "Olá {user}! 👋 Conta pra gente como podemos te ajudar — alguém da equipe já vem aqui.",
+    "Olá {user}! 👋 Obrigado por abrir um ticket.\n\nDescreva com calma o que aconteceu, mande prints se ajudar, e a equipe {staff} responde em instantes. ⏳",
   close_message:
-    "Este ticket foi fechado por {staff}. Se precisar continuar o atendimento, peça pra equipe reabrir.",
+    "Este ticket foi fechado por {staff}. Avalie nosso atendimento ou peça reabertura caso ainda precise de ajuda. 💜",
   transcript_enabled: true,
   rating_enabled: false,
   allow_user_close_ticket: true,
   use_single_panel: true,
 };
+
+const TEMPLATE_CATEGORIES = [
+  {
+    name: "Suporte Geral",
+    emoji: "🛠️",
+    description: "Dúvidas, problemas e ajuda em geral.",
+    welcome_message:
+      "Olá {user}! 👋 Conta pra gente qual é a sua dúvida ou problema. A equipe já está a caminho.",
+    priority: false,
+    position: 0,
+  },
+  {
+    name: "Dúvida",
+    emoji: "❓",
+    description: "Perguntas rápidas sobre o servidor ou o bot.",
+    welcome_message:
+      "Olá {user}! 🤔 Pode mandar sua pergunta — quanto mais detalhe, mais rápido a gente responde.",
+    priority: false,
+    position: 1,
+  },
+  {
+    name: "Denúncia",
+    emoji: "🚨",
+    description: "Reportar um usuário, mensagem ou comportamento.",
+    welcome_message:
+      "Olá {user}! 🚨 Descreva o ocorrido, marque o usuário envolvido e envie prints/links como prova. Tudo é confidencial.",
+    priority: true,
+    position: 2,
+  },
+  {
+    name: "Parcerias",
+    emoji: "🤝",
+    description: "Propostas comerciais, divulgação ou colaboração.",
+    welcome_message:
+      "Olá {user}! 🤝 Conta um pouco sobre a sua proposta de parceria e a equipe responsável responde em breve.",
+    priority: false,
+    position: 3,
+  },
+];
 
 export const getTicketConfig = createServerFn({ method: "GET" })
   .inputValidator((d: { guildId: string }) =>
@@ -161,56 +200,39 @@ export const sendTicketPanel = createServerFn({ method: "POST" })
 
     const activeCats = cats ?? [];
 
-    let components: unknown[];
-    if (activeCats.length === 0) {
-      components = [
-        {
-          type: 1,
-          components: [
+    // Sempre dropdown — mais limpo e escala melhor.
+    const options =
+      activeCats.length === 0
+        ? [
             {
-              type: 2,
-              style: 1,
-              custom_id: "ticket:open:default",
-              label: cfg.panel_button_label,
-              emoji: cfg.panel_button_emoji
-                ? { name: cfg.panel_button_emoji }
-                : undefined,
+              label: cfg.panel_button_label || "Abrir ticket",
+              value: "default",
+              description: "Atendimento geral com a nossa equipe.",
+              emoji: { name: cfg.panel_button_emoji || "🎫" },
             },
-          ],
-        },
-      ];
-    } else if (activeCats.length <= 5) {
-      components = [
-        {
-          type: 1,
-          components: activeCats.map((c) => ({
-            type: 2,
-            style: c.priority ? 4 : 1,
-            custom_id: `ticket:open:${c.id}`,
-            label: c.name.slice(0, 80),
+          ]
+        : activeCats.slice(0, 25).map((c) => ({
+            label: c.name.slice(0, 100),
+            value: c.id,
+            description: c.priority ? "⚡ Prioridade" : undefined,
             emoji: c.emoji ? { name: c.emoji } : undefined,
-          })),
-        },
-      ];
-    } else {
-      components = [
-        {
-          type: 1,
-          components: [
-            {
-              type: 3,
-              custom_id: "ticket:select",
-              placeholder: "Escolha o tipo de atendimento…",
-              options: activeCats.slice(0, 25).map((c) => ({
-                label: c.name.slice(0, 100),
-                value: c.id,
-                emoji: c.emoji ? { name: c.emoji } : undefined,
-              })),
-            },
-          ],
-        },
-      ];
-    }
+          }));
+
+    const components = [
+      {
+        type: 1,
+        components: [
+          {
+            type: 3,
+            custom_id: "ticket:select",
+            placeholder: "Escolha o tipo de atendimento…",
+            min_values: 1,
+            max_values: 1,
+            options,
+          },
+        ],
+      },
+    ];
 
     const body = {
       embeds: [
@@ -248,6 +270,39 @@ export const sendTicketPanel = createServerFn({ method: "POST" })
       .eq("guild_id", data.guildId);
 
     return { ok: true, channelId, messageId: msg.id };
+  });
+
+/* ----------- Carrega categorias-modelo (idempotente) ----------- */
+export const seedTicketTemplates = createServerFn({ method: "POST" })
+  .inputValidator((d: { guildId: string }) =>
+    z.object({ guildId: guildIdSchema }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { count } = await sb
+      .from("ticket_categories")
+      .select("id", { count: "exact", head: true })
+      .eq("guild_id", data.guildId);
+    if ((count ?? 0) > 0) {
+      return { ok: true, inserted: 0 };
+    }
+    const rows = TEMPLATE_CATEGORIES.map((t) => ({
+      guild_id: data.guildId,
+      name: t.name,
+      emoji: t.emoji,
+      description: t.description,
+      welcome_message: t.welcome_message,
+      priority: t.priority,
+      position: t.position,
+      active: true,
+      required_role_ids: [],
+      blocked_role_ids: [],
+      allowed_access_levels: [],
+    }));
+    const { error } = await sb.from("ticket_categories").insert(rows);
+    if (error) throw new Error(error.message);
+    return { ok: true, inserted: rows.length };
   });
 
 /* =====================================================================

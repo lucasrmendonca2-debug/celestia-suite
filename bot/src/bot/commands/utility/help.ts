@@ -30,13 +30,52 @@ const PER_PAGE = 6;
 
 const command: SlashCommand = {
   category: "utility",
+  module: "help",
   cooldown: 3,
+  enabledByDefault: true,
+  dashboardConfigurable: false,
   longDescription:
-    "Central de ajuda interativa: navegue pelas categorias com o menu abaixo e pelas páginas com os botões.",
+    "Central de ajuda interativa: navegue pelas categorias com o menu, busque por nome ou veja os detalhes de um comando.",
+  examples: ["/help", "/help comando nome:saldo", "/help buscar termo:ticket"],
   data: new SlashCommandBuilder()
     .setName("help")
-    .setDescription("Central de ajuda interativa do Zenox."),
+    .setDescription("Central de ajuda interativa do Zenox.")
+    .addSubcommand((s) => s.setName("inicio").setDescription("Mostra todas as categorias."))
+    .addSubcommand((s) =>
+      s
+        .setName("comando")
+        .setDescription("Detalhes de um comando específico.")
+        .addStringOption((o) =>
+          o.setName("nome").setDescription("Nome do comando (ex: saldo)").setRequired(true).setAutocomplete(true),
+        ),
+    )
+    .addSubcommand((s) =>
+      s
+        .setName("buscar")
+        .setDescription("Busca comandos por nome, descrição ou módulo.")
+        .addStringOption((o) => o.setName("termo").setDescription("Texto pra procurar").setRequired(true)),
+    ),
   async execute(interaction, { client }) {
+    const sub = interaction.options.getSubcommand(false) ?? "inicio";
+
+    if (sub === "comando") {
+      const name = interaction.options.getString("nome", true);
+      const meta = findCommand(client, name);
+      if (!meta) {
+        return interaction.reply({
+          embeds: [brandEmbed({ kind: "error", title: "Comando não encontrado", description: `Não achei \`/${name}\`. Use \`/help buscar\`.` })],
+          ephemeral: true,
+        });
+      }
+      return interaction.reply({ embeds: [renderCommandDetail(meta)], ephemeral: true });
+    }
+
+    if (sub === "buscar") {
+      const term = interaction.options.getString("termo", true);
+      const results = searchCommands(client, term, 12);
+      return interaction.reply({ embeds: [renderSearch(term, results)], ephemeral: true });
+    }
+
     const view = renderHome(client);
     await interaction.reply({ ...view, ephemeral: true });
   },

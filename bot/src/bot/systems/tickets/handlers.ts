@@ -566,6 +566,32 @@ export async function handleTicketButton(interaction: ButtonInteraction): Promis
     }, 5_000);
     return;
   }
+
+  if (action === "rate") {
+    const [, , ticketId, ratingStr] = interaction.customId.split(":");
+    const rating = Number.parseInt(ratingStr ?? "0", 10);
+    if (!ticketId || rating < 1 || rating > 5) return;
+    try {
+      await setTicketRating(ticketId, rating);
+      await writeLog(interaction.guild.id, ticketId, "rated", interaction.user.id, { rating });
+      await interaction.update({
+        embeds: [
+          brandEmbed({
+            kind: "success",
+            title: "💜 Obrigado pelo feedback!",
+            description: `Você avaliou o atendimento com ${"⭐".repeat(rating)}.`,
+          }),
+        ],
+        components: [],
+      });
+    } catch (err) {
+      await interaction.reply({
+        embeds: [brandEmbed({ kind: "error", title: "Erro", description: (err as Error).message })],
+        ephemeral: true,
+      });
+    }
+    return;
+  }
 }
 
 /* ===================== SLASH ENTRY POINTS ===================== */

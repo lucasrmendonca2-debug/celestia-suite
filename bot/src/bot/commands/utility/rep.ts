@@ -34,11 +34,15 @@ const command: SlashCommand = {
     if (sub === "dar") {
       const target = interaction.options.getUser("usuario", true);
       const message = interaction.options.getString("mensagem");
-      if (target.id === interaction.user.id) {
-        return void interaction.reply({ content: "Você não pode dar rep para si mesmo.", ephemeral: true });
+      const kind = classifyTarget(interaction, target);
+      if (kind === "self") {
+        return void interaction.reply({ embeds: [brandEmbed({ kind: "warn", description: pick(socialResponses.repSelf) })], ephemeral: true });
       }
-      if (target.bot) {
-        return void interaction.reply({ content: "Bots não recebem reputação.", ephemeral: true });
+      if (kind === "bot_self") {
+        return void interaction.reply({ embeds: [brandEmbed({ kind: "warn", description: pick(socialResponses.repBot) })], ephemeral: true });
+      }
+      if (kind === "bot_other") {
+        return void interaction.reply({ embeds: [brandEmbed({ kind: "warn", description: pick(socialResponses.repOtherBot) })], ephemeral: true });
       }
       const res = await giveReputation(guildId, interaction.user.id, target.id, message);
       if (!res.ok) {

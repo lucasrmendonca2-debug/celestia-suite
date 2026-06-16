@@ -282,10 +282,12 @@ export async function handleTicketButton(interaction: ButtonInteraction): Promis
   const [, action] = interaction.customId.split(":");
 
   if (action === "open") {
+    const [, , categoryId] = interaction.customId.split(":");
     try {
       const { channelId } = await openTicket(
         interaction.guild,
         interaction.member as GuildMember,
+        categoryId ?? null,
       );
       await interaction.reply({
         embeds: [

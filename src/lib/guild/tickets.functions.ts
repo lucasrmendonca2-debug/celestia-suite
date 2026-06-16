@@ -201,6 +201,9 @@ function parseEmoji(
   const m = raw.match(/^<(a?):([\w~]+):(\d{5,32})>$/);
   if (m) return { name: m[2], id: m[3], animated: m[1] === "a" };
   return { name: raw };
+}
+
+
 
 async function discord<T = unknown>(
   url: string,

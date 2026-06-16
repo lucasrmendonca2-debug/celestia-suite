@@ -96,7 +96,7 @@ const command: SlashCommand = {
         embeds: [
           brandEmbed({
             title: `👤 ${profile.title || target.username}`,
-            description: profile.bio || "_Sem bio_",
+            description: profile.bio || `_${pick(socialResponses.noBio)}_`,
             thumbnail: target.displayAvatarURL(),
             image: profile.banner_url ?? undefined,
             fields: [

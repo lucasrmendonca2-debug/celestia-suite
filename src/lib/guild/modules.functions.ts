@@ -201,7 +201,7 @@ export const addAutorole = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    const { assertCanAccessArea, writeAudit } = await import("./permissions.functions");
+    const { assertCanAccessArea, writeAudit } = await import("./permissions-audit.server");
     const actor = await assertCanAccessArea(data.guildId, "autorole");
     const sb = await admin();
     const { error } = await sb.from("guild_autoroles").insert({
@@ -225,7 +225,7 @@ export const removeAutorole = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    const { assertCanAccessArea, writeAudit } = await import("./permissions.functions");
+    const { assertCanAccessArea, writeAudit } = await import("./permissions-audit.server");
     const actor = await assertCanAccessArea(data.guildId, "autorole");
     const sb = await admin();
     const { data: prev } = await sb

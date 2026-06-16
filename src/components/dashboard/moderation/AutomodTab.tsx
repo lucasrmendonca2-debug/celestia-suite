@@ -21,8 +21,14 @@ import { MultiChannelPicker, MultiRolePicker } from "@/components/dashboard/tick
 type AutomodPunishment = "delete" | "warn" | "mute" | "kick" | "ban";
 const isAutomodPunishment = (value: string): value is AutomodPunishment =>
   ["delete", "warn", "mute", "kick", "ban"].includes(value);
-const asAutomodPunishment = (value: string): AutomodPunishment =>
-  isAutomodPunishment(value) ? value : "delete";
+const asAutomodPunishment = (value: unknown): AutomodPunishment =>
+  typeof value === "string" && isAutomodPunishment(value) ? value : "delete";
+const asBool = (value: unknown, fallback = false) =>
+  typeof value === "boolean" ? value : fallback;
+const asNumber = (value: unknown, fallback: number) =>
+  typeof value === "number" && Number.isFinite(value) ? value : fallback;
+const asStringArray = (value: unknown) =>
+  Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : [];
 
 interface AutomodForm {
   enabled?: boolean;
@@ -52,13 +58,41 @@ interface AutomodForm {
 
 interface AutomodTabProps {
   guildId: string;
-  initial: AutomodForm;
+  initial: Record<string, unknown>;
+}
+
+function normalizeAutomod(input: Record<string, unknown>): AutomodForm {
+  return {
+    enabled: asBool(input.enabled),
+    anti_spam_enabled: asBool(input.anti_spam_enabled),
+    anti_spam_threshold: asNumber(input.anti_spam_threshold, 5),
+    anti_spam_interval: asNumber(input.anti_spam_interval, 5),
+    anti_flood_enabled: asBool(input.anti_flood_enabled),
+    anti_flood_threshold: asNumber(input.anti_flood_threshold, 3),
+    anti_invite_enabled: asBool(input.anti_invite_enabled),
+    anti_link_enabled: asBool(input.anti_link_enabled),
+    anti_caps_enabled: asBool(input.anti_caps_enabled),
+    anti_caps_threshold: asNumber(input.anti_caps_threshold, 70),
+    anti_mention_enabled: asBool(input.anti_mention_enabled),
+    anti_mention_threshold: asNumber(input.anti_mention_threshold, 5),
+    blacklist_words: asStringArray(input.blacklist_words),
+    whitelist_channels: asStringArray(input.whitelist_channels),
+    whitelist_roles: asStringArray(input.whitelist_roles),
+    whitelist_users: asStringArray(input.whitelist_users),
+    punishment: asAutomodPunishment(input.punishment),
+    spam_punishment: asAutomodPunishment(input.spam_punishment),
+    link_punishment: asAutomodPunishment(input.link_punishment),
+    invite_punishment: asAutomodPunishment(input.invite_punishment),
+    blacklist_punishment: asAutomodPunishment(input.blacklist_punishment),
+    spam_punishment_duration: asNumber(input.spam_punishment_duration, 600),
+    warn_user_on_delete: asBool(input.warn_user_on_delete, true),
+  };
 }
 
 export function AutomodTab({ guildId, initial }: AutomodTabProps) {
   const updateFn = useServerFn(updateAutomodConfig);
   const qc = useQueryClient();
-  const [form, setForm] = useState<AutomodForm>(initial);
+  const [form, setForm] = useState<AutomodForm>(() => normalizeAutomod(initial));
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -91,14 +125,7 @@ export function AutomodTab({ guildId, initial }: AutomodTabProps) {
         },
       }),
     onSuccess: (saved) => {
-      setForm({
-        ...saved,
-        punishment: asAutomodPunishment(saved.punishment),
-        spam_punishment: asAutomodPunishment(saved.spam_punishment),
-        link_punishment: asAutomodPunishment(saved.link_punishment),
-        invite_punishment: asAutomodPunishment(saved.invite_punishment),
-        blacklist_punishment: asAutomodPunishment(saved.blacklist_punishment),
-      });
+      setForm(normalizeAutomod(saved));
       qc.setQueryData(["automod", guildId], saved);
       toast.success("AutoMod salvo.");
     },

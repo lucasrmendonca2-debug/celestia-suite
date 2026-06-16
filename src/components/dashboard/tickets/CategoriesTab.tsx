@@ -40,31 +40,67 @@ const blank = (guildId: string): Category =>
 
 export function CategoriesTab({ guildId }: { guildId: string }) {
   const list = useServerFn(listTicketCategories);
+  const seed = useServerFn(seedTicketTemplates);
+  const qc = useQueryClient();
   const { data: cats = [], isLoading } = useQuery({
     queryKey: ["ticket-categories", guildId],
     queryFn: () => list({ data: { guildId } }),
   });
   const [editing, setEditing] = useState<Category | null>(null);
 
+  const seeding = useMutation({
+    mutationFn: () => seed({ data: { guildId } }),
+    onSuccess: (r) => {
+      toast.success(
+        r.inserted > 0
+          ? `${r.inserted} categorias-modelo adicionadas.`
+          : "Você já tem categorias — nada a fazer.",
+      );
+      qc.invalidateQueries({ queryKey: ["ticket-categories", guildId] });
+    },
+    onError: (e) =>
+      toast.error("Não consegui carregar os modelos.", {
+        description: (e as Error).message,
+      }),
+  });
+
   if (isLoading) return <p className="text-sm text-muted-foreground">Carregando…</p>;
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
           <h3 className="text-sm font-semibold">Categorias de ticket</h3>
           <p className="text-xs text-muted-foreground">
-            Cada categoria vira um botão no painel. Sem categorias, o painel usa o botão padrão.
+            Cada categoria aparece no menu dropdown do painel.
           </p>
         </div>
-        <Button size="sm" onClick={() => setEditing(blank(guildId))} className="gap-2">
-          <Plus className="size-4" /> Nova categoria
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => seeding.mutate()}
+            disabled={seeding.isPending || cats.length > 0}
+            className="gap-2"
+            title={
+              cats.length > 0
+                ? "Você já tem categorias criadas"
+                : "Cria Suporte, Dúvida, Denúncia e Parcerias"
+            }
+          >
+            <Sparkles className="size-4" />
+            {seeding.isPending ? "Carregando…" : "Carregar modelos"}
+          </Button>
+          <Button size="sm" onClick={() => setEditing(blank(guildId))} className="gap-2">
+            <Plus className="size-4" /> Nova categoria
+          </Button>
+        </div>
       </div>
 
       {cats.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border bg-card/30 p-10 text-center text-sm text-muted-foreground">
-          Nenhuma categoria ainda. Crie uma para oferecer múltiplos tipos de atendimento.
+          Nenhuma categoria ainda. Use <strong>Carregar modelos</strong> para começar com tipos prontos
+          (Suporte, Dúvida, Denúncia, Parcerias) ou crie a sua.
         </div>
       ) : (
         <div className="grid gap-2">

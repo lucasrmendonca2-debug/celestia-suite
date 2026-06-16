@@ -157,7 +157,14 @@ export function renderHome(client: ZenoxClient): HelpView {
     fields,
   }).toJSON();
 
-  return { embeds: [embed], components: [buildSelect()] };
+  const linkRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setLabel("Abrir Painel Web")
+      .setEmoji("🌐")
+      .setStyle(ButtonStyle.Link)
+      .setURL("https://id-preview--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app"),
+  );
+  return { embeds: [embed], components: [buildSelect(), linkRow] };
 }
 
 export function renderCategory(

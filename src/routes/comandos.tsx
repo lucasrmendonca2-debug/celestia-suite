@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { ArrowUpRight, Search, ChevronDown, Clock, Shield, Terminal } from "lucide-react";
+import { ArrowUpRight, Search, Clock, Shield, Terminal, X, ChevronRight } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeProvider";
 
 export const Route = createFileRoute("/comandos")({
@@ -473,7 +473,7 @@ function CommandsPage() {
         <div className="absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(ellipse_55%_60%_at_50%_0%,theme(colors.primary/0.10),transparent_70%)]" />
       </div>
 
-      <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-5 py-6 sm:px-8 sm:py-10">
+      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-5 py-6 sm:px-8 sm:py-10">
         <header className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
             <div className="flex size-8 items-center justify-center rounded-md bg-primary/15 ring-1 ring-primary/40">
@@ -526,42 +526,49 @@ function CommandsPage() {
             )}
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Chip active={active === "all"} onClick={() => setActive("all")}>Todos</Chip>
+        </section>
+
+        {/* Sticky category nav */}
+        <div className="sticky top-2 z-30 mt-6 -mx-2 px-2">
+          <div className="flex gap-1.5 overflow-x-auto rounded-xl border border-border bg-background/80 p-1.5 backdrop-blur-md [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <Chip active={active === "all"} onClick={() => setActive("all")}>
+              Todos <span className="ml-1 opacity-60">{total}</span>
+            </Chip>
             {CATEGORIES.map((c) => (
               <Chip key={c.key} active={active === c.key} onClick={() => setActive(c.key)}>
                 <span className="mr-1">{c.emoji}</span>
                 {c.label}
+                <span className="ml-1 opacity-60">{c.cmds.length}</span>
               </Chip>
             ))}
           </div>
-        </section>
+        </div>
 
-        {/* Categories */}
-        <section className="mt-14 space-y-12">
+        {/* Categories — card grid */}
+        <section className="mt-10 space-y-14">
           {filtered.length === 0 && (
             <p className="rounded-lg border border-border bg-card/40 p-8 text-center text-sm text-muted-foreground">
               Nenhum comando encontrado para “{q}”. Tenta outro termo.
             </p>
           )}
           {filtered.map((cat) => (
-            <div key={cat.key}>
-              <div className="mb-5 border-b border-border pb-3">
-                <p className="mb-1 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                  {cat.emoji} {cat.label} — {cat.cmds.length}
-                </p>
-                <h2 className="text-xl font-semibold tracking-tight">{cat.intro}</h2>
+            <div key={cat.key} id={`cat-${cat.key}`} className="scroll-mt-24">
+              <div className="mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-border pb-3">
+                <div>
+                  <p className="mb-1 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                    {cat.emoji} {cat.label} · {cat.cmds.length} comando{cat.cmds.length > 1 ? "s" : ""}
+                  </p>
+                  <h2 className="text-xl font-semibold tracking-tight">{cat.intro}</h2>
+                </div>
               </div>
-              <div className="space-y-2">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {cat.cmds.map((cmd) => {
                   const id = `${cat.key}:${cmd.name}`;
-                  const isOpen = open === id;
                   return (
-                    <CommandRow
+                    <CommandCard
                       key={id}
                       cmd={cmd}
-                      open={isOpen}
-                      onToggle={() => setOpen(isOpen ? null : id)}
+                      onClick={() => setOpen(id)}
                     />
                   );
                 })}
@@ -569,6 +576,17 @@ function CommandsPage() {
             </div>
           ))}
         </section>
+
+        {/* Detail modal */}
+        {open && (() => {
+          const [catKey, cmdName] = open.split(":");
+          const cat = CATEGORIES.find((c) => c.key === catKey);
+          const cmd = cat?.cmds.find((c) => c.name === cmdName);
+          if (!cmd) return null;
+          return (
+            <CommandDetailModal cat={cat!} cmd={cmd} onClose={() => setOpen(null)} />
+          );
+        })()}
 
         <footer className="mt-20 flex flex-col items-start justify-between gap-4 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
           <span>© {new Date().getFullYear()} Zenox. Todos os direitos reservados.</span>
@@ -605,94 +623,159 @@ function Chip({
   );
 }
 
-function CommandRow({ cmd, open, onToggle }: { cmd: Cmd; open: boolean; onToggle: () => void }) {
+function CommandCard({ cmd, onClick }: { cmd: Cmd; onClick: () => void }) {
   const hasDetails = !!(cmd.examples?.length || cmd.embed || cmd.perms?.length);
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card/40">
-      <button
-        onClick={onToggle}
-        className="flex w-full items-center justify-between gap-4 px-4 py-3 text-left transition hover:bg-muted/30"
-      >
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <code className="font-mono text-sm font-semibold text-primary">/{cmd.name}</code>
-            {cmd.cooldown && (
-              <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background/60 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                <Clock className="size-3" /> {cmd.cooldown}
-              </span>
-            )}
-            {cmd.perms?.slice(0, 1).map((p) => (
-              <span
-                key={p}
-                className="inline-flex items-center gap-1 rounded-full border border-border bg-background/60 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
-              >
-                <Shield className="size-3" /> {p}
-              </span>
-            ))}
-          </div>
-          <p className="mt-1 truncate text-sm text-muted-foreground">{cmd.desc}</p>
-        </div>
-        {hasDetails && (
-          <ChevronDown
-            className={`size-4 shrink-0 text-muted-foreground transition ${open ? "rotate-180" : ""}`}
-          />
+    <button
+      onClick={onClick}
+      className="group relative flex h-full flex-col gap-3 overflow-hidden rounded-xl border border-border bg-card/40 p-4 text-left transition hover:-translate-y-0.5 hover:border-primary/40 hover:bg-card/70 hover:shadow-[0_10px_40px_-20px_hsl(var(--primary)/0.5)]"
+    >
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent opacity-0 transition group-hover:opacity-100" />
+
+      <div className="flex items-start justify-between gap-2">
+        <code className="font-mono text-[15px] font-semibold tracking-tight text-primary">
+          /{cmd.name}
+        </code>
+        <ChevronRight className="size-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" />
+      </div>
+
+      <p className="line-clamp-2 text-sm leading-relaxed text-muted-foreground">{cmd.desc}</p>
+
+      <div className="mt-auto flex flex-wrap items-center gap-1.5 pt-1">
+        {cmd.cooldown && (
+          <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background/60 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
+            <Clock className="size-3" /> {cmd.cooldown}
+          </span>
         )}
-      </button>
+        {cmd.perms?.slice(0, 1).map((p) => (
+          <span
+            key={p}
+            className="inline-flex max-w-[180px] items-center gap-1 truncate rounded-full border border-border bg-background/60 px-2 py-0.5 text-[10px] font-medium text-muted-foreground"
+          >
+            <Shield className="size-3" /> {p}
+          </span>
+        ))}
+        {cmd.embed && (
+          <span className="inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+            embed
+          </span>
+        )}
+        {hasDetails && !cmd.cooldown && !cmd.perms?.length && !cmd.embed && (
+          <span className="text-[10px] text-muted-foreground/60">detalhes</span>
+        )}
+      </div>
+    </button>
+  );
+}
 
-      {open && hasDetails && (
-        <div className="grid gap-4 border-t border-border px-4 py-4 sm:grid-cols-2">
-          <div className="space-y-4">
-            {cmd.perms?.length ? (
-              <div>
-                <p className="mb-1.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                  Permissões
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {cmd.perms.map((p) => (
-                    <span
-                      key={p}
-                      className="inline-flex items-center gap-1 rounded-md border border-border bg-background/60 px-2 py-1 text-xs text-foreground"
-                    >
-                      <Shield className="size-3 text-muted-foreground" />
-                      {p}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            {cmd.examples?.length ? (
-              <div>
-                <p className="mb-1.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                  Exemplos
-                </p>
-                <div className="space-y-1.5">
-                  {cmd.examples.map((ex) => (
-                    <div
-                      key={ex}
-                      className="flex items-start gap-2 rounded-md border border-border bg-background/60 px-2.5 py-1.5"
-                    >
-                      <Terminal className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
-                      <code className="break-all font-mono text-xs text-foreground">{ex}</code>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ) : null}
+function CommandDetailModal({
+  cat,
+  cmd,
+  onClose,
+}: {
+  cat: Cat;
+  cmd: Cmd;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-background/70 p-0 backdrop-blur-md sm:items-center sm:p-6"
+      onClick={onClose}
+    >
+      <div
+        className="relative max-h-[92vh] w-full max-w-3xl overflow-y-auto rounded-t-2xl border border-border bg-card shadow-2xl sm:rounded-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="sticky top-0 z-10 flex items-center justify-between gap-3 border-b border-border bg-card/95 px-5 py-3.5 backdrop-blur">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+              {cat.emoji} {cat.label}
+            </span>
+            <code className="truncate font-mono text-sm font-semibold text-primary">
+              /{cmd.name}
+            </code>
           </div>
+          <button
+            onClick={onClose}
+            className="flex size-8 items-center justify-center rounded-md text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          >
+            <X className="size-4" />
+          </button>
+        </div>
 
-          <div>
-            <p className="mb-1.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-              Preview do embed
-            </p>
-            {cmd.embed ? <EmbedCard embed={cmd.embed} /> : (
-              <p className="rounded-md border border-dashed border-border bg-background/40 p-3 text-xs text-muted-foreground">
-                Esse comando não responde com embed (mensagem simples ou painel interativo).
-              </p>
+        <div className="p-5 sm:p-6">
+          <p className="text-[15px] leading-relaxed text-foreground">{cmd.desc}</p>
+
+          <div className="mt-4 flex flex-wrap gap-1.5">
+            {cmd.cooldown && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background/60 px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                <Clock className="size-3.5" /> Cooldown {cmd.cooldown}
+              </span>
             )}
           </div>
+
+          <div className="mt-6 grid gap-6 sm:grid-cols-2">
+            <div className="space-y-5">
+              {cmd.perms?.length ? (
+                <div>
+                  <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    Permissões
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {cmd.perms.map((p) => (
+                      <span
+                        key={p}
+                        className="inline-flex items-center gap-1 rounded-md border border-border bg-background/60 px-2 py-1 text-xs text-foreground"
+                      >
+                        <Shield className="size-3 text-muted-foreground" />
+                        {p}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {cmd.examples?.length ? (
+                <div>
+                  <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    Exemplos
+                  </p>
+                  <div className="space-y-1.5">
+                    {cmd.examples.map((ex) => (
+                      <div
+                        key={ex}
+                        className="flex items-start gap-2 rounded-md border border-border bg-background/60 px-2.5 py-1.5"
+                      >
+                        <Terminal className="mt-0.5 size-3.5 shrink-0 text-muted-foreground" />
+                        <code className="break-all font-mono text-xs text-foreground">{ex}</code>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              {!cmd.perms?.length && !cmd.examples?.length && (
+                <p className="rounded-md border border-dashed border-border bg-background/40 p-3 text-xs text-muted-foreground">
+                  Comando simples, sem permissões especiais ou exemplos extras.
+                </p>
+              )}
+            </div>
+
+            <div>
+              <p className="mb-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                Preview do embed
+              </p>
+              {cmd.embed ? (
+                <EmbedCard embed={cmd.embed} />
+              ) : (
+                <p className="rounded-md border border-dashed border-border bg-background/40 p-3 text-xs text-muted-foreground">
+                  Esse comando não responde com embed (mensagem simples ou painel interativo).
+                </p>
+              )}
+            </div>
+          </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

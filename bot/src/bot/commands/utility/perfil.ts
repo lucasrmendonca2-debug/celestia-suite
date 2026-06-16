@@ -58,6 +58,27 @@ const command: SlashCommand = {
 
     if (sub === "ver") {
       const target = interaction.options.getUser("usuario") ?? interaction.user;
+      if (target.id === interaction.client.user.id) {
+        const client = interaction.client;
+        await interaction.reply({
+          embeds: [
+            brandEmbed({
+              title: `🤖 ${client.user?.username ?? "Bot"}`,
+              description: "Sou o assistente do servidor — moderação, economia, level, tickets e mais. Use `/help` pra explorar meus comandos.",
+              thumbnail: client.user?.displayAvatarURL(),
+              fields: [
+                { name: "Servidores", value: String(client.guilds.cache.size), inline: true },
+                { name: "Ping", value: `${Math.round(client.ws.ping)} ms`, inline: true },
+              ],
+            }),
+          ],
+        });
+        return;
+      }
+      if (target.bot) {
+        await interaction.reply({ embeds: [brandEmbed({ kind: "info", description: "Esse é outro bot. Ele não tem perfil social por aqui. 🤖" })], ephemeral: true });
+        return;
+      }
       const profile = await getProfile(guildId, target.id);
       if (target.id !== interaction.user.id) {
         await incrementProfileViews(guildId, target.id);

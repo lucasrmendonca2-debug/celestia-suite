@@ -83,6 +83,10 @@ function PremiumPage() {
     queryKey: ["premium-config", guildId],
     queryFn: () => getPremiumGuildConfig({ data: { guildId } }),
   });
+  const { data: usage } = useQuery({
+    queryKey: ["premium-usage", guildId],
+    queryFn: () => getPremiumUsage({ data: { guildId } }),
+  });
 
   const redeemFn = useServerFn(redeemGuildCode);
   const updateCfgFn = useServerFn(updatePremiumGuildConfig);

@@ -189,6 +189,19 @@ function botHeaders(token: string) {
   };
 }
 
+/**
+ * Converts a Discord emoji string into the API shape expected by
+ * select-menu options / buttons. Accepts both unicode ("🎫") and custom
+ * emoji mentions ("<:name:id>" / "<a:name:id>").
+ */
+function parseEmoji(
+  raw: string | null | undefined,
+): { name: string; id?: string; animated?: boolean } | undefined {
+  if (!raw) return undefined;
+  const m = raw.match(/^<(a?):([\w~]+):(\d{5,32})>$/);
+  if (m) return { name: m[2], id: m[3], animated: m[1] === "a" };
+  return { name: raw };
+
 async function discord<T = unknown>(
   url: string,
   init: RequestInit & { body?: string },

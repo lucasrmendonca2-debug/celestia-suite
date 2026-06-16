@@ -119,6 +119,32 @@ const command: SlashCommand = {
         .setName("renomear")
         .setDescription("Renomeia este canal de ticket.")
         .addStringOption((o) => o.setName("nome").setDescription("Novo nome").setRequired(true)),
+    )
+    .addSubcommand((s) =>
+      s.setName("metricas").setDescription("Mostra métricas do sistema de tickets."),
+    )
+    .addSubcommand((s) =>
+      s
+        .setName("resposta")
+        .setDescription("Gerencia respostas rápidas de staff.")
+        .addStringOption((o) =>
+          o
+            .setName("acao")
+            .setDescription("Ação")
+            .setRequired(true)
+            .addChoices(
+              { name: "Usar", value: "usar" },
+              { name: "Listar", value: "listar" },
+              { name: "Criar", value: "criar" },
+              { name: "Remover", value: "remover" },
+            ),
+        )
+        .addStringOption((o) =>
+          o.setName("slug").setDescription("Identificador curto (ex: ola, encerrar)"),
+        )
+        .addStringOption((o) =>
+          o.setName("conteudo").setDescription("Conteúdo da resposta (ao criar)"),
+        ),
     ),
   async execute(interaction: ChatInputCommandInteraction) {
     const sub = interaction.options.getSubcommand(true);

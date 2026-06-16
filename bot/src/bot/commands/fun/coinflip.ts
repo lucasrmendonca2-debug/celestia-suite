@@ -6,7 +6,7 @@ const command: SlashCommand = {
   category: "fun",
   cooldown: 3,
   data: new SlashCommandBuilder()
-    .setName("coinflip")
+    .setName("moeda").setNameLocalizations({"en-US":"coinflip"})
     .setDescription("Joga uma moeda — cara ou coroa.")
     .addStringOption((o) =>
       o.setName("aposta").setDescription("cara ou coroa").addChoices({ name: "Cara", value: "cara" }, { name: "Coroa", value: "coroa" }),

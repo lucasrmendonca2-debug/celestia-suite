@@ -12,7 +12,7 @@ const command: SlashCommand = {
   guildOnly: true,
   userPermissions: [PermissionFlagsBits.ManageGuild],
   data: new SlashCommandBuilder()
-    .setName("customcommand")
+    .setName("comando").setNameLocalizations({"en-US":"customcommand"})
     .setDescription("Comandos customizados do servidor (prefixo !)")
     .addSubcommand((s) =>
       s

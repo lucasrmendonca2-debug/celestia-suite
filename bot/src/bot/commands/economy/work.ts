@@ -20,7 +20,7 @@ const command: SlashCommand = {
   category: "economy",
   cooldown: 5,
   guildOnly: true,
-  data: new SlashCommandBuilder().setName("work").setDescription("Trabalha para ganhar moedas."),
+  data: new SlashCommandBuilder().setName("trabalhar").setNameLocalizations({"en-US":"work"}).setDescription("Trabalha para ganhar moedas."),
   async execute(interaction) {
     const acc = await getAccount(interaction.guildId!, interaction.user.id);
     const cfg = await getConfig(interaction.guildId!);

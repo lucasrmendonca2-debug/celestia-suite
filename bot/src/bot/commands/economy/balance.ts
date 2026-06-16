@@ -9,7 +9,7 @@ const command: SlashCommand = {
   cooldown: 3,
   guildOnly: true,
   data: new SlashCommandBuilder()
-    .setName("balance")
+    .setName("saldo").setNameLocalizations({"en-US":"balance"})
     .setDescription("Vê seu saldo (carteira + banco).")
     .addUserOption((o) => o.setName("usuario").setDescription("Outro usuário")),
   async execute(interaction) {

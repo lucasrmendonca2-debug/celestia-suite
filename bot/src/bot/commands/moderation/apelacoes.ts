@@ -8,7 +8,7 @@ const command: SlashCommand = {
   category: "moderation",
   cooldown: 5,
   guildOnly: true,
-  defaultMemberPermissions: PermissionFlagsBits.ModerateMembers,
+  staffOnly: true,
   longDescription:
     "Gerencia apelações: lista pendentes, aprova ou rejeita uma apelação por número de caso.",
   data: new SlashCommandBuilder()

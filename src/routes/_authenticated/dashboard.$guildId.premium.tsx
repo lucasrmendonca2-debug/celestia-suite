@@ -7,9 +7,11 @@ import { Crown, Gift, Sparkles } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getGuildPremiumStatus,
+  getPremiumGuildConfig,
   listPremiumAuditLogs,
   listPremiumPlans,
   redeemGuildCode,
+  updatePremiumGuildConfig,
 } from "@/lib/guild/premium.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
 import { Button } from "@/components/ui/button";

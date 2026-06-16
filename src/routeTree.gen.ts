@@ -28,7 +28,6 @@ import { Route as AuthenticatedDashboardGuildIdEmbedsRouteImport } from './route
 import { Route as AuthenticatedDashboardGuildIdEconomyRouteImport } from './routes/_authenticated/dashboard.$guildId.economy'
 import { Route as AuthenticatedDashboardGuildIdCommandsRouteImport } from './routes/_authenticated/dashboard.$guildId.commands'
 import { Route as AuthenticatedDashboardGuildIdAutoroleRouteImport } from './routes/_authenticated/dashboard.$guildId.autorole'
-import { Route as AuthenticatedDashboardGuildIdAutomodRouteImport } from './routes/_authenticated/dashboard.$guildId.automod'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -137,12 +136,6 @@ const AuthenticatedDashboardGuildIdAutoroleRoute =
     path: '/autorole',
     getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
   } as any)
-const AuthenticatedDashboardGuildIdAutomodRoute =
-  AuthenticatedDashboardGuildIdAutomodRouteImport.update({
-    id: '/automod',
-    path: '/automod',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -150,7 +143,6 @@ export interface FileRoutesByFullPath {
   '/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
-  '/dashboard/$guildId/automod': typeof AuthenticatedDashboardGuildIdAutomodRoute
   '/dashboard/$guildId/autorole': typeof AuthenticatedDashboardGuildIdAutoroleRoute
   '/dashboard/$guildId/commands': typeof AuthenticatedDashboardGuildIdCommandsRoute
   '/dashboard/$guildId/economy': typeof AuthenticatedDashboardGuildIdEconomyRoute
@@ -170,7 +162,6 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
-  '/dashboard/$guildId/automod': typeof AuthenticatedDashboardGuildIdAutomodRoute
   '/dashboard/$guildId/autorole': typeof AuthenticatedDashboardGuildIdAutoroleRoute
   '/dashboard/$guildId/commands': typeof AuthenticatedDashboardGuildIdCommandsRoute
   '/dashboard/$guildId/economy': typeof AuthenticatedDashboardGuildIdEconomyRoute
@@ -193,7 +184,6 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
-  '/_authenticated/dashboard/$guildId/automod': typeof AuthenticatedDashboardGuildIdAutomodRoute
   '/_authenticated/dashboard/$guildId/autorole': typeof AuthenticatedDashboardGuildIdAutoroleRoute
   '/_authenticated/dashboard/$guildId/commands': typeof AuthenticatedDashboardGuildIdCommandsRoute
   '/_authenticated/dashboard/$guildId/economy': typeof AuthenticatedDashboardGuildIdEconomyRoute
@@ -216,7 +206,6 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId'
     | '/api/auth/logout'
     | '/dashboard/'
-    | '/dashboard/$guildId/automod'
     | '/dashboard/$guildId/autorole'
     | '/dashboard/$guildId/commands'
     | '/dashboard/$guildId/economy'
@@ -236,7 +225,6 @@ export interface FileRouteTypes {
     | '/login'
     | '/api/auth/logout'
     | '/dashboard'
-    | '/dashboard/$guildId/automod'
     | '/dashboard/$guildId/autorole'
     | '/dashboard/$guildId/commands'
     | '/dashboard/$guildId/economy'
@@ -258,7 +246,6 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/$guildId'
     | '/api/auth/logout'
     | '/_authenticated/dashboard/'
-    | '/_authenticated/dashboard/$guildId/automod'
     | '/_authenticated/dashboard/$guildId/autorole'
     | '/_authenticated/dashboard/$guildId/commands'
     | '/_authenticated/dashboard/$guildId/economy'
@@ -418,18 +405,10 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardGuildIdAutoroleRouteImport
       parentRoute: typeof AuthenticatedDashboardGuildIdRoute
     }
-    '/_authenticated/dashboard/$guildId/automod': {
-      id: '/_authenticated/dashboard/$guildId/automod'
-      path: '/automod'
-      fullPath: '/dashboard/$guildId/automod'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdAutomodRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
-    }
   }
 }
 
 interface AuthenticatedDashboardGuildIdRouteChildren {
-  AuthenticatedDashboardGuildIdAutomodRoute: typeof AuthenticatedDashboardGuildIdAutomodRoute
   AuthenticatedDashboardGuildIdAutoroleRoute: typeof AuthenticatedDashboardGuildIdAutoroleRoute
   AuthenticatedDashboardGuildIdCommandsRoute: typeof AuthenticatedDashboardGuildIdCommandsRoute
   AuthenticatedDashboardGuildIdEconomyRoute: typeof AuthenticatedDashboardGuildIdEconomyRoute
@@ -445,8 +424,6 @@ interface AuthenticatedDashboardGuildIdRouteChildren {
 
 const AuthenticatedDashboardGuildIdRouteChildren: AuthenticatedDashboardGuildIdRouteChildren =
   {
-    AuthenticatedDashboardGuildIdAutomodRoute:
-      AuthenticatedDashboardGuildIdAutomodRoute,
     AuthenticatedDashboardGuildIdAutoroleRoute:
       AuthenticatedDashboardGuildIdAutoroleRoute,
     AuthenticatedDashboardGuildIdCommandsRoute:

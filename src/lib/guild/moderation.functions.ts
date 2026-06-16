@@ -49,20 +49,17 @@ const MOD_DEFAULTS = {
   embed_footer: "Sistema de Moderação",
   embed_icon_url: null as string | null,
   enabled_log_events: [
-    "ban",
-    "unban",
-    "kick",
-    "mute",
-    "unmute",
-    "warn",
-    "removewarn",
-    "clear",
-    "lock",
-    "unlock",
-    "slowmode",
-    "automod",
-    "config_change",
+    "ban", "unban", "kick", "mute", "unmute", "warn", "removewarn",
+    "clear", "lock", "unlock", "slowmode", "automod", "config_change",
+    "note", "purge", "nickname",
   ] as string[],
+  warn_expiry_days: 90,
+  appeal_url: null as string | null,
+  warn_points_low: 1,
+  warn_points_medium: 2,
+  warn_points_high: 3,
+  logs_retention_days: 180,
+  audit_log_enabled: true,
 };
 
 export const getModerationConfig = createServerFn({ method: "GET" })
@@ -108,6 +105,13 @@ const ConfigInput = z.object({
   embed_footer: z.string().min(1).max(200),
   embed_icon_url: z.string().url().max(1000).nullable(),
   enabled_log_events: z.array(z.string().min(1).max(40)).max(40),
+  warn_expiry_days: z.number().int().min(0).max(3650),
+  appeal_url: z.string().url().max(500).nullable(),
+  warn_points_low: z.number().int().min(0).max(20),
+  warn_points_medium: z.number().int().min(0).max(20),
+  warn_points_high: z.number().int().min(0).max(20),
+  logs_retention_days: z.number().int().min(7).max(3650),
+  audit_log_enabled: z.boolean(),
 });
 
 export const updateModerationConfig = createServerFn({ method: "POST" })

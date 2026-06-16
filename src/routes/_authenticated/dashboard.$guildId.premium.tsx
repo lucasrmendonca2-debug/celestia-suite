@@ -120,6 +120,14 @@ function PremiumPage() {
     onError: (err: Error) => toast.error(err.message),
   });
 
+  useEffect(() => {
+    if (config) {
+      setVipRoleId(config.vip_role_id ?? "");
+      setPremiumRoleId(config.premium_role_id ?? "");
+    }
+  }, [config]);
+
+
   const active = status?.subscription as
     | (typeof status.subscription & { plan?: { name: string; description: string; features: Record<string, unknown> } })
     | null;

@@ -5,14 +5,9 @@ import {
   Coins,
   TrendingUp,
   Ticket,
-  Sparkles,
   MessageSquare,
-  Bot,
-  Zap,
-  LayoutDashboard,
   ScrollText,
-  Users,
-  ArrowRight,
+  ArrowUpRight,
 } from "lucide-react";
 import mascot from "@/assets/zenox-mascot.png.asset.json";
 import { ThemeToggle } from "@/components/ThemeProvider";
@@ -24,7 +19,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Moderação, economia, level, tickets e dashboard completo. O Zenox deixa seu Discord do nível pro top.",
+          "Moderação, economia, level, tickets e dashboard completo. Um bot, todos os módulos.",
       },
       { property: "og:title", content: "Zenox — Bot premium para Discord" },
       {
@@ -48,243 +43,288 @@ function startDiscordLogin(event: MouseEvent<HTMLAnchorElement>) {
 
 const features = [
   {
+    n: "01",
     icon: Shield,
-    title: "Moderação avançada",
-    desc: "Warns, mutes, bans temporários, AutoMod, histórico completo e casos auditáveis.",
+    title: "Moderação",
+    desc: "Warns, mutes e bans temporários. AutoMod, histórico, casos auditáveis.",
   },
   {
+    n: "02",
     icon: Ticket,
     title: "Tickets v2",
-    desc: "Claim, SLA, auto-close, tags, prioridades, transcripts e métricas de atendimento.",
+    desc: "Claim, SLA, auto-close, tags, prioridades e transcripts.",
   },
   {
+    n: "03",
     icon: ScrollText,
-    title: "Logs do servidor",
-    desc: "Mensagens, membros, cargos, canais, voz e convites — tudo categorizado e filtrável.",
+    title: "Logs",
+    desc: "Mensagens, membros, cargos, canais, voz e convites. Categorizado.",
   },
   {
+    n: "04",
     icon: Coins,
     title: "Economia",
-    desc: "Moeda interna, loja, daily, work, rob, crime, ranking — com anti-abuso embutido.",
+    desc: "Moeda interna, loja, daily, work, rob, ranking. Anti-abuso embutido.",
   },
   {
+    n: "05",
     icon: TrendingUp,
     title: "Leveling",
-    desc: "XP por mensagem e voz, multiplicadores, cards de rank e leaderboard.",
+    desc: "XP por mensagem e voz, multiplicadores, cards e leaderboard.",
   },
   {
+    n: "06",
     icon: MessageSquare,
     title: "Embeds & boas-vindas",
-    desc: "Editor visual de embeds, autorole, welcome/leave com placeholders dinâmicos.",
+    desc: "Editor visual de embeds, autorole, welcome com placeholders.",
   },
-];
-
-const stats = [
-  { label: "Comandos slash", value: "60+" },
-  { label: "Módulos", value: "10" },
-  { label: "Uptime", value: "99.9%" },
-  { label: "Latência", value: "<80ms" },
 ];
 
 function Landing() {
   return (
     <main className="relative min-h-screen overflow-hidden bg-background text-foreground">
-      {/* background glow */}
+      {/* subtle backdrop */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_0%,theme(colors.primary/0.25),transparent_70%)]" />
-        <div className="absolute left-1/2 top-1/2 -z-10 size-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,theme(colors.border/0.4)_1px,transparent_1px),linear-gradient(to_bottom,theme(colors.border/0.4)_1px,transparent_1px)] bg-[size:48px_48px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_70%)] opacity-30" />
+        <div className="absolute inset-x-0 top-0 h-[480px] bg-[radial-gradient(ellipse_50%_60%_at_50%_0%,theme(colors.primary/0.10),transparent_70%)]" />
       </div>
 
-      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-4 py-6 sm:px-6 sm:py-8">
+      <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-5 py-6 sm:px-8 sm:py-10">
         {/* Header */}
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="relative size-9 overflow-hidden rounded-xl bg-primary/15 ring-1 ring-primary/40">
-              <img src={mascot.url} alt="Zenox" className="absolute inset-0 size-full scale-[2.2] object-cover object-top" />
+            <div className="relative size-8 overflow-hidden rounded-md bg-muted ring-1 ring-border">
+              <img
+                src={mascot.url}
+                alt="Zenox"
+                className="absolute inset-0 size-full scale-[2.2] object-cover object-top"
+              />
             </div>
-            <span className="text-lg font-bold tracking-tight">Zenox</span>
+            <span className="text-[15px] font-semibold tracking-tight">Zenox</span>
+            <span className="ml-2 hidden text-[11px] font-mono uppercase tracking-widest text-muted-foreground sm:inline">
+              v0.4 · wave 4
+            </span>
           </div>
-          <nav className="flex items-center gap-2 text-sm sm:gap-3">
-            <a href="#features" className="hidden text-muted-foreground hover:text-foreground sm:inline">
-              Recursos
+          <nav className="flex items-center gap-1 text-sm sm:gap-4">
+            <a
+              href="#features"
+              className="hidden text-muted-foreground hover:text-foreground sm:inline"
+            >
+              Módulos
             </a>
-            <a href="#mascot" className="hidden text-muted-foreground hover:text-foreground sm:inline">
-              O que posso fazer
+            <a
+              href="#mascot"
+              className="hidden text-muted-foreground hover:text-foreground sm:inline"
+            >
+              O que faço
             </a>
-            <Link to="/dashboard" className="hidden text-muted-foreground hover:text-foreground sm:inline">
+            <Link
+              to="/dashboard"
+              className="hidden text-muted-foreground hover:text-foreground sm:inline"
+            >
               Dashboard
             </Link>
             <ThemeToggle />
             <a
               href="/api/auth/discord/login"
               onClick={startDiscordLogin}
-              className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+              className="inline-flex items-center gap-1.5 rounded-md bg-foreground px-3 py-2 text-sm font-medium text-background transition hover:bg-foreground/85"
             >
-              <Bot className="size-4" />
-              <span className="hidden sm:inline">Entrar com Discord</span>
-              <span className="sm:hidden">Entrar</span>
+              Entrar
+              <ArrowUpRight className="size-3.5" />
             </a>
           </nav>
         </header>
 
         {/* Hero */}
-        <section className="mt-12 grid items-center gap-10 sm:mt-20 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
-          <div className="flex flex-col gap-6">
-            <span className="inline-flex w-fit items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-              <Sparkles className="size-3" /> Onda 4 ao vivo — Logs + Tickets v2
-            </span>
-            <h1 className="text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-              O Discord da sua comunidade,{" "}
-              <span className="bg-gradient-to-r from-primary via-blue-400 to-purple-400 bg-clip-text text-transparent">
-                do nível pro top.
-              </span>
-            </h1>
-            <p className="max-w-xl text-base text-muted-foreground sm:text-lg">
-              Zenox é um bot multifuncional com moderação avançada, economia, level, tickets e
-              um dashboard premium pra configurar tudo sem digitar um único comando.
+        <section className="mt-20 grid items-center gap-12 sm:mt-28 lg:grid-cols-[1.3fr_1fr] lg:gap-16">
+          <div className="flex flex-col">
+            <p className="mb-6 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+              <span className="mr-2 inline-block size-1.5 translate-y-[-2px] rounded-full bg-primary align-middle" />
+              bot premium para Discord
             </p>
-            <div className="flex flex-wrap gap-3">
+            <h1 className="text-[44px] font-semibold leading-[1.02] tracking-tight sm:text-[64px]">
+              Seu servidor,
+              <br />
+              <span className="text-muted-foreground">do nível</span>{" "}
+              <span className="italic text-primary">pro top.</span>
+            </h1>
+            <p className="mt-6 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-[17px]">
+              Moderação, economia, level, tickets e um painel web pra
+              configurar tudo — sem digitar um único comando.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <a
                 href="/api/auth/discord/login"
                 onClick={startDiscordLogin}
-                className="group inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-lg shadow-primary/20 transition hover:bg-primary/90"
+                className="group inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
               >
                 Começar agora
-                <ArrowRight className="size-4 transition group-hover:translate-x-0.5" />
+                <ArrowUpRight className="size-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </a>
               <Link
                 to="/dashboard"
-                className="inline-flex items-center gap-2 rounded-md border border-input bg-card px-5 py-2.5 text-sm font-medium transition hover:bg-accent"
+                className="inline-flex items-center gap-2 px-2 py-2.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
               >
-                <LayoutDashboard className="size-4" />
-                Ver dashboard
+                Ver dashboard →
               </Link>
             </div>
 
-            {/* Stats */}
-            <dl className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-              {stats.map((s) => (
-                <div
-                  key={s.label}
-                  className="rounded-xl border border-border bg-card/50 p-3 backdrop-blur"
-                >
-                  <dt className="text-xs text-muted-foreground">{s.label}</dt>
-                  <dd className="text-xl font-bold tracking-tight">{s.value}</dd>
+            {/* Stats inline */}
+            <div className="mt-12 flex flex-wrap gap-x-10 gap-y-4 border-t border-border pt-6">
+              {[
+                ["60+", "comandos slash"],
+                ["10", "módulos"],
+                ["99.9%", "uptime"],
+                ["<80ms", "latência"],
+              ].map(([v, l]) => (
+                <div key={l}>
+                  <div className="text-2xl font-semibold tracking-tight">{v}</div>
+                  <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                    {l}
+                  </div>
                 </div>
               ))}
-            </dl>
+            </div>
           </div>
 
-          {/* Mascot card */}
+          {/* Mascot — flat, editorial */}
           <div className="relative mx-auto w-full max-w-sm lg:max-w-none">
-            <div className="absolute -inset-6 -z-10 rounded-[2rem] bg-gradient-to-tr from-primary/30 via-blue-500/20 to-purple-500/30 blur-2xl" />
-            <div className="relative overflow-hidden rounded-3xl border border-border bg-card/40 p-6 backdrop-blur">
-              <div className="absolute right-4 top-4 inline-flex items-center gap-1 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary">
-                <Zap className="size-3" /> Online
+            <div className="relative aspect-[4/5] overflow-hidden rounded-2xl border border-border bg-muted/30">
+              {/* corner labels */}
+              <div className="absolute left-3 top-3 z-10 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                fig.01 — mascote
+              </div>
+              <div className="absolute bottom-3 right-3 z-10 inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                <span className="size-1.5 rounded-full bg-emerald-500" />
+                online
               </div>
               <img
                 src={mascot.url}
                 alt="Mascote do Zenox"
-                className="mx-auto h-[360px] w-auto object-contain drop-shadow-2xl sm:h-[420px]"
+                className="absolute inset-0 size-full object-contain p-6"
               />
-              <div className="mt-2 text-center">
-                <p className="text-lg font-bold">Zenox</p>
-                <p className="text-xs text-muted-foreground">
-                  Sempre pronto pra moderar, organizar e turbinar seu servidor.
-                </p>
-              </div>
             </div>
           </div>
         </section>
 
         {/* Features */}
-        <section id="features" className="mt-24 sm:mt-32">
-          <div className="mb-8 max-w-2xl">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Tudo num bot só</h2>
-            <p className="mt-2 text-muted-foreground">
-              Pare de instalar 6 bots diferentes. O Zenox cobre o stack inteiro do seu servidor.
+        <section id="features" className="mt-28 sm:mt-40">
+          <div className="mb-10 flex items-end justify-between gap-6 border-b border-border pb-4">
+            <div>
+              <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                índice — 01
+              </p>
+              <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+                Tudo num bot só
+              </h2>
+            </div>
+            <p className="hidden max-w-sm text-sm text-muted-foreground sm:block">
+              Pare de instalar seis bots. O Zenox cobre o stack inteiro do seu servidor.
             </p>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((f) => (
+          <div className="grid divide-border border-border sm:grid-cols-2 sm:divide-x sm:border-y lg:grid-cols-3">
+            {features.map((f, i) => (
               <div
                 key={f.title}
-                className="group relative overflow-hidden rounded-2xl border border-border bg-card/50 p-5 transition hover:border-primary/40 hover:bg-card"
+                className={`group relative p-6 transition hover:bg-muted/30 ${
+                  i >= 3 ? "sm:border-t sm:border-border" : ""
+                } ${i < features.length - 1 ? "border-b border-border sm:border-b-0" : ""}`}
               >
-                <div className="mb-3 inline-flex size-10 items-center justify-center rounded-xl bg-primary/15 text-primary ring-1 ring-primary/30">
-                  <f.icon className="size-5" />
+                <div className="mb-8 flex items-center justify-between">
+                  <span className="font-mono text-[11px] uppercase tracking-widest text-muted-foreground">
+                    {f.n}
+                  </span>
+                  <f.icon className="size-4 text-muted-foreground transition group-hover:text-primary" />
                 </div>
-                <h3 className="font-semibold">{f.title}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">{f.desc}</p>
+                <h3 className="text-base font-semibold">{f.title}</h3>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  {f.desc}
+                </p>
               </div>
             ))}
           </div>
         </section>
 
-        {/* What I can do — mascot section */}
-        <section
-          id="mascot"
-          className="relative mt-24 overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-card via-card/80 to-primary/10 p-6 sm:mt-32 sm:p-10"
-        >
-          <div className="grid items-center gap-8 lg:grid-cols-[1fr_1.2fr]">
-            <div className="order-2 mx-auto lg:order-1">
+        {/* What I can do */}
+        <section id="mascot" className="mt-28 sm:mt-40">
+          <div className="mb-10 flex items-end justify-between gap-6 border-b border-border pb-4">
+            <div>
+              <p className="mb-2 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                índice — 02
+              </p>
+              <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">
+                O que posso fazer
+              </h2>
+            </div>
+            <p className="hidden max-w-sm text-sm text-muted-foreground sm:block">
+              Seu assistente de servidor, em um chibi só.
+            </p>
+          </div>
+
+          <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.1fr]">
+            <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-2xl border border-border bg-muted/30">
+              <div className="absolute left-3 top-3 z-10 font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
+                fig.02 — apontando
+              </div>
               <img
                 src={mascot.url}
-                alt="Zenox mostrando suas funções"
-                className="h-[320px] w-auto object-contain drop-shadow-2xl sm:h-[420px]"
+                alt="Zenox apontando para os módulos"
+                className="absolute inset-0 size-full object-contain p-6"
               />
             </div>
-            <div className="order-1 lg:order-2">
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                <Sparkles className="size-3" /> O que posso fazer
-              </span>
-              <h2 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
-                Seu assistente de servidor, em um chibi só.
-              </h2>
-              <p className="mt-3 text-muted-foreground">
-                De moderação preventiva a economia interna, o Zenox cobre tudo. Aponta, configura
-                no dashboard, e deixa o trabalho pesado comigo.
-              </p>
-              <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-                {[
-                  { icon: Shield, text: "Modero raids, spam e palavrões antes de você ver" },
-                  { icon: Ticket, text: "Abro tickets organizados com SLA e auto-close" },
-                  { icon: Users, text: "Recepciono novos membros com welcome custom" },
-                  { icon: Coins, text: "Cuido da economia: moedas, loja, daily, ranking" },
-                  { icon: TrendingUp, text: "Dou XP por atividade e mostro cards de rank" },
-                  { icon: ScrollText, text: "Registro tudo que acontece no servidor" },
-                ].map((item) => (
-                  <li key={item.text} className="flex items-start gap-2.5 text-sm">
-                    <span className="mt-0.5 inline-flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary ring-1 ring-primary/30">
-                      <item.icon className="size-3.5" />
-                    </span>
-                    <span className="text-muted-foreground">{item.text}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="mt-6 flex flex-wrap gap-3">
-                <a
-                  href="/api/auth/discord/login"
-                  onClick={startDiscordLogin}
-                  className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+
+            <ul className="divide-y divide-border border-y border-border">
+              {[
+                { icon: Shield, label: "Moderação preventiva", text: "Raid, spam, palavrões — antes de você ver." },
+                { icon: Ticket, label: "Tickets v2", text: "SLA, auto-close, tags, transcripts." },
+                { icon: Coins, label: "Economia interna", text: "Moeda, loja, daily, ranking." },
+                { icon: TrendingUp, label: "Leveling", text: "XP por atividade, cards e leaderboard." },
+                { icon: ScrollText, label: "Audit logs", text: "Tudo que acontece, categorizado e filtrável." },
+              ].map((item) => (
+                <li
+                  key={item.label}
+                  className="group flex items-start gap-4 py-4 transition hover:bg-muted/20"
                 >
-                  Adicionar ao meu servidor
-                  <ArrowRight className="size-4" />
-                </a>
-              </div>
-            </div>
+                  <item.icon className="mt-0.5 size-4 shrink-0 text-muted-foreground transition group-hover:text-primary" />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">{item.label}</p>
+                    <p className="mt-0.5 text-sm text-muted-foreground">{item.text}</p>
+                  </div>
+                  <ArrowUpRight className="mt-0.5 size-3.5 shrink-0 text-muted-foreground opacity-0 transition group-hover:opacity-100" />
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="mt-10 flex flex-wrap items-center gap-3">
+            <a
+              href="/api/auth/discord/login"
+              onClick={startDiscordLogin}
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+            >
+              Adicionar ao meu servidor
+              <ArrowUpRight className="size-4" />
+            </a>
+            <Link
+              to="/dashboard"
+              className="px-2 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            >
+              ou explorar o dashboard →
+            </Link>
           </div>
         </section>
 
-        <footer className="mt-16 flex flex-col items-center justify-between gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row">
-          <p>© {new Date().getFullYear()} Zenox. Feito com café e regex.</p>
-          <div className="flex items-center gap-4">
+        <footer className="mt-24 flex flex-col items-start justify-between gap-3 border-t border-border pt-6 font-mono text-[11px] uppercase tracking-widest text-muted-foreground sm:flex-row sm:items-center">
+          <p>© {new Date().getFullYear()} Zenox — wave 4</p>
+          <div className="flex items-center gap-6">
             <Link to="/dashboard" className="hover:text-foreground">
-              Dashboard
+              dashboard
             </Link>
             <a href="#features" className="hover:text-foreground">
-              Recursos
+              módulos
+            </a>
+            <a href="#mascot" className="hover:text-foreground">
+              o que faço
             </a>
           </div>
         </footer>

@@ -1,4 +1,3 @@
-import { AnimatePresence, motion } from "framer-motion";
 import { Check, Loader2, RotateCcw, Save, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -21,6 +20,7 @@ export function SaveBar({
   onReset,
 }: Props) {
   const visible = dirty || isPending || !!errorMessage;
+  if (!visible) return null;
   return (
     <AnimatePresence>
       {visible && (

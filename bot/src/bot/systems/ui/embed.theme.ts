@@ -6,20 +6,21 @@
 export const BRAND_NAME = "Zenox";
 
 export const COLORS = {
-  brand: 0x5865f2,
-  brand_glow: 0x8b5cf6,
+  brand: 0xf59e0b,        // âmbar Zenox (cor principal)
+  brand_warm: 0xea580c,   // laranja queimado
+  brand_glow: 0xfbbf24,   // âmbar claro
   success: 0x22c55e,
   error: 0xef4444,
   warn: 0xf59e0b,
   info: 0x3b82f6,
   premium: 0xf5c842,
   economy: 0xfbbf24,
-  tickets: 0x14b8a6,
+  tickets: 0xf97316,
   moderation: 0xdc2626,
   fun: 0xec4899,
   social: 0xa855f7,
   logs: 0x64748b,
-  neutral: 0x2b2d31,
+  neutral: 0x1c1917,
 } as const;
 
 export type ModuleKind =

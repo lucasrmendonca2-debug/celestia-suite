@@ -275,6 +275,99 @@ function PremiumPage() {
           </Card>
         </TabsContent>
 
+        <TabsContent value="usage" className="space-y-4">
+          {usage ? (
+            <div className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Card className="p-5 space-y-2">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <Crown className="h-4 w-4 text-amber-400" /> Servidor
+                  </h3>
+                  {usage.guild ? (
+                    <>
+                      <p className="text-lg font-bold">{usage.guild.plan_name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Expira: {fmtDate(usage.guild.expires_at)}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">Plano FREE — sem premium ativo.</p>
+                  )}
+                </Card>
+                <Card className="p-5 space-y-2">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-fuchsia-400" /> Seu VIP
+                  </h3>
+                  {usage.user ? (
+                    <>
+                      <p className="text-lg font-bold">{usage.user.plan_name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        Expira: {fmtDate(usage.user.expires_at)}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      Você não tem VIP. Use <code>/vip ativar</code> com um código.
+                    </p>
+                  )}
+                </Card>
+              </div>
+
+              <Card className="p-5 space-y-3">
+                <h3 className="font-semibold">Multiplicadores efetivos (seu VIP)</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+                  {[
+                    { label: "XP", v: usage.multipliers.xp },
+                    { label: "Daily", v: usage.multipliers.daily },
+                    { label: "Work", v: usage.multipliers.work },
+                    { label: "Crime", v: usage.multipliers.crime },
+                  ].map((m) => (
+                    <div key={m.label} className="rounded-md border border-border p-3 text-center">
+                      <p className="text-xs text-muted-foreground">{m.label}</p>
+                      <p className="text-xl font-bold">{m.v.toFixed(2)}x</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  1.00x = sem boost. Boosts vêm do plano VIP/Premium ativo.
+                </p>
+              </Card>
+
+              <Card className="p-5 space-y-3">
+                <h3 className="font-semibold">Limites do servidor</h3>
+                <ul className="space-y-3 text-sm">
+                  {usage.usage.map((u) => (
+                    <li key={u.key} className="space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span>{u.label}</span>
+                        <span className="font-mono text-xs">
+                          {u.used} / {u.limit}{" "}
+                          <span className="text-muted-foreground">
+                            ({u.remaining} restante{u.remaining === 1 ? "" : "s"})
+                          </span>
+                        </span>
+                      </div>
+                      <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                        <div
+                          className={`h-full transition-all ${u.pct >= 90 ? "bg-red-500" : u.pct >= 70 ? "bg-amber-500" : "bg-primary"}`}
+                          style={{ width: `${u.pct}%` }}
+                        />
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-xs text-muted-foreground">
+                  Ative um plano premium para aumentar esses limites.
+                </p>
+              </Card>
+            </div>
+          ) : (
+            <Card className="p-6">
+              <p className="text-sm text-muted-foreground">Carregando...</p>
+            </Card>
+          )}
+        </TabsContent>
+
         <TabsContent value="config" className="space-y-4">
           <Card className="p-6 space-y-4">
             <div>

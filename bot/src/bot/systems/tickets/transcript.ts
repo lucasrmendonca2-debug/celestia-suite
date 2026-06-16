@@ -92,6 +92,9 @@ h1{color:#a78bfa}
 .body{white-space:pre-wrap;margin-top:4px}
 .att{margin-top:4px;font-size:12px}
 a{color:#7dd3fc}
+.embed{border-left:4px solid #7c3aed;background:#1e293b;padding:8px 12px;margin-top:6px;border-radius:4px}
+.etitle{font-weight:600;color:#a78bfa;margin-bottom:2px}
+.edesc{white-space:pre-wrap;color:#cbd5e1;font-size:14px}
 </style></head><body>
 <h1>🎫 #${esc(channel.name)}</h1>
 <p>${collected.length} mensagens • gerado em ${new Date().toLocaleString("pt-BR")}</p>

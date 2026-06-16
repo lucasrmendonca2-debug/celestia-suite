@@ -601,3 +601,87 @@ function emptyToNull(v: string | null | undefined) {
   const s = String(v).trim();
   return s.length ? s : null;
 }
+
+type Preset = { label: string; text: string };
+
+const PANEL_DESC_PRESETS: Preset[] = [
+  {
+    label: "Padrão amigável",
+    text: "Precisa de ajuda? Selecione no menu abaixo o tipo de atendimento e nossa equipe te responde aqui em instantes.",
+  },
+  {
+    label: "Formal",
+    text: "Bem-vindo(a) à nossa Central de Atendimento. Selecione abaixo a categoria que melhor descreve sua solicitação e aguarde — um membro da equipe irá atendê-lo(a) em breve.",
+  },
+  {
+    label: "Comunidade / gaming",
+    text: "Algo travou, bugou ou você só quer dar um alô? 🎮 Escolhe no menu o tipo de ticket e a staff já chega pra resolver contigo!",
+  },
+  {
+    label: "Suporte rápido",
+    text: "🎫 Abra um ticket pelo menu abaixo. Tente já incluir prints e detalhes — assim a gente resolve mais rápido.",
+  },
+];
+
+const WELCOME_PRESETS: Preset[] = [
+  {
+    label: "Padrão amigável",
+    text: "Olá {user}! 👋 Obrigado por abrir um ticket.\n\nDescreva com calma o que aconteceu, mande prints se ajudar, e a equipe {staff} responde em instantes. ⏳",
+  },
+  {
+    label: "Formal",
+    text: "Olá {user}. Seu ticket foi registrado com sucesso.\n\nPor favor, descreva detalhadamente sua solicitação. A equipe {staff} responderá assim que possível.",
+  },
+  {
+    label: "Comunidade / gaming",
+    text: "Eaí {user}! 🎮 Bem-vindo(a) ao seu ticket.\n\nConta o que tá rolando, manda print se precisar, e a staff {staff} vai te ajudar rapidinho. 💜",
+  },
+  {
+    label: "Denúncia",
+    text: "Olá {user}. 🚨 Descreva o ocorrido, marque o usuário envolvido e envie prints/links como prova.\n\nTudo é confidencial e a equipe {staff} vai analisar com cuidado.",
+  },
+];
+
+const CLOSE_PRESETS: Preset[] = [
+  {
+    label: "Padrão",
+    text: "Este ticket foi fechado por {staff}. Avalie nosso atendimento ou peça reabertura caso ainda precise de ajuda. 💜",
+  },
+  {
+    label: "Formal",
+    text: "Ticket encerrado por {staff}. Caso a sua dúvida não tenha sido totalmente resolvida, solicite a reabertura.",
+  },
+  {
+    label: "Curto",
+    text: "Ticket fechado por {staff}. Valeu! ✅",
+  },
+];
+
+function PresetMenu({
+  presets,
+  onPick,
+}: {
+  presets: Preset[];
+  onPick: (text: string) => void;
+}) {
+  return (
+    <select
+      value=""
+      onChange={(e) => {
+        const p = presets.find((p) => p.label === e.target.value);
+        if (p) onPick(p.text);
+        e.currentTarget.value = "";
+      }}
+      className="h-7 rounded-md border border-input bg-background px-2 text-xs text-muted-foreground hover:text-foreground"
+      title="Usar um modelo"
+    >
+      <option value="">Usar modelo…</option>
+      {presets.map((p) => (
+        <option key={p.label} value={p.label}>
+          {p.label}
+        </option>
+      ))}
+    </select>
+  );
+}
+

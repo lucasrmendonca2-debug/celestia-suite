@@ -2,6 +2,7 @@ import { SlashCommandBuilder } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { giveReputation, getTopReputation } from "../../systems/social/reputation.service.js";
+import { classifyTarget, pick, socialResponses } from "../../systems/personality/index.js";
 
 function fmtRemaining(ms: number): string {
   const m = Math.ceil(ms / 60000);

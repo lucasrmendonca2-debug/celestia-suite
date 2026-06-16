@@ -195,7 +195,8 @@ export const getPremiumUsage = createServerFn({ method: "GET" })
       .limit(1)
       .maybeSingle();
 
-    const guildPlan = (guildSub?.plan as { features?: Record<string, unknown>; limits?: Record<string, number>; name?: string } | undefined) ?? null;
+    type PlanShape = { features?: Record<string, string | number | boolean | null>; limits?: Record<string, number>; name?: string };
+    const guildPlan = (guildSub?.plan as unknown as PlanShape | null) ?? null;
     const guildLimits = guildPlan?.limits ?? {};
     const guildFeatures = guildPlan?.features ?? {};
 
@@ -203,7 +204,7 @@ export const getPremiumUsage = createServerFn({ method: "GET" })
     const { getSession } = await import("@/lib/auth/session.server");
     const session = await getSession();
     const userId = session.data.userId ?? null;
-    let userPlan: { features?: Record<string, unknown>; name?: string } | null = null;
+    let userPlan: PlanShape | null = null;
     let userSubscription: { expires_at: string | null; status: string } | null = null;
     if (userId) {
       const { data: userSub } = await sb
@@ -216,13 +217,13 @@ export const getPremiumUsage = createServerFn({ method: "GET" })
         .limit(1)
         .maybeSingle();
       if (userSub && (!userSub.expires_at || new Date(userSub.expires_at) >= new Date())) {
-        userPlan = (userSub.plan as typeof userPlan) ?? null;
+        userPlan = (userSub.plan as unknown as PlanShape | null) ?? null;
         userSubscription = { expires_at: userSub.expires_at, status: userSub.status };
       }
     }
 
     const userFeatures = userPlan?.features ?? {};
-    const pickNum = (obj: Record<string, unknown>, key: string): number => {
+    const pickNum = (obj: Record<string, string | number | boolean | null>, key: string): number => {
       const v = obj[key];
       return typeof v === "number" && v > 0 ? v : 1;
     };

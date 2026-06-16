@@ -61,6 +61,7 @@ function daysRemaining(iso: string | null | undefined): number | null {
 
 function PremiumPage() {
   const { guildId } = Route.useParams();
+  const { user } = Route.useLoaderData();
   const qc = useQueryClient();
 
   const { data: status } = useSuspenseQuery({
@@ -103,6 +104,8 @@ function PremiumPage() {
 
   return (
     <ModuleLayout
+      guildId={guildId}
+      user={user}
       icon={Crown}
       title="Premium do Servidor"
       description="Gerencie a assinatura premium, benefícios e códigos deste servidor."

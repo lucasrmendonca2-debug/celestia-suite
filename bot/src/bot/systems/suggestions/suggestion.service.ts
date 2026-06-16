@@ -29,6 +29,7 @@ export interface SuggestionRow {
   decision_reason: string | null;
   upvotes: number;
   downvotes: number;
+  anonymous?: boolean;
 }
 
 const STATUS_META: Record<SuggestionStatus, { label: string; emoji: string; kind: "default" | "success" | "warn" | "error" | "info" }> = {

@@ -11,6 +11,7 @@ export interface TicketConfig {
   category_id: string | null;
   default_support_role_id: string | null;
   log_channel_id: string | null;
+  rating_channel_id: string | null;
   max_open_tickets_per_user: number;
   panel_title: string;
   panel_description: string;

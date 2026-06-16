@@ -1,6 +1,6 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Trophy, Plus, Trash2, Play, Square } from "lucide-react";
@@ -209,9 +209,6 @@ function SeasonLeaderboard({ guildId, seasonId }: { guildId: string; seasonId: s
 
 function useSuspenseQueryOrFetch(guildId: string, seasonId: string) {
   const getFn = useServerFn(getSeasonLeaderboard);
-  // Wrap useQuery for lazy fetch on expand
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { useQuery } = require("@tanstack/react-query") as typeof import("@tanstack/react-query");
   return useQuery({
     queryKey: ["season-lb", seasonId],
     queryFn: () => getFn({ data: { guildId, seasonId } }),

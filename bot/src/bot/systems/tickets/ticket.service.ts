@@ -111,6 +111,7 @@ export async function createTicketRow(input: {
   channel_id: string;
   user_id: string;
   username: string;
+  category_id?: string | null;
   category_name?: string | null;
   priority?: boolean;
 }): Promise<TicketRow> {
@@ -121,6 +122,7 @@ export async function createTicketRow(input: {
       channel_id: input.channel_id,
       user_id: input.user_id,
       username: input.username,
+      category_id: input.category_id ?? null,
       category_name: input.category_name ?? null,
       priority: input.priority ?? false,
       status: "open" as TicketStatus,

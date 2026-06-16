@@ -1,8 +1,16 @@
 import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
+import {
+  classifyTarget,
+  fmt,
+  interactionResponses,
+  pick,
+} from "../../systems/personality/index.js";
 
-const GIFS: Record<string, string[]> = {
+type Action = keyof typeof interactionResponses;
+
+const GIFS: Record<Action, string[]> = {
   hug: [
     "https://media.tenor.com/qOpyt8XSCb8AAAAC/hug.gif",
     "https://media.tenor.com/1zi8Z2g0Hf4AAAAC/anime-hug.gif",
@@ -24,25 +32,11 @@ const GIFS: Record<string, string[]> = {
     "https://media.tenor.com/0iAnDOzNFv8AAAAC/anime-bonk.gif",
     "https://media.tenor.com/RXVf7B96fOcAAAAC/bonk.gif",
   ],
-  cuddle: [
-    "https://media.tenor.com/_LRGgN3VWlUAAAAC/cuddle-anime.gif",
-  ],
-  poke: [
-    "https://media.tenor.com/qNl11SO3z18AAAAC/anime-poke.gif",
-  ],
+  cuddle: ["https://media.tenor.com/_LRGgN3VWlUAAAAC/cuddle-anime.gif"],
+  poke: ["https://media.tenor.com/qNl11SO3z18AAAAC/anime-poke.gif"],
 };
 
-const TEMPLATES: Record<string, (a: string, b: string) => string> = {
-  hug: (a, b) => `${a} deu um abraço apertado em ${b} 🤗`,
-  kiss: (a, b) => `${a} beijou ${b} 💋`,
-  slap: (a, b) => `${a} deu um tapa em ${b} 👋`,
-  pat: (a, b) => `${a} fez carinho em ${b} 🥰`,
-  bonk: (a, b) => `${a} bonkou ${b}! 🔨`,
-  cuddle: (a, b) => `${a} fez um chamego em ${b} 💞`,
-  poke: (a, b) => `${a} cutucou ${b} 👉`,
-};
-
-function build(action: keyof typeof TEMPLATES, desc: string): SlashCommand {
+function build(action: Action, desc: string): SlashCommand {
   return {
     category: "interaction",
     cooldown: 3,
@@ -53,16 +47,36 @@ function build(action: keyof typeof TEMPLATES, desc: string): SlashCommand {
       .addUserOption((o) => o.setName("usuario").setDescription("Alvo").setRequired(true)),
     async execute(interaction: ChatInputCommandInteraction) {
       const target = interaction.options.getUser("usuario", true);
+      const pool = interactionResponses[action];
+      const kind = classifyTarget(interaction, target);
+
+      // Casos especiais — sem gif, ephemeral pra não poluir o chat
+      if (kind === "self") {
+        await interaction.reply({
+          embeds: [brandEmbed({ description: pick(pool.self) })],
+          ephemeral: true,
+        });
+        return;
+      }
+      if (kind === "bot_self") {
+        await interaction.reply({ embeds: [brandEmbed({ description: pick(pool.bot) })] });
+        return;
+      }
+      if (kind === "bot_other") {
+        await interaction.reply({
+          embeds: [brandEmbed({ description: pick(pool.otherBot) })],
+        });
+        return;
+      }
+
+      // Interação normal
       const gifs = GIFS[action] ?? [];
       const gif = gifs[Math.floor(Math.random() * gifs.length)];
-      await interaction.reply({
-        embeds: [
-          brandEmbed({
-            description: TEMPLATES[action]!(`<@${interaction.user.id}>`, `<@${target.id}>`),
-            image: gif,
-          }),
-        ],
+      const description = fmt(pick(pool.normal), {
+        author: `<@${interaction.user.id}>`,
+        target: `<@${target.id}>`,
       });
+      await interaction.reply({ embeds: [brandEmbed({ description, image: gif })] });
     },
   };
 }

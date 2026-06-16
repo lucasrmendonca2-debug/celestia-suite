@@ -21,6 +21,7 @@ import { Route as ApiAuthDiscordCallbackRouteImport } from './routes/api/auth/di
 import { Route as AuthenticatedDashboardGuildIdWelcomeRouteImport } from './routes/_authenticated/dashboard.$guildId.welcome'
 import { Route as AuthenticatedDashboardGuildIdTicketsRouteImport } from './routes/_authenticated/dashboard.$guildId.tickets'
 import { Route as AuthenticatedDashboardGuildIdSocialRouteImport } from './routes/_authenticated/dashboard.$guildId.social'
+import { Route as AuthenticatedDashboardGuildIdSeasonsRouteImport } from './routes/_authenticated/dashboard.$guildId.seasons'
 import { Route as AuthenticatedDashboardGuildIdReactionRolesRouteImport } from './routes/_authenticated/dashboard.$guildId.reaction-roles'
 import { Route as AuthenticatedDashboardGuildIdModerationRouteImport } from './routes/_authenticated/dashboard.$guildId.moderation'
 import { Route as AuthenticatedDashboardGuildIdLogsRouteImport } from './routes/_authenticated/dashboard.$guildId.logs'
@@ -96,6 +97,12 @@ const AuthenticatedDashboardGuildIdSocialRoute =
   AuthenticatedDashboardGuildIdSocialRouteImport.update({
     id: '/social',
     path: '/social',
+    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+  } as any)
+const AuthenticatedDashboardGuildIdSeasonsRoute =
+  AuthenticatedDashboardGuildIdSeasonsRouteImport.update({
+    id: '/seasons',
+    path: '/seasons',
     getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
   } as any)
 const AuthenticatedDashboardGuildIdReactionRolesRoute =
@@ -182,6 +189,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
   '/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
   '/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
+  '/dashboard/$guildId/seasons': typeof AuthenticatedDashboardGuildIdSeasonsRoute
   '/dashboard/$guildId/social': typeof AuthenticatedDashboardGuildIdSocialRoute
   '/dashboard/$guildId/tickets': typeof AuthenticatedDashboardGuildIdTicketsRoute
   '/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
@@ -205,6 +213,7 @@ export interface FileRoutesByTo {
   '/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
   '/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
   '/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
+  '/dashboard/$guildId/seasons': typeof AuthenticatedDashboardGuildIdSeasonsRoute
   '/dashboard/$guildId/social': typeof AuthenticatedDashboardGuildIdSocialRoute
   '/dashboard/$guildId/tickets': typeof AuthenticatedDashboardGuildIdTicketsRoute
   '/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
@@ -231,6 +240,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
   '/_authenticated/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
   '/_authenticated/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
+  '/_authenticated/dashboard/$guildId/seasons': typeof AuthenticatedDashboardGuildIdSeasonsRoute
   '/_authenticated/dashboard/$guildId/social': typeof AuthenticatedDashboardGuildIdSocialRoute
   '/_authenticated/dashboard/$guildId/tickets': typeof AuthenticatedDashboardGuildIdTicketsRoute
   '/_authenticated/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
@@ -257,6 +267,7 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId/logs'
     | '/dashboard/$guildId/moderation'
     | '/dashboard/$guildId/reaction-roles'
+    | '/dashboard/$guildId/seasons'
     | '/dashboard/$guildId/social'
     | '/dashboard/$guildId/tickets'
     | '/dashboard/$guildId/welcome'
@@ -280,6 +291,7 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId/logs'
     | '/dashboard/$guildId/moderation'
     | '/dashboard/$guildId/reaction-roles'
+    | '/dashboard/$guildId/seasons'
     | '/dashboard/$guildId/social'
     | '/dashboard/$guildId/tickets'
     | '/dashboard/$guildId/welcome'
@@ -305,6 +317,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/$guildId/logs'
     | '/_authenticated/dashboard/$guildId/moderation'
     | '/_authenticated/dashboard/$guildId/reaction-roles'
+    | '/_authenticated/dashboard/$guildId/seasons'
     | '/_authenticated/dashboard/$guildId/social'
     | '/_authenticated/dashboard/$guildId/tickets'
     | '/_authenticated/dashboard/$guildId/welcome'
@@ -408,6 +421,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardGuildIdSocialRouteImport
       parentRoute: typeof AuthenticatedDashboardGuildIdRoute
     }
+    '/_authenticated/dashboard/$guildId/seasons': {
+      id: '/_authenticated/dashboard/$guildId/seasons'
+      path: '/seasons'
+      fullPath: '/dashboard/$guildId/seasons'
+      preLoaderRoute: typeof AuthenticatedDashboardGuildIdSeasonsRouteImport
+      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+    }
     '/_authenticated/dashboard/$guildId/reaction-roles': {
       id: '/_authenticated/dashboard/$guildId/reaction-roles'
       path: '/reaction-roles'
@@ -500,6 +520,7 @@ interface AuthenticatedDashboardGuildIdRouteChildren {
   AuthenticatedDashboardGuildIdLogsRoute: typeof AuthenticatedDashboardGuildIdLogsRoute
   AuthenticatedDashboardGuildIdModerationRoute: typeof AuthenticatedDashboardGuildIdModerationRoute
   AuthenticatedDashboardGuildIdReactionRolesRoute: typeof AuthenticatedDashboardGuildIdReactionRolesRoute
+  AuthenticatedDashboardGuildIdSeasonsRoute: typeof AuthenticatedDashboardGuildIdSeasonsRoute
   AuthenticatedDashboardGuildIdSocialRoute: typeof AuthenticatedDashboardGuildIdSocialRoute
   AuthenticatedDashboardGuildIdTicketsRoute: typeof AuthenticatedDashboardGuildIdTicketsRoute
   AuthenticatedDashboardGuildIdWelcomeRoute: typeof AuthenticatedDashboardGuildIdWelcomeRoute
@@ -530,6 +551,8 @@ const AuthenticatedDashboardGuildIdRouteChildren: AuthenticatedDashboardGuildIdR
       AuthenticatedDashboardGuildIdModerationRoute,
     AuthenticatedDashboardGuildIdReactionRolesRoute:
       AuthenticatedDashboardGuildIdReactionRolesRoute,
+    AuthenticatedDashboardGuildIdSeasonsRoute:
+      AuthenticatedDashboardGuildIdSeasonsRoute,
     AuthenticatedDashboardGuildIdSocialRoute:
       AuthenticatedDashboardGuildIdSocialRoute,
     AuthenticatedDashboardGuildIdTicketsRoute:

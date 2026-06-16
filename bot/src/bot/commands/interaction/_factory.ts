@@ -1,6 +1,7 @@
 import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
-import { brandEmbed } from "../../utils/embed.js";
+import { ui } from "../../systems/ui/embed.factory.js";
+import { getAsset, type AssetKey } from "../../systems/ui/embed.assets.js";
 import {
   classifyTarget,
   fmt,
@@ -36,6 +37,16 @@ const GIFS: Record<Action, string[]> = {
   poke: ["https://media.tenor.com/qNl11SO3z18AAAAC/anime-poke.gif"],
 };
 
+const ASSET_KEYS: Record<Action, AssetKey> = {
+  hug: "fun.hug_gif",
+  kiss: "fun.kiss_gif",
+  slap: "fun.slap_gif",
+  pat: "fun.pat_gif",
+  bonk: "fun.bonk_gif",
+  cuddle: "fun.cuddle_gif",
+  poke: "fun.poke_gif",
+};
+
 function build(action: Action, desc: string): SlashCommand {
   return {
     category: "interaction",
@@ -46,37 +57,34 @@ function build(action: Action, desc: string): SlashCommand {
       .setDescription(desc)
       .addUserOption((o) => o.setName("usuario").setDescription("Alvo").setRequired(true)),
     async execute(interaction: ChatInputCommandInteraction) {
+      const guildId = interaction.guildId ?? undefined;
       const target = interaction.options.getUser("usuario", true);
       const pool = interactionResponses[action];
       const kind = classifyTarget(interaction, target);
 
-      // Casos especiais — sem gif, ephemeral pra não poluir o chat
       if (kind === "self") {
-        await interaction.reply({
-          embeds: [brandEmbed({ description: pick(pool.self) })],
-          ephemeral: true,
-        });
+        await interaction.reply({ embeds: [ui.fun({ description: pick(pool.self), guildId })], ephemeral: true });
         return;
       }
       if (kind === "bot_self") {
-        await interaction.reply({ embeds: [brandEmbed({ description: pick(pool.bot) })] });
+        await interaction.reply({ embeds: [ui.fun({ description: pick(pool.bot), guildId })] });
         return;
       }
       if (kind === "bot_other") {
-        await interaction.reply({
-          embeds: [brandEmbed({ description: pick(pool.otherBot) })],
-        });
+        await interaction.reply({ embeds: [ui.fun({ description: pick(pool.otherBot), guildId })] });
         return;
       }
 
-      // Interação normal
-      const gifs = GIFS[action] ?? [];
-      const gif = gifs[Math.floor(Math.random() * gifs.length)];
+      // Asset customizado (guild ou global) → fallback para GIF Tenor.
+      const customGif = guildId ? await getAsset(guildId, ASSET_KEYS[action]) : undefined;
+      const fallback = GIFS[action] ?? [];
+      const image = customGif ?? fallback[Math.floor(Math.random() * fallback.length)];
+
       const description = fmt(pick(pool.normal), {
         author: `<@${interaction.user.id}>`,
         target: `<@${target.id}>`,
       });
-      await interaction.reply({ embeds: [brandEmbed({ description, image: gif })] });
+      await interaction.reply({ embeds: [ui.fun({ description, image, guildId })] });
     },
   };
 }

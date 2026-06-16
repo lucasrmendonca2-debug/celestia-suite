@@ -143,7 +143,9 @@ export async function endGiveaway(client: Client, giveawayId: string) {
   const winners: string[] = [];
   while (winners.length < g.winnersCount && pool.length) {
     const idx = Math.floor(Math.random() * pool.length);
-    winners.push(pool.splice(idx, 1)[0]!);
+    const pick = pool.splice(idx, 1)[0]!;
+    if (winners.includes(pick)) continue; // dedupe (entradas extras VIP)
+    winners.push(pick);
   }
   g.winners = winners;
   await g.save();

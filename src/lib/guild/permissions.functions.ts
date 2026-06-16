@@ -68,9 +68,9 @@ export interface AuditEntry {
   actor_id: string | null;
   actor_tag: string | null;
   target_id: string | null;
-  before: unknown;
-  after: unknown;
-  metadata: unknown;
+  before: Record<string, unknown> | null;
+  after: Record<string, unknown> | null;
+  metadata: Record<string, unknown> | null;
   created_at: string;
 }
 

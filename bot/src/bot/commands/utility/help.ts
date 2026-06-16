@@ -9,6 +9,7 @@ import {
 import type { SlashCommand, ZenoxClient } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { Tone } from "../../utils/messages.js";
+import { findCommand, searchCommands, toMeta, type CommandMeta } from "../../systems/registry/command.registry.js";
 
 export const HELP_CATEGORIES = [
   { key: "moderation", label: "Moderação", emoji: "🛡️", desc: "Ban, kick, mute, warns, anti-raid" },
@@ -30,13 +31,52 @@ const PER_PAGE = 6;
 
 const command: SlashCommand = {
   category: "utility",
+  module: "help",
   cooldown: 3,
+  enabledByDefault: true,
+  dashboardConfigurable: false,
   longDescription:
-    "Central de ajuda interativa: navegue pelas categorias com o menu abaixo e pelas páginas com os botões.",
+    "Central de ajuda interativa: navegue pelas categorias com o menu, busque por nome ou veja os detalhes de um comando.",
+  examples: ["/help", "/help comando nome:saldo", "/help buscar termo:ticket"],
   data: new SlashCommandBuilder()
     .setName("help")
-    .setDescription("Central de ajuda interativa do Zenox."),
+    .setDescription("Central de ajuda interativa do Zenox.")
+    .addSubcommand((s) => s.setName("inicio").setDescription("Mostra todas as categorias."))
+    .addSubcommand((s) =>
+      s
+        .setName("comando")
+        .setDescription("Detalhes de um comando específico.")
+        .addStringOption((o) =>
+          o.setName("nome").setDescription("Nome do comando (ex: saldo)").setRequired(true),
+        ),
+    )
+    .addSubcommand((s) =>
+      s
+        .setName("buscar")
+        .setDescription("Busca comandos por nome, descrição ou módulo.")
+        .addStringOption((o) => o.setName("termo").setDescription("Texto pra procurar").setRequired(true)),
+    ),
   async execute(interaction, { client }) {
+    const sub = interaction.options.getSubcommand(false) ?? "inicio";
+
+    if (sub === "comando") {
+      const name = interaction.options.getString("nome", true);
+      const meta = findCommand(client, name);
+      if (!meta) {
+        return interaction.reply({
+          embeds: [brandEmbed({ kind: "error", title: "Comando não encontrado", description: `Não achei \`/${name}\`. Use \`/help buscar\`.` })],
+          ephemeral: true,
+        });
+      }
+      return interaction.reply({ embeds: [renderCommandDetail(meta)], ephemeral: true });
+    }
+
+    if (sub === "buscar") {
+      const term = interaction.options.getString("termo", true);
+      const results = searchCommands(client, term, 12);
+      return interaction.reply({ embeds: [renderSearch(term, results)], ephemeral: true });
+    }
+
     const view = renderHome(client);
     await interaction.reply({ ...view, ephemeral: true });
   },
@@ -153,4 +193,50 @@ export function renderCategory(
     embeds: [embed],
     components: [buildSelect(category), pageButtons(category, safePage, totalPages)],
   };
+}
+
+/* ---------------- Command detail / search ---------------- */
+
+function badges(meta: CommandMeta): string {
+  const tags: string[] = [];
+  if (meta.premiumOnly) tags.push("`💎 Premium`");
+  if (meta.premiumGuildOnly) tags.push("`🏠 Premium Server`");
+  if (meta.vipOnly) tags.push("`⭐ VIP`");
+  if (meta.staffOnly) tags.push("`🛡️ Staff`");
+  if (meta.ownerOnly) tags.push("`👑 Dono`");
+  if (meta.cooldown) tags.push(`\`⏳ ${meta.cooldown}s\``);
+  if (!meta.enabledByDefault) tags.push("`⚙️ Opt-in`");
+  return tags.join(" ");
+}
+
+export function renderCommandDetail(meta: CommandMeta): APIEmbed {
+  const cat = HELP_CATEGORIES.find((c) => c.key === meta.category);
+  const fields: { name: string; value: string; inline?: boolean }[] = [
+    { name: "Categoria", value: `${cat?.emoji ?? ""} ${cat?.label ?? meta.category}`, inline: true },
+    { name: "Cooldown", value: meta.cooldown ? `${meta.cooldown}s` : "—", inline: true },
+    { name: "Dashboard", value: meta.dashboardConfigurable ? "Sim" : "Não", inline: true },
+  ];
+  if (meta.subcommands.length) {
+    fields.push({ name: "Subcomandos", value: meta.subcommands.map((s) => `\`${s}\``).join(" "), inline: false });
+  }
+  if (meta.examples.length) {
+    fields.push({ name: "Exemplos", value: meta.examples.map((e) => `\`${e}\``).join("\n"), inline: false });
+  }
+  return brandEmbed({
+    title: `/${meta.name}`,
+    description: [meta.longDescription ?? meta.description, badges(meta)].filter(Boolean).join("\n\n"),
+    fields,
+  }).toJSON();
+}
+
+export function renderSearch(term: string, results: CommandMeta[]): APIEmbed {
+  return brandEmbed({
+    title: `🔎 Resultados para "${term}"`,
+    description: results.length
+      ? results
+          .map((m) => `**/${m.name}** — ${m.description}${badges(m) ? `\n${badges(m)}` : ""}`)
+          .join("\n\n")
+      : "Nada encontrado. Tente outro termo.",
+    footer: `${results.length} comando(s)`,
+  }).toJSON();
 }

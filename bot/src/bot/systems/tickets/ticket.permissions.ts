@@ -36,3 +36,72 @@ export function memberIsAdmin(member: GuildMember): boolean {
     member.permissions.has(PermissionFlagsBits.ManageGuild)
   );
 }
+
+import type {
+  TicketAccessLevel,
+  TicketCategory,
+  TicketPermissionRole,
+} from "./ticket.service.js";
+
+/**
+ * Decide o melhor nível de acesso de um membro, dado os níveis cadastrados
+ * (rank alto vence) e as permissões por cargo. "member" é o fallback.
+ */
+export function resolveAccessLevel(
+  member: GuildMember,
+  levels: TicketAccessLevel[],
+  perms: TicketPermissionRole[],
+): string {
+  const memberRoles = new Set(member.roles.cache.keys());
+  let bestKey = "member";
+  let bestRank = -Infinity;
+
+  // 1) níveis explícitos (role_ids)
+  for (const lvl of levels) {
+    if (lvl.role_ids.some((r) => memberRoles.has(r)) && lvl.rank > bestRank) {
+      bestRank = lvl.rank;
+      bestKey = lvl.key;
+    }
+  }
+  // 2) permissions_roles → access_level
+  const levelByKey = new Map(levels.map((l) => [l.key, l]));
+  for (const p of perms) {
+    if (!memberRoles.has(p.role_id)) continue;
+    const lvl = levelByKey.get(p.access_level);
+    const rank = lvl?.rank ?? 0;
+    if (rank > bestRank) {
+      bestRank = rank;
+      bestKey = p.access_level;
+    }
+  }
+  return bestKey;
+}
+
+/**
+ * Verifica se o membro pode abrir um ticket nessa categoria.
+ * Retorna mensagem de erro (string) se negado, ou null se ok.
+ */
+export function canOpenCategory(
+  member: GuildMember,
+  category: TicketCategory,
+  accessLevelKey: string,
+): string | null {
+  const memberRoles = new Set(member.roles.cache.keys());
+
+  if (category.blocked_role_ids.some((r) => memberRoles.has(r))) {
+    return "Você não tem permissão para abrir tickets nesta categoria.";
+  }
+  if (
+    category.required_role_ids.length > 0 &&
+    !category.required_role_ids.some((r) => memberRoles.has(r))
+  ) {
+    return "Você precisa de um cargo específico para abrir tickets nesta categoria.";
+  }
+  if (
+    category.allowed_access_levels.length > 0 &&
+    !category.allowed_access_levels.includes(accessLevelKey)
+  ) {
+    return "Seu nível de acesso não permite abrir tickets nesta categoria.";
+  }
+  return null;
+}

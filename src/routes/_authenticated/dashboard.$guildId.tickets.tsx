@@ -420,8 +420,13 @@ function GeneralTab({
               <Input
                 value={form.panel_button_emoji}
                 onChange={(e) => setForm({ ...form, panel_button_emoji: e.target.value })}
-                className="w-20"
+                className="w-24"
                 placeholder="🎫"
+              />
+              <GuildEmojiPicker
+                guildId={guildId}
+                asMention
+                onPick={(v) => setForm({ ...form, panel_button_emoji: v })}
               />
               <Input
                 value={form.panel_button_label}

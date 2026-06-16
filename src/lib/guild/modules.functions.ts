@@ -655,6 +655,10 @@ export const upsertShopItem = createServerFn({ method: "POST" })
       stock: data.stock ?? null,
       enabled: data.enabled,
     };
+    if (!data.id) {
+      const { enforceGuildLimit } = await import("./premium-limits.server");
+      await enforceGuildLimit(data.guildId, "shop.items", "shop_items");
+    }
     const { error } = await sb
       .from("shop_items")
       .upsert(payload, { onConflict: "id" });

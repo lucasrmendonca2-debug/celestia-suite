@@ -9,7 +9,7 @@ const command: SlashCommand = {
   category: "economy",
   cooldown: 5,
   guildOnly: true,
-  data: new SlashCommandBuilder().setName("top").setDescription("Ranking de riqueza do servidor."),
+  data: new SlashCommandBuilder().setName("ranking").setNameLocalizations({"en-US":"top"}).setDescription("Ranking de riqueza do servidor."),
   async execute(interaction) {
     const top = await EconomyAccount.find({ guildId: interaction.guildId! })
       .sort({ wallet: -1, bank: -1 })

@@ -11,7 +11,7 @@ const command: SlashCommand = {
   guildOnly: true,
   userPermissions: [PermissionFlagsBits.ManageGuild],
   data: new SlashCommandBuilder()
-    .setName("giveaway")
+    .setName("sorteio").setNameLocalizations({"en-US":"giveaway"})
     .setDescription("Sistema de sorteios.")
     .addSubcommand((s) =>
       s

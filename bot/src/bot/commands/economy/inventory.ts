@@ -8,7 +8,7 @@ const command: SlashCommand = {
   cooldown: 3,
   guildOnly: true,
   data: new SlashCommandBuilder()
-    .setName("inventory")
+    .setName("inventario").setNameLocalizations({"en-US":"inventory"})
     .setDescription("Mostra seu inventário.")
     .addUserOption((o) => o.setName("usuario").setDescription("Outro usuário")),
   async execute(interaction) {

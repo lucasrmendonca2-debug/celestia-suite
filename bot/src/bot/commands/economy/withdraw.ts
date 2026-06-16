@@ -9,7 +9,7 @@ const command: SlashCommand = {
   cooldown: 3,
   guildOnly: true,
   data: new SlashCommandBuilder()
-    .setName("withdraw")
+    .setName("sacar").setNameLocalizations({"en-US":"withdraw"})
     .setDescription("Saca moedas do banco.")
     .addStringOption((o) => o.setName("valor").setDescription("Quantidade ou 'all'").setRequired(true)),
   async execute(interaction) {

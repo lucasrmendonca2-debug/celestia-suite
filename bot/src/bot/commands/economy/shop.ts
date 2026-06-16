@@ -10,7 +10,7 @@ const command: SlashCommand = {
   cooldown: 3,
   guildOnly: true,
   data: new SlashCommandBuilder()
-    .setName("shop")
+    .setName("loja").setNameLocalizations({"en-US":"shop"})
     .setDescription("Loja do servidor.")
     .addSubcommand((s) => s.setName("list").setDescription("Lista itens"))
     .addSubcommand((s) =>

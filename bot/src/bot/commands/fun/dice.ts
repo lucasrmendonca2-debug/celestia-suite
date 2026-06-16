@@ -6,7 +6,7 @@ const command: SlashCommand = {
   category: "fun",
   cooldown: 2,
   data: new SlashCommandBuilder()
-    .setName("dice")
+    .setName("dados").setNameLocalizations({"en-US":"dice"})
     .setDescription("Rola um dado.")
     .addIntegerOption((o) => o.setName("lados").setDescription("Lados (padrão 6)").setMinValue(2).setMaxValue(1000))
     .addIntegerOption((o) => o.setName("quantidade").setDescription("Quantidade (padrão 1)").setMinValue(1).setMaxValue(20)),

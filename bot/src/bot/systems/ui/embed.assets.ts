@@ -84,14 +84,14 @@ export const ASSET_KEYS = {
     name: "Banner de boas-vindas",
     module: "WELCOME",
     type: "BANNER",
-    default: null,
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/0068bdbe-fd14-4cbf-8899-b1faec347604/welcome-banner.png",
   },
   "welcome.goodbye_banner": {
     key: "welcome.goodbye_banner",
     name: "Banner de saída",
     module: "WELCOME",
     type: "BANNER",
-    default: null,
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/5f7098c5-afb7-414a-a142-55742f4cd52f/goodbye-banner.png",
   },
   "welcome.card_background": {
     key: "welcome.card_background",
@@ -107,7 +107,7 @@ export const ASSET_KEYS = {
     name: "Banner do painel de tickets",
     module: "TICKETS",
     type: "BANNER",
-    default: null,
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/4c5f0884-173b-44d9-aaff-86d197cd2d1a/tickets-panel.png",
   },
   "tickets.icon_support": {
     key: "tickets.icon_support",
@@ -274,7 +274,7 @@ export const ASSET_KEYS = {
     name: "Banner premium",
     module: "PREMIUM",
     type: "BANNER",
-    default: null,
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/0ad171e6-731d-463d-b621-76fdc7766b1c/premium-banner.png",
   },
   "premium.vip_badge": {
     key: "premium.vip_badge",

@@ -1,8 +1,11 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 import type { CurrentUser } from "@/lib/auth/auth.functions";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeProvider";
 import { PremiumBadge } from "@/components/premium/PremiumBadge";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import { SidebarNav } from "./sidebar-nav";
 import mascot from "@/assets/zenox-mascot.png.asset.json";
 
 function avatarUrl(u: CurrentUser): string {
@@ -25,22 +28,56 @@ export function DashboardTopbar({
   subtitle?: string;
   guildId?: string;
 }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <header className="sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background/70 px-4 py-3 backdrop-blur sm:px-6">
-      <div className="flex min-w-0 items-center gap-2.5">
+    <header className="sticky top-0 z-10 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background/70 px-4 py-3 backdrop-blur sm:px-6">
+      <div className="flex items-center gap-2">
+        {guildId && (
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild>
+              <button
+                type="button"
+                aria-label="Abrir menu"
+                className="inline-flex size-9 items-center justify-center rounded-md border border-input bg-card text-muted-foreground transition hover:bg-accent hover:text-foreground md:hidden"
+              >
+                <Menu className="size-4" />
+              </button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-72 border-r border-border bg-card p-0">
+              <SheetTitle className="sr-only">Navegação do dashboard</SheetTitle>
+              <div className="flex items-center gap-2 px-5 py-5">
+                <div className="size-7 rounded-lg bg-primary/20 ring-1 ring-primary/40" />
+                <span className="text-base font-semibold tracking-tight">Zenox</span>
+              </div>
+              <SidebarNav guildId={guildId} onNavigate={() => setOpen(false)} />
+              <div className="border-t border-border px-3 py-3">
+                <Link
+                  to="/dashboard"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center gap-2 rounded-md px-3 py-2 text-xs text-muted-foreground hover:bg-accent hover:text-foreground"
+                >
+                  ← Trocar servidor
+                </Link>
+              </div>
+            </SheetContent>
+          </Sheet>
+        )}
         <div className="relative hidden size-9 shrink-0 overflow-hidden rounded-lg bg-primary/15 ring-1 ring-primary/40 sm:block">
           <img src={mascot.url} alt="" className="absolute inset-0 size-full scale-[2.2] object-cover object-top" />
         </div>
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <h1 className="truncate text-sm font-semibold tracking-tight sm:text-base">{title}</h1>
-            {guildId && <PremiumBadge guildId={guildId} />}
-          </div>
-          {subtitle && (
-            <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
-          )}
-        </div>
       </div>
+
+      <div className="min-w-0">
+        <div className="flex items-center gap-2">
+          <h1 className="truncate text-sm font-semibold tracking-tight sm:text-base">{title}</h1>
+          {guildId && <PremiumBadge guildId={guildId} />}
+        </div>
+        {subtitle && (
+          <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
+        )}
+      </div>
+
       <div className="flex shrink-0 items-center gap-2 sm:gap-3">
         <ThemeToggle />
         <div className="hidden text-right md:block">

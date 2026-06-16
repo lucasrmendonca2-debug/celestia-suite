@@ -87,6 +87,38 @@ const command: SlashCommand = {
     )
     .addSubcommand((s) =>
       s.setName("configurar").setDescription("Mostra a configuração atual do sistema de tickets."),
+    )
+    .addSubcommand((s) =>
+      s.setName("claim").setDescription("Atribui este ticket a você."),
+    )
+    .addSubcommand((s) =>
+      s
+        .setName("prioridade")
+        .setDescription("Define a prioridade deste ticket.")
+        .addStringOption((o) =>
+          o
+            .setName("nivel")
+            .setDescription("Nível de prioridade")
+            .setRequired(true)
+            .addChoices(
+              { name: "🟢 Baixa", value: "LOW" },
+              { name: "🟡 Média", value: "MEDIUM" },
+              { name: "🟠 Alta", value: "HIGH" },
+              { name: "🔴 Urgente", value: "URGENT" },
+            ),
+        ),
+    )
+    .addSubcommand((s) =>
+      s
+        .setName("nota")
+        .setDescription("Adiciona uma nota interna (visível apenas para staff).")
+        .addStringOption((o) => o.setName("conteudo").setDescription("Conteúdo da nota").setRequired(true)),
+    )
+    .addSubcommand((s) =>
+      s
+        .setName("renomear")
+        .setDescription("Renomeia este canal de ticket.")
+        .addStringOption((o) => o.setName("nome").setDescription("Novo nome").setRequired(true)),
     ),
   async execute(interaction: ChatInputCommandInteraction) {
     const sub = interaction.options.getSubcommand(true);
@@ -97,6 +129,10 @@ const command: SlashCommand = {
     if (sub === "adicionar") return runAdicionar(interaction);
     if (sub === "remover") return runRemover(interaction);
     if (sub === "configurar") return runConfigurar(interaction);
+    if (sub === "claim") return runClaim(interaction);
+    if (sub === "prioridade") return runPrioridade(interaction);
+    if (sub === "nota") return runNota(interaction);
+    if (sub === "renomear") return runRenomear(interaction);
   },
 };
 

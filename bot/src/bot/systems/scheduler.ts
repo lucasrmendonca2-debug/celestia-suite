@@ -5,6 +5,7 @@ import { getConfig } from "../utils/guildCache.js";
 import { sendLog } from "./logs/sender.js";
 import { brandEmbed } from "../utils/embed.js";
 import { endGiveaway } from "./giveaway/giveaway.js";
+import { tickPremiumExpirations } from "./premium/premium.expiration.js";
 
 const INTERVAL_MS = 30_000;
 
@@ -55,4 +56,9 @@ async function tick(client: Client) {
       logger.error({ err, giveawayId: String(g._id) }, "endGiveaway falhou"),
     );
   }
+
+  // Expiração de assinaturas premium
+  await tickPremiumExpirations(client).catch((err) =>
+    logger.error({ err }, "tickPremiumExpirations falhou"),
+  );
 }

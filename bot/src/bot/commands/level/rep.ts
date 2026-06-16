@@ -4,6 +4,7 @@ import { brandEmbed } from "../../utils/embed.js";
 import { giveReputation } from "../../systems/social/reputation.service.js";
 import { getSocialConfig } from "../../systems/social/social.config.ts";
 import { fmtDuration } from "../../utils/format.js";
+import { classifyTarget, pick, socialResponses } from "../../systems/personality/index.js";
 
 const command: SlashCommand = {
   category: "level",

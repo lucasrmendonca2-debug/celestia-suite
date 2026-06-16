@@ -12,6 +12,8 @@ import { consumeCooldown } from "../guards/cooldown.js";
 import { ensureGuild, ensureUser } from "../utils/guildCache.js";
 import { handleTicketButton, handleTicketSelect } from "../systems/tickets/handlers.js";
 import { handleGiveawayButton } from "../systems/giveaway/giveaway.js";
+import { handlePollButton } from "../systems/polls/poll.service.js";
+import { handleSuggestionButton } from "../systems/suggestions/suggestion.service.js";
 import {
   HELP_CATEGORIES,
   renderCategory,
@@ -35,6 +37,8 @@ const event: BotEvent<"interactionCreate"> = {
       if (interaction.isButton()) {
         if (interaction.customId.startsWith("ticket:")) await handleTicketButton(interaction);
         else if (interaction.customId.startsWith("giveaway:")) await handleGiveawayButton(interaction);
+        else if (interaction.customId.startsWith("poll:")) await handlePollButton(interaction);
+        else if (interaction.customId.startsWith("suggestion:")) await handleSuggestionButton(interaction);
         return;
       }
 

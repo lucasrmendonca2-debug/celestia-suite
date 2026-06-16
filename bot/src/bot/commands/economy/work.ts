@@ -47,6 +47,16 @@ const command: SlashCommand = {
     acc.lastWork = now;
     await acc.save();
 
+    await logTx({
+      guildId: interaction.guildId!,
+      userId: interaction.user.id,
+      kind: "work",
+      amount,
+      balanceAfter: acc.wallet,
+      reason: "Trabalho",
+    });
+    await incrementMissionProgress(interaction.guildId!, interaction.user.id, "work");
+
     const job = JOBS[Math.floor(Math.random() * JOBS.length)];
     await interaction.reply({
       embeds: [brandEmbed({ kind: "success", title: "💼 Trabalho concluído", description: `${job} ${fmtCoins(amount, c.emoji, c.name)}` })],

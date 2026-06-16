@@ -3,6 +3,7 @@ import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { fmtCoins, fmtDuration } from "../../utils/format.js";
 import { getAccount, getCurrency } from "../../systems/economy/economy.js";
+import { classifyTarget, economyResponses, pick } from "../../systems/personality/index.js";
 
 const COOLDOWN = 30 * 60 * 1000;
 
@@ -16,8 +17,17 @@ const command: SlashCommand = {
     .addUserOption((o) => o.setName("usuario").setDescription("Alvo").setRequired(true)),
   async execute(interaction) {
     const target = interaction.options.getUser("usuario", true);
-    if (target.bot || target.id === interaction.user.id) {
-      await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Alvo inválido" })], ephemeral: true });
+    const kind = classifyTarget(interaction, target);
+    if (kind === "self") {
+      await interaction.reply({ embeds: [brandEmbed({ kind: "warn", description: pick(economyResponses.robSelf) })], ephemeral: true });
+      return;
+    }
+    if (kind === "bot_self") {
+      await interaction.reply({ embeds: [brandEmbed({ kind: "warn", description: pick(economyResponses.robBot) })], ephemeral: true });
+      return;
+    }
+    if (kind === "bot_other") {
+      await interaction.reply({ embeds: [brandEmbed({ kind: "warn", description: pick(economyResponses.robOtherBot) })], ephemeral: true });
       return;
     }
     const me = await getAccount(interaction.guildId!, interaction.user.id);

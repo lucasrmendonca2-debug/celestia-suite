@@ -3,7 +3,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Ticket, Save, AlertCircle, Send, Pencil, Trash2 } from "lucide-react";
+import { Ticket, Save, AlertCircle, Send, Pencil, Trash2, Inbox, Activity, Power, CheckCircle2, Circle, Sparkles } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getTicketConfig,

@@ -64,6 +64,10 @@ export const Route = createFileRoute("/_authenticated/dashboard/$guildId/social"
         queryKey: ["social-logs", params.guildId],
         queryFn: () => getSocialLogs({ data: { guildId: params.guildId } }),
       }),
+      context.queryClient.ensureQueryData({
+        queryKey: ["my-profile", params.guildId],
+        queryFn: () => getMyProfile({ data: { guildId: params.guildId } }),
+      }),
     ]);
     return { user, social, level };
   },

@@ -3,17 +3,19 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Save, Sparkles, Trash2, Trophy } from "lucide-react";
+import { Plus, Save, Sparkles, Trash2, Trophy, User } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   addSocialReward,
   getLevelConfig,
+  getMyProfile,
   getSocialConfig,
   getSocialLeaderboard,
   getSocialLogs,
   listSocialRewards,
   removeSocialReward,
   updateLevelConfig,
+  updateMyProfile,
   updateSocialConfig,
 } from "@/lib/guild/social.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";

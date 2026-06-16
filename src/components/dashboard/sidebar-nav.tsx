@@ -127,7 +127,7 @@ export function SidebarNav({
               const Icon = it.icon;
               const isPremiumItem = Boolean(it.premium);
               const isActiveModule =
-                it.activeKey && config ? Boolean((config as Record<string, unknown>)[it.activeKey]) : false;
+                it.activeKey && config ? Boolean((config as unknown as Record<string, unknown>)[it.activeKey]) : false;
               const locked = isPremiumItem && !isPremium && !active;
 
               return (

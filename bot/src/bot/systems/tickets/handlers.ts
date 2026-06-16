@@ -219,7 +219,7 @@ export async function closeTicket(
   });
 
   // Transcript opcional
-  let transcript: ReturnType<typeof buildTranscript> extends Promise<infer T> ? T | null : null = null;
+  let transcript: Awaited<ReturnType<typeof buildTranscript>> | null = null;
   if (cfg.transcript_enabled) {
     try {
       transcript = await buildTranscript(channel);

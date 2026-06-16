@@ -30,6 +30,7 @@ const TICKET_DEFAULTS = {
   category_id: null as string | null,
   default_support_role_id: null as string | null,
   log_channel_id: null as string | null,
+  rating_channel_id: null as string | null,
   max_open_tickets_per_user: 5,
   panel_title: "🎫 Central de Atendimento",
   panel_description:
@@ -117,6 +118,7 @@ const TicketConfigInput = z.object({
   category_id: snowflakeNullable,
   default_support_role_id: snowflakeNullable,
   log_channel_id: snowflakeNullable,
+  rating_channel_id: snowflakeNullable,
   max_open_tickets_per_user: z.number().int().min(1).max(20),
   panel_title: z.string().min(1).max(255),
   panel_description: z.string().min(1).max(4000),

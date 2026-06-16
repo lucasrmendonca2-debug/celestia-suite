@@ -18,15 +18,43 @@ import {
 } from "@/components/ui/select";
 import { MultiChannelPicker, MultiRolePicker } from "@/components/dashboard/tickets/DiscordPickers";
 
+type AutomodPunishment = "delete" | "warn" | "mute" | "kick" | "ban";
+
+interface AutomodForm {
+  enabled?: boolean;
+  anti_spam_enabled: boolean;
+  anti_spam_threshold: number;
+  anti_spam_interval: number;
+  anti_flood_enabled?: boolean;
+  anti_flood_threshold?: number;
+  anti_invite_enabled: boolean;
+  anti_link_enabled: boolean;
+  anti_caps_enabled: boolean;
+  anti_caps_threshold: number;
+  anti_mention_enabled: boolean;
+  anti_mention_threshold: number;
+  blacklist_words: string[];
+  whitelist_channels: string[];
+  whitelist_roles: string[];
+  whitelist_users?: string[];
+  punishment: AutomodPunishment;
+  spam_punishment?: AutomodPunishment;
+  link_punishment?: AutomodPunishment;
+  invite_punishment?: AutomodPunishment;
+  blacklist_punishment?: AutomodPunishment;
+  spam_punishment_duration?: number;
+  warn_user_on_delete?: boolean;
+}
+
 interface AutomodTabProps {
   guildId: string;
-  initial: Awaited<ReturnType<typeof getAutomodConfig>>;
+  initial: AutomodForm;
 }
 
 export function AutomodTab({ guildId, initial }: AutomodTabProps) {
   const updateFn = useServerFn(updateAutomodConfig);
   const qc = useQueryClient();
-  const [form, setForm] = useState(initial);
+  const [form, setForm] = useState<AutomodForm>(initial);
 
   const mutation = useMutation({
     mutationFn: () =>

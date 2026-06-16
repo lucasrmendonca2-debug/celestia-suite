@@ -4,6 +4,7 @@ import { logger } from "../../utils/logger.js";
 import { getLevelConfig, getSocialConfig } from "./social.config.ts";
 import { deriveLevel } from "./formulas.js";
 import { applyLevelRewards } from "./level-rewards.service.js";
+import { recordSeasonXp } from "./season.service.js";
 import { isVip } from "../economy/economy.js";
 import { applyVars } from "../../utils/format.js";
 import { brandEmbed } from "../../utils/embed.js";

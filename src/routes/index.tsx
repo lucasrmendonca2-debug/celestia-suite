@@ -76,6 +76,9 @@ function Landing() {
             <a href="#modulos" className="hidden text-muted-foreground hover:text-foreground sm:inline">
               Módulos
             </a>
+            <Link to="/comandos" className="hidden text-muted-foreground hover:text-foreground sm:inline">
+              Comandos
+            </Link>
             <Link to="/dashboard" className="hidden text-muted-foreground hover:text-foreground sm:inline">
               Dashboard
             </Link>

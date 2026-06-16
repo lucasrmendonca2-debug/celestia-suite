@@ -84,8 +84,8 @@ const GuildInput = z.object({ guildId: z.string().regex(/^\d{5,32}$/) });
 export const listDashboardPermissions = createServerFn({ method: "GET" })
   .inputValidator((d: { guildId: string }) => GuildInput.parse(d))
   .handler(async ({ data }): Promise<DashboardPermissionRow[]> => {
-    const actor = await getActor();
-    await assertManagerOf(data.guildId, actor.accessToken);
+    const { getActorAndAssertManager } = await import("./permissions-audit.server");
+    await getActorAndAssertManager(data.guildId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows, error } = await supabaseAdmin
       .from("dashboard_permissions")
@@ -104,7 +104,7 @@ const UpsertInput = z.object({
 export const upsertDashboardPermission = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => UpsertInput.parse(d))
   .handler(async ({ data }) => {
-    // só quem já passa por 'permissions' pode mexer
+    const { assertCanAccessArea, writeAudit } = await import("./permissions-audit.server");
     const actor = await assertCanAccessArea(data.guildId, "permissions");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: prev } = await supabaseAdmin
@@ -146,6 +146,7 @@ const RemoveInput = z.object({
 export const removeDashboardPermission = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => RemoveInput.parse(d))
   .handler(async ({ data }) => {
+    const { assertCanAccessArea, writeAudit } = await import("./permissions-audit.server");
     const actor = await assertCanAccessArea(data.guildId, "permissions");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: prev } = await supabaseAdmin
@@ -181,8 +182,8 @@ export const listAuditLog = createServerFn({ method: "GET" })
       .parse(d),
   )
   .handler(async ({ data }): Promise<AuditEntry[]> => {
-    const actor = await getActor();
-    await assertManagerOf(data.guildId, actor.accessToken);
+    const { getActorAndAssertManager } = await import("./permissions-audit.server");
+    await getActorAndAssertManager(data.guildId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows, error } = await supabaseAdmin
       .from("server_audit_logs")

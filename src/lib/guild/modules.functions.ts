@@ -405,12 +405,29 @@ export const getLevelingConfig = createServerFn({ method: "GET" })
     await perm(data.guildId);
     const sb = await admin();
     const { data: row, error } = await sb
-      .from("leveling_config")
+      .from("level_config")
       .select("*")
       .eq("guild_id", data.guildId)
       .maybeSingle();
     if (error) throw new Error(error.message);
-    return row ?? { guild_id: data.guildId, ...LEVELING_DEFAULTS };
+    const { data: social } = await sb
+      .from("social_config")
+      .select("ignored_channel_ids, ignored_role_ids")
+      .eq("guild_id", data.guildId)
+      .maybeSingle();
+    return {
+      guild_id: data.guildId,
+      enabled: row?.enabled ?? LEVELING_DEFAULTS.enabled,
+      xp_per_message_min: row?.min_xp_per_message ?? LEVELING_DEFAULTS.xp_per_message_min,
+      xp_per_message_max: row?.max_xp_per_message ?? LEVELING_DEFAULTS.xp_per_message_max,
+      cooldown_seconds: row?.cooldown_seconds ?? LEVELING_DEFAULTS.cooldown_seconds,
+      level_up_channel_id: row?.level_up_channel_id ?? null,
+      level_up_message: row?.level_up_message ?? LEVELING_DEFAULTS.level_up_message,
+      level_up_dm: (row?.level_up_message_mode ?? "current_channel") === "dm",
+      no_xp_channels: social?.ignored_channel_ids ?? [],
+      no_xp_roles: social?.ignored_role_ids ?? [],
+      stack_rewards: false,
+    };
   });
 
 const LevelingInput = z.object({
@@ -430,19 +447,32 @@ const LevelingInput = z.object({
 export const updateLevelingConfig = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => LevelingInput.parse(d))
   .handler(async ({ data }) => {
-    const userId = await perm(data.guildId);
+    await perm(data.guildId);
     const sb = await admin();
-    const { guildId, ...rest } = data;
-    const { data: row, error } = await sb
-      .from("leveling_config")
-      .upsert(
-        { guild_id: guildId, updated_by: userId, ...rest },
-        { onConflict: "guild_id" },
-      )
-      .select("*")
-      .single();
-    if (error) throw new Error(error.message);
-    return row;
+    const { error: e1 } = await sb.from("level_config").upsert(
+      {
+        guild_id: data.guildId,
+        enabled: data.enabled,
+        min_xp_per_message: data.xp_per_message_min,
+        max_xp_per_message: data.xp_per_message_max,
+        cooldown_seconds: data.cooldown_seconds,
+        level_up_channel_id: data.level_up_channel_id,
+        level_up_message: data.level_up_message,
+        level_up_message_mode: data.level_up_dm ? "dm" : "current_channel",
+      },
+      { onConflict: "guild_id" },
+    );
+    if (e1) throw new Error(e1.message);
+    const { error: e2 } = await sb.from("social_config").upsert(
+      {
+        guild_id: data.guildId,
+        ignored_channel_ids: data.no_xp_channels,
+        ignored_role_ids: data.no_xp_roles,
+      },
+      { onConflict: "guild_id" },
+    );
+    if (e2) throw new Error(e2.message);
+    return { ok: true };
   });
 
 export const listLevelRewards = createServerFn({ method: "GET" })
@@ -456,9 +486,15 @@ export const listLevelRewards = createServerFn({ method: "GET" })
       .from("level_rewards")
       .select("*")
       .eq("guild_id", data.guildId)
+      .eq("reward_type", "role")
       .order("level");
     if (error) throw new Error(error.message);
-    return rows ?? [];
+    return (rows ?? []).map((r) => ({
+      id: r.id,
+      guild_id: r.guild_id,
+      level: r.level,
+      role_id: r.reward_value,
+    }));
   });
 
 export const addLevelReward = createServerFn({ method: "POST" })
@@ -477,7 +513,8 @@ export const addLevelReward = createServerFn({ method: "POST" })
     const { error } = await sb.from("level_rewards").insert({
       guild_id: data.guildId,
       level: data.level,
-      role_id: data.roleId,
+      reward_type: "role",
+      reward_value: data.roleId,
     });
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -507,10 +544,10 @@ export const getLeaderboard = createServerFn({ method: "GET" })
     await perm(data.guildId);
     const sb = await admin();
     const { data: rows, error } = await sb
-      .from("user_levels")
-      .select("*")
+      .from("level_users")
+      .select("user_id, username, xp, level, total_xp, messages_count")
       .eq("guild_id", data.guildId)
-      .order("xp", { ascending: false })
+      .order("total_xp", { ascending: false })
       .limit(50);
     if (error) throw new Error(error.message);
     return rows ?? [];

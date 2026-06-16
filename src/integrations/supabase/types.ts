@@ -464,7 +464,133 @@ export type Database = {
         }
         Relationships: []
       }
+      level_config: {
+        Row: {
+          cooldown_seconds: number
+          created_at: string
+          delete_level_up_after_seconds: number
+          enabled: boolean
+          global_multiplier: number
+          guild_id: string
+          id: string
+          level_up_channel_id: string | null
+          level_up_message: string
+          level_up_message_mode: string
+          max_xp_per_message: number
+          min_message_length: number
+          min_xp_per_message: number
+          send_level_up_message: boolean
+          updated_at: string
+          vip_multiplier: number
+        }
+        Insert: {
+          cooldown_seconds?: number
+          created_at?: string
+          delete_level_up_after_seconds?: number
+          enabled?: boolean
+          global_multiplier?: number
+          guild_id: string
+          id?: string
+          level_up_channel_id?: string | null
+          level_up_message?: string
+          level_up_message_mode?: string
+          max_xp_per_message?: number
+          min_message_length?: number
+          min_xp_per_message?: number
+          send_level_up_message?: boolean
+          updated_at?: string
+          vip_multiplier?: number
+        }
+        Update: {
+          cooldown_seconds?: number
+          created_at?: string
+          delete_level_up_after_seconds?: number
+          enabled?: boolean
+          global_multiplier?: number
+          guild_id?: string
+          id?: string
+          level_up_channel_id?: string | null
+          level_up_message?: string
+          level_up_message_mode?: string
+          max_xp_per_message?: number
+          min_message_length?: number
+          min_xp_per_message?: number
+          send_level_up_message?: boolean
+          updated_at?: string
+          vip_multiplier?: number
+        }
+        Relationships: []
+      }
+      level_logs: {
+        Row: {
+          action: string
+          amount: number | null
+          created_at: string
+          details: Json | null
+          guild_id: string
+          id: string
+          level: number | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          amount?: number | null
+          created_at?: string
+          details?: Json | null
+          guild_id: string
+          id?: string
+          level?: number | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          amount?: number | null
+          created_at?: string
+          details?: Json | null
+          guild_id?: string
+          id?: string
+          level?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       level_rewards: {
+        Row: {
+          active: boolean
+          created_at: string
+          guild_id: string
+          id: string
+          level: number
+          remove_previous_roles: boolean
+          reward_type: string
+          reward_value: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          guild_id: string
+          id?: string
+          level: number
+          remove_previous_roles?: boolean
+          reward_type: string
+          reward_value: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          guild_id?: string
+          id?: string
+          level?: number
+          remove_previous_roles?: boolean
+          reward_type?: string
+          reward_value?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      level_rewards_legacy: {
         Row: {
           created_at: string
           guild_id: string
@@ -488,7 +614,49 @@ export type Database = {
         }
         Relationships: []
       }
-      leveling_config: {
+      level_users: {
+        Row: {
+          created_at: string
+          guild_id: string
+          id: string
+          last_xp_at: string | null
+          level: number
+          messages_count: number
+          total_xp: number
+          updated_at: string
+          user_id: string
+          username: string | null
+          xp: number
+        }
+        Insert: {
+          created_at?: string
+          guild_id: string
+          id?: string
+          last_xp_at?: string | null
+          level?: number
+          messages_count?: number
+          total_xp?: number
+          updated_at?: string
+          user_id: string
+          username?: string | null
+          xp?: number
+        }
+        Update: {
+          created_at?: string
+          guild_id?: string
+          id?: string
+          last_xp_at?: string | null
+          level?: number
+          messages_count?: number
+          total_xp?: number
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+          xp?: number
+        }
+        Relationships: []
+      }
+      leveling_config_legacy: {
         Row: {
           cooldown_seconds: number
           created_at: string
@@ -887,6 +1055,33 @@ export type Database = {
         }
         Relationships: []
       }
+      reputation_logs: {
+        Row: {
+          created_at: string
+          from_user_id: string
+          guild_id: string
+          id: string
+          message: string | null
+          to_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          from_user_id: string
+          guild_id: string
+          id?: string
+          message?: string | null
+          to_user_id: string
+        }
+        Update: {
+          created_at?: string
+          from_user_id?: string
+          guild_id?: string
+          id?: string
+          message?: string | null
+          to_user_id?: string
+        }
+        Relationships: []
+      }
       server_audit_logs: {
         Row: {
           actor_id: string | null
@@ -974,6 +1169,99 @@ export type Database = {
           stock?: number | null
           type?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      social_config: {
+        Row: {
+          achievements_enabled: boolean
+          created_at: string
+          embed_color: string
+          enabled: boolean
+          guild_id: string
+          id: string
+          ignored_channel_ids: string[]
+          ignored_role_ids: string[]
+          level_enabled: boolean
+          log_channel_id: string | null
+          profile_enabled: boolean
+          reputation_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          achievements_enabled?: boolean
+          created_at?: string
+          embed_color?: string
+          enabled?: boolean
+          guild_id: string
+          id?: string
+          ignored_channel_ids?: string[]
+          ignored_role_ids?: string[]
+          level_enabled?: boolean
+          log_channel_id?: string | null
+          profile_enabled?: boolean
+          reputation_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          achievements_enabled?: boolean
+          created_at?: string
+          embed_color?: string
+          enabled?: boolean
+          guild_id?: string
+          id?: string
+          ignored_channel_ids?: string[]
+          ignored_role_ids?: string[]
+          level_enabled?: boolean
+          log_channel_id?: string | null
+          profile_enabled?: boolean
+          reputation_enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      social_profiles: {
+        Row: {
+          banner_url: string | null
+          bio: string
+          color: string
+          created_at: string
+          guild_id: string
+          id: string
+          profile_views: number
+          reputation: number
+          selected_badges: string[]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          banner_url?: string | null
+          bio?: string
+          color?: string
+          created_at?: string
+          guild_id: string
+          id?: string
+          profile_views?: number
+          reputation?: number
+          selected_badges?: string[]
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          banner_url?: string | null
+          bio?: string
+          color?: string
+          created_at?: string
+          guild_id?: string
+          id?: string
+          profile_views?: number
+          reputation?: number
+          selected_badges?: string[]
+          title?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1563,7 +1851,7 @@ export type Database = {
         }
         Relationships: []
       }
-      user_levels: {
+      user_levels_legacy: {
         Row: {
           guild_id: string
           last_message_at: string | null

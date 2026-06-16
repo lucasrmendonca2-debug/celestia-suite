@@ -1,4 +1,5 @@
 import { AutomodTab } from "@/components/dashboard/moderation/AutomodTab";
+import { HistoryTab } from "@/components/dashboard/moderation/HistoryTab";
 import { useState } from "react";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -111,6 +112,7 @@ function ModerationPage() {
 
       <div className="mt-6 space-y-5">
         <GeneralTab guildId={guildId} initial={config} />
+        <HistoryTab guildId={guildId} />
         <AutomodTab guildId={guildId} initial={automodConfig} />
       </div>
     </ModuleLayout>

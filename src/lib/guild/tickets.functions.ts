@@ -114,6 +114,9 @@ const TicketConfigInput = z.object({
   panel_description: z.string().min(1).max(4000),
   panel_button_label: z.string().min(1).max(80),
   panel_button_emoji: z.string().min(1).max(8),
+  panel_image_url: z.string().url().max(1000).nullable().optional(),
+  panel_thumbnail_url: z.string().url().max(1000).nullable().optional(),
+  panel_use_guild_banner: z.boolean().optional(),
   ticket_welcome_message: z.string().min(1).max(2000),
   close_message: z.string().min(1).max(2000),
   transcript_enabled: z.boolean(),
@@ -127,9 +130,16 @@ export const updateTicketConfig = createServerFn({ method: "POST" })
     await perm(data.guildId);
     const sb = await admin();
     const { guildId, ...rest } = data;
+    const payload = {
+      guild_id: guildId,
+      ...rest,
+      panel_image_url: rest.panel_image_url ?? null,
+      panel_thumbnail_url: rest.panel_thumbnail_url ?? null,
+      panel_use_guild_banner: rest.panel_use_guild_banner ?? false,
+    };
     const { data: row, error } = await sb
       .from("ticket_configs")
-      .upsert({ guild_id: guildId, ...rest }, { onConflict: "guild_id" })
+      .upsert(payload, { onConflict: "guild_id" })
       .select()
       .single();
     if (error) throw new Error(error.message);

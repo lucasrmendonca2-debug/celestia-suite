@@ -190,6 +190,18 @@ export async function reopenTicketRow(ticketId: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function setTicketRating(
+  ticketId: string,
+  rating: number,
+  note?: string | null,
+): Promise<void> {
+  const { error } = await supabase
+    .from("tickets")
+    .update({ rating, ...(note !== undefined ? { rating_note: note } : {}) })
+    .eq("id", ticketId);
+  if (error) throw error;
+}
+
 export async function setPanelMessage(
   guildId: string,
   channelId: string,

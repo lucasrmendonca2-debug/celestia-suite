@@ -121,6 +121,19 @@ export function buildClosedActions(): ActionRowBuilder<ButtonBuilder> {
   );
 }
 
+export function buildRatingActions(ticketId: string): ActionRowBuilder<ButtonBuilder> {
+  const row = new ActionRowBuilder<ButtonBuilder>();
+  for (let i = 1; i <= 5; i++) {
+    row.addComponents(
+      new ButtonBuilder()
+        .setCustomId(`ticket:rate:${ticketId}:${i}`)
+        .setLabel("⭐".repeat(i))
+        .setStyle(ButtonStyle.Secondary),
+    );
+  }
+  return row;
+}
+
 export function buildLogEmbed(opts: {
   title: string;
   color: number;

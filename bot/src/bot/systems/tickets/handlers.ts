@@ -22,6 +22,7 @@ import {
   listAccessLevels,
   listPermissionRoles,
   reopenTicketRow,
+  setTicketRating,
   writeLog,
   type TicketCategory,
   type TicketConfig,
@@ -30,6 +31,7 @@ import {
   buildClosedActions,
   buildClosedEmbed,
   buildLogEmbed,
+  buildRatingActions,
   buildTicketActions,
   buildWelcomeEmbed,
 } from "./ticket.components.js";
@@ -220,9 +222,11 @@ export async function closeTicket(
 
   // Transcript opcional
   let transcript: Awaited<ReturnType<typeof buildTranscript>> | null = null;
+  let transcriptForDm: Awaited<ReturnType<typeof buildTranscript>> | null = null;
   if (cfg.transcript_enabled) {
     try {
       transcript = await buildTranscript(channel);
+      transcriptForDm = await buildTranscript(channel);
     } catch {
       /* ignora */
     }
@@ -230,6 +234,14 @@ export async function closeTicket(
 
   await writeLog(guild.id, ticket.id, "closed", member.id, { reason: reason ?? null });
   await sendClosedLog(guild, cfg, channel, member, ticket.user_id, transcript);
+  await sendClosureDm(
+    guild,
+    cfg,
+    ticket.id,
+    ticket.user_id,
+    member.id,
+    transcriptForDm,
+  );
 
   // renomeia opcionalmente
   await channel.setName(`closed-${ticket.username}`.slice(0, 90)).catch(() => {});
@@ -381,6 +393,35 @@ async function sendClosedLog(
     .catch(() => {});
 }
 
+async function sendClosureDm(
+  guild: Guild,
+  cfg: TicketConfig,
+  ticketId: string,
+  ownerId: string,
+  staffId: string,
+  transcript: import("discord.js").AttachmentBuilder | null,
+) {
+  try {
+    const user = await guild.client.users.fetch(ownerId);
+    const embed = brandEmbed({
+      kind: "info",
+      title: `🔒 Seu ticket em ${guild.name} foi fechado`,
+      description: cfg.close_message.replace(/\{staff\}/g, `<@${staffId}>`),
+    });
+    const payload: Parameters<typeof user.send>[0] = {
+      embeds: [embed],
+      files: transcript ? [transcript] : [],
+    };
+    if (cfg.rating_enabled) {
+      payload.components = [buildRatingActions(ticketId)];
+      embed.setFooter({ text: "Avalie nosso atendimento abaixo 💜" });
+    }
+    await user.send(payload);
+  } catch {
+    /* DM fechada — ignora */
+  }
+}
+
 /* ===================== BUTTON ENTRY POINT ===================== */
 
 export async function handleTicketButton(interaction: ButtonInteraction): Promise<void> {
@@ -523,6 +564,32 @@ export async function handleTicketButton(interaction: ButtonInteraction): Promis
     setTimeout(() => {
       channel.delete("Ticket excluído").catch(() => {});
     }, 5_000);
+    return;
+  }
+
+  if (action === "rate") {
+    const [, , ticketId, ratingStr] = interaction.customId.split(":");
+    const rating = Number.parseInt(ratingStr ?? "0", 10);
+    if (!ticketId || rating < 1 || rating > 5) return;
+    try {
+      await setTicketRating(ticketId, rating);
+      await writeLog(interaction.guild.id, ticketId, "rated", interaction.user.id, { rating });
+      await interaction.update({
+        embeds: [
+          brandEmbed({
+            kind: "success",
+            title: "💜 Obrigado pelo feedback!",
+            description: `Você avaliou o atendimento com ${"⭐".repeat(rating)}.`,
+          }),
+        ],
+        components: [],
+      });
+    } catch (err) {
+      await interaction.reply({
+        embeds: [brandEmbed({ kind: "error", title: "Erro", description: (err as Error).message })],
+        ephemeral: true,
+      });
+    }
     return;
   }
 }

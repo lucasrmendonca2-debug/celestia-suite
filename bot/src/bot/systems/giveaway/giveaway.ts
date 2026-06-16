@@ -18,8 +18,20 @@ export function giveawayEmbed(g: {
   participants: string[];
   ended?: boolean;
   winners?: string[];
+  requiredRoleId?: string | null;
+  minLevel?: number;
+  minAccountDays?: number;
+  minCoins?: number;
+  vipBonusEntries?: number;
 }) {
   const remaining = g.endsAt.getTime() - Date.now();
+  const reqs: string[] = [];
+  if (g.requiredRoleId) reqs.push(`Cargo <@&${g.requiredRoleId}>`);
+  if (g.minLevel) reqs.push(`Nível ≥ ${g.minLevel}`);
+  if (g.minAccountDays) reqs.push(`Conta ≥ ${g.minAccountDays}d`);
+  if (g.minCoins) reqs.push(`${g.minCoins} moedas`);
+  if (g.vipBonusEntries) reqs.push(`VIP: +${g.vipBonusEntries} entradas`);
+  const unique = new Set(g.participants).size;
   return brandEmbed({
     kind: g.ended ? "warn" : "default",
     title: `🎉 GIVEAWAY • ${g.prize}`,
@@ -32,8 +44,9 @@ export function giveawayEmbed(g: {
         )}:R>`,
     fields: [
       { name: "Vencedores", value: String(g.winnersCount), inline: true },
-      { name: "Participantes", value: String(g.participants.length), inline: true },
+      { name: "Participantes", value: String(unique), inline: true },
       { name: "Host", value: `<@${g.hostId}>`, inline: true },
+      ...(reqs.length ? [{ name: "Requisitos", value: reqs.join(" • ") }] : []),
     ],
   });
 }

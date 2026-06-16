@@ -4,8 +4,10 @@ import {
   ChatInputCommandInteraction,
   Guild,
   GuildMember,
+  Interaction,
   OverwriteType,
   PermissionFlagsBits,
+  StringSelectMenuInteraction,
   TextChannel,
 } from "discord.js";
 import { brandEmbed } from "../../utils/embed.js";
@@ -14,8 +16,12 @@ import {
   countOpenTickets,
   createTicketRow,
   findTicketByChannel,
+  getCategoryById,
   getTicketConfig,
+  listAccessLevels,
+  listPermissionRoles,
   writeLog,
+  type TicketCategory,
   type TicketConfig,
 } from "./ticket.service.js";
 import {
@@ -24,7 +30,11 @@ import {
   buildTicketActions,
   buildWelcomeEmbed,
 } from "./ticket.components.js";
-import { canMemberClose } from "./ticket.permissions.js";
+import {
+  canMemberClose,
+  canOpenCategory,
+  resolveAccessLevel,
+} from "./ticket.permissions.js";
 
 /* ===================== OPEN ===================== */
 

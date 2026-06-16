@@ -35,14 +35,14 @@ const command: SlashCommand = {
       acc.wallet += reward;
       await acc.save();
       await interaction.reply({
-        embeds: [brandEmbed({ kind: "success", title: "🦹 Crime bem-sucedido!", description: `Você fugiu com ${fmtCoins(reward, c.emoji, c.name)}` })],
+        embeds: [brandEmbed({ kind: "success", title: "🦹 Crime bem-sucedido!", description: `${pick(economyResponses.crimeWin)} ${fmtCoins(reward, c.emoji, c.name)}` })],
       });
     } else {
       const loss = Math.min(acc.wallet, Math.floor(200 + Math.random() * 500));
       acc.wallet -= loss;
       await acc.save();
       await interaction.reply({
-        embeds: [brandEmbed({ kind: "error", title: "🚓 Você foi pego!", description: `Pagou multa de ${fmtCoins(loss, c.emoji, c.name)}` })],
+        embeds: [brandEmbed({ kind: "error", title: "🚓 Você foi pego!", description: `${pick(economyResponses.crimeFail)} ${fmtCoins(loss, c.emoji, c.name)}` })],
       });
     }
   },

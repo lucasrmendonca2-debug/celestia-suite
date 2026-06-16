@@ -89,22 +89,43 @@ function TicketsPage() {
       description="Painel único, dinâmico e configurável. O bot lê tudo daqui em tempo real."
     >
       <div className="grid gap-3 sm:grid-cols-3">
-        <StatCard label="Tickets abertos agora" value={stats.open} />
-        <StatCard label="Total já criados" value={stats.total} />
+        <StatCard
+          label="Tickets abertos agora"
+          value={stats.open}
+          icon={Inbox}
+          accent="from-violet-500/20 to-fuchsia-500/10 text-violet-300"
+        />
+        <StatCard
+          label="Total já criados"
+          value={stats.total}
+          icon={Activity}
+          accent="from-sky-500/20 to-cyan-500/10 text-sky-300"
+        />
         <StatCard
           label="Status do sistema"
-          value={config.enabled ? "🟢 Ativo" : "🔴 Desativado"}
+          value={config.enabled ? "Ativo" : "Desativado"}
+          icon={Power}
+          accent={
+            config.enabled
+              ? "from-emerald-500/25 to-emerald-500/5 text-emerald-300"
+              : "from-rose-500/20 to-rose-500/5 text-rose-300"
+          }
+          badge={config.enabled ? "online" : "offline"}
         />
       </div>
 
+      <SetupChecklist config={config} />
+
       <Tabs defaultValue="general" className="mt-6">
-        <TabsList className="flex w-full flex-wrap justify-start">
-          {TABS.map((t) => (
-            <TabsTrigger key={t.value} value={t.value}>
-              {t.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="-mx-1 overflow-x-auto pb-1">
+          <TabsList className="inline-flex h-auto flex-nowrap justify-start gap-1 bg-card/40 p-1">
+            {TABS.map((t) => (
+              <TabsTrigger key={t.value} value={t.value} className="whitespace-nowrap data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                {t.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
         <TabsContent value="general" className="mt-6">
           <GeneralTab guildId={guildId} initial={config} />

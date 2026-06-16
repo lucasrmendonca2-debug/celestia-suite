@@ -304,42 +304,6 @@ export const seedTicketTemplates = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true, inserted: rows.length };
   });
-      embeds: [
-        {
-          title: cfg.panel_title,
-          description: cfg.panel_description,
-          color: cfg.panel_color,
-        },
-      ],
-      components,
-    };
-
-    const res = await fetch(
-      `https://discord.com/api/v10/channels/${channelId}/messages`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bot ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      },
-    );
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new Error(
-        `Discord recusou (${res.status}). Confira se o bot está no servidor e tem acesso ao canal. ${text.slice(0, 200)}`,
-      );
-    }
-    const msg = (await res.json()) as { id: string };
-
-    await sb
-      .from("ticket_configs")
-      .update({ panel_channel_id: channelId, panel_message_id: msg.id })
-      .eq("guild_id", data.guildId);
-
-    return { ok: true, channelId, messageId: msg.id };
-  });
 
 /* =====================================================================
  * FASE 2 — Categorias, Permissões por cargo e Níveis de acesso

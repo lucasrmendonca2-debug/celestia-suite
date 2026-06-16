@@ -1,15 +1,17 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Crown, Gift, Sparkles } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getGuildPremiumStatus,
+  getPremiumGuildConfig,
   listPremiumAuditLogs,
   listPremiumPlans,
   redeemGuildCode,
+  updatePremiumGuildConfig,
 } from "@/lib/guild/premium.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
 import { Button } from "@/components/ui/button";
@@ -76,9 +78,16 @@ function PremiumPage() {
     queryKey: ["premium-audit", guildId],
     queryFn: () => listPremiumAuditLogs({ data: { guildId } }),
   });
+  const { data: config } = useQuery({
+    queryKey: ["premium-config", guildId],
+    queryFn: () => getPremiumGuildConfig({ data: { guildId } }),
+  });
 
   const redeemFn = useServerFn(redeemGuildCode);
+  const updateCfgFn = useServerFn(updatePremiumGuildConfig);
   const [code, setCode] = useState("");
+  const [vipRoleId, setVipRoleId] = useState("");
+  const [premiumRoleId, setPremiumRoleId] = useState("");
 
   const redeem = useMutation({
     mutationFn: async () => redeemFn({ data: { guildId, code } }),
@@ -94,6 +103,30 @@ function PremiumPage() {
     },
     onError: (err: Error) => toast.error(err.message),
   });
+
+  const saveConfig = useMutation({
+    mutationFn: async () =>
+      updateCfgFn({
+        data: {
+          guildId,
+          vip_role_id: vipRoleId.trim() || null,
+          premium_role_id: premiumRoleId.trim() || null,
+        },
+      }),
+    onSuccess: () => {
+      toast.success("Configuração salva.");
+      qc.invalidateQueries({ queryKey: ["premium-config", guildId] });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  useEffect(() => {
+    if (config) {
+      setVipRoleId(config.vip_role_id ?? "");
+      setPremiumRoleId(config.premium_role_id ?? "");
+    }
+  }, [config]);
+
 
   const active = status?.subscription as
     | (typeof status.subscription & { plan?: { name: string; description: string; features: Record<string, unknown> } })
@@ -116,6 +149,7 @@ function PremiumPage() {
           <TabsTrigger value="benefits">Benefícios</TabsTrigger>
           <TabsTrigger value="plans">Planos</TabsTrigger>
           <TabsTrigger value="codes">Códigos</TabsTrigger>
+          <TabsTrigger value="config">Configuração</TabsTrigger>
           <TabsTrigger value="logs">Logs</TabsTrigger>
         </TabsList>
 
@@ -230,6 +264,43 @@ function PremiumPage() {
                 disabled={!code.trim() || redeem.isPending}
               >
                 {redeem.isPending ? "Ativando..." : "Resgatar"}
+              </Button>
+            </div>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="config" className="space-y-4">
+          <Card className="p-6 space-y-4">
+            <div>
+              <h3 className="font-semibold">Cargos automáticos</h3>
+              <p className="text-sm text-muted-foreground">
+                IDs dos cargos atribuídos automaticamente a membros VIP e quando o servidor é premium.
+                O bot precisa ter permissão de gerenciar cargos e o cargo dele deve estar acima.
+              </p>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="vipRole">Cargo VIP (usuário)</Label>
+                <Input
+                  id="vipRole"
+                  placeholder="123456789012345678"
+                  value={vipRoleId}
+                  onChange={(e) => setVipRoleId(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="premiumRole">Cargo Premium (servidor)</Label>
+                <Input
+                  id="premiumRole"
+                  placeholder="123456789012345678"
+                  value={premiumRoleId}
+                  onChange={(e) => setPremiumRoleId(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end">
+              <Button onClick={() => saveConfig.mutate()} disabled={saveConfig.isPending}>
+                {saveConfig.isPending ? "Salvando..." : "Salvar configuração"}
               </Button>
             </div>
           </Card>

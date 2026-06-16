@@ -58,6 +58,48 @@ export const listPremiumAuditLogs = createServerFn({ method: "GET" })
     return rows ?? [];
   });
 
+const roleIdSchema = z.string().regex(/^\d{5,32}$/).nullable();
+
+export const getPremiumGuildConfig = createServerFn({ method: "GET" })
+  .inputValidator((d: { guildId: string }) => z.object({ guildId: guildIdSchema }).parse(d))
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { data: row } = await sb
+      .from("premium_guild_config")
+      .select("*")
+      .eq("guild_id", data.guildId)
+      .maybeSingle();
+    return row ?? { guild_id: data.guildId, vip_role_id: null, premium_role_id: null };
+  });
+
+export const updatePremiumGuildConfig = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        guildId: guildIdSchema,
+        vip_role_id: roleIdSchema.optional(),
+        premium_role_id: roleIdSchema.optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const payload = {
+      guild_id: data.guildId,
+      ...(data.vip_role_id !== undefined ? { vip_role_id: data.vip_role_id } : {}),
+      ...(data.premium_role_id !== undefined ? { premium_role_id: data.premium_role_id } : {}),
+    };
+    const { data: row, error } = await sb
+      .from("premium_guild_config")
+      .upsert(payload, { onConflict: "guild_id" })
+      .select("*")
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
 const RedeemInput = z.object({
   guildId: guildIdSchema,
   code: z.string().min(8).max(64),

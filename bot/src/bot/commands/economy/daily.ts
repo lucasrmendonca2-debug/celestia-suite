@@ -34,8 +34,10 @@ const command: SlashCommand = {
     }
 
     const vipMult = (await isVip(interaction.guildId!, interaction.user.id)) ? cfg.economyVipMultiplier : 1;
+    const { getUserVipMultiplier } = await import("../../systems/premium/premium.features.js");
+    const premiumMult = await getUserVipMultiplier(interaction.user.id, interaction.guildId, "daily").catch(() => 1);
     const streakBonus = Math.min(acc.streakDaily, 7) * 50;
-    const amount = Math.floor((cfg.economyDailyAmount + streakBonus) * vipMult);
+    const amount = Math.floor((cfg.economyDailyAmount + streakBonus) * vipMult * premiumMult);
 
     acc.wallet += amount;
     acc.lastDaily = now;

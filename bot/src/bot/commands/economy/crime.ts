@@ -28,7 +28,9 @@ const command: SlashCommand = {
     acc.lastCrime = now;
     const success = Math.random() < 0.6;
     if (success) {
-      const reward = Math.floor(300 + Math.random() * 800);
+      const { getUserVipMultiplier } = await import("../../systems/premium/premium.features.js");
+      const premiumMult = await getUserVipMultiplier(interaction.user.id, interaction.guildId, "crime").catch(() => 1);
+      const reward = Math.floor((300 + Math.random() * 800) * premiumMult);
       acc.wallet += reward;
       await acc.save();
       await interaction.reply({

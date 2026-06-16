@@ -574,7 +574,7 @@ export const updatePanelWebhook = createServerFn({ method: "POST" })
         "Discord recusou ao atualizar o webhook",
       );
     }
-    const update: Record<string, unknown> = {};
+    const update: { webhook_name?: string; webhook_avatar_url?: string | null } = {};
     if (data.name !== undefined) update.webhook_name = data.name;
     if (data.avatarUrl !== undefined) update.webhook_avatar_url = data.avatarUrl;
     if (Object.keys(update).length) {

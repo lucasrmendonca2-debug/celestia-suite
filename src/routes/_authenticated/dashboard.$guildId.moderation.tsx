@@ -266,7 +266,8 @@ function GeneralTab({
           log_channel_id: emptyToNull(form.log_channel_id),
           mute_role_id: emptyToNull(form.mute_role_id),
           max_warnings: Number(form.max_warnings) || 3,
-          default_warn_punishment: form.default_warn_punishment,
+          default_warn_punishment: form.default_warn_punishment as
+            | "none" | "mute" | "kick" | "ban" | "temp_mute" | "temp_ban",
           default_warn_punishment_duration:
             Number(form.default_warn_punishment_duration) || 3600,
           default_mute_duration: Number(form.default_mute_duration) || 600,

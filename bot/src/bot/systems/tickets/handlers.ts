@@ -369,6 +369,9 @@ export async function handleTicketSelect(
   interaction: StringSelectMenuInteraction,
 ): Promise<void> {
   if (!interaction.guild) return;
+  // Acknowledge within 3s — channel creation can take longer than Discord's
+  // interaction timeout, which surfaces as "Esta interação falhou".
+  await interaction.deferReply({ ephemeral: true }).catch(() => {});
   const categoryId = interaction.values[0];
   try {
     const { channelId } = await openTicket(
@@ -376,7 +379,7 @@ export async function handleTicketSelect(
       interaction.member as GuildMember,
       categoryId,
     );
-    await interaction.reply({
+    await interaction.editReply({
       embeds: [
         brandEmbed({
           kind: "success",
@@ -384,10 +387,9 @@ export async function handleTicketSelect(
           description: `Seu ticket foi criado em <#${channelId}>.`,
         }),
       ],
-      ephemeral: true,
     });
   } catch (err) {
-    await interaction.reply({
+    await interaction.editReply({
       embeds: [
         brandEmbed({
           kind: "error",
@@ -395,7 +397,6 @@ export async function handleTicketSelect(
           description: (err as Error).message,
         }),
       ],
-      ephemeral: true,
     });
   }
 }

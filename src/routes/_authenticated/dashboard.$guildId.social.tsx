@@ -548,3 +548,68 @@ function SaveBar({ onClick, loading }: { onClick: () => void; loading: boolean }
     </div>
   );
 }
+
+function RankCardPreview({
+  accent,
+  background,
+  text,
+  style,
+}: {
+  accent: string;
+  background: string;
+  text: string;
+  style: "default" | "minimal" | "gradient";
+}) {
+  const muted = text + "99";
+  const bgStyle =
+    style === "gradient"
+      ? { background: `linear-gradient(90deg, ${background} 0%, ${accent}55 100%)` }
+      : { background };
+  const border = style === "minimal" ? `1px solid ${accent}88` : "none";
+  return (
+    <div
+      className="rounded-2xl p-5 flex items-center gap-5 shadow-inner"
+      style={{ ...bgStyle, border, color: text, minHeight: 140 }}
+    >
+      <div
+        className="size-20 rounded-full shrink-0"
+        style={{ background: accent, boxShadow: `0 0 0 3px ${accent}` }}
+      />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline justify-between gap-3">
+          <div>
+            <div className="font-bold text-lg truncate" style={{ color: text }}>
+              Nome do membro
+            </div>
+            <div className="text-sm truncate" style={{ color: muted }}>
+              Título personalizado
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <div className="text-xs uppercase" style={{ color: muted }}>Rank #1</div>
+            <div className="font-bold text-2xl leading-none" style={{ color: accent }}>LVL 42</div>
+          </div>
+        </div>
+        <div className="mt-3">
+          <div
+            className="h-3 w-full rounded-full overflow-hidden"
+            style={{ background: text + "14" }}
+          >
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: "65%",
+                background:
+                  style === "minimal" ? accent : `linear-gradient(90deg, ${accent}, ${text})`,
+              }}
+            />
+          </div>
+          <div className="mt-1 flex justify-between text-xs" style={{ color: muted }}>
+            <span>650 / 1.000 XP</span>
+            <span>Total 12.350 XP</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -16,6 +16,7 @@ import {
   Award,
   Trophy,
   Crown,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import { getGuildPremiumStatus } from "@/lib/guild/premium.functions";
@@ -64,6 +65,7 @@ const SECTIONS: { title: string; items: Item[] }[] = [
       { to: "achievements", label: "Conquistas", icon: Trophy },
       { to: "seasons", label: "Temporadas", icon: Trophy },
       { to: "economy", label: "Economia", icon: Coins },
+      { to: "community", label: "Comunidade", icon: Users },
     ],
   },
   {

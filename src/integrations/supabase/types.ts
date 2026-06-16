@@ -271,6 +271,54 @@ export type Database = {
         }
         Relationships: []
       }
+      community_config: {
+        Row: {
+          created_at: string
+          guild_id: string
+          polls_allow_anonymous: boolean
+          polls_enabled: boolean
+          polls_log_channel_id: string | null
+          polls_max_options: number
+          suggestions_allow_anonymous: boolean
+          suggestions_allow_voting: boolean
+          suggestions_channel_id: string | null
+          suggestions_enabled: boolean
+          suggestions_log_channel_id: string | null
+          suggestions_require_reason: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          guild_id: string
+          polls_allow_anonymous?: boolean
+          polls_enabled?: boolean
+          polls_log_channel_id?: string | null
+          polls_max_options?: number
+          suggestions_allow_anonymous?: boolean
+          suggestions_allow_voting?: boolean
+          suggestions_channel_id?: string | null
+          suggestions_enabled?: boolean
+          suggestions_log_channel_id?: string | null
+          suggestions_require_reason?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          guild_id?: string
+          polls_allow_anonymous?: boolean
+          polls_enabled?: boolean
+          polls_log_channel_id?: string | null
+          polls_max_options?: number
+          suggestions_allow_anonymous?: boolean
+          suggestions_allow_voting?: boolean
+          suggestions_channel_id?: string | null
+          suggestions_enabled?: boolean
+          suggestions_log_channel_id?: string | null
+          suggestions_require_reason?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       custom_commands: {
         Row: {
           created_at: string
@@ -1161,6 +1209,89 @@ export type Database = {
         }
         Relationships: []
       }
+      poll_votes: {
+        Row: {
+          created_at: string
+          guild_id: string
+          id: string
+          option_index: number
+          poll_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          guild_id: string
+          id?: string
+          option_index: number
+          poll_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          guild_id?: string
+          id?: string
+          option_index?: number
+          poll_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poll_votes_poll_id_fkey"
+            columns: ["poll_id"]
+            isOneToOne: false
+            referencedRelation: "polls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      polls: {
+        Row: {
+          anonymous: boolean
+          channel_id: string
+          created_at: string
+          created_by: string
+          ends_at: string | null
+          guild_id: string
+          id: string
+          message_id: string | null
+          multiple_choice: boolean
+          options: Json
+          question: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          anonymous?: boolean
+          channel_id: string
+          created_at?: string
+          created_by: string
+          ends_at?: string | null
+          guild_id: string
+          id?: string
+          message_id?: string | null
+          multiple_choice?: boolean
+          options: Json
+          question: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          anonymous?: boolean
+          channel_id?: string
+          created_at?: string
+          created_by?: string
+          ends_at?: string | null
+          guild_id?: string
+          id?: string
+          message_id?: string | null
+          multiple_choice?: boolean
+          options?: Json
+          question?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       premium_activation_codes: {
         Row: {
           active: boolean
@@ -1855,6 +1986,92 @@ export type Database = {
           title?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      suggestion_votes: {
+        Row: {
+          created_at: string
+          guild_id: string
+          id: string
+          suggestion_id: string
+          user_id: string
+          vote_type: string
+        }
+        Insert: {
+          created_at?: string
+          guild_id: string
+          id?: string
+          suggestion_id: string
+          user_id: string
+          vote_type: string
+        }
+        Update: {
+          created_at?: string
+          guild_id?: string
+          id?: string
+          suggestion_id?: string
+          user_id?: string
+          vote_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "suggestion_votes_suggestion_id_fkey"
+            columns: ["suggestion_id"]
+            isOneToOne: false
+            referencedRelation: "suggestions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suggestions: {
+        Row: {
+          author_id: string
+          channel_id: string
+          content: string
+          created_at: string
+          decided_by: string | null
+          decision_reason: string | null
+          downvotes: number
+          guild_id: string
+          id: string
+          message_id: string | null
+          staff_response: string | null
+          status: string
+          updated_at: string
+          upvotes: number
+        }
+        Insert: {
+          author_id: string
+          channel_id: string
+          content: string
+          created_at?: string
+          decided_by?: string | null
+          decision_reason?: string | null
+          downvotes?: number
+          guild_id: string
+          id?: string
+          message_id?: string | null
+          staff_response?: string | null
+          status?: string
+          updated_at?: string
+          upvotes?: number
+        }
+        Update: {
+          author_id?: string
+          channel_id?: string
+          content?: string
+          created_at?: string
+          decided_by?: string | null
+          decision_reason?: string | null
+          downvotes?: number
+          guild_id?: string
+          id?: string
+          message_id?: string | null
+          staff_response?: string | null
+          status?: string
+          updated_at?: string
+          upvotes?: number
         }
         Relationships: []
       }

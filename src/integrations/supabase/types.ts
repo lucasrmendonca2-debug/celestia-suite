@@ -2038,6 +2038,63 @@ export type Database = {
         }
         Relationships: []
       }
+      shop_rotation_config: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          guild_id: string
+          max_discount_pct: number
+          rotation_hours: number
+          slot_count: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          guild_id: string
+          max_discount_pct?: number
+          rotation_hours?: number
+          slot_count?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          guild_id?: string
+          max_discount_pct?: number
+          rotation_hours?: number
+          slot_count?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      shop_rotations: {
+        Row: {
+          created_at: string
+          discount_pct: number
+          expires_at: string
+          guild_id: string
+          id: string
+          item_name: string
+        }
+        Insert: {
+          created_at?: string
+          discount_pct?: number
+          expires_at: string
+          guild_id: string
+          id?: string
+          item_name: string
+        }
+        Update: {
+          created_at?: string
+          discount_pct?: number
+          expires_at?: string
+          guild_id?: string
+          id?: string
+          item_name?: string
+        }
+        Relationships: []
+      }
       social_config: {
         Row: {
           achievements_enabled: boolean

@@ -398,6 +398,18 @@ function GeneralTab({
             placeholder="Selecione o canal de logs"
           />
         </PickerField>
+        <PickerField
+          label="Canal de avaliações"
+          hint="Quando vazio, usa o canal de logs. As avaliações dos usuários são postadas aqui."
+        >
+          <ChannelPicker
+            guildId={guildId}
+            value={form.rating_channel_id ?? null}
+            onChange={(v) => setForm({ ...form, rating_channel_id: v })}
+            types={[0, 5]}
+            placeholder="Selecione o canal de avaliações"
+          />
+        </PickerField>
       </SectionCard>
 
       <SectionCard title="Limites e comportamento">

@@ -244,7 +244,12 @@ function GeneralTab({
           enabled_log_events: form.enabled_log_events ?? [],
         },
       }),
-    onSuccess: () => {
+    onSuccess: (saved) => {
+      setForm({
+        ...saved,
+        default_warn_punishment: (saved.default_warn_punishment ?? "none") as WarnPun,
+      });
+      qc.setQueryData(["moderation-config", guildId], saved);
       toast.success("Configuração de moderação salva!");
       qc.invalidateQueries({ queryKey: ["moderation-config", guildId] });
     },

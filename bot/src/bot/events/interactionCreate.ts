@@ -9,6 +9,7 @@ import { brandEmbed } from "../utils/embed.js";
 import { Msg } from "../utils/messages.js";
 import { checkPermissions, denyWith } from "../guards/permissions.js";
 import { consumeCooldown } from "../guards/cooldown.js";
+import { checkCommandPermission } from "../guards/commandPermissions.js";
 import { ensureGuild, ensureUser } from "../utils/guildCache.js";
 import { handleTicketButton, handleTicketSelect } from "../systems/tickets/handlers.js";
 import { handleGiveawayButton } from "../systems/giveaway/giveaway.js";
@@ -59,8 +60,20 @@ const event: BotEvent<"interactionCreate"> = {
       const perm = checkPermissions(ix, cmd);
       if (!perm.ok) return denyWith(ix, perm.reason ?? Msg.missingPerm("necessária"));
 
-      if (cmd.cooldown && ix.guildId) {
-        const cd = await consumeCooldown(ix, cmd.data.name, cmd.cooldown);
+      // Permissões por comando configuradas no dashboard
+      const member = ix.guild && ix.member ? await ix.guild.members.fetch(ix.user.id).catch(() => null) : null;
+      const cmdPerm = await checkCommandPermission(ix, {
+        member,
+        channelId: ix.channelId,
+        isStaff: member?.permissions.has("ManageGuild") ?? false,
+        isVip: false, // TODO: integrar com sistema VIP no Pass D
+        isPremiumGuild: false, // TODO: integrar com premium_guild_config
+      });
+      if (!cmdPerm.ok) return denyWith(ix, cmdPerm.reason);
+
+      const cooldown = cmdPerm.cooldownOverride ?? cmd.cooldown;
+      if (cooldown && ix.guildId) {
+        const cd = await consumeCooldown(ix, cmd.data.name, cooldown);
         if (!cd.ok) {
           const seconds = Math.ceil((cd.remainingMs ?? 0) / 1000);
           return denyWith(ix, Msg.cooldown(seconds));

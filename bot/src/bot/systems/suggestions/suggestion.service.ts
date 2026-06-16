@@ -52,7 +52,7 @@ export function suggestionEmbed(s: SuggestionRow): EmbedBuilder {
     title: `${meta.emoji} Sugestão · ${meta.label}`,
     description: s.content,
     fields: [
-      { name: "Autor", value: `<@${s.author_id}>`, inline: true },
+      { name: "Autor", value: s.anonymous ? "🕵️ Anônimo" : `<@${s.author_id}>`, inline: true },
       { name: "👍 / 👎", value: `${s.upvotes} / ${s.downvotes}`, inline: true },
       ...(s.staff_response ? [{ name: "Resposta da staff", value: s.staff_response }] : []),
       ...(s.decision_reason ? [{ name: "Motivo da decisão", value: s.decision_reason }] : []),

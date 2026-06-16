@@ -12,6 +12,7 @@ import {
 } from "discord.js";
 import { brandEmbed } from "../../utils/embed.js";
 import {
+  claimTicketRow,
   closeTicketRow,
   countOpenTickets,
   createTicketRow,
@@ -339,15 +340,47 @@ export async function handleTicketButton(interaction: ButtonInteraction): Promis
   }
 
   if (action === "claim") {
-    await interaction.reply({
-      embeds: [
-        brandEmbed({
-          kind: "info",
-          title: "Assumido",
-          description: `<@${interaction.user.id}> assumiu este ticket. (em breve: persistência)`,
-        }),
-      ],
-    });
+    try {
+      const channel = interaction.channel as TextChannel;
+      const ticket = await findTicketByChannel(channel.id);
+      if (!ticket || ticket.status !== "open") {
+        throw new Error("Este canal não é um ticket aberto.");
+      }
+      const member = interaction.member as GuildMember;
+      const cfg = await getTicketConfig(interaction.guild.id);
+      const isStaff =
+        member.permissions.has(PermissionFlagsBits.ManageChannels) ||
+        (!!cfg.default_support_role_id &&
+          member.roles.cache.has(cfg.default_support_role_id));
+      if (!isStaff) {
+        throw new Error("Apenas a equipe de suporte pode assumir tickets.");
+      }
+      if (ticket.claimed_by && ticket.claimed_by !== member.id) {
+        throw new Error(`Este ticket já foi assumido por <@${ticket.claimed_by}>.`);
+      }
+      await claimTicketRow(ticket.id, member.id);
+      await writeLog(interaction.guild.id, ticket.id, "claimed", member.id, {});
+      await interaction.reply({
+        embeds: [
+          brandEmbed({
+            kind: "success",
+            title: "✋ Ticket assumido",
+            description: `<@${member.id}> agora é responsável por este atendimento.`,
+          }),
+        ],
+      });
+    } catch (err) {
+      await interaction.reply({
+        embeds: [
+          brandEmbed({
+            kind: "error",
+            title: "Não foi possível assumir",
+            description: (err as Error).message,
+          }),
+        ],
+        ephemeral: true,
+      });
+    }
   }
 }
 

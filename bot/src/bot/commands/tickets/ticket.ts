@@ -16,6 +16,7 @@ import {
 } from "../../systems/tickets/handlers.js";
 import {
   getTicketConfig,
+  listActiveCategories,
   setPanelMessage,
 } from "../../systems/tickets/ticket.service.js";
 import {
@@ -122,9 +123,10 @@ async function runPainel(interaction: ChatInputCommandInteraction) {
     return;
   }
 
+  const categories = await listActiveCategories(interaction.guildId!);
   const msg = await target.send({
     embeds: [buildPanelEmbed(cfg, interaction.guild!.name)],
-    components: buildPanelComponents(cfg),
+    components: buildPanelComponents(cfg, categories),
   });
 
   await setPanelMessage(interaction.guildId!, target.id, msg.id);

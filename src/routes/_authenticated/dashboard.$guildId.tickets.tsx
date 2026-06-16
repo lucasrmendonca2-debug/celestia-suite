@@ -3,7 +3,7 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Ticket, Save, AlertCircle, Send, Pencil, Trash2 } from "lucide-react";
+import { Ticket, Save, AlertCircle, Send, Pencil, Trash2, Inbox, Activity, Power, CheckCircle2, Circle, Sparkles } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getTicketConfig,
@@ -89,22 +89,43 @@ function TicketsPage() {
       description="Painel único, dinâmico e configurável. O bot lê tudo daqui em tempo real."
     >
       <div className="grid gap-3 sm:grid-cols-3">
-        <StatCard label="Tickets abertos agora" value={stats.open} />
-        <StatCard label="Total já criados" value={stats.total} />
+        <StatCard
+          label="Tickets abertos agora"
+          value={stats.open}
+          icon={Inbox}
+          accent="from-violet-500/20 to-fuchsia-500/10 text-violet-300"
+        />
+        <StatCard
+          label="Total já criados"
+          value={stats.total}
+          icon={Activity}
+          accent="from-sky-500/20 to-cyan-500/10 text-sky-300"
+        />
         <StatCard
           label="Status do sistema"
-          value={config.enabled ? "🟢 Ativo" : "🔴 Desativado"}
+          value={config.enabled ? "Ativo" : "Desativado"}
+          icon={Power}
+          accent={
+            config.enabled
+              ? "from-emerald-500/25 to-emerald-500/5 text-emerald-300"
+              : "from-rose-500/20 to-rose-500/5 text-rose-300"
+          }
+          badge={config.enabled ? "online" : "offline"}
         />
       </div>
 
+      <SetupChecklist config={config} />
+
       <Tabs defaultValue="general" className="mt-6">
-        <TabsList className="flex w-full flex-wrap justify-start">
-          {TABS.map((t) => (
-            <TabsTrigger key={t.value} value={t.value}>
-              {t.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div className="-mx-1 overflow-x-auto pb-1">
+          <TabsList className="inline-flex h-auto flex-nowrap justify-start gap-1 bg-card/40 p-1">
+            {TABS.map((t) => (
+              <TabsTrigger key={t.value} value={t.value} className="whitespace-nowrap data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                {t.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
         <TabsContent value="general" className="mt-6">
           <GeneralTab guildId={guildId} initial={config} />
@@ -134,11 +155,90 @@ function TicketsPage() {
   );
 }
 
-function StatCard({ label, value }: { label: string; value: number | string }) {
+function StatCard({
+  label,
+  value,
+  icon: Icon,
+  accent,
+  badge,
+}: {
+  label: string;
+  value: number | string;
+  icon?: React.ComponentType<{ className?: string }>;
+  accent?: string;
+  badge?: string;
+}) {
   return (
-    <div className="rounded-xl border border-border bg-card/50 p-4 backdrop-blur">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 text-2xl font-semibold">{value}</p>
+    <div className="relative overflow-hidden rounded-xl border border-border bg-card/50 p-4 backdrop-blur">
+      <div
+        className={`pointer-events-none absolute inset-0 bg-gradient-to-br opacity-70 ${accent ?? "from-transparent to-transparent"}`}
+      />
+      <div className="relative flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs text-muted-foreground">{label}</p>
+          <p className="mt-1 text-2xl font-semibold tracking-tight">{value}</p>
+          {badge && (
+            <span className="mt-2 inline-flex items-center gap-1 rounded-full border border-border bg-background/60 px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+              <span className="size-1.5 rounded-full bg-current" /> {badge}
+            </span>
+          )}
+        </div>
+        {Icon && (
+          <div className="rounded-lg border border-border bg-background/40 p-2">
+            <Icon className="size-4" />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SetupChecklist({
+  config,
+}: {
+  config: { enabled: boolean; panel_channel_id: string | null; category_id: string | null; default_support_role_id: string | null; log_channel_id: string | null; panel_message_id: string | null };
+}) {
+  const steps = [
+    { ok: config.enabled, label: "Sistema ativado" },
+    { ok: !!config.panel_channel_id, label: "Canal do painel definido" },
+    { ok: !!config.category_id, label: "Categoria do Discord definida" },
+    { ok: !!config.default_support_role_id, label: "Cargo de suporte definido" },
+    { ok: !!config.log_channel_id, label: "Canal de logs definido" },
+    { ok: !!config.panel_message_id, label: "Painel publicado" },
+  ];
+  const done = steps.filter((s) => s.ok).length;
+  const pct = Math.round((done / steps.length) * 100);
+  return (
+    <div className="mt-3 rounded-xl border border-border bg-card/40 p-4">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Sparkles className="size-4 text-primary" />
+          <h3 className="text-sm font-semibold">Checklist de configuração</h3>
+        </div>
+        <span className="text-xs text-muted-foreground">
+          {done}/{steps.length} concluídos
+        </span>
+      </div>
+      <div className="mb-3 h-1.5 w-full overflow-hidden rounded-full bg-background/60">
+        <div
+          className="h-full bg-gradient-to-r from-primary to-fuchsia-500 transition-all"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <ul className="grid gap-1 sm:grid-cols-2">
+        {steps.map((s) => (
+          <li key={s.label} className="flex items-center gap-2 text-xs">
+            {s.ok ? (
+              <CheckCircle2 className="size-3.5 text-emerald-400" />
+            ) : (
+              <Circle className="size-3.5 text-muted-foreground" />
+            )}
+            <span className={s.ok ? "text-foreground" : "text-muted-foreground"}>
+              {s.label}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
@@ -421,24 +521,28 @@ function GeneralTab({
       <ActiveTicketsCard guildId={guildId} />
       <WebhookCard guildId={guildId} cfg={form} />
 
-      <div className="sticky bottom-4 flex flex-wrap items-center justify-end gap-2">
-        <DeletePanelButton guildId={guildId} disabled={mutation.isPending} hasPanel={!!form.panel_message_id} />
-        <SendPanelButton guildId={guildId} disabled={mutation.isPending} mode="edit" hasPanel={!!form.panel_message_id} />
-        <SendPanelButton guildId={guildId} disabled={mutation.isPending} mode="send" />
-        <Button
-          type="submit"
-          size="lg"
-          disabled={mutation.isPending}
-          className="gap-2 shadow-lg"
-        >
-          <Save className="size-4" />
-          {mutation.isPending ? "Salvando..." : "Salvar configurações"}
-        </Button>
+      <div className="sticky bottom-4 z-10 rounded-xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur supports-[backdrop-filter]:bg-card/60">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs text-muted-foreground">
+            💡 Salve antes de <strong>enviar</strong> ou <strong>editar</strong> o painel.
+          </p>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <DeletePanelButton guildId={guildId} disabled={mutation.isPending} hasPanel={!!form.panel_message_id} />
+            <SendPanelButton guildId={guildId} disabled={mutation.isPending} mode="edit" hasPanel={!!form.panel_message_id} />
+            <SendPanelButton guildId={guildId} disabled={mutation.isPending} mode="send" />
+            <Button
+              type="submit"
+              size="lg"
+              disabled={mutation.isPending}
+              className="gap-2 shadow-lg"
+            >
+              <Save className="size-4" />
+              {mutation.isPending ? "Salvando..." : "Salvar"}
+            </Button>
+          </div>
+        </div>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        💡 Salve as configurações antes de <strong>enviar</strong> ou <strong>editar</strong> o painel.
-      </p>
     </form>
   );
 }

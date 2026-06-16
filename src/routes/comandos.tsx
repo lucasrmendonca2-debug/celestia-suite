@@ -410,12 +410,40 @@ const CATEGORIES: Cat[] = [
   },
 ];
 
-const KIND_STYLES: Record<NonNullable<EmbedPreview["kind"]>, string> = {
-  success: "border-l-emerald-500",
-  error: "border-l-red-500",
-  warn: "border-l-amber-500",
-  info: "border-l-primary",
-  fun: "border-l-fuchsia-500",
+const KIND_STYLES: Record<
+  NonNullable<EmbedPreview["kind"]>,
+  { bar: string; chip: string; glow: string; label: string }
+> = {
+  success: {
+    bar: "bg-emerald-500",
+    chip: "bg-emerald-500/15 text-emerald-400 ring-emerald-500/30",
+    glow: "shadow-[0_0_60px_-20px_rgba(16,185,129,0.45)]",
+    label: "Success",
+  },
+  error: {
+    bar: "bg-rose-500",
+    chip: "bg-rose-500/15 text-rose-400 ring-rose-500/30",
+    glow: "shadow-[0_0_60px_-20px_rgba(244,63,94,0.45)]",
+    label: "Error",
+  },
+  warn: {
+    bar: "bg-amber-500",
+    chip: "bg-amber-500/15 text-amber-400 ring-amber-500/30",
+    glow: "shadow-[0_0_60px_-20px_rgba(245,158,11,0.45)]",
+    label: "Warn",
+  },
+  info: {
+    bar: "bg-primary",
+    chip: "bg-primary/15 text-primary ring-primary/30",
+    glow: "shadow-[0_0_60px_-20px_hsl(var(--primary)/0.55)]",
+    label: "Info",
+  },
+  fun: {
+    bar: "bg-fuchsia-500",
+    chip: "bg-fuchsia-500/15 text-fuchsia-400 ring-fuchsia-500/30",
+    glow: "shadow-[0_0_60px_-20px_rgba(217,70,239,0.45)]",
+    label: "Fun",
+  },
 };
 
 function CommandsPage() {

@@ -118,6 +118,7 @@ const TicketConfigInput = z.object({
   category_id: snowflakeNullable,
   default_support_role_id: snowflakeNullable,
   log_channel_id: snowflakeNullable,
+  rating_channel_id: snowflakeNullable,
   max_open_tickets_per_user: z.number().int().min(1).max(20),
   panel_title: z.string().min(1).max(255),
   panel_description: z.string().min(1).max(4000),

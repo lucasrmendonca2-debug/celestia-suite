@@ -150,15 +150,20 @@ export const sendTicketPanel = createServerFn({ method: "POST" })
     const channelId = data.channelId ?? cfg.panel_channel_id;
     if (!channelId) throw new Error("Defina o canal do painel antes de enviar.");
 
-    const body = {
-      embeds: [
-        {
-          title: cfg.panel_title,
-          description: cfg.panel_description,
-          color: cfg.panel_color,
-        },
-      ],
-      components: [
+    // Carrega categorias ativas pra montar painel multi-categoria (fase 2)
+    const { data: cats } = await sb
+      .from("ticket_categories")
+      .select("id,name,emoji,active,priority,position")
+      .eq("guild_id", data.guildId)
+      .eq("active", true)
+      .order("position", { ascending: true })
+      .order("created_at", { ascending: true });
+
+    const activeCats = cats ?? [];
+
+    let components: unknown[];
+    if (activeCats.length === 0) {
+      components = [
         {
           type: 1,
           components: [
@@ -173,7 +178,49 @@ export const sendTicketPanel = createServerFn({ method: "POST" })
             },
           ],
         },
+      ];
+    } else if (activeCats.length <= 5) {
+      components = [
+        {
+          type: 1,
+          components: activeCats.map((c) => ({
+            type: 2,
+            style: c.priority ? 4 : 1,
+            custom_id: `ticket:open:${c.id}`,
+            label: c.name.slice(0, 80),
+            emoji: c.emoji ? { name: c.emoji } : undefined,
+          })),
+        },
+      ];
+    } else {
+      components = [
+        {
+          type: 1,
+          components: [
+            {
+              type: 3,
+              custom_id: "ticket:select",
+              placeholder: "Escolha o tipo de atendimento…",
+              options: activeCats.slice(0, 25).map((c) => ({
+                label: c.name.slice(0, 100),
+                value: c.id,
+                emoji: c.emoji ? { name: c.emoji } : undefined,
+              })),
+            },
+          ],
+        },
+      ];
+    }
+
+    const body = {
+      embeds: [
+        {
+          title: cfg.panel_title,
+          description: cfg.panel_description,
+          color: cfg.panel_color,
+        },
       ],
+      components,
     };
 
     const res = await fetch(

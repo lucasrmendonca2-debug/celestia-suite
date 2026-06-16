@@ -165,7 +165,7 @@ export const ASSET_KEYS = {
     name: "Banner da economia",
     module: "ECONOMY",
     type: "BANNER",
-    default: null,
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/4c51b6f3-0d3f-4601-9adf-7a4d067e2dbc/economy-banner.png",
   },
   "economy.currency_icon": {
     key: "economy.currency_icon",
@@ -216,7 +216,7 @@ export const ASSET_KEYS = {
     name: "Fundo do rank card",
     module: "SOCIAL",
     type: "BACKGROUND",
-    default: null,
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/75e39633-fa30-4b31-87ed-47f4ff9587d3/rank-bg.png",
   },
   "social.profile_banner": {
     key: "social.profile_banner",
@@ -230,7 +230,7 @@ export const ASSET_KEYS = {
     name: "Banner de level up",
     module: "LEVEL",
     type: "BANNER",
-    default: null,
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/d7d3ee65-9ff8-44c3-8207-cb611b3e3617/levelup-banner.png",
   },
   "social.frame_common": {
     key: "social.frame_common",

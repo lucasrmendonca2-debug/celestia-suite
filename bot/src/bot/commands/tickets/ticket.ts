@@ -57,6 +57,25 @@ const command: SlashCommand = {
         ),
     )
     .addSubcommand((s) =>
+      s.setName("reabrir").setDescription("Reabre este ticket fechado."),
+    )
+    .addSubcommand((s) =>
+      s
+        .setName("adicionar")
+        .setDescription("Adiciona um usuário a este ticket.")
+        .addUserOption((o) =>
+          o.setName("usuario").setDescription("Usuário a adicionar").setRequired(true),
+        ),
+    )
+    .addSubcommand((s) =>
+      s
+        .setName("remover")
+        .setDescription("Remove um usuário deste ticket.")
+        .addUserOption((o) =>
+          o.setName("usuario").setDescription("Usuário a remover").setRequired(true),
+        ),
+    )
+    .addSubcommand((s) =>
       s.setName("configurar").setDescription("Mostra a configuração atual do sistema de tickets."),
     ),
   async execute(interaction: ChatInputCommandInteraction) {
@@ -64,6 +83,9 @@ const command: SlashCommand = {
 
     if (sub === "painel") return runPainel(interaction);
     if (sub === "fechar") return runFechar(interaction);
+    if (sub === "reabrir") return runReabrir(interaction);
+    if (sub === "adicionar") return runAdicionar(interaction);
+    if (sub === "remover") return runRemover(interaction);
     if (sub === "configurar") return runConfigurar(interaction);
   },
 };

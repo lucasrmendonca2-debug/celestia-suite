@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ChannelPicker } from "./DiscordPickers";
 
 type Cfg = Awaited<ReturnType<typeof getTicketConfig>>;
 
@@ -94,14 +95,17 @@ export function WebhookCard({ guildId, cfg }: { guildId: string; cfg: Cfg }) {
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div>
-          <Label className="text-xs">Canal (ID)</Label>
-          <Input
-            value={channelId}
-            onChange={(e) => setChannelId(e.target.value.trim())}
-            placeholder="ID do canal"
-            className="mt-1 font-mono text-xs"
-            disabled={exists}
-          />
+          <Label className="text-xs">Canal</Label>
+          <div className="mt-1">
+            <ChannelPicker
+              guildId={guildId}
+              value={channelId || null}
+              onChange={(v) => setChannelId(v ?? "")}
+              types={[0, 5]}
+              placeholder="Selecione o canal"
+              allowEmpty={false}
+            />
+          </div>
         </div>
         <div>
           <Label className="text-xs">Nome exibido</Label>

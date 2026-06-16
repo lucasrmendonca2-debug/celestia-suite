@@ -336,3 +336,126 @@ async function runConfigurar(interaction: ChatInputCommandInteraction) {
 }
 
 export default command;
+
+/* ============ Tickets v2: claim / prioridade / nota / renomear ============ */
+
+async function ensureStaff(interaction: ChatInputCommandInteraction): Promise<boolean> {
+  const member = interaction.member;
+  if (
+    !member ||
+    typeof member.permissions === "string" ||
+    !member.permissions.has(PermissionFlagsBits.ManageMessages)
+  ) {
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "error", title: "Sem permissão de staff." })],
+      ephemeral: true,
+    });
+    return false;
+  }
+  return true;
+}
+
+async function runClaim(interaction: ChatInputCommandInteraction) {
+  if (!(await ensureStaff(interaction))) return;
+  const ticket = await findTicketByChannel(interaction.channelId!);
+  if (!ticket) {
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "error", title: "Este canal não é um ticket." })],
+      ephemeral: true,
+    });
+    return;
+  }
+  if (ticket.claimed_by && ticket.claimed_by !== interaction.user.id) {
+    await interaction.reply({
+      embeds: [
+        brandEmbed({
+          kind: "warn",
+          title: "Já reivindicado",
+          description: `Este ticket já é de <@${ticket.claimed_by}>.`,
+        }),
+      ],
+      ephemeral: true,
+    });
+    return;
+  }
+  await claimTicketRow(ticket.id, interaction.user.id);
+  await supabase
+    .from("tickets")
+    .update({ claimed_at: new Date().toISOString() })
+    .eq("id", ticket.id);
+  await interaction.reply({
+    embeds: [
+      brandEmbed({
+        kind: "success",
+        title: "Ticket reivindicado",
+        description: `<@${interaction.user.id}> está cuidando deste ticket.`,
+      }),
+    ],
+  });
+}
+
+async function runPrioridade(interaction: ChatInputCommandInteraction) {
+  if (!(await ensureStaff(interaction))) return;
+  const ticket = await findTicketByChannel(interaction.channelId!);
+  if (!ticket) {
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "error", title: "Este canal não é um ticket." })],
+      ephemeral: true,
+    });
+    return;
+  }
+  const level = interaction.options.getString("nivel", true);
+  await supabase.from("tickets").update({ priority_level: level }).eq("id", ticket.id);
+  await interaction.reply({
+    embeds: [
+      brandEmbed({
+        kind: "info",
+        title: "Prioridade atualizada",
+        description: `Nova prioridade: **${PRIORITY_LABELS[level] ?? level}**`,
+      }),
+    ],
+  });
+}
+
+async function runNota(interaction: ChatInputCommandInteraction) {
+  if (!(await ensureStaff(interaction))) return;
+  const ticket = await findTicketByChannel(interaction.channelId!);
+  if (!ticket) {
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "error", title: "Este canal não é um ticket." })],
+      ephemeral: true,
+    });
+    return;
+  }
+  const content = interaction.options.getString("conteudo", true);
+  await supabase.from("ticket_notes").insert({
+    ticket_id: ticket.id,
+    guild_id: ticket.guild_id,
+    author_id: interaction.user.id,
+    author_tag: interaction.user.tag,
+    content,
+    internal: true,
+  });
+  await interaction.reply({
+    embeds: [
+      brandEmbed({
+        kind: "info",
+        title: "📝 Nota interna registrada",
+        description: content,
+        footer: `Por ${interaction.user.tag} — visível apenas no dashboard`,
+      }),
+    ],
+    ephemeral: true,
+  });
+}
+
+async function runRenomear(interaction: ChatInputCommandInteraction) {
+  if (!(await ensureStaff(interaction))) return;
+  const nome = interaction.options.getString("nome", true).slice(0, 90);
+  const channel = interaction.channel as TextChannel;
+  await channel.setName(nome).catch(() => {});
+  await interaction.reply({
+    embeds: [brandEmbed({ kind: "success", title: `Canal renomeado para \`${nome}\`` })],
+    ephemeral: true,
+  });
+}

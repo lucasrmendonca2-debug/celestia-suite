@@ -3,13 +3,14 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Ticket, Save, AlertCircle, Send } from "lucide-react";
+import { Ticket, Save, AlertCircle, Send, Pencil, Trash2 } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getTicketConfig,
   getTicketStats,
   sendTicketPanel,
   updateTicketConfig,
+  deleteTicketPanel,
 } from "@/lib/guild/tickets.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,8 @@ import {
 import { CategoriesTab } from "@/components/dashboard/tickets/CategoriesTab";
 import { LevelsTab } from "@/components/dashboard/tickets/LevelsTab";
 import { PermissionsTab } from "@/components/dashboard/tickets/PermissionsTab";
+import { ActiveTicketsCard } from "@/components/dashboard/tickets/ActiveTicketsCard";
+import { WebhookCard } from "@/components/dashboard/tickets/WebhookCard";
 
 export const Route = createFileRoute("/_authenticated/dashboard/$guildId/tickets")({
   loader: async ({ context, params }) => {

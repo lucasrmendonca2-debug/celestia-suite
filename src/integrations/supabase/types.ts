@@ -14,10 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      allowed_domains: {
+        Row: {
+          created_at: string
+          domain: string
+          guild_id: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          domain: string
+          guild_id: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          domain?: string
+          guild_id?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       automod_config: {
         Row: {
           anti_caps_enabled: boolean
           anti_caps_threshold: number
+          anti_flood_enabled: boolean
+          anti_flood_threshold: number
           anti_invite_enabled: boolean
           anti_link_enabled: boolean
           anti_mention_enabled: boolean
@@ -25,18 +51,28 @@ export type Database = {
           anti_spam_enabled: boolean
           anti_spam_interval: number
           anti_spam_threshold: number
+          blacklist_punishment: string
           blacklist_words: string[]
           created_at: string
+          enabled: boolean
           guild_id: string
+          invite_punishment: string
+          link_punishment: string
           punishment: string
+          spam_punishment: string
+          spam_punishment_duration: number
           updated_at: string
           updated_by: string | null
+          warn_user_on_delete: boolean
           whitelist_channels: string[]
           whitelist_roles: string[]
+          whitelist_users: string[]
         }
         Insert: {
           anti_caps_enabled?: boolean
           anti_caps_threshold?: number
+          anti_flood_enabled?: boolean
+          anti_flood_threshold?: number
           anti_invite_enabled?: boolean
           anti_link_enabled?: boolean
           anti_mention_enabled?: boolean
@@ -44,18 +80,28 @@ export type Database = {
           anti_spam_enabled?: boolean
           anti_spam_interval?: number
           anti_spam_threshold?: number
+          blacklist_punishment?: string
           blacklist_words?: string[]
           created_at?: string
+          enabled?: boolean
           guild_id: string
+          invite_punishment?: string
+          link_punishment?: string
           punishment?: string
+          spam_punishment?: string
+          spam_punishment_duration?: number
           updated_at?: string
           updated_by?: string | null
+          warn_user_on_delete?: boolean
           whitelist_channels?: string[]
           whitelist_roles?: string[]
+          whitelist_users?: string[]
         }
         Update: {
           anti_caps_enabled?: boolean
           anti_caps_threshold?: number
+          anti_flood_enabled?: boolean
+          anti_flood_threshold?: number
           anti_invite_enabled?: boolean
           anti_link_enabled?: boolean
           anti_mention_enabled?: boolean
@@ -63,14 +109,55 @@ export type Database = {
           anti_spam_enabled?: boolean
           anti_spam_interval?: number
           anti_spam_threshold?: number
+          blacklist_punishment?: string
           blacklist_words?: string[]
           created_at?: string
+          enabled?: boolean
           guild_id?: string
+          invite_punishment?: string
+          link_punishment?: string
           punishment?: string
+          spam_punishment?: string
+          spam_punishment_duration?: number
           updated_at?: string
           updated_by?: string | null
+          warn_user_on_delete?: boolean
           whitelist_channels?: string[]
           whitelist_roles?: string[]
+          whitelist_users?: string[]
+        }
+        Relationships: []
+      }
+      blacklisted_words: {
+        Row: {
+          active: boolean
+          created_at: string
+          delete_message: boolean
+          guild_id: string
+          id: string
+          punishment: string
+          updated_at: string
+          word: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          delete_message?: boolean
+          guild_id: string
+          id?: string
+          punishment?: string
+          updated_at?: string
+          word: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          delete_message?: boolean
+          guild_id?: string
+          id?: string
+          punishment?: string
+          updated_at?: string
+          word?: string
         }
         Relationships: []
       }
@@ -443,6 +530,234 @@ export type Database = {
         }
         Relationships: []
       }
+      moderation_configs: {
+        Row: {
+          allow_temporary_ban: boolean
+          allow_temporary_mute: boolean
+          created_at: string
+          default_mute_duration: number
+          default_warn_punishment: string
+          default_warn_punishment_duration: number
+          delete_punished_messages: boolean
+          dm_punished_user: boolean
+          embed_color: number
+          embed_footer: string
+          embed_icon_url: string | null
+          enabled: boolean
+          enabled_log_events: string[]
+          guild_id: string
+          log_channel_id: string | null
+          max_warnings: number
+          mute_role_id: string | null
+          protected_role_ids: string[]
+          protected_user_ids: string[]
+          punishment_dm_template: string
+          updated_at: string
+        }
+        Insert: {
+          allow_temporary_ban?: boolean
+          allow_temporary_mute?: boolean
+          created_at?: string
+          default_mute_duration?: number
+          default_warn_punishment?: string
+          default_warn_punishment_duration?: number
+          delete_punished_messages?: boolean
+          dm_punished_user?: boolean
+          embed_color?: number
+          embed_footer?: string
+          embed_icon_url?: string | null
+          enabled?: boolean
+          enabled_log_events?: string[]
+          guild_id: string
+          log_channel_id?: string | null
+          max_warnings?: number
+          mute_role_id?: string | null
+          protected_role_ids?: string[]
+          protected_user_ids?: string[]
+          punishment_dm_template?: string
+          updated_at?: string
+        }
+        Update: {
+          allow_temporary_ban?: boolean
+          allow_temporary_mute?: boolean
+          created_at?: string
+          default_mute_duration?: number
+          default_warn_punishment?: string
+          default_warn_punishment_duration?: number
+          delete_punished_messages?: boolean
+          dm_punished_user?: boolean
+          embed_color?: number
+          embed_footer?: string
+          embed_icon_url?: string | null
+          enabled?: boolean
+          enabled_log_events?: string[]
+          guild_id?: string
+          log_channel_id?: string | null
+          max_warnings?: number
+          mute_role_id?: string | null
+          protected_role_ids?: string[]
+          protected_user_ids?: string[]
+          punishment_dm_template?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      moderation_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json
+          guild_id: string
+          id: number
+          moderator_id: string | null
+          reason: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json
+          guild_id: string
+          id?: number
+          moderator_id?: string | null
+          reason?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json
+          guild_id?: string
+          id?: number
+          moderator_id?: string | null
+          reason?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      moderation_permission_roles: {
+        Row: {
+          can_ban: boolean
+          can_clear_messages: boolean
+          can_kick: boolean
+          can_lock_channel: boolean
+          can_manage_automod: boolean
+          can_manage_blacklist: boolean
+          can_manage_moderation_config: boolean
+          can_mute: boolean
+          can_remove_warn: boolean
+          can_unban: boolean
+          can_unlock_channel: boolean
+          can_unmute: boolean
+          can_use_moderation: boolean
+          can_view_history: boolean
+          can_view_logs: boolean
+          can_warn: boolean
+          created_at: string
+          guild_id: string
+          id: string
+          role_id: string
+          updated_at: string
+        }
+        Insert: {
+          can_ban?: boolean
+          can_clear_messages?: boolean
+          can_kick?: boolean
+          can_lock_channel?: boolean
+          can_manage_automod?: boolean
+          can_manage_blacklist?: boolean
+          can_manage_moderation_config?: boolean
+          can_mute?: boolean
+          can_remove_warn?: boolean
+          can_unban?: boolean
+          can_unlock_channel?: boolean
+          can_unmute?: boolean
+          can_use_moderation?: boolean
+          can_view_history?: boolean
+          can_view_logs?: boolean
+          can_warn?: boolean
+          created_at?: string
+          guild_id: string
+          id?: string
+          role_id: string
+          updated_at?: string
+        }
+        Update: {
+          can_ban?: boolean
+          can_clear_messages?: boolean
+          can_kick?: boolean
+          can_lock_channel?: boolean
+          can_manage_automod?: boolean
+          can_manage_blacklist?: boolean
+          can_manage_moderation_config?: boolean
+          can_mute?: boolean
+          can_remove_warn?: boolean
+          can_unban?: boolean
+          can_unlock_channel?: boolean
+          can_unmute?: boolean
+          can_use_moderation?: boolean
+          can_view_history?: boolean
+          can_view_logs?: boolean
+          can_warn?: boolean
+          created_at?: string
+          guild_id?: string
+          id?: string
+          role_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      punishments: {
+        Row: {
+          active: boolean
+          created_at: string
+          duration_seconds: number | null
+          expires_at: string | null
+          guild_id: string
+          id: number
+          metadata: Json
+          moderator_id: string
+          moderator_name: string | null
+          reason: string | null
+          type: string
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          duration_seconds?: number | null
+          expires_at?: string | null
+          guild_id: string
+          id?: number
+          metadata?: Json
+          moderator_id: string
+          moderator_name?: string | null
+          reason?: string | null
+          type: string
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          duration_seconds?: number | null
+          expires_at?: string | null
+          guild_id?: string
+          id?: number
+          metadata?: Json
+          moderator_id?: string
+          moderator_name?: string | null
+          reason?: string | null
+          type?: string
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: []
+      }
       reaction_roles: {
         Row: {
           channel_id: string
@@ -520,6 +835,50 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      temporary_actions: {
+        Row: {
+          action_type: string
+          active: boolean
+          created_at: string
+          expires_at: string
+          guild_id: string
+          id: number
+          punishment_id: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          active?: boolean
+          created_at?: string
+          expires_at: string
+          guild_id: string
+          id?: number
+          punishment_id?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          active?: boolean
+          created_at?: string
+          expires_at?: string
+          guild_id?: string
+          id?: number
+          punishment_id?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "temporary_actions_punishment_id_fkey"
+            columns: ["punishment_id"]
+            isOneToOne: false
+            referencedRelation: "punishments"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ticket_access_levels: {
         Row: {
@@ -980,6 +1339,45 @@ export type Database = {
           updated_at?: string
           user_id?: string
           xp?: number
+        }
+        Relationships: []
+      }
+      warnings: {
+        Row: {
+          active: boolean
+          created_at: string
+          guild_id: string
+          id: number
+          moderator_id: string
+          moderator_name: string | null
+          reason: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          guild_id: string
+          id?: number
+          moderator_id: string
+          moderator_name?: string | null
+          reason?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          guild_id?: string
+          id?: number
+          moderator_id?: string
+          moderator_name?: string | null
+          reason?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
         }
         Relationships: []
       }

@@ -14,69 +14,68 @@ const command: SlashCommand = {
   category: "moderation",
   cooldown: 3,
   guildOnly: true,
-  botPermissions: [PermissionFlagsBits.ModerateMembers, PermissionFlagsBits.ManageRoles],
+  botPermissions: [PermissionFlagsBits.BanMembers],
   data: new SlashCommandBuilder()
-    .setName("unmute")
-    .setDescription("Remove o silenciamento de um usuário.")
-    .addUserOption((o) => o.setName("usuario").setDescription("Usuário").setRequired(true))
+    .setName("unban")
+    .setDescription("Remove o banimento de um usuário.")
+    .addStringOption((o) =>
+      o.setName("user_id").setDescription("ID do usuário banido").setRequired(true),
+    )
     .addStringOption((o) => o.setName("motivo").setDescription("Motivo")),
   async execute(interaction) {
     const guild = interaction.guild!;
-    const config = await getModerationConfig(guild.id);
     const author = await guild.members.fetch(interaction.user.id);
-    if (!(await hasModCapability(author, "can_unmute"))) {
+    if (!(await hasModCapability(author, "can_unban"))) {
       return interaction.reply({
-        embeds: [brandEmbed({ kind: "error", title: "Sem permissão para desmutar." })],
+        embeds: [brandEmbed({ kind: "error", title: "Sem permissão para desbanir." })],
         ephemeral: true,
       });
     }
-
-    const user = interaction.options.getUser("usuario", true);
+    const userId = interaction.options.getString("user_id", true).trim();
+    if (!/^\d{5,32}$/.test(userId)) {
+      return interaction.reply({
+        embeds: [brandEmbed({ kind: "error", title: "ID inválido." })],
+        ephemeral: true,
+      });
+    }
     const reason = interaction.options.getString("motivo") ?? undefined;
-    const member = await guild.members.fetch(user.id).catch(() => null);
-    if (!member) {
-      return interaction.reply({
-        embeds: [brandEmbed({ kind: "error", title: "Usuário não está no servidor" })],
-        ephemeral: true,
+    await interaction.deferReply();
+    const ban = await guild.bans.fetch(userId).catch(() => null);
+    if (!ban) {
+      return interaction.editReply({
+        embeds: [brandEmbed({ kind: "error", title: "Esse usuário não está banido." })],
       });
     }
+    await guild.bans.remove(userId, `[${interaction.user.tag}] ${reason ?? "unban"}`);
 
-    await interaction.deferReply();
-    if (config.mute_role_id && member.roles.cache.has(config.mute_role_id)) {
-      await member.roles.remove(config.mute_role_id, `[${interaction.user.tag}] unmute`);
-    }
-    if (member.isCommunicationDisabled()) {
-      await member.timeout(null, `[${interaction.user.tag}] unmute`);
-    }
-
-    await deactivatePunishmentsByType(guild.id, user.id, ["MUTE", "TEMP_MUTE"]);
+    await deactivatePunishmentsByType(guild.id, userId, ["BAN", "TEMP_BAN"]);
     await createPunishment({
       guildId: guild.id,
-      userId: user.id,
-      username: user.tag,
+      userId,
+      username: ban.user.tag,
       moderatorId: interaction.user.id,
       moderatorName: interaction.user.tag,
-      type: "UNMUTE",
+      type: "UNBAN",
       reason,
     });
+    const config = await getModerationConfig(guild.id);
     await logModerationEvent({
       guildId: guild.id,
-      userId: user.id,
+      userId,
       moderatorId: interaction.user.id,
-      action: "UNMUTE",
+      action: "UNBAN",
       reason,
     });
     await postModerationLog({
       guild,
-      type: "UNMUTE",
-      target: user,
+      type: "UNBAN",
+      target: ban.user,
       moderator: interaction.user,
       reason,
       config,
     });
-
     await interaction.editReply({
-      embeds: [brandEmbed({ kind: "success", title: "Usuário desmutado", description: `<@${user.id}> liberado.` })],
+      embeds: [brandEmbed({ kind: "success", title: "Usuário desbanido", description: `<@${userId}> liberado.` })],
     });
   },
 };

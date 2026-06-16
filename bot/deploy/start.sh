@@ -12,7 +12,7 @@ if [ ! -f .env ]; then
 fi
 
 echo "==> Instalando dependências..."
-npm ci --omit=dev=false
+npm ci
 
 echo "==> Build TypeScript..."
 npm run build

@@ -1,7 +1,7 @@
 import { EmbedBuilder, type Message } from "discord.js";
 import type { BotEvent } from "../handlers/events.js";
 import { runAutoMod } from "../systems/automod/automod.js";
-import { handleMessageXp } from "../systems/level/level.js";
+import { handleSocialXp } from "../systems/social/xp.service.js";
 import { handleCustomCommand } from "../systems/custom/custom.js";
 import { supabase } from "../../database/supabase.js";
 import { logger } from "../utils/logger.js";

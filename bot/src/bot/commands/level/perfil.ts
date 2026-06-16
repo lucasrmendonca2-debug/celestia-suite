@@ -8,6 +8,7 @@ import {
   updateProfile,
   isValidColor,
   isValidImageUrl,
+  isValidCardStyle,
   incrementProfileViews,
 } from "../../systems/social/profile.service.js";
 
@@ -46,6 +47,32 @@ const command: SlashCommand = {
           s.setName("banner")
             .setDescription("Define a URL do banner (png/jpg/webp).")
             .addStringOption((o) => o.setName("url").setDescription("URL").setRequired(true)),
+        )
+        .addSubcommand((s) =>
+          s.setName("accent")
+            .setDescription("Cor de destaque do rank card (#RRGGBB). Vazio = usar padrão do servidor.")
+            .addStringOption((o) => o.setName("cor").setDescription("#RRGGBB ou vazio").setRequired(false)),
+        )
+        .addSubcommand((s) =>
+          s.setName("fundo")
+            .setDescription("Cor de fundo do rank card (#RRGGBB). Vazio = usar padrão do servidor.")
+            .addStringOption((o) => o.setName("cor").setDescription("#RRGGBB ou vazio").setRequired(false)),
+        )
+        .addSubcommand((s) =>
+          s.setName("texto")
+            .setDescription("Cor do texto do rank card (#RRGGBB). Vazio = usar padrão do servidor.")
+            .addStringOption((o) => o.setName("cor").setDescription("#RRGGBB ou vazio").setRequired(false)),
+        )
+        .addSubcommand((s) =>
+          s.setName("estilo")
+            .setDescription("Estilo visual do rank card.")
+            .addStringOption((o) =>
+              o.setName("valor").setDescription("Estilo").setRequired(true).addChoices(
+                { name: "Padrão", value: "default" },
+                { name: "Minimal", value: "minimal" },
+                { name: "Gradient", value: "gradient" },
+              ),
+            ),
         ),
     )
     .addSubcommand((s) => s.setName("resetar").setDescription("Reseta personalização do perfil.")),
@@ -89,7 +116,36 @@ const command: SlashCommand = {
         await interaction.reply({ ephemeral: true, content: "✅ Banner atualizado." });
         return;
       }
+      if (sub === "accent" || sub === "fundo" || sub === "texto") {
+        const raw = (interaction.options.getString("cor") ?? "").trim();
+        const valor = raw === "" ? null : raw;
+        if (valor && !isValidColor(valor)) {
+          await interaction.reply({ ephemeral: true, content: "❌ Cor inválida. Use formato `#RRGGBB` ou deixe vazio." });
+          return;
+        }
+        const patch =
+          sub === "accent" ? { accent_color: valor }
+          : sub === "fundo" ? { background_color: valor }
+          : { text_color: valor };
+        await updateProfile(guildId, interaction.user.id, patch);
+        await interaction.reply({
+          ephemeral: true,
+          content: valor ? `✅ Cor atualizada para \`${valor}\`.` : "✅ Removido — usando padrão do servidor.",
+        });
+        return;
+      }
+      if (sub === "estilo") {
+        const valor = interaction.options.getString("valor", true);
+        if (!isValidCardStyle(valor)) {
+          await interaction.reply({ ephemeral: true, content: "❌ Estilo inválido." });
+          return;
+        }
+        await updateProfile(guildId, interaction.user.id, { card_style: valor });
+        await interaction.reply({ ephemeral: true, content: `✅ Estilo atualizado para \`${valor}\`.` });
+        return;
+      }
     }
+
 
     if (sub === "resetar") {
       const isAdmin = interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild) ?? false;

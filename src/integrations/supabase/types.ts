@@ -1369,6 +1369,10 @@ export type Database = {
         Row: {
           achievements_enabled: boolean
           active_season_id: string | null
+          card_accent_color: string
+          card_background_color: string
+          card_style: string
+          card_text_color: string
           created_at: string
           embed_color: string
           enabled: boolean
@@ -1385,6 +1389,10 @@ export type Database = {
         Insert: {
           achievements_enabled?: boolean
           active_season_id?: string | null
+          card_accent_color?: string
+          card_background_color?: string
+          card_style?: string
+          card_text_color?: string
           created_at?: string
           embed_color?: string
           enabled?: boolean
@@ -1401,6 +1409,10 @@ export type Database = {
         Update: {
           achievements_enabled?: boolean
           active_season_id?: string | null
+          card_accent_color?: string
+          card_background_color?: string
+          card_style?: string
+          card_text_color?: string
           created_at?: string
           embed_color?: string
           enabled?: boolean

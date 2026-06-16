@@ -339,7 +339,69 @@ function SocialPage() {
           <SaveBar onClick={() => saveLevel.mutate()} loading={saveLevel.isPending} />
         </TabsContent>
 
-        {/* REWARDS */}
+        {/* CARD VISUAL — defaults do rank card por servidor */}
+        <TabsContent value="card" className="space-y-4">
+          <Card title="Padrão visual do rank card">
+            <p className="text-sm text-muted-foreground mb-4">
+              Estas cores e estilo são aplicados quando o membro ainda não personalizou seu próprio rank card.
+            </p>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Cor de destaque (accent)">
+                <div className="flex gap-2 items-center">
+                  <Input type="color" value={s.card_accent_color ?? "#5865F2"}
+                    onChange={(e) => setS({ ...s, card_accent_color: e.target.value })}
+                    className="h-10 w-16 p-1" />
+                  <Input value={s.card_accent_color ?? "#5865F2"}
+                    onChange={(e) => setS({ ...s, card_accent_color: e.target.value })} className="font-mono" />
+                </div>
+              </Field>
+              <Field label="Cor de fundo">
+                <div className="flex gap-2 items-center">
+                  <Input type="color" value={s.card_background_color ?? "#0f1117"}
+                    onChange={(e) => setS({ ...s, card_background_color: e.target.value })}
+                    className="h-10 w-16 p-1" />
+                  <Input value={s.card_background_color ?? "#0f1117"}
+                    onChange={(e) => setS({ ...s, card_background_color: e.target.value })} className="font-mono" />
+                </div>
+              </Field>
+              <Field label="Cor do texto">
+                <div className="flex gap-2 items-center">
+                  <Input type="color" value={s.card_text_color ?? "#ffffff"}
+                    onChange={(e) => setS({ ...s, card_text_color: e.target.value })}
+                    className="h-10 w-16 p-1" />
+                  <Input value={s.card_text_color ?? "#ffffff"}
+                    onChange={(e) => setS({ ...s, card_text_color: e.target.value })} className="font-mono" />
+                </div>
+              </Field>
+              <Field label="Estilo do card">
+                <select
+                  value={s.card_style ?? "default"}
+                  onChange={(e) => setS({ ...s, card_style: e.target.value })}
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="default">Padrão — gradient na barra, overlay médio</option>
+                  <option value="minimal">Minimal — borda fina, sem gradient</option>
+                  <option value="gradient">Gradient — fundo dégradé com accent</option>
+                </select>
+              </Field>
+            </div>
+
+            {/* Preview */}
+            <div className="mt-6">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Pré-visualização</p>
+              <RankCardPreview
+                accent={s.card_accent_color ?? "#5865F2"}
+                background={s.card_background_color ?? "#0f1117"}
+                text={s.card_text_color ?? "#ffffff"}
+                style={(s.card_style as "default" | "minimal" | "gradient") ?? "default"}
+              />
+            </div>
+          </Card>
+
+          <SaveBar onClick={() => saveSocial.mutate()} loading={saveSocial.isPending} />
+        </TabsContent>
+
+
         <TabsContent value="rewards" className="space-y-4">
           <Card title="Nova recompensa">
             <div className="grid gap-4 md:grid-cols-5">

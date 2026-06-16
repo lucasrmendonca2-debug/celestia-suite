@@ -146,6 +146,19 @@ export async function findTicketByChannel(channelId: string): Promise<TicketRow 
   return (data as TicketRow | null) ?? null;
 }
 
+export async function findTicketById(ticketId: string): Promise<TicketRow | null> {
+  const { data, error } = await supabase
+    .from("tickets")
+    .select("*")
+    .eq("id", ticketId)
+    .maybeSingle();
+  if (error) {
+    logger.error({ err: error }, "findTicketById falhou");
+    return null;
+  }
+  return (data as TicketRow | null) ?? null;
+}
+
 export async function closeTicketRow(
   ticketId: string,
   closedBy: string,

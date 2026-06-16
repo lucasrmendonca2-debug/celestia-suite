@@ -9,6 +9,7 @@ import { brandEmbed } from "../utils/embed.js";
 import { Msg } from "../utils/messages.js";
 import { checkPermissions, denyWith } from "../guards/permissions.js";
 import { consumeCooldown } from "../guards/cooldown.js";
+import { checkCommandPermission } from "../guards/commandPermissions.js";
 import { ensureGuild, ensureUser } from "../utils/guildCache.js";
 import { handleTicketButton, handleTicketSelect } from "../systems/tickets/handlers.js";
 import { handleGiveawayButton } from "../systems/giveaway/giveaway.js";

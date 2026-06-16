@@ -121,7 +121,7 @@ const TicketConfigInput = z.object({
   panel_title: z.string().min(1).max(255),
   panel_description: z.string().min(1).max(4000),
   panel_button_label: z.string().min(1).max(80),
-  panel_button_emoji: z.string().min(1).max(8),
+  panel_button_emoji: z.string().min(1).max(64),
   panel_image_url: z.string().url().max(1000).nullable().optional(),
   panel_thumbnail_url: z.string().url().max(1000).nullable().optional(),
   panel_use_guild_banner: z.boolean().optional(),

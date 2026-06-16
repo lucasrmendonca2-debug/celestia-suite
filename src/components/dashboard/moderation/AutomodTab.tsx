@@ -19,6 +19,10 @@ import {
 import { MultiChannelPicker, MultiRolePicker } from "@/components/dashboard/tickets/DiscordPickers";
 
 type AutomodPunishment = "delete" | "warn" | "mute" | "kick" | "ban";
+const isAutomodPunishment = (value: string): value is AutomodPunishment =>
+  ["delete", "warn", "mute", "kick", "ban"].includes(value);
+const asAutomodPunishment = (value: string): AutomodPunishment =>
+  isAutomodPunishment(value) ? value : "delete";
 
 interface AutomodForm {
   enabled?: boolean;
@@ -87,7 +91,14 @@ export function AutomodTab({ guildId, initial }: AutomodTabProps) {
         },
       }),
     onSuccess: (saved) => {
-      setForm(saved);
+      setForm({
+        ...saved,
+        punishment: asAutomodPunishment(saved.punishment),
+        spam_punishment: asAutomodPunishment(saved.spam_punishment),
+        link_punishment: asAutomodPunishment(saved.link_punishment),
+        invite_punishment: asAutomodPunishment(saved.invite_punishment),
+        blacklist_punishment: asAutomodPunishment(saved.blacklist_punishment),
+      });
       qc.setQueryData(["automod", guildId], saved);
       toast.success("AutoMod salvo.");
     },
@@ -249,16 +260,17 @@ export function AutomodTab({ guildId, initial }: AutomodTabProps) {
             <Label className="text-sm">Punição do AutoMod</Label>
             <Select
               value={form.punishment}
-              onValueChange={(v) =>
+              onValueChange={(v) => {
+                const punishment = asAutomodPunishment(v);
                 setForm({
                   ...form,
-                  punishment: v,
-                  spam_punishment: v,
-                  link_punishment: v,
-                  invite_punishment: v,
-                  blacklist_punishment: v,
-                })
-              }
+                  punishment,
+                  spam_punishment: punishment,
+                  link_punishment: punishment,
+                  invite_punishment: punishment,
+                  blacklist_punishment: punishment,
+                });
+              }}
             >
               <SelectTrigger className="mt-1">
                 <SelectValue />

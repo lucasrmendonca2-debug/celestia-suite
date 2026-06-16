@@ -201,7 +201,8 @@ export const addAutorole = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    const { assertCanAccessArea, writeAudit } = await import("./permissions.functions");
+    const actor = await assertCanAccessArea(data.guildId, "autorole");
     const sb = await admin();
     const { error } = await sb.from("guild_autoroles").insert({
       guild_id: data.guildId,
@@ -209,6 +210,13 @@ export const addAutorole = createServerFn({ method: "POST" })
       target: data.target,
     });
     if (error) throw new Error(error.message);
+    await writeAudit({
+      guildId: data.guildId,
+      event: "autorole.add",
+      actor,
+      target_id: data.roleId,
+      after: { role_id: data.roleId, target: data.target },
+    });
     return { ok: true };
   });
 
@@ -217,14 +225,27 @@ export const removeAutorole = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    const { assertCanAccessArea, writeAudit } = await import("./permissions.functions");
+    const actor = await assertCanAccessArea(data.guildId, "autorole");
     const sb = await admin();
+    const { data: prev } = await sb
+      .from("guild_autoroles")
+      .select("role_id, target")
+      .eq("id", data.id)
+      .maybeSingle();
     const { error } = await sb
       .from("guild_autoroles")
       .delete()
       .eq("id", data.id)
       .eq("guild_id", data.guildId);
     if (error) throw new Error(error.message);
+    await writeAudit({
+      guildId: data.guildId,
+      event: "autorole.remove",
+      actor,
+      target_id: prev?.role_id ?? null,
+      before: prev as Record<string, unknown> | null,
+    });
     return { ok: true };
   });
 

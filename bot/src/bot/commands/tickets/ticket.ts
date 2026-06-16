@@ -159,6 +159,8 @@ const command: SlashCommand = {
     if (sub === "prioridade") return runPrioridade(interaction);
     if (sub === "nota") return runNota(interaction);
     if (sub === "renomear") return runRenomear(interaction);
+    if (sub === "metricas") return runMetricas(interaction);
+    if (sub === "resposta") return runResposta(interaction);
   },
 };
 

@@ -285,14 +285,14 @@ export const sendTicketPanel = createServerFn({ method: "POST" })
               label: cfg.panel_button_label || "Abrir ticket",
               value: "default",
               description: "Atendimento geral com a nossa equipe.",
-              emoji: { name: cfg.panel_button_emoji || "🎫" },
+              emoji: parseEmoji(cfg.panel_button_emoji || "🎫"),
             },
           ]
         : activeCats.slice(0, 25).map((c) => ({
             label: c.name.slice(0, 100),
             value: c.id,
             description: c.priority ? "⚡ Prioridade" : undefined,
-            emoji: c.emoji ? { name: c.emoji } : undefined,
+            emoji: parseEmoji(c.emoji),
           }));
 
     const components = [

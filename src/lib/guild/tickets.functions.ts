@@ -45,6 +45,14 @@ const TICKET_DEFAULTS = {
   rating_enabled: false,
   allow_user_close_ticket: true,
   use_single_panel: true,
+  panel_image_url: null as string | null,
+  panel_thumbnail_url: null as string | null,
+  panel_use_guild_banner: false,
+  webhook_id: null as string | null,
+  webhook_token: null as string | null,
+  webhook_channel_id: null as string | null,
+  webhook_name: null as string | null,
+  webhook_avatar_url: null as string | null,
 };
 
 const TEMPLATE_CATEGORIES = [

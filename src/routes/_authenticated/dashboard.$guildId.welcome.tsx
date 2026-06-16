@@ -123,21 +123,15 @@ function WelcomePage() {
 
             <div className="space-y-1.5">
               <Label htmlFor="channel" className="text-sm font-medium">
-                ID do canal
+                Canal de boas-vindas
               </Label>
-              <Input
-                id="channel"
-                placeholder="Ex: 123456789012345678"
-                value={form.welcome_channel_id ?? ""}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    welcome_channel_id: e.target.value.trim() || null,
-                  })
-                }
+              <ChannelSelect
+                guildId={guild.id}
+                value={form.welcome_channel_id}
+                onChange={(id) => setForm({ ...form, welcome_channel_id: id })}
               />
               <p className="text-xs text-muted-foreground">
-                Modo desenvolvedor → clique direito no canal → Copiar ID.
+                Lista carregada direto do Discord via bot.
               </p>
             </div>
 

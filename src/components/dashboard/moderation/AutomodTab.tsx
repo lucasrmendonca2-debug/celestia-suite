@@ -20,7 +20,7 @@ import { MultiChannelPicker, MultiRolePicker } from "@/components/dashboard/tick
 
 interface AutomodTabProps {
   guildId: string;
-  initial: any;
+  initial: Awaited<ReturnType<typeof getAutomodConfig>>;
 }
 
 export function AutomodTab({ guildId, initial }: AutomodTabProps) {

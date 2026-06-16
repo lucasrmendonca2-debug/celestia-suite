@@ -283,9 +283,7 @@ function Landing() {
             <a href="#features" className="hover:text-foreground">
               módulos
             </a>
-            <a href="#mascot" className="hover:text-foreground">
-              o que faço
-            </a>
+
           </div>
         </footer>
       </div>

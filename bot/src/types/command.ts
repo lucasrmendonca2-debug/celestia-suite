@@ -45,6 +45,18 @@ export interface SlashCommand {
   longDescription?: string;
   /** Exemplos opcionais para o /help. */
   examples?: string[];
+  /** Está habilitado por padrão em servidores novos. */
+  enabledByDefault?: boolean;
+  /** Pode ser configurado por servidor no dashboard (ativar/desativar, cargos, canais). */
+  dashboardConfigurable?: boolean;
+  /** Apenas servidores premium podem usar. */
+  premiumGuildOnly?: boolean;
+  /** Apenas usuários VIP podem usar. */
+  vipOnly?: boolean;
+  /** Apenas staff (configurado pelo servidor) pode usar. */
+  staffOnly?: boolean;
+  /** Módulo lógico do comando (subagrupamento dentro da categoria). */
+  module?: string;
   execute: (interaction: ChatInputCommandInteraction, ctx: CommandContext) => Promise<unknown>;
 }
 

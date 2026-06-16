@@ -32,7 +32,8 @@ const command: SlashCommand = {
       s
         .setName("enviar")
         .setDescription("Envia uma sugestão para o servidor.")
-        .addStringOption((o) => o.setName("texto").setDescription("Sua sugestão").setRequired(true)),
+        .addStringOption((o) => o.setName("texto").setDescription("Sua sugestão").setRequired(true))
+        .addBooleanOption((o) => o.setName("anonima").setDescription("Esconder seu nome (se permitido)")),
     )
     .addSubcommand((s) =>
       s

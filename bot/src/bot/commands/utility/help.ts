@@ -194,3 +194,49 @@ export function renderCategory(
     components: [buildSelect(category), pageButtons(category, safePage, totalPages)],
   };
 }
+
+/* ---------------- Command detail / search ---------------- */
+
+function badges(meta: CommandMeta): string {
+  const tags: string[] = [];
+  if (meta.premiumOnly) tags.push("`💎 Premium`");
+  if (meta.premiumGuildOnly) tags.push("`🏠 Premium Server`");
+  if (meta.vipOnly) tags.push("`⭐ VIP`");
+  if (meta.staffOnly) tags.push("`🛡️ Staff`");
+  if (meta.ownerOnly) tags.push("`👑 Dono`");
+  if (meta.cooldown) tags.push(`\`⏳ ${meta.cooldown}s\``);
+  if (!meta.enabledByDefault) tags.push("`⚙️ Opt-in`");
+  return tags.join(" ");
+}
+
+export function renderCommandDetail(meta: CommandMeta): APIEmbed {
+  const cat = HELP_CATEGORIES.find((c) => c.key === meta.category);
+  const fields: { name: string; value: string; inline?: boolean }[] = [
+    { name: "Categoria", value: `${cat?.emoji ?? ""} ${cat?.label ?? meta.category}`, inline: true },
+    { name: "Cooldown", value: meta.cooldown ? `${meta.cooldown}s` : "—", inline: true },
+    { name: "Dashboard", value: meta.dashboardConfigurable ? "Sim" : "Não", inline: true },
+  ];
+  if (meta.subcommands.length) {
+    fields.push({ name: "Subcomandos", value: meta.subcommands.map((s) => `\`${s}\``).join(" "), inline: false });
+  }
+  if (meta.examples.length) {
+    fields.push({ name: "Exemplos", value: meta.examples.map((e) => `\`${e}\``).join("\n"), inline: false });
+  }
+  return brandEmbed({
+    title: `/${meta.name}`,
+    description: [meta.longDescription ?? meta.description, badges(meta)].filter(Boolean).join("\n\n"),
+    fields,
+  }).toJSON();
+}
+
+export function renderSearch(term: string, results: CommandMeta[]): APIEmbed {
+  return brandEmbed({
+    title: `🔎 Resultados para "${term}"`,
+    description: results.length
+      ? results
+          .map((m) => `**/${m.name}** — ${m.description}${badges(m) ? `\n${badges(m)}` : ""}`)
+          .join("\n\n")
+      : "Nada encontrado. Tente outro termo.",
+    footer: `${results.length} comando(s)`,
+  }).toJSON();
+}

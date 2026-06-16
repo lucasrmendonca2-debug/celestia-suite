@@ -3,13 +3,14 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Ticket, Save, AlertCircle, Send } from "lucide-react";
+import { Ticket, Save, AlertCircle, Send, Pencil, Trash2 } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getTicketConfig,
   getTicketStats,
   sendTicketPanel,
   updateTicketConfig,
+  deleteTicketPanel,
 } from "@/lib/guild/tickets.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,8 @@ import {
 import { CategoriesTab } from "@/components/dashboard/tickets/CategoriesTab";
 import { LevelsTab } from "@/components/dashboard/tickets/LevelsTab";
 import { PermissionsTab } from "@/components/dashboard/tickets/PermissionsTab";
+import { ActiveTicketsCard } from "@/components/dashboard/tickets/ActiveTicketsCard";
+import { WebhookCard } from "@/components/dashboard/tickets/WebhookCard";
 
 export const Route = createFileRoute("/_authenticated/dashboard/$guildId/tickets")({
   loader: async ({ context, params }) => {
@@ -179,6 +182,9 @@ function GeneralTab({
           panel_description: form.panel_description,
           panel_button_label: form.panel_button_label,
           panel_button_emoji: form.panel_button_emoji,
+          panel_image_url: emptyToNull(form.panel_image_url),
+          panel_thumbnail_url: emptyToNull(form.panel_thumbnail_url),
+          panel_use_guild_banner: form.panel_use_guild_banner ?? false,
           ticket_welcome_message: form.ticket_welcome_message,
           close_message: form.close_message,
           transcript_enabled: form.transcript_enabled,
@@ -351,10 +357,50 @@ function GeneralTab({
             className="mt-1"
           />
         </div>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <div>
+            <Label className="text-sm">Imagem grande (URL)</Label>
+            <Input
+              value={form.panel_image_url ?? ""}
+              onChange={(e) => setForm({ ...form, panel_image_url: e.target.value })}
+              placeholder="https://…/banner.png"
+              className="mt-1 text-xs"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              Aparece embaixo do embed. Deixe vazio pra não usar.
+            </p>
+          </div>
+          <div>
+            <Label className="text-sm">Thumbnail (URL)</Label>
+            <Input
+              value={form.panel_thumbnail_url ?? ""}
+              onChange={(e) =>
+                setForm({ ...form, panel_thumbnail_url: e.target.value })
+              }
+              placeholder="https://…/icon.png"
+              className="mt-1 text-xs"
+            />
+            <p className="mt-1 text-xs text-muted-foreground">
+              Imagem pequena no canto superior direito do embed.
+            </p>
+          </div>
+        </div>
+        <SwitchRow
+          title="Usar banner do servidor automaticamente"
+          desc="Se a URL acima estiver vazia, o painel usa o banner (ou ícone) do servidor."
+          checked={form.panel_use_guild_banner ?? false}
+          onChange={(v) => setForm({ ...form, panel_use_guild_banner: v })}
+        />
       </SectionCard>
 
+      <ActiveTicketsCard guildId={guildId} />
+      <WebhookCard guildId={guildId} cfg={form} />
+
       <div className="sticky bottom-4 flex flex-wrap items-center justify-end gap-2">
-        <SendPanelButton guildId={guildId} disabled={mutation.isPending} />
+        <DeletePanelButton guildId={guildId} disabled={mutation.isPending} hasPanel={!!form.panel_message_id} />
+        <SendPanelButton guildId={guildId} disabled={mutation.isPending} mode="edit" hasPanel={!!form.panel_message_id} />
+        <SendPanelButton guildId={guildId} disabled={mutation.isPending} mode="send" />
         <Button
           type="submit"
           size="lg"
@@ -367,25 +413,35 @@ function GeneralTab({
       </div>
 
       <p className="text-xs text-muted-foreground">
-        💡 Salve antes de enviar. O botão <strong>Enviar painel</strong> publica direto pelo bot — sem precisar abrir o Discord.
+        💡 Salve as configurações antes de <strong>enviar</strong> ou <strong>editar</strong> o painel.
       </p>
     </form>
   );
 }
 
-function SendPanelButton({ guildId, disabled }: { guildId: string; disabled?: boolean }) {
+function SendPanelButton({
+  guildId,
+  disabled,
+  mode,
+  hasPanel,
+}: {
+  guildId: string;
+  disabled?: boolean;
+  mode: "send" | "edit";
+  hasPanel?: boolean;
+}) {
   const send = useServerFn(sendTicketPanel);
   const mutation = useMutation({
-    mutationFn: () => send({ data: { guildId } }),
-    onSuccess: (r) =>
-      toast.success("Painel publicado!", {
-        description: `Mensagem ${r.messageId.slice(0, 6)}… enviada no canal configurado.`,
-      }),
+    mutationFn: () => send({ data: { guildId, mode } }),
+    onSuccess: () =>
+      toast.success(mode === "edit" ? "Painel atualizado!" : "Painel publicado!"),
     onError: (e) =>
-      toast.error("Não consegui enviar o painel.", {
-        description: (e as Error).message,
-      }),
+      toast.error(
+        mode === "edit" ? "Não consegui editar." : "Não consegui enviar.",
+        { description: (e as Error).message },
+      ),
   });
+  if (mode === "edit" && !hasPanel) return null;
   return (
     <Button
       type="button"
@@ -395,8 +451,52 @@ function SendPanelButton({ guildId, disabled }: { guildId: string; disabled?: bo
       onClick={() => mutation.mutate()}
       className="gap-2"
     >
-      <Send className="size-4" />
-      {mutation.isPending ? "Enviando..." : "Enviar painel"}
+      {mode === "edit" ? <Pencil className="size-4" /> : <Send className="size-4" />}
+      {mutation.isPending
+        ? mode === "edit"
+          ? "Editando…"
+          : "Enviando…"
+        : mode === "edit"
+          ? "Editar painel"
+          : "Enviar painel"}
+    </Button>
+  );
+}
+
+function DeletePanelButton({
+  guildId,
+  disabled,
+  hasPanel,
+}: {
+  guildId: string;
+  disabled?: boolean;
+  hasPanel: boolean;
+}) {
+  const del = useServerFn(deleteTicketPanel);
+  const qc = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: () => del({ data: { guildId } }),
+    onSuccess: () => {
+      toast.success("Painel apagado.");
+      qc.invalidateQueries({ queryKey: ["ticket-config", guildId] });
+    },
+    onError: (e) =>
+      toast.error("Não consegui apagar.", { description: (e as Error).message }),
+  });
+  if (!hasPanel) return null;
+  return (
+    <Button
+      type="button"
+      size="lg"
+      variant="ghost"
+      disabled={disabled || mutation.isPending}
+      onClick={() => {
+        if (confirm("Apagar a mensagem do painel publicado?")) mutation.mutate();
+      }}
+      className="gap-2 text-destructive hover:text-destructive"
+    >
+      <Trash2 className="size-4" />
+      {mutation.isPending ? "Apagando…" : "Apagar painel"}
     </Button>
   );
 }

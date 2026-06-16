@@ -630,13 +630,21 @@ export type Database = {
           panel_channel_id: string | null
           panel_color: number
           panel_description: string
+          panel_image_url: string | null
           panel_message_id: string | null
+          panel_thumbnail_url: string | null
           panel_title: string
+          panel_use_guild_banner: boolean
           rating_enabled: boolean
           ticket_welcome_message: string
           transcript_enabled: boolean
           updated_at: string
           use_single_panel: boolean
+          webhook_avatar_url: string | null
+          webhook_channel_id: string | null
+          webhook_id: string | null
+          webhook_name: string | null
+          webhook_token: string | null
         }
         Insert: {
           allow_user_close_ticket?: boolean
@@ -653,13 +661,21 @@ export type Database = {
           panel_channel_id?: string | null
           panel_color?: number
           panel_description?: string
+          panel_image_url?: string | null
           panel_message_id?: string | null
+          panel_thumbnail_url?: string | null
           panel_title?: string
+          panel_use_guild_banner?: boolean
           rating_enabled?: boolean
           ticket_welcome_message?: string
           transcript_enabled?: boolean
           updated_at?: string
           use_single_panel?: boolean
+          webhook_avatar_url?: string | null
+          webhook_channel_id?: string | null
+          webhook_id?: string | null
+          webhook_name?: string | null
+          webhook_token?: string | null
         }
         Update: {
           allow_user_close_ticket?: boolean
@@ -676,13 +692,21 @@ export type Database = {
           panel_channel_id?: string | null
           panel_color?: number
           panel_description?: string
+          panel_image_url?: string | null
           panel_message_id?: string | null
+          panel_thumbnail_url?: string | null
           panel_title?: string
+          panel_use_guild_banner?: boolean
           rating_enabled?: boolean
           ticket_welcome_message?: string
           transcript_enabled?: boolean
           updated_at?: string
           use_single_panel?: boolean
+          webhook_avatar_url?: string | null
+          webhook_channel_id?: string | null
+          webhook_id?: string | null
+          webhook_name?: string | null
+          webhook_token?: string | null
         }
         Relationships: []
       }

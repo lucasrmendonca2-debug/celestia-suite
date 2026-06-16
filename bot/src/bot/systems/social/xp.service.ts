@@ -118,6 +118,9 @@ export async function handleSocialXp(msg: Message): Promise<void> {
   pending.lastXpAt = new Date(now);
   buffer.set(k, pending);
 
+  // Registra também na temporada ativa (não bloqueia)
+  void recordSeasonXp(guildId, userId, gained);
+
   // Flush antecipado se buffer grande
   if (buffer.size > MAX_BUFFER) void flush();
 

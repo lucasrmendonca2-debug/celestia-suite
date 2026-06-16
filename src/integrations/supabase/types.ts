@@ -495,12 +495,19 @@ export type Database = {
           case_number: number
           created_at: string
           duration_seconds: number | null
+          edited_at: string | null
+          edited_by: string | null
           expires_at: string | null
           guild_id: string
           id: string
           moderator_id: string
+          moderator_tag: string | null
+          proof_url: string | null
           reason: string | null
+          severity: string | null
+          source: string
           user_id: string
+          user_tag: string | null
         }
         Insert: {
           action: string
@@ -508,12 +515,19 @@ export type Database = {
           case_number: number
           created_at?: string
           duration_seconds?: number | null
+          edited_at?: string | null
+          edited_by?: string | null
           expires_at?: string | null
           guild_id: string
           id?: string
           moderator_id: string
+          moderator_tag?: string | null
+          proof_url?: string | null
           reason?: string | null
+          severity?: string | null
+          source?: string
           user_id: string
+          user_tag?: string | null
         }
         Update: {
           action?: string
@@ -521,12 +535,19 @@ export type Database = {
           case_number?: number
           created_at?: string
           duration_seconds?: number | null
+          edited_at?: string | null
+          edited_by?: string | null
           expires_at?: string | null
           guild_id?: string
           id?: string
           moderator_id?: string
+          moderator_tag?: string | null
+          proof_url?: string | null
           reason?: string | null
+          severity?: string | null
+          source?: string
           user_id?: string
+          user_tag?: string | null
         }
         Relationships: []
       }
@@ -534,6 +555,8 @@ export type Database = {
         Row: {
           allow_temporary_ban: boolean
           allow_temporary_mute: boolean
+          appeal_url: string | null
+          audit_log_enabled: boolean
           created_at: string
           default_mute_duration: number
           default_warn_punishment: string
@@ -547,16 +570,23 @@ export type Database = {
           enabled_log_events: string[]
           guild_id: string
           log_channel_id: string | null
+          logs_retention_days: number
           max_warnings: number
           mute_role_id: string | null
           protected_role_ids: string[]
           protected_user_ids: string[]
           punishment_dm_template: string
           updated_at: string
+          warn_expiry_days: number
+          warn_points_high: number
+          warn_points_low: number
+          warn_points_medium: number
         }
         Insert: {
           allow_temporary_ban?: boolean
           allow_temporary_mute?: boolean
+          appeal_url?: string | null
+          audit_log_enabled?: boolean
           created_at?: string
           default_mute_duration?: number
           default_warn_punishment?: string
@@ -570,16 +600,23 @@ export type Database = {
           enabled_log_events?: string[]
           guild_id: string
           log_channel_id?: string | null
+          logs_retention_days?: number
           max_warnings?: number
           mute_role_id?: string | null
           protected_role_ids?: string[]
           protected_user_ids?: string[]
           punishment_dm_template?: string
           updated_at?: string
+          warn_expiry_days?: number
+          warn_points_high?: number
+          warn_points_low?: number
+          warn_points_medium?: number
         }
         Update: {
           allow_temporary_ban?: boolean
           allow_temporary_mute?: boolean
+          appeal_url?: string | null
+          audit_log_enabled?: boolean
           created_at?: string
           default_mute_duration?: number
           default_warn_punishment?: string
@@ -593,12 +630,17 @@ export type Database = {
           enabled_log_events?: string[]
           guild_id?: string
           log_channel_id?: string | null
+          logs_retention_days?: number
           max_warnings?: number
           mute_role_id?: string | null
           protected_role_ids?: string[]
           protected_user_ids?: string[]
           punishment_dm_template?: string
           updated_at?: string
+          warn_expiry_days?: number
+          warn_points_high?: number
+          warn_points_low?: number
+          warn_points_medium?: number
         }
         Relationships: []
       }
@@ -1346,11 +1388,15 @@ export type Database = {
         Row: {
           active: boolean
           created_at: string
+          expires_at: string | null
           guild_id: string
           id: number
           moderator_id: string
           moderator_name: string | null
+          points: number
+          proof_url: string | null
           reason: string | null
+          severity: string
           updated_at: string
           user_id: string
           username: string | null
@@ -1358,11 +1404,15 @@ export type Database = {
         Insert: {
           active?: boolean
           created_at?: string
+          expires_at?: string | null
           guild_id: string
           id?: number
           moderator_id: string
           moderator_name?: string | null
+          points?: number
+          proof_url?: string | null
           reason?: string | null
+          severity?: string
           updated_at?: string
           user_id: string
           username?: string | null
@@ -1370,11 +1420,15 @@ export type Database = {
         Update: {
           active?: boolean
           created_at?: string
+          expires_at?: string | null
           guild_id?: string
           id?: number
           moderator_id?: string
           moderator_name?: string | null
+          points?: number
+          proof_url?: string | null
           reason?: string | null
+          severity?: string
           updated_at?: string
           user_id?: string
           username?: string | null
@@ -1383,10 +1437,18 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      moderation_stats_30d: {
+        Row: {
+          action: string | null
+          guild_id: string | null
+          moderator_id: string | null
+          total: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      next_case_number: { Args: { _guild_id: string }; Returns: number }
     }
     Enums: {
       [_ in never]: never

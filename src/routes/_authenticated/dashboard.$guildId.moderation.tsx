@@ -1,4 +1,5 @@
 import { AutomodTab } from "@/components/dashboard/moderation/AutomodTab";
+import { HistoryTab } from "@/components/dashboard/moderation/HistoryTab";
 import { useState } from "react";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -111,6 +112,7 @@ function ModerationPage() {
 
       <div className="mt-6 space-y-5">
         <GeneralTab guildId={guildId} initial={config} />
+        <HistoryTab guildId={guildId} />
         <AutomodTab guildId={guildId} initial={automodConfig} />
       </div>
     </ModuleLayout>
@@ -242,6 +244,13 @@ function GeneralTab({
           embed_footer: form.embed_footer,
           embed_icon_url: emptyToNull(form.embed_icon_url),
           enabled_log_events: form.enabled_log_events ?? [],
+          warn_expiry_days: Number(form.warn_expiry_days ?? 90),
+          appeal_url: emptyToNull(form.appeal_url ?? null),
+          warn_points_low: Number(form.warn_points_low ?? 1),
+          warn_points_medium: Number(form.warn_points_medium ?? 2),
+          warn_points_high: Number(form.warn_points_high ?? 3),
+          logs_retention_days: Number(form.logs_retention_days ?? 180),
+          audit_log_enabled: form.audit_log_enabled ?? true,
         },
       }),
     onSuccess: (saved) => {
@@ -416,6 +425,75 @@ function GeneralTab({
               className="mt-1"
             />
           </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Advertências avançadas (Fase 3)">
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div>
+            <Label className="text-sm">Pontos — Baixa</Label>
+            <Input
+              type="number" min={0} max={20}
+              value={form.warn_points_low ?? 1}
+              onChange={(e) => setForm({ ...form, warn_points_low: Number(e.target.value) || 0 })}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label className="text-sm">Pontos — Média</Label>
+            <Input
+              type="number" min={0} max={20}
+              value={form.warn_points_medium ?? 2}
+              onChange={(e) => setForm({ ...form, warn_points_medium: Number(e.target.value) || 0 })}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label className="text-sm">Pontos — Alta</Label>
+            <Input
+              type="number" min={0} max={20}
+              value={form.warn_points_high ?? 3}
+              onChange={(e) => setForm({ ...form, warn_points_high: Number(e.target.value) || 0 })}
+              className="mt-1"
+            />
+          </div>
+          <div>
+            <Label className="text-sm">Expiração do warn (dias, 0 = nunca)</Label>
+            <Input
+              type="number" min={0} max={3650}
+              value={form.warn_expiry_days ?? 90}
+              onChange={(e) => setForm({ ...form, warn_expiry_days: Number(e.target.value) || 0 })}
+              className="mt-1"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <Label className="text-sm">URL de apelação (aparece como botão no DM)</Label>
+            <Input
+              type="url"
+              placeholder="https://discord.gg/seu-server-apelo"
+              value={form.appeal_url ?? ""}
+              onChange={(e) => setForm({ ...form, appeal_url: e.target.value })}
+              className="mt-1"
+            />
+          </div>
+        </div>
+      </SectionCard>
+
+      <SectionCard title="Integrações & retenção">
+        <SwitchRow
+          label="Registrar ações manuais via Discord (Audit Log)"
+          hint="Bans/kicks feitos pela interface do Discord viram casos automaticamente."
+          checked={form.audit_log_enabled ?? true}
+          onChange={(v) => setForm({ ...form, audit_log_enabled: v })}
+        />
+        <div>
+          <Label className="text-sm">Retenção de logs (dias)</Label>
+          <Input
+            type="number" min={7} max={3650}
+            value={form.logs_retention_days ?? 180}
+            onChange={(e) => setForm({ ...form, logs_retention_days: Number(e.target.value) || 180 })}
+            className="mt-1"
+          />
         </div>
       </SectionCard>
 

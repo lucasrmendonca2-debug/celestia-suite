@@ -49,20 +49,17 @@ const MOD_DEFAULTS = {
   embed_footer: "Sistema de Moderação",
   embed_icon_url: null as string | null,
   enabled_log_events: [
-    "ban",
-    "unban",
-    "kick",
-    "mute",
-    "unmute",
-    "warn",
-    "removewarn",
-    "clear",
-    "lock",
-    "unlock",
-    "slowmode",
-    "automod",
-    "config_change",
+    "ban", "unban", "kick", "mute", "unmute", "warn", "removewarn",
+    "clear", "lock", "unlock", "slowmode", "automod", "config_change",
+    "note", "purge", "nickname",
   ] as string[],
+  warn_expiry_days: 90,
+  appeal_url: null as string | null,
+  warn_points_low: 1,
+  warn_points_medium: 2,
+  warn_points_high: 3,
+  logs_retention_days: 180,
+  audit_log_enabled: true,
 };
 
 export const getModerationConfig = createServerFn({ method: "GET" })
@@ -108,6 +105,13 @@ const ConfigInput = z.object({
   embed_footer: z.string().min(1).max(200),
   embed_icon_url: z.string().url().max(1000).nullable(),
   enabled_log_events: z.array(z.string().min(1).max(40)).max(40),
+  warn_expiry_days: z.number().int().min(0).max(3650),
+  appeal_url: z.string().url().max(500).nullable(),
+  warn_points_low: z.number().int().min(0).max(20),
+  warn_points_medium: z.number().int().min(0).max(20),
+  warn_points_high: z.number().int().min(0).max(20),
+  logs_retention_days: z.number().int().min(7).max(3650),
+  audit_log_enabled: z.boolean(),
 });
 
 export const updateModerationConfig = createServerFn({ method: "POST" })
@@ -269,3 +273,93 @@ export const getModerationStats = createServerFn({ method: "GET" })
       activeWarnings: warnRes.count ?? 0,
     };
   });
+
+/* ---------------- Casos (mod_cases) ---------------- */
+
+export const listModerationCases = createServerFn({ method: "GET" })
+  .inputValidator(
+    (d: {
+      guildId: string;
+      userId?: string | null;
+      moderatorId?: string | null;
+      action?: string | null;
+      source?: string | null;
+      limit?: number;
+    }) =>
+      z
+        .object({
+          guildId: guildIdSchema,
+          userId: snowflakeNullable.optional(),
+          moderatorId: snowflakeNullable.optional(),
+          action: z.string().max(40).nullable().optional(),
+          source: z.enum(["BOT", "DISCORD_UI", "DASHBOARD", "AUTOMOD"]).nullable().optional(),
+          limit: z.number().int().min(1).max(500).optional(),
+        })
+        .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    let q = sb
+      .from("mod_cases")
+      .select("*")
+      .eq("guild_id", data.guildId)
+      .order("case_number", { ascending: false })
+      .limit(data.limit ?? 100);
+    if (data.userId) q = q.eq("user_id", data.userId);
+    if (data.moderatorId) q = q.eq("moderator_id", data.moderatorId);
+    if (data.action) q = q.eq("action", data.action);
+    if (data.source) q = q.eq("source", data.source);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+export const editModerationCaseReason = createServerFn({ method: "POST" })
+  .inputValidator(
+    (d: { guildId: string; caseNumber: number; reason: string; editorId: string }) =>
+      z
+        .object({
+          guildId: guildIdSchema,
+          caseNumber: z.number().int().min(1),
+          reason: z.string().min(1).max(2000),
+          editorId: snowflake,
+        })
+        .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { data: row, error } = await sb
+      .from("mod_cases")
+      .update({
+        reason: data.reason,
+        edited_at: new Date().toISOString(),
+        edited_by: data.editorId,
+      })
+      .eq("guild_id", data.guildId)
+      .eq("case_number", data.caseNumber)
+      .select("*")
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return row;
+  });
+
+export const invalidateModerationCase = createServerFn({ method: "POST" })
+  .inputValidator((d: { guildId: string; caseNumber: number }) =>
+    z
+      .object({ guildId: guildIdSchema, caseNumber: z.number().int().min(1) })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { error } = await sb
+      .from("mod_cases")
+      .update({ active: false })
+      .eq("guild_id", data.guildId)
+      .eq("case_number", data.caseNumber);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+

@@ -24,53 +24,39 @@ const command: SlashCommand = {
   guildOnly: true,
   botPermissions: [PermissionFlagsBits.BanMembers],
   data: new SlashCommandBuilder()
-    .setName("ban")
-    .setDescription("Bane um usuário do servidor (permanente ou temporário).")
-    .addUserOption((o) =>
-      o.setName("usuario").setDescription("Usuário a ser banido").setRequired(true),
-    )
-    .addStringOption((o) => o.setName("motivo").setDescription("Motivo do banimento"))
+    .setName("tempban")
+    .setDescription("Bane temporariamente (desbanimento automático).")
+    .addUserOption((o) => o.setName("usuario").setDescription("Usuário").setRequired(true))
     .addStringOption((o) =>
-      o.setName("duracao").setDescription("Ex.: 7d, 24h, 30m (opcional = permanente)"),
+      o.setName("duracao").setDescription("Ex: 1h, 2d, 1w").setRequired(true),
     )
-    .addIntegerOption((o) =>
-      o
-        .setName("apagar_dias")
-        .setDescription("Apagar mensagens dos últimos N dias (0-7)")
-        .setMinValue(0)
-        .setMaxValue(7),
-    ),
+    .addStringOption((o) => o.setName("motivo").setDescription("Motivo")),
   async execute(interaction) {
     const guild = interaction.guild!;
     const config = await getModerationConfig(guild.id);
-    if (!config.enabled) {
+    if (!config.enabled || !config.allow_temporary_ban) {
       return interaction.reply({
-        embeds: [brandEmbed({ kind: "error", title: "Moderação desativada", description: "Ative o módulo no dashboard." })],
+        embeds: [brandEmbed({ kind: "error", title: "Tempban desativado nas configurações." })],
         ephemeral: true,
       });
     }
-
     const author = await guild.members.fetch(interaction.user.id);
-    const durationSec = parseDurationSeconds(interaction.options.getString("duracao"));
-    const capability = durationSec ? "can_ban" : "can_ban";
-    if (!(await hasModCapability(author, capability))) {
+    if (!(await hasModCapability(author, "can_ban"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para banir." })],
         ephemeral: true,
       });
     }
-    if (durationSec && !config.allow_temporary_ban) {
+    const user = interaction.options.getUser("usuario", true);
+    const reason = interaction.options.getString("motivo") ?? undefined;
+    const duration = parseDurationSeconds(interaction.options.getString("duracao", true));
+    if (!duration) {
       return interaction.reply({
-        embeds: [brandEmbed({ kind: "error", title: "Ban temporário desativado no dashboard." })],
+        embeds: [brandEmbed({ kind: "error", title: "Duração inválida (use 1h, 2d, 1w)." })],
         ephemeral: true,
       });
     }
-
-    const user = interaction.options.getUser("usuario", true);
-    const reason = interaction.options.getString("motivo") ?? undefined;
-    const deleteDays = interaction.options.getInteger("apagar_dias") ?? 0;
     const member = await guild.members.fetch(user.id).catch(() => null);
-
     if (member) {
       const check = await canPunishTarget(author, member, config);
       if (!check.ok) {
@@ -81,93 +67,80 @@ const command: SlashCommand = {
       }
       if (!member.bannable) {
         return interaction.reply({
-          embeds: [brandEmbed({ kind: "error", title: "Não consigo banir esse usuário (hierarquia/permissões)." })],
+          embeds: [brandEmbed({ kind: "error", title: "Não consigo banir esse usuário." })],
           ephemeral: true,
         });
       }
     }
-
     await interaction.deferReply();
-
-    const expiresAt = durationSec ? new Date(Date.now() + durationSec * 1000) : null;
-    const modCase = await createCase({
+    const expiresAt = new Date(Date.now() + duration * 1000);
+    const c = await createCase({
       guildId: guild.id,
       userId: user.id,
       userTag: user.tag,
       moderatorId: interaction.user.id,
       moderatorTag: interaction.user.tag,
-      action: durationSec ? "TEMP_BAN" : "BAN",
+      action: "TEMP_BAN",
       reason,
-      durationSeconds: durationSec,
+      durationSeconds: duration,
       expiresAt,
       source: "BOT",
     });
-
-    // DM antes de banir
     await dmPunishedUser({
       guild,
-      type: durationSec ? "TEMP_BAN" : "BAN",
+      type: "TEMP_BAN",
       target: user,
       moderator: interaction.user,
       reason,
-      durationSeconds: durationSec,
+      durationSeconds: duration,
       config,
-      caseNumber: modCase.case_number,
+      caseNumber: c.case_number,
     });
-
     await guild.bans.create(user.id, {
-      reason: `[${interaction.user.tag}] ${reason ?? "Sem motivo"}`,
-      deleteMessageSeconds: deleteDays * 86400,
+      reason: `[${interaction.user.tag}] ${reason ?? "Tempban"}`,
+      deleteMessageSeconds: 0,
     });
-
-    const punishment = await createPunishment({
+    const p = await createPunishment({
       guildId: guild.id,
       userId: user.id,
       username: user.tag,
       moderatorId: interaction.user.id,
       moderatorName: interaction.user.tag,
-      type: durationSec ? "TEMP_BAN" : "BAN",
+      type: "TEMP_BAN",
       reason,
-      durationSeconds: durationSec,
+      durationSeconds: duration,
     });
-
-    if (durationSec && expiresAt) {
-      await scheduleTemporaryAction({
-        guildId: guild.id,
-        userId: user.id,
-        actionType: "TEMP_BAN",
-        expiresAt,
-        punishmentId: punishment?.id ?? null,
-      });
-    }
-
+    await scheduleTemporaryAction({
+      guildId: guild.id,
+      userId: user.id,
+      actionType: "TEMP_BAN",
+      expiresAt,
+      punishmentId: p.id as number,
+    });
     await logModerationEvent({
       guildId: guild.id,
       userId: user.id,
       moderatorId: interaction.user.id,
-      action: durationSec ? "TEMP_BAN" : "BAN",
+      action: "TEMP_BAN",
       reason,
-      details: { caseNumber: modCase.case_number, duration: durationSec },
+      details: { caseNumber: c.case_number, duration },
     });
     await postModerationLog({
       guild,
-      type: durationSec ? "TEMP_BAN" : "BAN",
+      type: "TEMP_BAN",
       target: user,
       moderator: interaction.user,
       reason,
-      durationSeconds: durationSec,
+      durationSeconds: duration,
       config,
-      caseNumber: modCase.case_number,
+      caseNumber: c.case_number,
     });
-
     await interaction.editReply({
       embeds: [
         brandEmbed({
           kind: "success",
-          title: durationSec
-            ? `Banimento temporário · Caso #${modCase.case_number}`
-            : `Banimento aplicado · Caso #${modCase.case_number}`,
-          description: `<@${user.id}> foi banido.`,
+          title: `Tempban aplicado · Caso #${c.case_number}`,
+          description: `<@${user.id}> liberado <t:${Math.floor(expiresAt.getTime() / 1000)}:R>.`,
         }),
       ],
     });

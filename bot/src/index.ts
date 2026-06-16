@@ -4,6 +4,7 @@ import { logger } from "./bot/utils/logger.js";
 import { loadCommands } from "./bot/handlers/commands.js";
 import { loadEvents } from "./bot/handlers/events.js";
 import { startSchedulers } from "./bot/systems/scheduler.js";
+import { startModerationScheduler } from "./bot/systems/moderation/temporary.scheduler.js";
 import { connectDatabase, disconnectDatabase } from "./database/connection.js";
 import type { ZenoxClient } from "./types/command.js";
 
@@ -41,6 +42,8 @@ async function bootstrap() {
 
   await client.login(env.DISCORD_TOKEN);
   startSchedulers(client);
+  startModerationScheduler(client);
+
 
   const shutdown = async (sig: string) => {
     logger.info({ sig }, "Encerrando bot...");

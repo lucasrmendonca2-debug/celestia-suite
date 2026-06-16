@@ -1,60 +1,64 @@
 # Assets Visuais do Zenox — Guia Completo
 
-> **Regra de ouro:** o **mascote Zenox é a marca**. Ele aparece em quase todo asset (banners, ilustrações, splashes). Ícones e badges são objetos isolados, mas seguem a mesma DNA: traço anime moderno, contornos limpos, **paleta azul elétrico + roxo profundo**, glow suave, pele quente, brilho de personagem de gacha/mobile game premium.
+> **Regra de ouro:** o **mascote Zenox é a marca**. Ele aparece em quase todo asset (banners, ilustrações, splashes). Ícones e badges são objetos isolados, mas seguem a mesma DNA: ilustração chibi cartoon ousada, contorno preto grosso, **paleta âmbar/laranja quente sobre fundo preto**, sombreamento dramático, atitude descolada (smirk, óculos baixando, polegar pra cima).
 >
-> A meta é ter algo **mais marcante que a Loritta** — não genérico, não corporativo, não "tech minimalista". Sempre que possível, o mascote olha pro jogador, com uma expressão característica (sorriso confiante de lado, surpresa fofa, foco sério).
+> A meta é ter algo **mais marcante que a Loritta** — não genérico, não corporativo, não "tech minimalista". Sempre que possível, o mascote olha pro jogador com a atitude característica: óculos escuros sendo abaixados com o polegar, sorriso confiante, energia de streamer/gamer.
 
 ---
 
 ## Identidade do mascote Zenox
 
-Referência canônica: `src/assets/zenox-mascot.png` (o ícone redondo com o garoto de cabelo azul-meia-noite, olhos azul cristal grandes, headset gamer, hoodie azul/branca, "Z" azul flutuando no cabelo).
+Referência canônica: `src/assets/zenox-mascot.png` — chibi cartoon do garoto com cabelo preto-marrom volumoso e desgrenhado, pele bronzeada quente (laranja-âmbar), óculos de sol pretos retangulares sendo abaixados com o polegar, olho direito grande e expressivo (íris marrom-âmbar), sorriso aberto mostrando atitude, hoodie preto, fundo preto sólido. Estilo: ilustração cartoon polida, contorno preto, sombras pintadas com pincel digital, look de avatar Discord premium / Twitch / mascote de game.
 
-**Sempre incluir em qualquer prompt onde ele aparece:**
+**Sempre incluir em qualquer prompt onde ele aparece, como PRIMEIRA frase:**
 
-> *"Zenox mascot: anime boy character, messy dark navy-blue spiky hair with a glowing blue letter Z floating near the side of the head, large expressive crystal-blue eyes with light reflections, soft tan skin, slim modern gaming headset with cyan glow on the earcup, white and electric blue hoodie with subtle tech panels, confident smirk, anime gacha mobile-game art style, clean lineart, vibrant cel-shading with soft rim light, premium polished finish — match the established Zenox character design exactly."*
+> *"Zenox mascot: chibi cartoon boy, messy voluminous dark brown-black hair with subtle warm highlights, warm tan-orange skin tones, large expressive brown eyes with bright catchlights, thick black rectangular sunglasses being pulled down with his thumb to reveal one eye, confident open smirk showing attitude, black hoodie, bold black outlines, painterly shading with strong warm orange-amber light, polished cartoon illustration style for premium Discord / Twitch / gaming mascot — match the established Zenox character design exactly."*
 
-Cole esse bloco como **primeira frase** de qualquer prompt envolvendo o personagem. Depois descreva a cena/pose/cenário.
+Cole esse bloco como **primeira frase** de qualquer prompt envolvendo o personagem. Depois descreva a cena/pose/cenário. O fundo padrão é preto sólido (`#0A0A0A`) com luz quente em volta do personagem.
 
 ---
 
 ## Paleta oficial
 
+A paleta nova é **âmbar quente sobre preto**, refletindo o avatar. Azul/roxo permanecem como acentos de UI (botões, links), mas a "cara" do bot é laranja sobre preto.
+
 | Token        | Hex       | Uso                                |
 |--------------|-----------|------------------------------------|
-| brand        | `#5865F2` | Identidade primária / azul Zenox   |
-| brand_glow   | `#8B5CF6` | Acento, gradiente premium          |
-| cyan_accent  | `#22D3EE` | Glow do headset, partículas        |
+| brand        | `#F59E0B` | Âmbar Zenox — cor principal        |
+| brand_warm   | `#EA580C` | Laranja queimado — sombras quentes |
+| brand_glow   | `#FBBF24` | Glow âmbar claro — destaques       |
+| ink          | `#0A0A0A` | Preto fundo                        |
+| ink_soft     | `#1C1917` | Preto secundário                   |
+| accent_blue  | `#3B82F6` | Acento (links de dashboard)        |
 | success      | `#22C55E` | Confirmações                       |
 | error        | `#EF4444` | Erros                              |
-| warn         | `#F59E0B` | Avisos                             |
+| warn         | `#F59E0B` | Avisos (mesmo do brand)            |
 | premium      | `#F5C842` | VIP / Dourado                      |
 | economy      | `#FBBF24` | Moeda                              |
-| tickets      | `#14B8A6` | Atendimento                        |
+| tickets      | `#F97316` | Atendimento (laranja vivo)         |
 | moderation   | `#DC2626` | Punições                           |
 | fun          | `#EC4899` | Diversão                           |
 | social       | `#A855F7` | Perfil/Level                       |
 | logs         | `#64748B` | Cinza eventos                      |
 
-Fundo padrão dos banners: gradiente **#0B0F2A → #1E1B4B → #312E81** com partículas/bokeh azul-cyan.
+Fundo padrão dos banners: preto sólido `#0A0A0A` com luz radial âmbar `#EA580C` saindo de trás do personagem (efeito spotlight/rim light quente). Partículas opcionais: faíscas laranjas, motion blur curto.
 
 ---
 
 ## 1. GLOBAL
 
 ### `global.logo` — Logo redonda · **ALTA**
-- **PNG transparente · 512x512**
-- **Prompt:** *"[BLOCO MASCOTE] — close-up shot from chest up, character looking forward with a confident smirk, framed inside a circular glowing blue ring with sparkles, dark navy background inside the circle, app-icon composition, mobile game logo style, ultra polished."*
+- **PNG · 512x512** — exatamente o avatar canônico atual. Não regerar; reusar `zenox-mascot.png`.
 
 ### `global.banner` — Banner principal · **ALTA**
 - **WebP · 1200x400**
-- **Prompt:** *"[BLOCO MASCEMTOTE] — full body dynamic pose, arms slightly open, holographic blue UI panels floating around him (chat bubbles, command icons, sparkles), epic anime keyvisual, deep navy-to-purple gradient sky with aurora, cinematic rim light, no text, ultra HD."*
+- **Prompt:** *"[BLOCO MASCOTE] — full body chibi dynamic pose, leaning forward with one hand pulling sunglasses down, free hand making a finger-gun gesture, motion lines, deep black background with a radial warm orange-amber glow spotlighting him from behind, floating Discord-style UI panels and chat bubbles in soft amber, no text, ultra polished cartoon keyvisual."*
 
 ### `global.thumbnail_default` — **MÉDIA**
-- **PNG · 512x512** — busto do mascote em ¾, olhando para a câmera, fundo abstrato azul-roxo desfocado.
+- **PNG · 512x512** — busto do mascote em ¾, fundo preto com glow âmbar, mesma vibe do avatar.
 
 ### `global.footer_icon` — **BAIXA**
-- **PNG · 64x64** — só a cabeça do Zenox em chibi, fundo transparente.
+- **PNG · 64x64** — só os óculos pretos com um pequeno brilho âmbar, fundo transparente.
 
 ---
 
@@ -62,67 +66,67 @@ Fundo padrão dos banners: gradiente **#0B0F2A → #1E1B4B → #312E81** com par
 
 ### `welcome.banner` · **ALTA**
 - **WebP · 1200x400**
-- **Prompt:** *"[BLOCO MASCOTE] — character on the right side, waving enthusiastically with a big bright smile, throwing blue and purple confetti and stars, holding a small welcome sign with a heart, warm aurora background, festive but premium anime style, leaves left third empty for text, no text."*
+- *"[BLOCO MASCOTE] — character on the right, leaning casually against the frame, sunglasses pulled down with the thumb, free hand giving a friendly wave, warm amber confetti scattered around, black background with orange radial glow, leaves the left third empty for username text, polished cartoon style, no text."*
 
 ### `welcome.goodbye_banner` · **MÉDIA**
-- *"[BLOCO MASCOTE] — character on the right, waving goodbye with a soft melancholic smile, looking back over his shoulder, twilight purple-blue gradient sky with falling petals and gentle light particles, cinematic anime farewell scene, leaves left empty, no text."*
+- *"[BLOCO MASCOTE] — chibi version waving goodbye over his shoulder, sunglasses on, slight melancholic smirk, black background with faint dim amber light, falling sparks, leaves left side empty, no text."*
 
 ### `welcome.card_background` · **ALTA**
 - **PNG · 1200x500**
-- *"Background for member welcome card: dark navy gradient with diagonal blue-purple light streaks and soft bokeh, faint silhouette of the Zenox mascot peeking from the right corner watching, leaves left side empty for avatar and right-center empty for text, no text."*
+- *"Background for member welcome card: pure black canvas with a wide horizontal warm amber radial gradient, subtle orange particle bokeh, faint silhouette of the Zenox mascot peeking from the right corner with sunglasses lifted, leaves the left side empty for avatar and center for text, no text."*
 
 ---
 
 ## 3. TICKETS
 
 ### `tickets.panel_banner` · **ALTA**
-- *"[BLOCO MASCOTE] — character sitting at a futuristic holographic support desk wearing his headset, mic close to mouth, focused friendly expression, holographic chat bubbles and ticket icons floating around, teal-to-navy gradient backdrop (#0F172A to #14B8A6), glassmorphism panels, premium anime support-center scene, no text."*
+- *"[BLOCO MASCOTE] — character sitting at a sleek black support desk wearing his sunglasses, leaning on his elbow with a relaxed confident smirk, glowing amber chat bubbles and ticket icons floating around, deep black background with warm orange spotlight from above, polished cartoon support-center scene, no text."*
 
 ### `tickets.icon_support` · **ALTA**
-- **PNG transparente · 256x256** — headset gamer com glow cyan e uma chat bubble flutuando, mesmo estilo do headset do mascote, fundo branco sólido.
+- **PNG transparente · 256x256** — bolha de chat preta com contorno âmbar grosso e um pequeno headset preto sobreposto, mesmo traço cartoon do mascote.
 
 ### `tickets.icon_purchase` · **ALTA**
-- Sacola brilhante azul com fita roxa e moedas Z saindo, estilo gacha mobile game.
+- Sacola de compras preta com fita âmbar e moedas laranjas saindo, contorno preto grosso, fundo transparente.
 
 ### `tickets.icon_report` · **MÉDIA**
-- Escudo azul-violeta com exclamação vermelha neon, mesmo traço cel-shaded.
+- Escudo preto com exclamação âmbar/vermelha neon, mesmo estilo cel-shaded.
 
 ### `tickets.icon_partnership` · **MÉDIA**
-- Dois anéis cyan e roxo entrelaçados com brilho, estilo joia anime.
+- Dois apertos de mão estilizados em laranja e preto, com brilho âmbar entre eles.
 
 ### `tickets.icon_vip` · **ALTA**
-- Coroa dourada com gema azul Zenox no centro, glow dourado.
+- Coroa dourada com óculos escuros (referência ao mascote), glow âmbar intenso, fundo transparente.
 
 ### `tickets.closed_image` · **BAIXA**
-- *"[BLOCO MASCOTE] — chibi version giving a thumbs-up with a wink, big green check mark behind him, soft confetti, anime sticker style, no text."*
+- *"[BLOCO MASCOTE] — chibi giving a confident thumbs-up with sunglasses on, big amber check mark glowing behind him, black background, sticker style, no text."*
 
 ### `tickets.rating_image` · **BAIXA**
-- *"[BLOCO MASCOTE] — chibi version holding 5 golden stars in his hands with sparkles, excited expression, blue-purple background, no text."*
+- *"[BLOCO MASCOTE] — chibi holding 5 glowing amber stars in his hand, sunglasses lifted slightly, excited grin, black background, no text."*
 
 ---
 
 ## 4. ECONOMIA
 
 ### `economy.banner` · **ALTA**
-- *"[BLOCO MASCOTE] — character juggling glowing golden Z coins with a mischievous grin, coins flying around him with motion trails, treasure chest open behind spilling more coins, dark navy background with gold particles, premium anime economy scene, no text."*
+- *"[BLOCO MASCOTE] — character casually tossing a glowing amber coin in the air with a mischievous smirk, sunglasses on, free hand in hoodie pocket, more coins floating around with warm motion trails, black background with deep orange glow, polished cartoon scene, no text."*
 
 ### `economy.currency_icon` · **ALTA**
-- *"Premium glowing coin with letter Z embossed on front, gold-to-amber gradient (#FBBF24 to #F5C842), thick metallic rim with subtle blue inner glow, anime game item icon style, 3/4 angle, sparkles, transparent/white background, no text other than the Z."*
+- *"Premium glowing coin with a stylized letter Z embossed on front, amber-to-orange gradient (#FBBF24 to #EA580C), thick black outline, painterly highlight, cartoon game item icon style, 3/4 angle, sparkles, transparent background, no text other than the Z."*
 
 ### `economy.daily_image` · **MÉDIA**
-- *"[BLOCO MASCOTE] chibi, opening a glowing gift box that explodes with coins and stars, sparkle in his eye, no text."*
+- *"[BLOCO MASCOTE] chibi, opening a black gift box wrapped with an amber ribbon, coins exploding out in slow motion, eyes wide with a happy smirk, sunglasses pushed up on his head, black background, no text."*
 
 ### `economy.work_image` · **MÉDIA**
-- *"[BLOCO MASCOTE] chibi, wearing a hard hat backwards and holding a holographic wrench, focused happy face, blue blueprints floating, no text."*
+- *"[BLOCO MASCOTE] chibi, sunglasses on, sleeves of hoodie rolled up, holding a glowing amber wrench casually over his shoulder, smug confident look, black background, no text."*
 
 ### `economy.crime_image` · **MÉDIA**
-- *"[BLOCO MASCOTE] chibi, wearing a small black mask over the eyes, sneaky grin, tiptoeing with a coin bag, noir purple-cyan lighting, comedic anime style, no text."*
+- *"[BLOCO MASCOTE] chibi, sunglasses pulled down with thumb, finger over lips in a 'shhh' gesture, sneaky grin, tiny coin bag in the other hand, noir spotlight on black background, comedic cartoon style, no text."*
 
 ### `economy.shop_image` · **MÉDIA**
-- *"[BLOCO MASCOTE] chibi, behind a futuristic holographic shop counter with floating items (potions, badges, frames), arms open in welcoming gesture, no text."*
+- *"[BLOCO MASCOTE] chibi, behind a black counter with floating amber-glowing items (potions, badges, frames) above it, arms spread in welcoming gesture, sunglasses on, black background with warm light, no text."*
 
 ### `economy.top_image` · **MÉDIA**
-- *"[BLOCO MASCOTE] chibi standing on a golden 1st-place podium holding a glowing trophy above his head, confetti raining, no text."*
+- *"[BLOCO MASCOTE] chibi standing on a glowing amber 1st-place podium, holding a glowing trophy above his head with one hand, sunglasses lifted, victorious smirk, confetti raining in warm orange tones, black background, no text."*
 
 ---
 
@@ -130,70 +134,70 @@ Fundo padrão dos banners: gradiente **#0B0F2A → #1E1B4B → #312E81** com par
 
 ### `social.rank_background` · **ALTA**
 - **PNG · 1200x500**
-- *"Rank card background: dark navy gradient with diagonal purple-blue energy streaks on the right side, faint holographic XP bar pattern, very small chibi Zenox mascot silhouette peeking from the bottom-right corner with a thumbs up, left side empty for avatar, center empty for username and stats, no text."*
+- *"Rank card background: pure black canvas with diagonal warm amber-to-orange energy streaks on the right side, faint glowing XP bar pattern, very small chibi Zenox mascot silhouette peeking from the bottom-right corner with sunglasses on and a thumbs up, left side empty for avatar, center empty for username and stats, no text."*
 
 ### `social.profile_banner` · **ALTA**
-- *"[BLOCO MASCOTE] chibi version on the right edge holding a clipboard and a magnifying glass, curious friendly expression, abstract purple-blue gradient with stars, leaves most of the banner empty for profile info, no text."*
+- *"[BLOCO MASCOTE] chibi on the right edge, holding a holographic profile card glowing amber, sunglasses lifted to inspect it, curious confident expression, abstract black-to-orange gradient with sparks, leaves most of the banner empty for profile info, no text."*
 
 ### `social.levelup_banner` · **ALTA**
-- *"[BLOCO MASCOTE] — full body, fist raised triumphantly, screaming a victory shout with eyes closed in a wide smile, golden and purple light beams exploding behind him, XP particles, anime power-up scene, dark background, no text."*
+- *"[BLOCO MASCOTE] — full body, fist raised in triumph, mouth open in a victory shout, sunglasses askew, amber and gold light beams exploding behind him on a black background, XP particles, cartoon power-up scene, no text."*
 
 ### `social.frame_common` / `social.frame_vip` · **MÉDIA**
-- PNG transparente 512x512. Comum = anel prata fosco com sutil glow azul. VIP = anel dourado com gemas azuis Zenox e brilho intenso, no estilo moldura de avatar de gacha game.
+- PNG transparente 512x512. Comum = anel preto fosco com glow âmbar sutil. VIP = anel dourado com pequenos óculos escuros entalhados (assinatura do mascote) e brilho âmbar intenso.
 
-### `social.icon_rep` · coração roxo-rosa com glow neon.
-### `social.icon_xp` · cristal azul facetado irradiando luz.
-### `social.icon_achievement` · troféu dourado com gema azul, mesma família de design.
+### `social.icon_rep` · coração preto com glow âmbar/rosa neon, contorno grosso.
+### `social.icon_xp` · cristal âmbar facetado irradiando luz quente.
+### `social.icon_achievement` · troféu preto com gema âmbar, mesma família de design.
 
 ---
 
 ## 6. PREMIUM
 
 ### `premium.banner` · **ALTA**
-- *"[BLOCO MASCOTE] — character wearing a luxurious royal-blue and gold VIP outfit (cape with gold trim, golden crown floating above his head), confident smirk, standing in front of a glowing portal of golden light and diamonds, deep purple-to-gold gradient background, ultra premium anime scene, no text."*
+- *"[BLOCO MASCOTE] — character wearing a luxurious black and gold VIP outfit (gold-trimmed hoodie, golden crown floating above his head, gold-rimmed sunglasses), confident smirk, standing in front of a glowing portal of warm golden light and amber diamonds, deep black to gold gradient background, ultra premium cartoon scene, no text."*
 
 ### `premium.vip_badge` · **ALTA**
-- *"Premium VIP badge: golden crown with a central blue Z-shaped gem matching the Zenox brand, ornate metallic detailing, intense gold glow, anime game premium tier icon, transparent background, no text."*
+- *"Premium VIP badge: golden crown with miniature stylized black sunglasses at the center (Zenox signature), warm amber gem detailing, intense gold glow, cartoon game premium tier icon, transparent background, no text."*
 
 ### `premium.locked_image` · **MÉDIA**
-- *"[BLOCO MASCOTE] chibi, sitting next to a glowing golden lock with a slightly pouty face, pointing at it like 'unlock me!', purple-gold background, no text."*
+- *"[BLOCO MASCOTE] chibi, sunglasses pulled down, pointing at a glowing golden lock with a smug 'unlock me' face, black background with gold light, no text."*
 
 ### `premium.plan_image` · **BAIXA**
-- *"Holographic VIP membership card floating, blue-purple-gold gradient, Zenox Z logo prominent, anime game UI style, no readable text."*
+- *"Holographic VIP membership card floating, black and gold with amber accents, stylized Z and small sunglasses graphic, cartoon game UI style, no readable text."*
 
 ---
 
 ## 7. DIVERSÃO / INTERAÇÕES
 
-Para os GIFs, **prefira gerar com IA de vídeo curtos (1–2s, loop)** usando o mascote, em vez de pegar GIFs genéricos de anime. Fallback: Tenor.
+Para os GIFs, **prefira gerar com IA de vídeo curtos (1–2s, loop)** usando o mascote. Fallback: GIFs Tenor já configurados no código.
 
 | Key | Cena com o mascote |
 |-----|--------------------|
-| `fun.hug_gif` | Zenox abraçando alguém apertado com sorriso fechado, coraçõezinhos flutuando |
-| `fun.kiss_gif` | Zenox dando um beijo no ar com a mão, piscando, coração rosa |
-| `fun.slap_gif` | Zenox dando um tapa cômico exagerado, estrela de impacto |
+| `fun.hug_gif` | Zenox abraçando alguém apertado, óculos torcidos pra fora |
+| `fun.kiss_gif` | Zenox mandando beijinho com a mão, piscando, coração âmbar |
+| `fun.slap_gif` | Zenox dando um tapa cômico exagerado, estrela de impacto laranja |
 | `fun.pat_gif` | Zenox fazendo carinho na cabeça de alguém com expressão doce |
-| `fun.bonk_gif` | Zenox segurando um martelo de brinquedo gigante, "bonk!" |
-| `fun.cuddle_gif` | Zenox enrolado em um cobertor azul, fofo, olhos fechados |
-| `fun.poke_gif` | Zenox cutucando com o dedo, expressão maliciosa |
+| `fun.bonk_gif` | Zenox com martelo de brinquedo gigante âmbar, "bonk!" cartoon |
+| `fun.cuddle_gif` | Zenox enrolado em um cobertor preto, olhos fechados, sorriso fofo |
+| `fun.poke_gif` | Zenox cutucando com o dedo, sorriso travesso, sunglasses lifted |
 
-### `fun.ship_image` · *"[BLOCO MASCOTE] chibi, segurando uma fita rosa com dois corações nas pontas, sorriso travesso, espaço vazio dos lados para 2 avatares, no text."*
+### `fun.ship_image` · *"[BLOCO MASCOTE] chibi, segurando uma fita âmbar com dois corações nas pontas, smirk travesso, espaço vazio dos lados para 2 avatares, fundo preto, no text."*
 
-### `fun.marriage_image` · *"[BLOCO MASCOTE] chibi vestido de padrinho com gravata azul, segurando duas alianças douradas em uma almofadinha, pétalas de rosa caindo, no text."*
+### `fun.marriage_image` · *"[BLOCO MASCOTE] chibi vestido de padrinho com gravata âmbar, segurando duas alianças douradas em uma almofadinha preta, pétalas laranjas caindo, fundo preto, no text."*
 
 ---
 
 ## 8. MODERAÇÃO / LOGS
 
-### `moderation.icon_ban` — martelo de juiz vermelho com glow, mesma família de ícones.
-### `moderation.icon_mute` — microfone cortado com X vermelho neon.
-### `moderation.icon_warn` — triângulo amarelo com glow âmbar.
-### `moderation.icon_shield` · **ALTA** — escudo azul Zenox com Z dentro, brilho cyan.
+### `moderation.icon_ban` — martelo de juiz vermelho com contorno preto grosso e glow âmbar.
+### `moderation.icon_mute` — microfone preto cortado com X vermelho neon.
+### `moderation.icon_warn` — triângulo âmbar com exclamação preta, glow quente.
+### `moderation.icon_shield` · **ALTA** — escudo preto com pequenos óculos escuros estilizados dentro (assinatura), brilho âmbar.
 
 ### `moderation.automod_banner` · **MÉDIA**
-- *"[BLOCO MASCOTE] — character in 'guardian mode', wearing a navy-blue tactical jacket, arms crossed, serious focused expression, large translucent blue shield with circuit patterns hovering in front of him, deep red-to-navy gradient background with subtle warning glow, no text."*
+- *"[BLOCO MASCOTE] — character in 'guardian mode', wearing a black tactical hoodie, arms crossed, serious focused expression with sunglasses fully on, large translucent amber shield with glowing circuit patterns hovering in front of him, deep red-to-black gradient background, no text."*
 
-### `logs.icon_message_deleted` — balão de fala cinza com X vermelho.
+### `logs.icon_message_deleted` — balão de fala preto com X âmbar.
 
 ---
 
@@ -201,13 +205,13 @@ Para os GIFs, **prefira gerar com IA de vídeo curtos (1–2s, loop)** usando o 
 
 > Não entram em `bot_assets`. Coloque em `src/assets/`.
 
-- **`dashboard.logo_horizontal`** · SVG/PNG 800x200 — cabeça do mascote à esquerda + wordmark "Zenox" à direita, em uma única composição.
-- **`dashboard.logo_compact`** · SVG 96x96 — só a cabeça do mascote dentro do anel azul.
-- **`dashboard.login_background`** · WebP 1920x1080 — *"[BLOCO MASCOTE] em ¾ no canto direito olhando para o usuário com sorriso convidativo, ambiente cyber-aurora azul-roxo, partículas, leaves left two-thirds clear for login form."*
-- **`dashboard.empty_state`** · SVG/WebP 800x600 — *"[BLOCO MASCOTE] chibi sentado em uma caixa vazia, cabeça apoiada na mão, expressão entediada-fofa, no text."*
-- **`dashboard.premium_lock`** · *"[BLOCO MASCOTE] chibi segurando uma chave dourada gigante, apontando para um cadeado dourado brilhante, expressão animada."*
-- **`dashboard.error_illustration`** · *"[BLOCO MASCOTE] chibi com cabelo bagunçado, segurando peças de um circuito quebrado, expressão envergonhada, faíscas pequenas, no text."*
-- **`dashboard.setup_complete`** · *"[BLOCO MASCOTE] chibi pulando com os dois braços para cima, check verde gigante atrás, confetes, no text."*
+- **`dashboard.logo_horizontal`** · SVG/PNG 800x200 — cabeça do mascote à esquerda + wordmark "Zenox" em letras pretas grossas com sublinhado âmbar à direita.
+- **`dashboard.logo_compact`** · SVG 96x96 — só a cabeça do mascote (reusar `zenox-mascot.png`).
+- **`dashboard.login_background`** · WebP 1920x1080 — *"[BLOCO MASCOTE] em ¾ no canto direito, olhando pro usuário com sunglasses puxados, ambiente preto com aurora âmbar/laranja, partículas, leaves left two-thirds clear for login form."*
+- **`dashboard.empty_state`** · SVG/WebP 800x600 — *"[BLOCO MASCOTE] chibi sentado em uma caixa preta vazia, sunglasses puxados, cabeça apoiada na mão, expressão entediada-fofa, fundo preto, no text."*
+- **`dashboard.premium_lock`** · *"[BLOCO MASCOTE] chibi segurando uma chave dourada gigante, apontando para um cadeado dourado brilhante, smirk animado, sunglasses on, fundo preto."*
+- **`dashboard.error_illustration`** · *"[BLOCO MASCOTE] chibi com cabelo bagunçado, sunglasses tortos, segurando peças de um circuito quebrado, expressão envergonhada, faíscas pequenas, fundo preto, no text."*
+- **`dashboard.setup_complete`** · *"[BLOCO MASCOTE] chibi pulando com dois braços para cima, check verde gigante atrás, sunglasses, confetes âmbar, fundo preto, no text."*
 
 ---
 
@@ -217,46 +221,46 @@ PNG 128x128 sem fundo. Sempre que possível, derive da cara do mascote.
 
 | Nome | Estilo |
 |------|--------|
-| `zenoxok` | Cabecinha do Zenox piscando com polegar para cima |
-| `zenoxno` | Cabecinha do Zenox sacudindo "não" com X vermelho ao lado |
-| `zenoxwarn` | Cabecinha do Zenox preocupada, triângulo amarelo |
-| `zenoxlove` | Cabecinha do Zenox com olhos de coração |
-| `zenoxcry` | Cabecinha do Zenox chorando estilo anime exagerado |
-| `zenoxsmug` | Smirk clássico do Zenox em close |
-| `zenoxcoin` | Moeda Z dourada (idem `economy.currency_icon`) |
-| `zenoxxp` | Cristal azul XP |
-| `zenoxvip` | Coroa dourada com Z azul |
-| `zenoxticket` | Headset com chat bubble |
-| `zenoxshop` | Sacola brilhante |
-| `zenoxrank` | Troféu dourado com gema azul |
+| `zenoxok` | Cabecinha do Zenox piscando com polegar pra cima |
+| `zenoxno` | Cabecinha do Zenox sacudindo "não", X vermelho ao lado |
+| `zenoxwarn` | Cabecinha do Zenox preocupada, triângulo âmbar |
+| `zenoxlove` | Cabecinha do Zenox com sunglasses, corações flutuando |
+| `zenoxcry` | Cabecinha do Zenox chorando estilo cartoon exagerado |
+| `zenoxsmug` | Smirk clássico do Zenox em close, óculos puxados |
+| `zenoxcoin` | Moeda Z âmbar (idem `economy.currency_icon`) |
+| `zenoxxp` | Cristal âmbar XP |
+| `zenoxvip` | Coroa com óculos escuros |
+| `zenoxticket` | Bolha de chat com headset |
+| `zenoxshop` | Sacola preta com fita âmbar |
+| `zenoxrank` | Troféu preto com gema âmbar |
 
 ---
 
 ## 11. BADGES
 
-PNG transparente 512x512, formato de medalha redonda com anel brilhante. Cada uma sempre com o mesmo arco metálico + glow para parecerem família.
+PNG transparente 512x512, formato de medalha redonda com anel brilhante. Cada uma sempre com o mesmo arco preto + glow âmbar para parecerem família.
 
 | Key | Estilo |
 |-----|--------|
-| badge.founder   | Coroa real com gemas azuis Zenox + dourado intenso |
-| badge.staff     | Escudo azul com Z prateado dentro |
-| badge.vip       | Diamante azul-cyan facetado com glow roxo |
+| badge.founder   | Coroa real com óculos escuros entalhados + dourado intenso |
+| badge.staff     | Escudo preto com Z âmbar dentro |
+| badge.vip       | Diamante âmbar facetado com glow laranja |
 | badge.top_level | Cristal verde-XP grande |
-| badge.top_economy | Moeda Z dourada gigante |
-| badge.beta_tester | Tubo de ensaio com líquido azul brilhante |
-| badge.supporter | Coração rosa com glow |
+| badge.top_economy | Moeda Z âmbar gigante |
+| badge.beta_tester | Tubo de ensaio com líquido âmbar brilhante |
+| badge.supporter | Coração âmbar com glow |
 | badge.bug_hunter | Lupa com bug verde neon |
-| badge.event     | Confete colorido espiralado |
-| badge.legendary | Chama arco-íris com Z no centro |
+| badge.event     | Confete âmbar espiralado |
+| badge.legendary | Chama âmbar/laranja com Z no centro |
 
-**Prompt base badge:** *"Premium circular medal badge, [tema], shiny metallic rim with intense blue-cyan glow ring (Zenox brand), gaming achievement style consistent with Zenox mascot art direction (anime cel-shaded, vibrant), transparent background, ultra detailed, no text."*
+**Prompt base badge:** *"Premium circular medal badge, [tema], thick black metallic rim with intense warm amber-orange glow ring (Zenox brand), gaming achievement style consistent with Zenox mascot art direction (chibi cartoon, painterly), transparent background, ultra detailed, no text."*
 
 ---
 
 ## Prioridades
 
 **Sprint 1 — virar premium agora:**
-`global.logo`, `global.banner`, `tickets.panel_banner` + 5 `tickets.icon_*`, `economy.currency_icon`, `economy.banner`, `social.rank_background`, `social.levelup_banner`, `premium.vip_badge`, `premium.banner`, `moderation.icon_shield`, `dashboard.logo_horizontal`, `dashboard.logo_compact`.
+`global.logo` (já feito ✅), `global.banner`, `tickets.panel_banner` + 5 `tickets.icon_*`, `economy.currency_icon`, `economy.banner`, `social.rank_background`, `social.levelup_banner`, `premium.vip_badge`, `premium.banner`, `moderation.icon_shield`, `dashboard.logo_horizontal`.
 
 **Sprint 2 — polimento:** ícones e banners restantes, GIFs de interação com o mascote, badges principais.
 

@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Service role manages command permissions" ON public.command_permissions;

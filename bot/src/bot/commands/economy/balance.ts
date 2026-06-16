@@ -14,6 +14,17 @@ const command: SlashCommand = {
     .addUserOption((o) => o.setName("usuario").setDescription("Outro usuário")),
   async execute(interaction) {
     const target = interaction.options.getUser("usuario") ?? interaction.user;
+    if (target.bot && target.id === interaction.client.user.id) {
+      await interaction.reply({
+        embeds: [brandEmbed({ kind: "info", title: "🤖 Carteira do bot", description: "Eu vivo de eletricidade e boa vontade. Saldo: **0 moedas e 14 logs**." })],
+        ephemeral: true,
+      });
+      return;
+    }
+    if (target.bot) {
+      await interaction.reply({ embeds: [brandEmbed({ kind: "info", description: "Esse aí é um bot. Ele não usa economia. 🤖" })], ephemeral: true });
+      return;
+    }
     const acc = await getAccount(interaction.guildId!, target.id);
     const c = await getCurrency(interaction.guildId!);
     await interaction.reply({

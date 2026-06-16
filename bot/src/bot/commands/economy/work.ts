@@ -6,17 +6,11 @@ import { getAccount, getCurrency, isVip } from "../../systems/economy/economy.js
 import { getConfig } from "../../utils/guildCache.js";
 import { logTx } from "../../systems/economy/economy.tx.js";
 import { incrementMissionProgress } from "../../systems/economy/missions.js";
+import { economyResponses, pick } from "../../systems/personality/index.js";
 
 const COOLDOWN = 60 * 60 * 1000; // 1h
 
-const JOBS = [
-  "Você entregou pizzas e ganhou",
-  "Você consertou bugs no Discord e ganhou",
-  "Você fez stream e ganhou",
-  "Você vendeu memes na rua e ganhou",
-  "Você programou um bot e ganhou",
-  "Você cantou no karaokê e ganhou",
-];
+const JOBS = economyResponses.workJobs;
 
 const command: SlashCommand = {
   category: "economy",

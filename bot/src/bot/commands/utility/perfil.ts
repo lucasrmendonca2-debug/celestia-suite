@@ -10,6 +10,7 @@ import {
   isValidCardStyle,
 } from "../../systems/social/profile.service.js";
 import { listUserBadges, countUserBadges } from "../../systems/social/badge.service.js";
+import { pick, socialResponses } from "../../systems/personality/index.js";
 
 const command: SlashCommand = {
   category: "utility",
@@ -58,6 +59,27 @@ const command: SlashCommand = {
 
     if (sub === "ver") {
       const target = interaction.options.getUser("usuario") ?? interaction.user;
+      if (target.id === interaction.client.user.id) {
+        const client = interaction.client;
+        await interaction.reply({
+          embeds: [
+            brandEmbed({
+              title: `🤖 ${client.user?.username ?? "Bot"}`,
+              description: "Sou o assistente do servidor — moderação, economia, level, tickets e mais. Use `/help` pra explorar meus comandos.",
+              thumbnail: client.user?.displayAvatarURL(),
+              fields: [
+                { name: "Servidores", value: String(client.guilds.cache.size), inline: true },
+                { name: "Ping", value: `${Math.round(client.ws.ping)} ms`, inline: true },
+              ],
+            }),
+          ],
+        });
+        return;
+      }
+      if (target.bot) {
+        await interaction.reply({ embeds: [brandEmbed({ kind: "info", description: "Esse é outro bot. Ele não tem perfil social por aqui. 🤖" })], ephemeral: true });
+        return;
+      }
       const profile = await getProfile(guildId, target.id);
       if (target.id !== interaction.user.id) {
         await incrementProfileViews(guildId, target.id);
@@ -68,13 +90,13 @@ const command: SlashCommand = {
         .filter((b) => profile.selected_badges.includes(b.code))
         .slice(0, 3)
         .map((b) => `${b.emoji} **${b.name}**`)
-        .join(" • ") || "_Nenhuma badge em destaque_";
+        .join(" • ") || `_${pick(socialResponses.noBadges)}_`;
 
       await interaction.reply({
         embeds: [
           brandEmbed({
             title: `👤 ${profile.title || target.username}`,
-            description: profile.bio || "_Sem bio_",
+            description: profile.bio || `_${pick(socialResponses.noBio)}_`,
             thumbnail: target.displayAvatarURL(),
             image: profile.banner_url ?? undefined,
             fields: [

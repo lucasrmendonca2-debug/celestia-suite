@@ -3,6 +3,7 @@ import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { fmtCoins, fmtDuration } from "../../utils/format.js";
 import { getAccount, getCurrency } from "../../systems/economy/economy.js";
+import { economyResponses, pick } from "../../systems/personality/index.js";
 
 const COOLDOWN = 2 * 3600 * 1000;
 
@@ -34,14 +35,14 @@ const command: SlashCommand = {
       acc.wallet += reward;
       await acc.save();
       await interaction.reply({
-        embeds: [brandEmbed({ kind: "success", title: "🦹 Crime bem-sucedido!", description: `Você fugiu com ${fmtCoins(reward, c.emoji, c.name)}` })],
+        embeds: [brandEmbed({ kind: "success", title: "🦹 Crime bem-sucedido!", description: `${pick(economyResponses.crimeWin)} ${fmtCoins(reward, c.emoji, c.name)}` })],
       });
     } else {
       const loss = Math.min(acc.wallet, Math.floor(200 + Math.random() * 500));
       acc.wallet -= loss;
       await acc.save();
       await interaction.reply({
-        embeds: [brandEmbed({ kind: "error", title: "🚓 Você foi pego!", description: `Pagou multa de ${fmtCoins(loss, c.emoji, c.name)}` })],
+        embeds: [brandEmbed({ kind: "error", title: "🚓 Você foi pego!", description: `${pick(economyResponses.crimeFail)} ${fmtCoins(loss, c.emoji, c.name)}` })],
       });
     }
   },

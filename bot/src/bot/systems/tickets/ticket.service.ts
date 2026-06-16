@@ -11,6 +11,7 @@ export interface TicketConfig {
   category_id: string | null;
   default_support_role_id: string | null;
   log_channel_id: string | null;
+  rating_channel_id: string | null;
   max_open_tickets_per_user: number;
   panel_title: string;
   panel_description: string;
@@ -50,6 +51,7 @@ const DEFAULT_CONFIG: Omit<TicketConfig, "guild_id"> = {
   category_id: null,
   default_support_role_id: null,
   log_channel_id: null,
+  rating_channel_id: null,
   max_open_tickets_per_user: 5,
   panel_title: "🎫 Central de Atendimento",
   panel_description:
@@ -141,6 +143,19 @@ export async function findTicketByChannel(channelId: string): Promise<TicketRow 
     .maybeSingle();
   if (error) {
     logger.error({ err: error }, "findTicketByChannel falhou");
+    return null;
+  }
+  return (data as TicketRow | null) ?? null;
+}
+
+export async function findTicketById(ticketId: string): Promise<TicketRow | null> {
+  const { data, error } = await supabase
+    .from("tickets")
+    .select("*")
+    .eq("id", ticketId)
+    .maybeSingle();
+  if (error) {
+    logger.error({ err: error }, "findTicketById falhou");
     return null;
   }
   return (data as TicketRow | null) ?? null;

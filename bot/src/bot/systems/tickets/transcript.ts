@@ -12,18 +12,43 @@ export async function buildTranscript(channel: TextChannel): Promise<AttachmentB
   if (channel.type !== ChannelType.GuildText) {
     throw new Error("Canal inválido para transcript.");
   }
-  const collected: { author: string; avatar: string; ts: string; content: string; attachments: string[] }[] = [];
+  const collected: {
+    author: string;
+    avatar: string;
+    ts: string;
+    content: string;
+    embeds: { title: string; description: string }[];
+    attachments: string[];
+  }[] = [];
   let lastId: string | undefined;
   // Coleta até ~1000 mensagens
   for (let i = 0; i < 10; i++) {
     const batch = await channel.messages.fetch({ limit: 100, before: lastId }).catch(() => null);
     if (!batch || batch.size === 0) break;
     for (const m of batch.values()) {
+      // resolve menções (<@id>, <@&id>, <#id>) para nomes legíveis
+      let content = m.content ?? "";
+      content = content.replace(/<@!?(\d+)>/g, (_, id) => {
+        const u = channel.guild.members.cache.get(id);
+        return "@" + (u?.displayName ?? m.mentions.users.get(id)?.username ?? id);
+      });
+      content = content.replace(/<@&(\d+)>/g, (_, id) => {
+        const r = channel.guild.roles.cache.get(id);
+        return "@" + (r?.name ?? id);
+      });
+      content = content.replace(/<#(\d+)>/g, (_, id) => {
+        const c = channel.guild.channels.cache.get(id);
+        return "#" + (c?.name ?? id);
+      });
       collected.push({
         author: m.author.tag,
         avatar: m.author.displayAvatarURL({ size: 64 }),
         ts: new Date(m.createdTimestamp).toLocaleString("pt-BR"),
-        content: m.content,
+        content,
+        embeds: m.embeds.map((e) => ({
+          title: e.title ?? "",
+          description: e.description ?? "",
+        })),
         attachments: [...m.attachments.values()].map((a) => a.url),
       });
     }
@@ -33,12 +58,26 @@ export async function buildTranscript(channel: TextChannel): Promise<AttachmentB
   collected.reverse();
 
   const rows = collected
-    .map(
-      (m) => `<div class="msg"><img src="${esc(m.avatar)}" class="av"/>
+    .map((m) => {
+      const bodyText = m.content.trim();
+      const embedHtml = m.embeds
+        .filter((e) => e.title || e.description)
+        .map(
+          (e) =>
+            `<div class="embed">${e.title ? `<div class="etitle">${esc(e.title)}</div>` : ""}${e.description ? `<div class="edesc">${esc(e.description)}</div>` : ""}</div>`,
+        )
+        .join("");
+      const body = bodyText
+        ? esc(bodyText)
+        : embedHtml
+          ? ""
+          : `<i>(sem texto)</i>`;
+      return `<div class="msg"><img src="${esc(m.avatar)}" class="av"/>
 <div><div class="head"><b>${esc(m.author)}</b> <span class="ts">${esc(m.ts)}</span></div>
-<div class="body">${esc(m.content) || "<i>(sem texto)</i>"}</div>
-${m.attachments.map((u) => `<div class="att"><a href="${esc(u)}">${esc(u)}</a></div>`).join("")}</div></div>`,
-    )
+<div class="body">${body}</div>
+${embedHtml}
+${m.attachments.map((u) => `<div class="att"><a href="${esc(u)}">${esc(u)}</a></div>`).join("")}</div></div>`;
+    })
     .join("\n");
 
   const html = `<!doctype html><html><head><meta charset="utf-8"/>
@@ -53,6 +92,9 @@ h1{color:#a78bfa}
 .body{white-space:pre-wrap;margin-top:4px}
 .att{margin-top:4px;font-size:12px}
 a{color:#7dd3fc}
+.embed{border-left:4px solid #7c3aed;background:#1e293b;padding:8px 12px;margin-top:6px;border-radius:4px}
+.etitle{font-weight:600;color:#a78bfa;margin-bottom:2px}
+.edesc{white-space:pre-wrap;color:#cbd5e1;font-size:14px}
 </style></head><body>
 <h1>🎫 #${esc(channel.name)}</h1>
 <p>${collected.length} mensagens • gerado em ${new Date().toLocaleString("pt-BR")}</p>

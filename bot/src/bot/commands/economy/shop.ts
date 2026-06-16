@@ -43,6 +43,12 @@ const command: SlashCommand = {
         .setDescription("Compra um item")
         .addStringOption((o) => o.setName("nome").setDescription("Nome").setRequired(true))
         .addIntegerOption((o) => o.setName("quantidade").setDescription("Qtd").setMinValue(1)),
+    )
+    .addSubcommand((s) =>
+      s.setName("rotacao").setDescription("Mostra a loja rotativa atual."),
+    )
+    .addSubcommand((s) =>
+      s.setName("rotacionar").setDescription("Staff: força uma nova rotação agora."),
     ),
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();

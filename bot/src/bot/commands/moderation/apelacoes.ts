@@ -114,7 +114,7 @@ const command: SlashCommand = {
               kind: status === "approved" ? "success" : "warn",
               title: `Apelação ${status === "approved" ? "aprovada" : "rejeitada"} · Caso #${caseNumber}`,
               description: nota ?? "_Sem comentário do moderador._",
-              footer: { text: guild.name },
+              footer: guild.name,
             }),
           ],
         })

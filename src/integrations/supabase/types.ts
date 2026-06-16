@@ -2026,6 +2026,7 @@ export type Database = {
       }
       suggestions: {
         Row: {
+          anonymous: boolean
           author_id: string
           channel_id: string
           content: string
@@ -2042,6 +2043,7 @@ export type Database = {
           upvotes: number
         }
         Insert: {
+          anonymous?: boolean
           author_id: string
           channel_id: string
           content: string
@@ -2058,6 +2060,7 @@ export type Database = {
           upvotes?: number
         }
         Update: {
+          anonymous?: boolean
           author_id?: string
           channel_id?: string
           content?: string

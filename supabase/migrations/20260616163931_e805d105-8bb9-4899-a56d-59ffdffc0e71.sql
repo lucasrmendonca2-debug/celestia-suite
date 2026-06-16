@@ -1,0 +1,1 @@
+ALTER TABLE public.suggestions ADD COLUMN IF NOT EXISTS anonymous boolean NOT NULL DEFAULT false;

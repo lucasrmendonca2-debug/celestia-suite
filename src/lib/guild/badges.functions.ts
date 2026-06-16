@@ -53,6 +53,8 @@ export const upsertBadge = createServerFn({ method: "POST" })
       const { error } = await sb.from("badges").update(rest).eq("id", id).eq("guild_id", guildId);
       if (error) throw new Error(error.message);
     } else {
+      const { enforceGuildLimit } = await import("./premium-limits.server");
+      await enforceGuildLimit(guildId, "badges.custom", "badges");
       const { error } = await sb.from("badges").insert({ guild_id: guildId, ...rest });
       if (error) throw new Error(error.message);
     }

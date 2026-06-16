@@ -155,11 +155,90 @@ function TicketsPage() {
   );
 }
 
-function StatCard({ label, value }: { label: string; value: number | string }) {
+function StatCard({
+  label,
+  value,
+  icon: Icon,
+  accent,
+  badge,
+}: {
+  label: string;
+  value: number | string;
+  icon?: React.ComponentType<{ className?: string }>;
+  accent?: string;
+  badge?: string;
+}) {
   return (
-    <div className="rounded-xl border border-border bg-card/50 p-4 backdrop-blur">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 text-2xl font-semibold">{value}</p>
+    <div className="relative overflow-hidden rounded-xl border border-border bg-card/50 p-4 backdrop-blur">
+      <div
+        className={`pointer-events-none absolute inset-0 bg-gradient-to-br opacity-70 ${accent ?? "from-transparent to-transparent"}`}
+      />
+      <div className="relative flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <p className="text-xs text-muted-foreground">{label}</p>
+          <p className="mt-1 text-2xl font-semibold tracking-tight">{value}</p>
+          {badge && (
+            <span className="mt-2 inline-flex items-center gap-1 rounded-full border border-border bg-background/60 px-2 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+              <span className="size-1.5 rounded-full bg-current" /> {badge}
+            </span>
+          )}
+        </div>
+        {Icon && (
+          <div className="rounded-lg border border-border bg-background/40 p-2">
+            <Icon className="size-4" />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SetupChecklist({
+  config,
+}: {
+  config: { enabled: boolean; panel_channel_id: string | null; category_id: string | null; default_support_role_id: string | null; log_channel_id: string | null; panel_message_id: string | null };
+}) {
+  const steps = [
+    { ok: config.enabled, label: "Sistema ativado" },
+    { ok: !!config.panel_channel_id, label: "Canal do painel definido" },
+    { ok: !!config.category_id, label: "Categoria do Discord definida" },
+    { ok: !!config.default_support_role_id, label: "Cargo de suporte definido" },
+    { ok: !!config.log_channel_id, label: "Canal de logs definido" },
+    { ok: !!config.panel_message_id, label: "Painel publicado" },
+  ];
+  const done = steps.filter((s) => s.ok).length;
+  const pct = Math.round((done / steps.length) * 100);
+  return (
+    <div className="mt-3 rounded-xl border border-border bg-card/40 p-4">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <div className="flex items-center gap-2">
+          <Sparkles className="size-4 text-primary" />
+          <h3 className="text-sm font-semibold">Checklist de configuração</h3>
+        </div>
+        <span className="text-xs text-muted-foreground">
+          {done}/{steps.length} concluídos
+        </span>
+      </div>
+      <div className="mb-3 h-1.5 w-full overflow-hidden rounded-full bg-background/60">
+        <div
+          className="h-full bg-gradient-to-r from-primary to-fuchsia-500 transition-all"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <ul className="grid gap-1 sm:grid-cols-2">
+        {steps.map((s) => (
+          <li key={s.label} className="flex items-center gap-2 text-xs">
+            {s.ok ? (
+              <CheckCircle2 className="size-3.5 text-emerald-400" />
+            ) : (
+              <Circle className="size-3.5 text-muted-foreground" />
+            )}
+            <span className={s.ok ? "text-foreground" : "text-muted-foreground"}>
+              {s.label}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

@@ -68,14 +68,20 @@ interface ModLogArgs {
   durationSeconds?: number | null;
   extra?: { name: string; value: string; inline?: boolean }[];
   config?: ModerationConfig;
+  caseNumber?: number | null;
+  severity?: string | null;
+  proofUrl?: string | null;
 }
 
 function buildEmbed(args: ModLogArgs, config: ModerationConfig) {
   const color = (config.embed_color ?? 0xed4245) as ColorResolvable;
   const targetTag = "tag" in args.target && args.target.tag ? args.target.tag : args.target.id;
+  const title = args.caseNumber
+    ? `🛡️ ${actionLabel(args.type)} · Caso #${args.caseNumber}`
+    : `🛡️ ${actionLabel(args.type)}`;
   const embed = new EmbedBuilder()
     .setColor(color)
-    .setTitle(`🛡️ ${actionLabel(args.type)}`)
+    .setTitle(title)
     .addFields(
       { name: "Usuário", value: `<@${args.target.id}>\n\`${targetTag}\` · \`${args.target.id}\``, inline: true },
       { name: "Moderador", value: `<@${args.moderator.id}>`, inline: true },
@@ -84,6 +90,13 @@ function buildEmbed(args: ModLogArgs, config: ModerationConfig) {
     )
     .setFooter({ text: config.embed_footer ?? "Sistema de Moderação", iconURL: config.embed_icon_url ?? undefined })
     .setTimestamp(new Date());
+  if (args.severity) embed.addFields({ name: "Severidade", value: args.severity, inline: true });
+  if (args.proofUrl) {
+    embed.addFields({ name: "Prova", value: args.proofUrl });
+    if (/\.(png|jpe?g|webp|gif)(\?.*)?$/i.test(args.proofUrl)) {
+      embed.setImage(args.proofUrl);
+    }
+  }
   if (args.extra?.length) embed.addFields(args.extra);
   return embed;
 }
@@ -117,5 +130,15 @@ export async function dmPunishedUser(args: ModLogArgs) {
     .setDescription(content || "Você recebeu uma ação de moderação.")
     .setFooter({ text: config.embed_footer ?? "Sistema de Moderação" })
     .setTimestamp(new Date());
-  await (args.target as User).send({ embeds: [embed] }).catch(() => null);
+  if (args.caseNumber) embed.addFields({ name: "Caso", value: `#${args.caseNumber}`, inline: true });
+
+  const components: ActionRowBuilder<ButtonBuilder>[] = [];
+  if (config.appeal_url) {
+    components.push(
+      new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder().setStyle(ButtonStyle.Link).setLabel("Apelar").setURL(config.appeal_url),
+      ),
+    );
+  }
+  await (args.target as User).send({ embeds: [embed], components }).catch(() => null);
 }

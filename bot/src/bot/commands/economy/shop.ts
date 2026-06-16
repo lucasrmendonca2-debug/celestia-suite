@@ -194,7 +194,9 @@ const command: SlashCommand = {
         await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem estoque" })], ephemeral: true });
         return;
       }
-      const total = item.price * qty;
+      const rotation = await getActiveRotation(guildId);
+      const { price: unitPrice, discount_pct } = applyRotationPrice(item.price, rotation, item.name);
+      const total = unitPrice * qty;
       const acc = await getAccount(guildId, interaction.user.id);
       if (acc.wallet < total) {
         await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Saldo insuficiente" })], ephemeral: true });
@@ -216,8 +218,29 @@ const command: SlashCommand = {
           { upsert: true },
         );
       }
+      await logTx({
+        guildId,
+        userId: interaction.user.id,
+        kind: "shop_buy",
+        amount: -total,
+        balanceAfter: acc.wallet,
+        reason: `Compra: ${qty}× ${item.name}${discount_pct ? ` (-${discount_pct}%)` : ""}`,
+        metadata: { item_name: item.name, qty, discount_pct },
+      });
+      try {
+        const { incrementMissionProgress } = await import("../../systems/economy/missions.js");
+        await incrementMissionProgress(guildId, interaction.user.id, "shop_spend", total);
+      } catch {
+        /* noop */
+      }
       await interaction.reply({
-        embeds: [brandEmbed({ kind: "success", title: "🛍️ Compra concluída", description: `Você comprou **${qty}× ${item.name}** por ${fmtCoins(total, c.emoji, c.name)}` })],
+        embeds: [
+          brandEmbed({
+            kind: "success",
+            title: "🛍️ Compra concluída",
+            description: `Você comprou **${qty}× ${item.name}** por ${fmtCoins(total, c.emoji, c.name)}${discount_pct ? ` 🔥 (-${discount_pct}%)` : ""}`,
+          }),
+        ],
       });
     }
   },

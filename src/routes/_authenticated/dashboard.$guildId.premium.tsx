@@ -78,9 +78,16 @@ function PremiumPage() {
     queryKey: ["premium-audit", guildId],
     queryFn: () => listPremiumAuditLogs({ data: { guildId } }),
   });
+  const { data: config } = useQuery({
+    queryKey: ["premium-config", guildId],
+    queryFn: () => getPremiumGuildConfig({ data: { guildId } }),
+  });
 
   const redeemFn = useServerFn(redeemGuildCode);
+  const updateCfgFn = useServerFn(updatePremiumGuildConfig);
   const [code, setCode] = useState("");
+  const [vipRoleId, setVipRoleId] = useState("");
+  const [premiumRoleId, setPremiumRoleId] = useState("");
 
   const redeem = useMutation({
     mutationFn: async () => redeemFn({ data: { guildId, code } }),
@@ -93,6 +100,22 @@ function PremiumPage() {
       setCode("");
       qc.invalidateQueries({ queryKey: ["premium-status", guildId] });
       qc.invalidateQueries({ queryKey: ["premium-audit", guildId] });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  const saveConfig = useMutation({
+    mutationFn: async () =>
+      updateCfgFn({
+        data: {
+          guildId,
+          vip_role_id: vipRoleId.trim() || null,
+          premium_role_id: premiumRoleId.trim() || null,
+        },
+      }),
+    onSuccess: () => {
+      toast.success("Configuração salva.");
+      qc.invalidateQueries({ queryKey: ["premium-config", guildId] });
     },
     onError: (err: Error) => toast.error(err.message),
   });

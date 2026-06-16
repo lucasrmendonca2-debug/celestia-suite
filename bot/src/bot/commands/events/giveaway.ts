@@ -21,7 +21,11 @@ const command: SlashCommand = {
         .addStringOption((o) => o.setName("duracao").setDescription("Ex: 1h, 30m, 2d").setRequired(true))
         .addIntegerOption((o) => o.setName("vencedores").setDescription("Qtd").setMinValue(1).setMaxValue(20))
         .addChannelOption((o) => o.setName("canal").setDescription("Canal").addChannelTypes(ChannelType.GuildText))
-        .addRoleOption((o) => o.setName("cargo_requerido").setDescription("Cargo obrigatório")),
+        .addRoleOption((o) => o.setName("cargo_requerido").setDescription("Cargo obrigatório"))
+        .addIntegerOption((o) => o.setName("nivel_min").setDescription("Nível mínimo").setMinValue(0))
+        .addIntegerOption((o) => o.setName("conta_dias").setDescription("Idade mínima da conta em dias").setMinValue(0))
+        .addIntegerOption((o) => o.setName("moedas_min").setDescription("Moedas mínimas").setMinValue(0))
+        .addIntegerOption((o) => o.setName("vip_bonus").setDescription("Entradas extras para VIP").setMinValue(0).setMaxValue(10)),
     )
     .addSubcommand((s) =>
       s.setName("end").setDescription("Encerra agora").addStringOption((o) => o.setName("id").setDescription("ID do giveaway").setRequired(true)),
@@ -45,6 +49,10 @@ const command: SlashCommand = {
       const winnersCount = interaction.options.getInteger("vencedores") ?? 1;
       const channel = (interaction.options.getChannel("canal") ?? interaction.channel) as TextChannel;
       const requiredRoleId = interaction.options.getRole("cargo_requerido")?.id ?? null;
+      const minLevel = interaction.options.getInteger("nivel_min") ?? 0;
+      const minAccountDays = interaction.options.getInteger("conta_dias") ?? 0;
+      const minCoins = interaction.options.getInteger("moedas_min") ?? 0;
+      const vipBonusEntries = interaction.options.getInteger("vip_bonus") ?? 0;
 
       const doc = await Giveaway.create({
         guildId,
@@ -54,6 +62,10 @@ const command: SlashCommand = {
         winnersCount,
         endsAt: new Date(Date.now() + ms),
         requiredRoleId,
+        minLevel,
+        minAccountDays,
+        minCoins,
+        vipBonusEntries,
       });
       const sent = await channel.send({
         embeds: [giveawayEmbed({ ...doc.toObject(), endsAt: doc.endsAt })],

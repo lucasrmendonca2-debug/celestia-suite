@@ -295,6 +295,10 @@ const giveawaySchema = new Schema(
     participants: { type: [String], default: [] },
     winners: { type: [String], default: [] },
     requiredRoleId: { type: String, default: null },
+    minLevel: { type: Number, default: 0 },
+    minAccountDays: { type: Number, default: 0 },
+    minCoins: { type: Number, default: 0 },
+    vipBonusEntries: { type: Number, default: 0 },
   },
   { timestamps: true },
 );

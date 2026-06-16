@@ -6,7 +6,7 @@ import {
   Client,
   type TextChannel,
 } from "discord.js";
-import { Giveaway } from "../../../database/models.js";
+import { Giveaway, LevelAccount, EconomyAccount, VipMembership } from "../../../database/models.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { fmtDuration } from "../../utils/format.js";
 
@@ -18,8 +18,20 @@ export function giveawayEmbed(g: {
   participants: string[];
   ended?: boolean;
   winners?: string[];
+  requiredRoleId?: string | null;
+  minLevel?: number;
+  minAccountDays?: number;
+  minCoins?: number;
+  vipBonusEntries?: number;
 }) {
   const remaining = g.endsAt.getTime() - Date.now();
+  const reqs: string[] = [];
+  if (g.requiredRoleId) reqs.push(`Cargo <@&${g.requiredRoleId}>`);
+  if (g.minLevel) reqs.push(`Nível ≥ ${g.minLevel}`);
+  if (g.minAccountDays) reqs.push(`Conta ≥ ${g.minAccountDays}d`);
+  if (g.minCoins) reqs.push(`${g.minCoins} moedas`);
+  if (g.vipBonusEntries) reqs.push(`VIP: +${g.vipBonusEntries} entradas`);
+  const unique = new Set(g.participants).size;
   return brandEmbed({
     kind: g.ended ? "warn" : "default",
     title: `🎉 GIVEAWAY • ${g.prize}`,
@@ -32,8 +44,9 @@ export function giveawayEmbed(g: {
         )}:R>`,
     fields: [
       { name: "Vencedores", value: String(g.winnersCount), inline: true },
-      { name: "Participantes", value: String(g.participants.length), inline: true },
+      { name: "Participantes", value: String(unique), inline: true },
       { name: "Host", value: `<@${g.hostId}>`, inline: true },
+      ...(reqs.length ? [{ name: "Requisitos", value: reqs.join(" • ") }] : []),
     ],
   });
 }
@@ -59,23 +72,39 @@ export async function handleGiveawayButton(interaction: ButtonInteraction) {
     });
     return;
   }
+  // Verifica requisitos avançados
+  const fails: string[] = [];
   if (g.requiredRoleId && interaction.member && "roles" in interaction.member) {
     const roles = interaction.member.roles as { cache: Map<string, unknown> } | string[];
     const has =
       Array.isArray(roles) ? roles.includes(g.requiredRoleId) : roles.cache.has(g.requiredRoleId);
-    if (!has) {
-      await interaction.reply({
-        embeds: [
-          brandEmbed({
-            kind: "error",
-            title: "Sem permissão",
-            description: `Você precisa do cargo <@&${g.requiredRoleId}> para participar.`,
-          }),
-        ],
-        ephemeral: true,
-      });
-      return;
-    }
+    if (!has) fails.push(`Cargo obrigatório: <@&${g.requiredRoleId}>`);
+  }
+  if (g.minAccountDays && g.minAccountDays > 0) {
+    const ageDays = (Date.now() - interaction.user.createdTimestamp) / 86_400_000;
+    if (ageDays < g.minAccountDays) fails.push(`Conta com pelo menos **${g.minAccountDays}d** de idade`);
+  }
+  if (g.minLevel && g.minLevel > 0) {
+    const lvl = await LevelAccount.findOne({ guildId: g.guildId, userId: interaction.user.id }).select("level");
+    if (!lvl || (lvl.level ?? 0) < g.minLevel) fails.push(`Nível mínimo **${g.minLevel}**`);
+  }
+  if (g.minCoins && g.minCoins > 0) {
+    const eco = await EconomyAccount.findOne({ guildId: g.guildId, userId: interaction.user.id }).select("balance");
+    const bal = (eco as { balance?: number } | null)?.balance ?? 0;
+    if (bal < g.minCoins) fails.push(`Mínimo de **${g.minCoins}** moedas`);
+  }
+  if (fails.length > 0) {
+    await interaction.reply({
+      embeds: [
+        brandEmbed({
+          kind: "error",
+          title: "Você não cumpre os requisitos",
+          description: fails.map((f) => `• ${f}`).join("\n"),
+        }),
+      ],
+      ephemeral: true,
+    });
+    return;
   }
 
   if (g.participants.includes(interaction.user.id)) {
@@ -86,11 +115,24 @@ export async function handleGiveawayButton(interaction: ButtonInteraction) {
       ephemeral: true,
     });
   } else {
-    g.participants.push(interaction.user.id);
+    let entries = 1;
+    if (g.vipBonusEntries && g.vipBonusEntries > 0) {
+      const vip = await VipMembership.findOne({
+        guildId: g.guildId,
+        userId: interaction.user.id,
+        active: true,
+      });
+      if (vip) entries += g.vipBonusEntries;
+    }
+    for (let i = 0; i < entries; i++) g.participants.push(interaction.user.id);
     await g.save();
     await interaction.reply({
       embeds: [
-        brandEmbed({ kind: "success", title: "Entrou no giveaway!", description: "Boa sorte 🍀" }),
+        brandEmbed({
+          kind: "success",
+          title: "Entrou no giveaway!",
+          description: entries > 1 ? `Boa sorte 🍀 (entradas: **${entries}** — bônus VIP)` : "Boa sorte 🍀",
+        }),
       ],
       ephemeral: true,
     });
@@ -114,7 +156,9 @@ export async function endGiveaway(client: Client, giveawayId: string) {
   const winners: string[] = [];
   while (winners.length < g.winnersCount && pool.length) {
     const idx = Math.floor(Math.random() * pool.length);
-    winners.push(pool.splice(idx, 1)[0]!);
+    const pick = pool.splice(idx, 1)[0]!;
+    if (winners.includes(pick)) continue; // dedupe (entradas extras VIP)
+    winners.push(pick);
   }
   g.winners = winners;
   await g.save();

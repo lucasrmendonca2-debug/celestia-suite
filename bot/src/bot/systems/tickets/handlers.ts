@@ -425,8 +425,16 @@ async function sendClosureDm(
 /* ===================== BUTTON ENTRY POINT ===================== */
 
 export async function handleTicketButton(interaction: ButtonInteraction): Promise<void> {
-  if (!interaction.guild || !interaction.isButton()) return;
+  if (!interaction.isButton()) return;
   const [, action] = interaction.customId.split(":");
+
+  // Rate funciona em DM (não exige guild)
+  if (action === "rate") {
+    await handleRateAction(interaction);
+    return;
+  }
+
+  if (!interaction.guild) return;
 
   if (action === "open") {
     const [, , categoryId] = interaction.customId.split(":");

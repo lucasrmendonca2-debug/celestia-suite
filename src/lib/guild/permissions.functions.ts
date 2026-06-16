@@ -61,6 +61,8 @@ export interface DashboardPermissionRow {
   updated_at: string;
 }
 
+type Json = string | number | boolean | null | { [k: string]: Json } | Json[];
+
 export interface AuditEntry {
   id: string;
   guild_id: string;
@@ -68,9 +70,9 @@ export interface AuditEntry {
   actor_id: string | null;
   actor_tag: string | null;
   target_id: string | null;
-  before: Record<string, unknown> | null;
-  after: Record<string, unknown> | null;
-  metadata: Record<string, unknown> | null;
+  before: Json;
+  after: Json;
+  metadata: Json;
   created_at: string;
 }
 

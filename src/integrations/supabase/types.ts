@@ -340,75 +340,126 @@ export type Database = {
       }
       guild_logs_config: {
         Row: {
+          channel_channel_id: string | null
           channel_create: boolean
           channel_delete: boolean
           channel_update: boolean
           created_at: string
+          emoji_update: boolean
           guild_id: string
+          ignored_channels: string[]
+          ignored_roles: string[]
+          ignored_users: string[]
+          invite_channel_id: string | null
+          invite_create: boolean
+          invite_delete: boolean
           log_channel_id: string | null
           member_ban: boolean
+          member_channel_id: string | null
           member_join: boolean
           member_kick: boolean
           member_leave: boolean
           member_nickname_update: boolean
           member_role_update: boolean
+          member_timeout: boolean
           member_unban: boolean
           message_bulk_delete: boolean
+          message_channel_id: string | null
           message_delete: boolean
           message_edit: boolean
+          mod_channel_id: string | null
+          role_channel_id: string | null
           role_create: boolean
           role_delete: boolean
           role_update: boolean
+          server_channel_id: string | null
+          server_update: boolean
           updated_at: string
           updated_by: string | null
+          user_update: boolean
+          voice_channel_id: string | null
           voice_state_update: boolean
         }
         Insert: {
+          channel_channel_id?: string | null
           channel_create?: boolean
           channel_delete?: boolean
           channel_update?: boolean
           created_at?: string
+          emoji_update?: boolean
           guild_id: string
+          ignored_channels?: string[]
+          ignored_roles?: string[]
+          ignored_users?: string[]
+          invite_channel_id?: string | null
+          invite_create?: boolean
+          invite_delete?: boolean
           log_channel_id?: string | null
           member_ban?: boolean
+          member_channel_id?: string | null
           member_join?: boolean
           member_kick?: boolean
           member_leave?: boolean
           member_nickname_update?: boolean
           member_role_update?: boolean
+          member_timeout?: boolean
           member_unban?: boolean
           message_bulk_delete?: boolean
+          message_channel_id?: string | null
           message_delete?: boolean
           message_edit?: boolean
+          mod_channel_id?: string | null
+          role_channel_id?: string | null
           role_create?: boolean
           role_delete?: boolean
           role_update?: boolean
+          server_channel_id?: string | null
+          server_update?: boolean
           updated_at?: string
           updated_by?: string | null
+          user_update?: boolean
+          voice_channel_id?: string | null
           voice_state_update?: boolean
         }
         Update: {
+          channel_channel_id?: string | null
           channel_create?: boolean
           channel_delete?: boolean
           channel_update?: boolean
           created_at?: string
+          emoji_update?: boolean
           guild_id?: string
+          ignored_channels?: string[]
+          ignored_roles?: string[]
+          ignored_users?: string[]
+          invite_channel_id?: string | null
+          invite_create?: boolean
+          invite_delete?: boolean
           log_channel_id?: string | null
           member_ban?: boolean
+          member_channel_id?: string | null
           member_join?: boolean
           member_kick?: boolean
           member_leave?: boolean
           member_nickname_update?: boolean
           member_role_update?: boolean
+          member_timeout?: boolean
           member_unban?: boolean
           message_bulk_delete?: boolean
+          message_channel_id?: string | null
           message_delete?: boolean
           message_edit?: boolean
+          mod_channel_id?: string | null
+          role_channel_id?: string | null
           role_create?: boolean
           role_delete?: boolean
           role_update?: boolean
+          server_channel_id?: string | null
+          server_update?: boolean
           updated_at?: string
           updated_by?: string | null
+          user_update?: boolean
+          voice_channel_id?: string | null
           voice_state_update?: boolean
         }
         Relationships: []
@@ -836,6 +887,54 @@ export type Database = {
         }
         Relationships: []
       }
+      server_audit_logs: {
+        Row: {
+          actor_id: string | null
+          actor_tag: string | null
+          after: Json | null
+          before: Json | null
+          category: string
+          channel_id: string | null
+          created_at: string
+          event: string
+          guild_id: string
+          id: string
+          metadata: Json | null
+          target_id: string | null
+          target_tag: string | null
+        }
+        Insert: {
+          actor_id?: string | null
+          actor_tag?: string | null
+          after?: Json | null
+          before?: Json | null
+          category: string
+          channel_id?: string | null
+          created_at?: string
+          event: string
+          guild_id: string
+          id?: string
+          metadata?: Json | null
+          target_id?: string | null
+          target_tag?: string | null
+        }
+        Update: {
+          actor_id?: string | null
+          actor_tag?: string | null
+          after?: Json | null
+          before?: Json | null
+          category?: string
+          channel_id?: string | null
+          created_at?: string
+          event?: string
+          guild_id?: string
+          id?: string
+          metadata?: Json | null
+          target_id?: string | null
+          target_tag?: string | null
+        }
+        Relationships: []
+      }
       shop_items: {
         Row: {
           created_at: string
@@ -959,18 +1058,23 @@ export type Database = {
         Row: {
           active: boolean
           allowed_access_levels: string[]
+          auto_close_hours: number | null
           blocked_role_ids: string[]
+          claim_required: boolean
           created_at: string
           description: string | null
           discord_category_id: string | null
           emoji: string | null
+          first_response_minutes: number | null
           guild_id: string
           id: string
           max_open_tickets_per_user: number | null
           name: string
           position: number
           priority: boolean
+          priority_default: string
           required_role_ids: string[]
+          sla_alert_role_id: string | null
           support_role_id: string | null
           updated_at: string
           welcome_message: string | null
@@ -978,18 +1082,23 @@ export type Database = {
         Insert: {
           active?: boolean
           allowed_access_levels?: string[]
+          auto_close_hours?: number | null
           blocked_role_ids?: string[]
+          claim_required?: boolean
           created_at?: string
           description?: string | null
           discord_category_id?: string | null
           emoji?: string | null
+          first_response_minutes?: number | null
           guild_id: string
           id?: string
           max_open_tickets_per_user?: number | null
           name: string
           position?: number
           priority?: boolean
+          priority_default?: string
           required_role_ids?: string[]
+          sla_alert_role_id?: string | null
           support_role_id?: string | null
           updated_at?: string
           welcome_message?: string | null
@@ -997,18 +1106,23 @@ export type Database = {
         Update: {
           active?: boolean
           allowed_access_levels?: string[]
+          auto_close_hours?: number | null
           blocked_role_ids?: string[]
+          claim_required?: boolean
           created_at?: string
           description?: string | null
           discord_category_id?: string | null
           emoji?: string | null
+          first_response_minutes?: number | null
           guild_id?: string
           id?: string
           max_open_tickets_per_user?: number | null
           name?: string
           position?: number
           priority?: boolean
+          priority_default?: string
           required_role_ids?: string[]
+          sla_alert_role_id?: string | null
           support_role_id?: string | null
           updated_at?: string
           welcome_message?: string | null
@@ -1190,6 +1304,47 @@ export type Database = {
           },
         ]
       }
+      ticket_notes: {
+        Row: {
+          author_id: string
+          author_tag: string | null
+          content: string
+          created_at: string
+          guild_id: string
+          id: string
+          internal: boolean
+          ticket_id: string
+        }
+        Insert: {
+          author_id: string
+          author_tag?: string | null
+          content: string
+          created_at?: string
+          guild_id: string
+          id?: string
+          internal?: boolean
+          ticket_id: string
+        }
+        Update: {
+          author_id?: string
+          author_tag?: string | null
+          content?: string
+          created_at?: string
+          guild_id?: string
+          id?: string
+          internal?: boolean
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_notes_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ticket_permission_roles: {
         Row: {
           access_level: string
@@ -1256,21 +1411,59 @@ export type Database = {
         }
         Relationships: []
       }
+      ticket_tags: {
+        Row: {
+          color: string
+          created_at: string
+          emoji: string | null
+          guild_id: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          emoji?: string | null
+          guild_id: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          emoji?: string | null
+          guild_id?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       tickets: {
         Row: {
           category_id: string | null
           category_name: string | null
           channel_id: string
+          claimed_at: string | null
           claimed_by: string | null
           close_reason: string | null
           closed_at: string | null
           closed_by: string | null
           created_at: string
+          first_response_at: string | null
           guild_id: string
           id: string
+          last_user_message_at: string | null
           priority: boolean
+          priority_level: string
           rating: number | null
+          rating_comment: string | null
+          reopened_at: string | null
+          sla_deadline: string | null
           status: string
+          tags: string[]
           transcript_url: string | null
           updated_at: string
           user_id: string
@@ -1280,16 +1473,24 @@ export type Database = {
           category_id?: string | null
           category_name?: string | null
           channel_id: string
+          claimed_at?: string | null
           claimed_by?: string | null
           close_reason?: string | null
           closed_at?: string | null
           closed_by?: string | null
           created_at?: string
+          first_response_at?: string | null
           guild_id: string
           id?: string
+          last_user_message_at?: string | null
           priority?: boolean
+          priority_level?: string
           rating?: number | null
+          rating_comment?: string | null
+          reopened_at?: string | null
+          sla_deadline?: string | null
           status?: string
+          tags?: string[]
           transcript_url?: string | null
           updated_at?: string
           user_id: string
@@ -1299,16 +1500,24 @@ export type Database = {
           category_id?: string | null
           category_name?: string | null
           channel_id?: string
+          claimed_at?: string | null
           claimed_by?: string | null
           close_reason?: string | null
           closed_at?: string | null
           closed_by?: string | null
           created_at?: string
+          first_response_at?: string | null
           guild_id?: string
           id?: string
+          last_user_message_at?: string | null
           priority?: boolean
+          priority_level?: string
           rating?: number | null
+          rating_comment?: string | null
+          reopened_at?: string | null
+          sla_deadline?: string | null
           status?: string
+          tags?: string[]
           transcript_url?: string | null
           updated_at?: string
           user_id?: string

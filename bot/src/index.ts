@@ -5,6 +5,8 @@ import { loadCommands } from "./bot/handlers/commands.js";
 import { loadEvents } from "./bot/handlers/events.js";
 import { startSchedulers } from "./bot/systems/scheduler.js";
 import { startModerationScheduler } from "./bot/systems/moderation/temporary.scheduler.js";
+import { startTicketSlaScheduler } from "./bot/systems/tickets/sla.scheduler.js";
+import { startTicketAutocloseScheduler } from "./bot/systems/tickets/autoclose.scheduler.js";
 import { connectDatabase, disconnectDatabase } from "./database/connection.js";
 import type { ZenoxClient } from "./types/command.js";
 
@@ -20,6 +22,8 @@ async function bootstrap() {
       GatewayIntentBits.GuildModeration,
       GatewayIntentBits.GuildMessageReactions,
       GatewayIntentBits.GuildVoiceStates,
+      GatewayIntentBits.GuildInvites,
+      GatewayIntentBits.GuildEmojisAndStickers,
     ],
     partials: [Partials.Message, Partials.Channel, Partials.Reaction, Partials.GuildMember, Partials.User],
   }) as ZenoxClient;
@@ -43,6 +47,8 @@ async function bootstrap() {
   await client.login(env.DISCORD_TOKEN);
   startSchedulers(client);
   startModerationScheduler(client);
+  startTicketSlaScheduler(client);
+  startTicketAutocloseScheduler(client);
 
 
   const shutdown = async (sig: string) => {

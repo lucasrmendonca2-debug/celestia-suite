@@ -45,6 +45,17 @@ const command: SlashCommand = {
     acc.lastDaily = now;
     await acc.save();
 
+    await logTx({
+      guildId: interaction.guildId!,
+      userId: interaction.user.id,
+      kind: "daily",
+      amount,
+      balanceAfter: acc.wallet,
+      reason: `Diária (streak ${acc.streakDaily})`,
+    });
+    await incrementMissionProgress(interaction.guildId!, interaction.user.id, "daily");
+
+
     await interaction.reply({
       embeds: [
         brandEmbed({

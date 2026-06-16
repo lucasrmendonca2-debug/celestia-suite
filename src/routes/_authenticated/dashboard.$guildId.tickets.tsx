@@ -717,6 +717,24 @@ function SectionCard({
   );
 }
 
+function PickerField({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <Label className="text-sm">{label}</Label>
+      <div className="mt-1">{children}</div>
+      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+    </div>
+  );
+}
+
 function Field({
   label,
   hint,

@@ -29,7 +29,7 @@ ssh -i $KEY $HOST_ "cp -n ~/zenox-bot/.env.example ~/zenox-bot/.env"
 Write-Host "==> Abrindo .env para voce colar os tokens (Ctrl+O Enter pra salvar, Ctrl+X pra sair)..."
 ssh -i $KEY -t $HOST_ "nano ~/zenox-bot/.env"
 
-Write-Host "==> Build + start com pm2..."
+Write-Host "==> Start com pm2 sem build TypeScript..."
 ssh -i $KEY $HOST_ "bash ~/zenox-bot/deploy/start.sh"
 
 Write-Host ""

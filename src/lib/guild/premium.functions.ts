@@ -86,9 +86,11 @@ export const updatePremiumGuildConfig = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await perm(data.guildId);
     const sb = await admin();
-    const payload: Record<string, unknown> = { guild_id: data.guildId };
-    if (data.vip_role_id !== undefined) payload.vip_role_id = data.vip_role_id;
-    if (data.premium_role_id !== undefined) payload.premium_role_id = data.premium_role_id;
+    const payload = {
+      guild_id: data.guildId,
+      ...(data.vip_role_id !== undefined ? { vip_role_id: data.vip_role_id } : {}),
+      ...(data.premium_role_id !== undefined ? { premium_role_id: data.premium_role_id } : {}),
+    };
     const { data: row, error } = await sb
       .from("premium_guild_config")
       .upsert(payload, { onConflict: "guild_id" })

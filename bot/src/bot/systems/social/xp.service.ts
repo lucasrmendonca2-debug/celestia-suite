@@ -101,7 +101,9 @@ export async function handleSocialXp(msg: Message): Promise<void> {
   const max = Math.max(cfg.min_xp_per_message, cfg.max_xp_per_message);
   const base = Math.floor(min + Math.random() * (max - min + 1));
   const vipMult = (await isVip(guildId, userId).catch(() => false)) ? Number(cfg.vip_multiplier) : 1;
-  const gained = Math.max(1, Math.floor(base * Number(cfg.global_multiplier) * vipMult));
+  const { getUserVipMultiplier } = await import("../premium/premium.features.js");
+  const premiumMult = await getUserVipMultiplier(userId, guildId, "xp").catch(() => 1);
+  const gained = Math.max(1, Math.floor(base * Number(cfg.global_multiplier) * vipMult * premiumMult));
 
   // Acumula no buffer
   const pending = buffer.get(k) ?? {

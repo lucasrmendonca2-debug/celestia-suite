@@ -58,6 +58,7 @@ const SECTIONS: { title: string; items: Item[] }[] = [
       { to: "social", label: "Social & Level", icon: TrendingUp },
       { to: "badges", label: "Badges", icon: Award },
       { to: "achievements", label: "Conquistas", icon: Trophy },
+      { to: "seasons", label: "Temporadas", icon: Trophy },
       { to: "economy", label: "Economia", icon: Coins },
     ],
   },

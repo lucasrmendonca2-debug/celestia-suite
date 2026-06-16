@@ -255,7 +255,11 @@ function GeneralTab({
 }) {
   const update = useServerFn(updateModerationConfig);
   const qc = useQueryClient();
-  const [form, setForm] = useState(initial);
+  type WarnPun = "none" | "mute" | "kick" | "ban" | "temp_mute" | "temp_ban";
+  const [form, setForm] = useState({
+    ...initial,
+    default_warn_punishment: (initial.default_warn_punishment ?? "none") as WarnPun,
+  });
 
   const mutation = useMutation({
     mutationFn: () =>

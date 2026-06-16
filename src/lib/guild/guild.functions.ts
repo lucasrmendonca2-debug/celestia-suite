@@ -80,8 +80,16 @@ const WelcomeInput = z.object({
 export const updateWelcomeConfig = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => WelcomeInput.parse(d))
   .handler(async ({ data }): Promise<WelcomeConfig> => {
-    const userId = await assertCanManage(data.guildId);
+    const { assertCanAccessArea, writeAudit } = await import(
+      "./permissions.functions"
+    );
+    const actor = await assertCanAccessArea(data.guildId, "welcome");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: prev } = await supabaseAdmin
+      .from("guild_configs")
+      .select("welcome_enabled, welcome_channel_id, welcome_message, welcome_embed_enabled, welcome_embed_color")
+      .eq("guild_id", data.guildId)
+      .maybeSingle();
     const payload = {
       guild_id: data.guildId,
       welcome_enabled: data.welcome_enabled,
@@ -89,7 +97,7 @@ export const updateWelcomeConfig = createServerFn({ method: "POST" })
       welcome_message: data.welcome_message,
       welcome_embed_enabled: data.welcome_embed_enabled,
       welcome_embed_color: data.welcome_embed_color,
-      updated_by: userId,
+      updated_by: actor.id,
     };
     const { data: row, error } = await supabaseAdmin
       .from("guild_configs")
@@ -97,5 +105,18 @@ export const updateWelcomeConfig = createServerFn({ method: "POST" })
       .select("*")
       .single();
     if (error) throw new Error(error.message);
+    await writeAudit({
+      guildId: data.guildId,
+      event: "welcome.update",
+      actor,
+      before: prev as Record<string, unknown> | null,
+      after: {
+        welcome_enabled: data.welcome_enabled,
+        welcome_channel_id: data.welcome_channel_id,
+        welcome_message: data.welcome_message,
+        welcome_embed_enabled: data.welcome_embed_enabled,
+        welcome_embed_color: data.welcome_embed_color,
+      },
+    });
     return row as WelcomeConfig;
   });

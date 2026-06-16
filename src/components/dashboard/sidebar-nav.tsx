@@ -84,8 +84,11 @@ const SECTIONS: Section[] = [
     ],
   },
   {
-    title: "Premium",
-    items: [{ to: "premium", label: "Premium", icon: Crown, premium: true }],
+    title: "Admin",
+    items: [
+      { to: "permissoes", label: "Permissões", icon: Lock },
+      { to: "premium", label: "Premium", icon: Crown, premium: true },
+    ],
   },
 ];
 

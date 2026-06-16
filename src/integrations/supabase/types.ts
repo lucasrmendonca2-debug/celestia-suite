@@ -418,6 +418,33 @@ export type Database = {
         }
         Relationships: []
       }
+      dashboard_permissions: {
+        Row: {
+          areas: string[]
+          created_at: string
+          guild_id: string
+          id: string
+          role_id: string
+          updated_at: string
+        }
+        Insert: {
+          areas?: string[]
+          created_at?: string
+          guild_id: string
+          id?: string
+          role_id: string
+          updated_at?: string
+        }
+        Update: {
+          areas?: string[]
+          created_at?: string
+          guild_id?: string
+          id?: string
+          role_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       economy_config: {
         Row: {
           created_at: string

@@ -11,6 +11,7 @@ import {
 import { env } from "../../../config/env.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
+import { supabase } from "../../../database/supabase.js";
 import {
   addUserToTicket,
   closeTicketSlash,
@@ -18,6 +19,8 @@ import {
   reopenTicket,
 } from "../../systems/tickets/handlers.js";
 import {
+  claimTicketRow,
+  findTicketByChannel,
   getTicketConfig,
   listActiveCategories,
   setPanelMessage,
@@ -26,6 +29,13 @@ import {
   buildPanelComponents,
   buildPanelEmbed,
 } from "../../systems/tickets/ticket.components.js";
+
+const PRIORITY_LABELS: Record<string, string> = {
+  LOW: "🟢 Baixa",
+  MEDIUM: "🟡 Média",
+  HIGH: "🟠 Alta",
+  URGENT: "🔴 Urgente",
+};
 
 const command: SlashCommand = {
   category: "tickets",

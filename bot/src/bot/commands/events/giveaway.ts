@@ -49,6 +49,10 @@ const command: SlashCommand = {
       const winnersCount = interaction.options.getInteger("vencedores") ?? 1;
       const channel = (interaction.options.getChannel("canal") ?? interaction.channel) as TextChannel;
       const requiredRoleId = interaction.options.getRole("cargo_requerido")?.id ?? null;
+      const minLevel = interaction.options.getInteger("nivel_min") ?? 0;
+      const minAccountDays = interaction.options.getInteger("conta_dias") ?? 0;
+      const minCoins = interaction.options.getInteger("moedas_min") ?? 0;
+      const vipBonusEntries = interaction.options.getInteger("vip_bonus") ?? 0;
 
       const doc = await Giveaway.create({
         guildId,
@@ -58,6 +62,10 @@ const command: SlashCommand = {
         winnersCount,
         endsAt: new Date(Date.now() + ms),
         requiredRoleId,
+        minLevel,
+        minAccountDays,
+        minCoins,
+        vipBonusEntries,
       });
       const sent = await channel.send({
         embeds: [giveawayEmbed({ ...doc.toObject(), endsAt: doc.endsAt })],

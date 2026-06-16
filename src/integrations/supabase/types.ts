@@ -271,6 +271,60 @@ export type Database = {
         }
         Relationships: []
       }
+      command_permissions: {
+        Row: {
+          allowed_channels: string[]
+          allowed_roles: string[]
+          command_name: string
+          cooldown_override: number | null
+          created_at: string
+          denied_channels: string[]
+          denied_roles: string[]
+          enabled: boolean
+          guild_id: string
+          hidden_from_help: boolean
+          premium_guild_only: boolean
+          staff_only: boolean
+          updated_at: string
+          updated_by: string | null
+          vip_only: boolean
+        }
+        Insert: {
+          allowed_channels?: string[]
+          allowed_roles?: string[]
+          command_name: string
+          cooldown_override?: number | null
+          created_at?: string
+          denied_channels?: string[]
+          denied_roles?: string[]
+          enabled?: boolean
+          guild_id: string
+          hidden_from_help?: boolean
+          premium_guild_only?: boolean
+          staff_only?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          vip_only?: boolean
+        }
+        Update: {
+          allowed_channels?: string[]
+          allowed_roles?: string[]
+          command_name?: string
+          cooldown_override?: number | null
+          created_at?: string
+          denied_channels?: string[]
+          denied_roles?: string[]
+          enabled?: boolean
+          guild_id?: string
+          hidden_from_help?: boolean
+          premium_guild_only?: boolean
+          staff_only?: boolean
+          updated_at?: string
+          updated_by?: string | null
+          vip_only?: boolean
+        }
+        Relationships: []
+      }
       community_config: {
         Row: {
           created_at: string

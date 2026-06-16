@@ -521,19 +521,26 @@ function GeneralTab({
       <ActiveTicketsCard guildId={guildId} />
       <WebhookCard guildId={guildId} cfg={form} />
 
-      <div className="sticky bottom-4 flex flex-wrap items-center justify-end gap-2">
-        <DeletePanelButton guildId={guildId} disabled={mutation.isPending} hasPanel={!!form.panel_message_id} />
-        <SendPanelButton guildId={guildId} disabled={mutation.isPending} mode="edit" hasPanel={!!form.panel_message_id} />
-        <SendPanelButton guildId={guildId} disabled={mutation.isPending} mode="send" />
-        <Button
-          type="submit"
-          size="lg"
-          disabled={mutation.isPending}
-          className="gap-2 shadow-lg"
-        >
-          <Save className="size-4" />
-          {mutation.isPending ? "Salvando..." : "Salvar configurações"}
-        </Button>
+      <div className="sticky bottom-4 z-10 rounded-xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur supports-[backdrop-filter]:bg-card/60">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-xs text-muted-foreground">
+            💡 Salve antes de <strong>enviar</strong> ou <strong>editar</strong> o painel.
+          </p>
+          <div className="flex flex-wrap items-center justify-end gap-2">
+            <DeletePanelButton guildId={guildId} disabled={mutation.isPending} hasPanel={!!form.panel_message_id} />
+            <SendPanelButton guildId={guildId} disabled={mutation.isPending} mode="edit" hasPanel={!!form.panel_message_id} />
+            <SendPanelButton guildId={guildId} disabled={mutation.isPending} mode="send" />
+            <Button
+              type="submit"
+              size="lg"
+              disabled={mutation.isPending}
+              className="gap-2 shadow-lg"
+            >
+              <Save className="size-4" />
+              {mutation.isPending ? "Salvando..." : "Salvar"}
+            </Button>
+          </div>
+        </div>
       </div>
 
       <p className="text-xs text-muted-foreground">

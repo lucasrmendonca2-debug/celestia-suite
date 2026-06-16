@@ -8,6 +8,7 @@ import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getGuildPremiumStatus,
   getPremiumGuildConfig,
+  getPremiumUsage,
   listPremiumAuditLogs,
   listPremiumPlans,
   redeemGuildCode,

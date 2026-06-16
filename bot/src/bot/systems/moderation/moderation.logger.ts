@@ -50,7 +50,7 @@ export function parseDurationSeconds(input?: string | null): number | null {
   if (!input) return null;
   const m = input.trim().toLowerCase().match(/^(\d+)\s*(s|m|h|d|w)?$/);
   if (!m) return null;
-  const n = parseInt(m[1], 10);
+  const n = parseInt(m[1] ?? "0", 10);
   if (!n || n < 1) return null;
   const mult: Record<string, number> = { s: 1, m: 60, h: 3600, d: 86400, w: 604800 };
   return n * (mult[m[2] ?? "s"] ?? 1);

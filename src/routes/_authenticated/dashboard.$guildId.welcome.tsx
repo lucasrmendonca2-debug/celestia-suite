@@ -47,8 +47,12 @@ function WelcomePage() {
   const { user, guild, config } = Route.useLoaderData();
   const updateFn = useServerFn(updateWelcomeConfig);
 
-
   const [form, setForm] = useState<WelcomeConfig>(config);
+  const [baseline, setBaseline] = useState<WelcomeConfig>(config);
+  const dirty = useMemo(
+    () => JSON.stringify(form) !== JSON.stringify(baseline),
+    [form, baseline],
+  );
 
   const mutation = useMutation({
     mutationFn: (next: WelcomeConfig) =>
@@ -64,9 +68,9 @@ function WelcomePage() {
       }),
     onSuccess: (saved) => {
       setForm(saved);
+      setBaseline(saved);
       toast.success("Configurações salvas. O bot já está usando.");
     },
-
     onError: (err) => toast.error((err as Error).message ?? "Falha ao salvar."),
   });
 

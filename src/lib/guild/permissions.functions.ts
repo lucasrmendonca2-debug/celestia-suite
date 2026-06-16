@@ -76,107 +76,16 @@ export interface AuditEntry {
   created_at: string;
 }
 
-async function getActor(): Promise<{ id: string; tag: string; accessToken: string }> {
-  const { getSession } = await import("@/lib/auth/session.server");
-  const session = await getSession();
-  if (!session.data.userId || !session.data.accessToken) {
-    throw new Error("Não autenticado.");
-  }
-  return {
-    id: session.data.userId,
-    tag: session.data.username ?? session.data.userId,
-    accessToken: session.data.accessToken,
-  };
-}
+// helpers vivem em ./permissions-audit.server.ts (server-only, não vaza pro client)
 
-async function assertManagerOf(guildId: string, accessToken: string): Promise<void> {
-  const { fetchUserGuilds, filterManageableGuilds } = await import(
-    "@/lib/auth/discord.server"
-  );
-  const guilds = await fetchUserGuilds(accessToken);
-  if (!filterManageableGuilds(guilds).some((g) => g.id === guildId)) {
-    throw new Error("Sem permissão pra esse servidor.");
-  }
-}
-
-async function fetchMemberRoles(guildId: string, userId: string): Promise<string[]> {
-  const token = process.env.DISCORD_BOT_TOKEN;
-  if (!token) return [];
-  const res = await fetch(
-    `https://discord.com/api/v10/guilds/${guildId}/members/${userId}`,
-    { headers: { Authorization: `Bot ${token}` } },
-  );
-  if (!res.ok) return [];
-  const data = (await res.json()) as { roles?: string[] };
-  return data.roles ?? [];
-}
-
-/**
- * Garante acesso a uma área. Usar dentro de updates do dashboard.
- * Retorna o id do ator pra gravar em audit log.
- */
-export async function assertCanAccessArea(
-  guildId: string,
-  area: DashboardArea,
-): Promise<{ id: string; tag: string }> {
-  const actor = await getActor();
-  await assertManagerOf(guildId, actor.accessToken);
-
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data: rows, error } = await supabaseAdmin
-    .from("dashboard_permissions")
-    .select("role_id, areas")
-    .eq("guild_id", guildId);
-  if (error) throw new Error(error.message);
-
-  // sem regras → manager passa
-  if (!rows || rows.length === 0) return { id: actor.id, tag: actor.tag };
-
-  const memberRoles = new Set(await fetchMemberRoles(guildId, actor.id));
-  const allowed = rows.some((r) => {
-    if (!memberRoles.has(r.role_id)) return false;
-    const areas = r.areas as string[];
-    return areas.includes("all") || areas.includes(area);
-  });
-  if (!allowed) throw new Error("Seu cargo não tem acesso a essa área.");
-  return { id: actor.id, tag: actor.tag };
-}
-
-/** Grava no audit log. Falha silenciosamente — log nunca derruba update. */
-export async function writeAudit(opts: {
-  guildId: string;
-  event: string;
-  actor: { id: string; tag: string };
-  before?: unknown;
-  after?: unknown;
-  target_id?: string | null;
-  metadata?: Record<string, unknown>;
-}): Promise<void> {
-  try {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.from("server_audit_logs").insert({
-      guild_id: opts.guildId,
-      category: "dashboard",
-      event: opts.event,
-      actor_id: opts.actor.id,
-      actor_tag: opts.actor.tag,
-      target_id: opts.target_id ?? null,
-      before: (opts.before ?? null) as never,
-      after: (opts.after ?? null) as never,
-      metadata: (opts.metadata ?? null) as never,
-    });
-  } catch (e) {
-    console.warn("[audit] falhou:", (e as Error).message);
-  }
-}
 
 const GuildInput = z.object({ guildId: z.string().regex(/^\d{5,32}$/) });
 
 export const listDashboardPermissions = createServerFn({ method: "GET" })
   .inputValidator((d: { guildId: string }) => GuildInput.parse(d))
   .handler(async ({ data }): Promise<DashboardPermissionRow[]> => {
-    const actor = await getActor();
-    await assertManagerOf(data.guildId, actor.accessToken);
+    const { getActorAndAssertManager } = await import("./permissions-audit.server");
+    await getActorAndAssertManager(data.guildId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows, error } = await supabaseAdmin
       .from("dashboard_permissions")
@@ -195,7 +104,7 @@ const UpsertInput = z.object({
 export const upsertDashboardPermission = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => UpsertInput.parse(d))
   .handler(async ({ data }) => {
-    // só quem já passa por 'permissions' pode mexer
+    const { assertCanAccessArea, writeAudit } = await import("./permissions-audit.server");
     const actor = await assertCanAccessArea(data.guildId, "permissions");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: prev } = await supabaseAdmin
@@ -237,6 +146,7 @@ const RemoveInput = z.object({
 export const removeDashboardPermission = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => RemoveInput.parse(d))
   .handler(async ({ data }) => {
+    const { assertCanAccessArea, writeAudit } = await import("./permissions-audit.server");
     const actor = await assertCanAccessArea(data.guildId, "permissions");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: prev } = await supabaseAdmin
@@ -272,8 +182,8 @@ export const listAuditLog = createServerFn({ method: "GET" })
       .parse(d),
   )
   .handler(async ({ data }): Promise<AuditEntry[]> => {
-    const actor = await getActor();
-    await assertManagerOf(data.guildId, actor.accessToken);
+    const { getActorAndAssertManager } = await import("./permissions-audit.server");
+    await getActorAndAssertManager(data.guildId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: rows, error } = await supabaseAdmin
       .from("server_audit_logs")

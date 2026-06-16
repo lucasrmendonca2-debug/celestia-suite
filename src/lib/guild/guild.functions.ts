@@ -81,7 +81,7 @@ export const updateWelcomeConfig = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => WelcomeInput.parse(d))
   .handler(async ({ data }): Promise<WelcomeConfig> => {
     const { assertCanAccessArea, writeAudit } = await import(
-      "./permissions.functions"
+      "./permissions-audit.server"
     );
     const actor = await assertCanAccessArea(data.guildId, "welcome");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

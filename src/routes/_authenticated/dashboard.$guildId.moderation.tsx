@@ -1,3 +1,4 @@
+import { AutomodTab } from "@/components/dashboard/moderation/AutomodTab";
 import { useState } from "react";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -11,9 +12,9 @@ import {
   Power,
   Gavel,
   AlertTriangle,
-  Sparkles,
 } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
+import { getAutomodConfig } from "@/lib/guild/modules.functions";
 import {
   getModerationConfig,
   getModerationStats,
@@ -25,12 +26,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
 import {
   Select,
   SelectContent,
@@ -52,7 +47,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/$guildId/moderat
       queryFn: () => listMyGuilds(),
     });
     if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
-    const [config, stats] = await Promise.all([
+    const [config, stats, automodConfig] = await Promise.all([
       context.queryClient.ensureQueryData({
         queryKey: ["moderation-config", params.guildId],
         queryFn: () => getModerationConfig({ data: { guildId: params.guildId } }),
@@ -61,8 +56,12 @@ export const Route = createFileRoute("/_authenticated/dashboard/$guildId/moderat
         queryKey: ["moderation-stats", params.guildId],
         queryFn: () => getModerationStats({ data: { guildId: params.guildId } }),
       }),
+      context.queryClient.ensureQueryData({
+        queryKey: ["automod", params.guildId],
+        queryFn: () => getAutomodConfig({ data: { guildId: params.guildId } }),
+      }),
     ]);
-    return { user, config, stats };
+    return { user, config, stats, automodConfig };
   },
   errorComponent: ({ error }) => (
     <div className="p-8">
@@ -77,21 +76,8 @@ export const Route = createFileRoute("/_authenticated/dashboard/$guildId/moderat
   component: ModerationPage,
 });
 
-const TABS = [
-  { value: "general", label: "Geral" },
-  { value: "permissions", label: "Permissões" },
-  { value: "punishments", label: "Punições" },
-  { value: "automod", label: "AutoMod" },
-  { value: "antispam", label: "Anti-Spam" },
-  { value: "antilink", label: "Anti-Link" },
-  { value: "blacklist", label: "Blacklist" },
-  { value: "logs", label: "Logs" },
-  { value: "history", label: "Histórico" },
-  { value: "appearance", label: "Aparência" },
-] as const;
-
 function ModerationPage() {
-  const { user, config, stats } = Route.useLoaderData();
+  const { user, config, stats, automodConfig } = Route.useLoaderData();
   const { guildId } = Route.useParams();
 
   return (
@@ -123,30 +109,10 @@ function ModerationPage() {
         />
       </div>
 
-      <Tabs defaultValue="general" className="mt-6">
-        <TabsList className="flex h-auto flex-wrap gap-1 bg-muted/40 p-1">
-          {TABS.map((t) => (
-            <TabsTrigger key={t.value} value={t.value} className="text-xs">
-              {t.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
-        <TabsContent value="general" className="mt-4">
-          <GeneralTab guildId={guildId} initial={config} />
-        </TabsContent>
-
-        {(["permissions", "punishments", "automod", "antispam", "antilink", "blacklist", "logs", "history", "appearance"] as const).map(
-          (v) => (
-            <TabsContent key={v} value={v} className="mt-4">
-              <SoonCard
-                title={TABS.find((t) => t.value === v)?.label ?? v}
-                description="Em construção. Esta aba será liberada nas próximas fases do sistema de moderação."
-              />
-            </TabsContent>
-          ),
-        )}
-      </Tabs>
+      <div className="mt-6 space-y-5">
+        <GeneralTab guildId={guildId} initial={config} />
+        <AutomodTab guildId={guildId} initial={automodConfig} />
+      </div>
     </ModuleLayout>
   );
 }
@@ -173,16 +139,6 @@ function StatCard({
         </div>
         <Icon className="size-5 opacity-80" />
       </div>
-    </div>
-  );
-}
-
-function SoonCard({ title, description }: { title: string; description: string }) {
-  return (
-    <div className="rounded-xl border bg-card/50 p-8 text-center">
-      <Sparkles className="mx-auto mb-3 size-6 text-violet-400" />
-      <div className="text-lg font-semibold">{title}</div>
-      <div className="mt-1 text-sm text-muted-foreground">{description}</div>
     </div>
   );
 }
@@ -288,7 +244,12 @@ function GeneralTab({
           enabled_log_events: form.enabled_log_events ?? [],
         },
       }),
-    onSuccess: () => {
+    onSuccess: (saved) => {
+      setForm({
+        ...saved,
+        default_warn_punishment: (saved.default_warn_punishment ?? "none") as WarnPun,
+      });
+      qc.setQueryData(["moderation-config", guildId], saved);
       toast.success("Configuração de moderação salva!");
       qc.invalidateQueries({ queryKey: ["moderation-config", guildId] });
     },

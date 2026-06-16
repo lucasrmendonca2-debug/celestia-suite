@@ -230,9 +230,12 @@ export const removeReactionRole = createServerFn({ method: "POST" })
 // AUTOMOD
 // ============================================================
 const AUTOMOD_DEFAULTS = {
+  enabled: false,
   anti_spam_enabled: false,
   anti_spam_threshold: 5,
   anti_spam_interval: 5,
+  anti_flood_enabled: false,
+  anti_flood_threshold: 3,
   anti_invite_enabled: false,
   anti_link_enabled: false,
   anti_caps_enabled: false,
@@ -242,7 +245,14 @@ const AUTOMOD_DEFAULTS = {
   blacklist_words: [] as string[],
   whitelist_channels: [] as string[],
   whitelist_roles: [] as string[],
+  whitelist_users: [] as string[],
   punishment: "delete" as "delete" | "warn" | "mute" | "kick" | "ban",
+  spam_punishment: "delete" as "delete" | "warn" | "mute" | "kick" | "ban",
+  link_punishment: "delete" as "delete" | "warn" | "mute" | "kick" | "ban",
+  invite_punishment: "delete" as "delete" | "warn" | "mute" | "kick" | "ban",
+  blacklist_punishment: "delete" as "delete" | "warn" | "mute" | "kick" | "ban",
+  spam_punishment_duration: 600,
+  warn_user_on_delete: true,
 };
 
 export const getAutomodConfig = createServerFn({ method: "GET" })
@@ -263,9 +273,12 @@ export const getAutomodConfig = createServerFn({ method: "GET" })
 
 const AutomodInput = z.object({
   guildId: guildIdSchema,
+  enabled: z.boolean(),
   anti_spam_enabled: z.boolean(),
   anti_spam_threshold: z.number().int().min(2).max(50),
   anti_spam_interval: z.number().int().min(1).max(60),
+  anti_flood_enabled: z.boolean(),
+  anti_flood_threshold: z.number().int().min(2).max(50),
   anti_invite_enabled: z.boolean(),
   anti_link_enabled: z.boolean(),
   anti_caps_enabled: z.boolean(),
@@ -275,7 +288,14 @@ const AutomodInput = z.object({
   blacklist_words: z.array(z.string().min(1).max(64)).max(200),
   whitelist_channels: z.array(snowflake).max(100),
   whitelist_roles: z.array(snowflake).max(100),
+  whitelist_users: z.array(snowflake).max(100),
   punishment: z.enum(["delete", "warn", "mute", "kick", "ban"]),
+  spam_punishment: z.enum(["delete", "warn", "mute", "kick", "ban"]),
+  link_punishment: z.enum(["delete", "warn", "mute", "kick", "ban"]),
+  invite_punishment: z.enum(["delete", "warn", "mute", "kick", "ban"]),
+  blacklist_punishment: z.enum(["delete", "warn", "mute", "kick", "ban"]),
+  spam_punishment_duration: z.number().int().min(60).max(60 * 60 * 24 * 28),
+  warn_user_on_delete: z.boolean(),
 });
 
 export const updateAutomodConfig = createServerFn({ method: "POST" })

@@ -89,7 +89,7 @@ export async function canPunishTarget(
 
   const me = staff.guild.members.me;
   if (me) {
-    if (target.roles.highest.position >= me.roles.highest.position) {
+    if (!isStaffOwner && target.roles.highest.position >= me.roles.highest.position) {
       return {
         ok: false,
         reason:

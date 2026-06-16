@@ -376,3 +376,100 @@ function Row({
     </button>
   );
 }
+
+/** Multi-channel picker. */
+export function MultiChannelPicker({
+  guildId,
+  value,
+  onChange,
+  types = [0, 5],
+}: {
+  guildId: string;
+  value: string[];
+  onChange: (ids: string[]) => void;
+  types?: number[];
+}) {
+  const fetcher = useServerFn(listGuildChannels);
+  const { data = [], isLoading } = useQuery({
+    queryKey: ["guild-channels", guildId],
+    queryFn: () => fetcher({ data: { guildId } }),
+    staleTime: 60_000,
+  });
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const filtered = useMemo(() => {
+    const set = new Set(types);
+    const ql = q.trim().toLowerCase();
+    return (data as GuildChannel[])
+      .filter((c) => set.has(c.type))
+      .filter((c) => (ql ? c.name.toLowerCase().includes(ql) : true))
+      .sort((a, b) => a.position - b.position);
+  }, [data, types, q]);
+  const selected = (data as GuildChannel[]).filter((c) => value.includes(c.id));
+
+  return (
+    <div className="space-y-2">
+      {selected.length > 0 && (
+        <div className="flex flex-wrap gap-1">
+          {selected.map((c) => {
+            const Icon = channelIcon(c.type);
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => onChange(value.filter((id) => id !== c.id))}
+                className="group flex items-center gap-1 rounded-full border border-border bg-background/60 px-2 py-0.5 text-xs hover:border-destructive/40"
+              >
+                <Icon className="size-3 opacity-60" />
+                {c.name}
+                <span className="text-muted-foreground group-hover:text-destructive">×</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button type="button" variant="outline" size="sm" className="gap-2">
+            <Hash className="size-3.5" /> Adicionar canal
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-72 p-2" align="start">
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Buscar canal…"
+            className="mb-2 h-8 text-xs"
+          />
+          <div className="max-h-60 overflow-y-auto">
+            {isLoading ? (
+              <p className="p-2 text-xs text-muted-foreground">Carregando…</p>
+            ) : filtered.length === 0 ? (
+              <p className="p-2 text-xs text-muted-foreground">Nenhum canal.</p>
+            ) : (
+              filtered.map((c) => {
+                const isOn = value.includes(c.id);
+                const I = channelIcon(c.type);
+                return (
+                  <Row
+                    key={c.id}
+                    onClick={() => {
+                      onChange(
+                        isOn ? value.filter((id) => id !== c.id) : [...value, c.id],
+                      );
+                    }}
+                    active={isOn}
+                  >
+                    <I className="size-3.5 opacity-60" />
+                    <span className="truncate">{c.name}</span>
+                    {isOn && <Check className="ml-auto size-3.5 opacity-70" />}
+                  </Row>
+                );
+              })
+            )}
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}

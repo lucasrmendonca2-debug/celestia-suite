@@ -98,10 +98,10 @@ function Landing() {
             bot premium para Discord
           </p>
           <h1 className="max-w-3xl text-[44px] font-semibold leading-[1.02] tracking-tight sm:text-[68px]">
-            Seu servidor,
+            Seu servidor
             <br />
-            <span className="text-muted-foreground">do nível</span>{" "}
-            <span className="italic text-primary">pro top.</span>
+            <span className="text-muted-foreground">no</span>{" "}
+            <span className="italic text-primary">mais alto nível.</span>
           </h1>
           <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-[17px]">
             Moderação, economia, level, tickets, sorteios, enquetes e um painel

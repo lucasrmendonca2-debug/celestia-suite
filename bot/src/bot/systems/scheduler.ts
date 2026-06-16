@@ -1,5 +1,5 @@
-import { Client } from "discord.js";
-import { VipMembership, Punishment, Giveaway } from "../../database/models.js";
+import { Client, type TextChannel } from "discord.js";
+import { VipMembership, Punishment, Giveaway, Reminder, Announcement } from "../../database/models.js";
 import { logger } from "../utils/logger.js";
 import { getConfig } from "../utils/guildCache.js";
 import { sendLog } from "./logs/sender.js";
@@ -61,4 +61,76 @@ async function tick(client: Client) {
   await tickPremiumExpirations(client).catch((err) =>
     logger.error({ err }, "tickPremiumExpirations falhou"),
   );
+
+  // Lembretes a entregar
+  const reminders = await Reminder.find({ delivered: false, remindAt: { $lte: now } }).limit(50);
+  for (const r of reminders) {
+    try {
+      const ch = (await client.channels.fetch(r.channelId).catch(() => null)) as TextChannel | null;
+      if (ch?.isTextBased()) {
+        await ch.send({
+          content: `<@${r.userId}>`,
+          embeds: [
+            brandEmbed({
+              kind: "info",
+              title: "⏰ Lembrete",
+              description: r.message,
+            }),
+          ],
+          allowedMentions: { users: [r.userId] },
+        });
+      } else {
+        const user = await client.users.fetch(r.userId).catch(() => null);
+        await user?.send({
+          embeds: [brandEmbed({ kind: "info", title: "⏰ Lembrete", description: r.message })],
+        });
+      }
+    } catch (err) {
+      logger.error({ err, reminderId: String(r._id) }, "reminder delivery falhou");
+    }
+    r.delivered = true;
+    await r.save();
+  }
+
+  // Anúncios agendados
+  const announcements = await Announcement.find({
+    sent: false,
+    scheduledFor: { $ne: null, $lte: now },
+  }).limit(20);
+  for (const a of announcements) {
+    try {
+      const ch = (await client.channels.fetch(a.channelId).catch(() => null)) as TextChannel | null;
+      if (ch?.isTextBased()) {
+        const content =
+          a.mention === "everyone"
+            ? "@everyone"
+            : a.mention === "here"
+              ? "@here"
+              : a.mention && /^\d{17,20}$/.test(a.mention)
+                ? `<@&${a.mention}>`
+                : undefined;
+        await ch.send({
+          content,
+          embeds: [
+            brandEmbed({
+              kind: "info",
+              title: a.title ?? "📣 Anúncio",
+              description: a.content,
+            }),
+          ],
+          allowedMentions:
+            a.mention === "everyone" || a.mention === "here"
+              ? { parse: [a.mention as "everyone" | "here"] }
+              : a.mention && /^\d{17,20}$/.test(a.mention)
+                ? { roles: [a.mention] }
+                : { parse: [] },
+        });
+      }
+      a.sent = true;
+      a.sentAt = new Date();
+      await a.save();
+    } catch (err) {
+      logger.error({ err, announcementId: String(a._id) }, "announcement delivery falhou");
+    }
+  }
 }

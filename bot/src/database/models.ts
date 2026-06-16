@@ -377,3 +377,35 @@ const blacklistSchema = new Schema(
   { timestamps: true },
 );
 export const GlobalBlacklist = model("GlobalBlacklist", blacklistSchema);
+
+/* ---------------- Reminders ---------------- */
+const reminderSchema = new Schema(
+  {
+    guildId: { type: String, required: true, index: true },
+    userId: { type: String, required: true, index: true },
+    channelId: { type: String, required: true },
+    message: { type: String, required: true },
+    remindAt: { type: Date, required: true, index: true },
+    delivered: { type: Boolean, default: false, index: true },
+  },
+  { timestamps: true },
+);
+export const Reminder = model("Reminder", reminderSchema);
+
+/* ---------------- Announcements ---------------- */
+const announcementSchema = new Schema(
+  {
+    guildId: { type: String, required: true, index: true },
+    channelId: { type: String, required: true },
+    authorId: { type: String, required: true },
+    title: { type: String, default: null },
+    content: { type: String, required: true },
+    mention: { type: String, default: null }, // "everyone" | "here" | role id
+    scheduledFor: { type: Date, default: null, index: true },
+    sent: { type: Boolean, default: false, index: true },
+    sentAt: { type: Date, default: null },
+  },
+  { timestamps: true },
+);
+export const Announcement = model("Announcement", announcementSchema);
+

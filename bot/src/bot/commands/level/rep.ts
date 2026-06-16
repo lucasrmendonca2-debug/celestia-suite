@@ -26,12 +26,17 @@ const command: SlashCommand = {
       await interaction.reply({ ephemeral: true, content: "❌ Reputação desativada neste servidor." });
       return;
     }
-    if (target.bot) {
-      await interaction.reply({ ephemeral: true, content: "❌ Bots não recebem reputação." });
+    const kind = classifyTarget(interaction, target);
+    if (kind === "self") {
+      await interaction.reply({ ephemeral: true, embeds: [brandEmbed({ kind: "warn", description: pick(socialResponses.repSelf) })] });
       return;
     }
-    if (target.id === interaction.user.id) {
-      await interaction.reply({ ephemeral: true, content: "❌ Você não pode dar reputação pra si mesmo." });
+    if (kind === "bot_self") {
+      await interaction.reply({ ephemeral: true, embeds: [brandEmbed({ kind: "warn", description: pick(socialResponses.repBot) })] });
+      return;
+    }
+    if (kind === "bot_other") {
+      await interaction.reply({ ephemeral: true, embeds: [brandEmbed({ kind: "warn", description: pick(socialResponses.repOtherBot) })] });
       return;
     }
 

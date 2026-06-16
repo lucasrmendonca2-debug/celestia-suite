@@ -12,6 +12,8 @@ import {
   Terminal,
   FileCode2,
   Ticket,
+  Award,
+  Trophy,
   type LucideIcon,
 } from "lucide-react";
 

@@ -80,7 +80,7 @@ function SeasonsPage() {
   const [selected, setSelected] = useState<string | null>(null);
 
   return (
-    <ModuleLayout title="Temporadas" description="Períodos de XP com ranking independente e multiplicador.">
+    <ModuleLayout guildId={guildId} user={user} icon={Trophy} title="Temporadas" description="Períodos de XP com ranking independente e multiplicador.">
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <p className="text-sm text-muted-foreground">

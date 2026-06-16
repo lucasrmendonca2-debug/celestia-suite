@@ -17,6 +17,19 @@ function makeStub(): SupabaseClient {
   return new Proxy({}, handler) as unknown as SupabaseClient;
 }
 
+function readJwtRole(key?: string): string | null {
+  try {
+    const payload = key?.split(".")[1];
+    if (!payload) return null;
+    return JSON.parse(Buffer.from(payload, "base64url").toString("utf8")).role ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export const supabaseKeyRole = readJwtRole(env.SUPABASE_SERVICE_ROLE_KEY);
+export const canWriteSupabase = supabaseKeyRole === "service_role";
+
 export const supabase: SupabaseClient =
   env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY
     ? createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {

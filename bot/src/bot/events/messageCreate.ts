@@ -13,7 +13,7 @@ const event: BotEvent<"messageCreate"> = {
     const blocked = await runAutoMod(message);
     if (blocked) return;
     await handleCustomCommand(message);
-    await handleMessageXp(message);
+    await handleSocialXp(message);
     await trackTicketActivity(message).catch((err) =>
       logger.debug({ err }, "trackTicketActivity falhou"),
     );

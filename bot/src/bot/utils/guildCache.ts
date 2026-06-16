@@ -1,6 +1,6 @@
 import type { Guild as DiscordGuild } from "discord.js";
 import { Guild, GuildConfig, User } from "../../database/models.js";
-import { supabase } from "../../database/supabase.js";
+import { canWriteSupabase, supabase } from "../../database/supabase.js";
 import { logger } from "./logger.js";
 
 
@@ -12,6 +12,10 @@ export async function ensureGuild(guild: DiscordGuild) {
   );
   await GuildConfig.updateOne({ guildId: guild.id }, { $setOnInsert: { guildId: guild.id } }, { upsert: true });
   // Garante linha no Supabase (dashboard ↔ bot)
+  if (!canWriteSupabase) {
+    logger.debug({ guildId: guild.id }, "supabase guild_configs upsert ignorado — service_role ausente");
+    return;
+  }
   await supabase
     .from("guild_configs")
     .upsert({ guild_id: guild.id }, { onConflict: "guild_id" })

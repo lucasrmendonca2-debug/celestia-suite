@@ -271,6 +271,48 @@ export type Database = {
         }
         Relationships: []
       }
+      bot_assets: {
+        Row: {
+          active: boolean
+          created_at: string
+          guild_id: string | null
+          id: string
+          is_default: boolean
+          key: string
+          module: string
+          name: string
+          type: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          guild_id?: string | null
+          id?: string
+          is_default?: boolean
+          key: string
+          module: string
+          name: string
+          type: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          guild_id?: string | null
+          id?: string
+          is_default?: boolean
+          key?: string
+          module?: string
+          name?: string
+          type?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
       command_permissions: {
         Row: {
           allowed_channels: string[]

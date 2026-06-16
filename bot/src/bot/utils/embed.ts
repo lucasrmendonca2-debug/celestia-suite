@@ -1,18 +1,12 @@
+// Atualizar brandEmbed para usar a paleta central, mantendo a API legada.
 import { EmbedBuilder, type ColorResolvable } from "discord.js";
 import { BRAND } from "../../config/env.js";
+import { MODULE_COLOR, MODULE_FOOTER, type ModuleKind } from "../systems/ui/embed.theme.js";
 
 type EmbedKind = "default" | "success" | "warn" | "error" | "info";
 
-const COLORS: Record<EmbedKind, number> = {
-  default: BRAND.color,
-  success: 0x22c55e,
-  warn: 0xf59e0b,
-  error: 0xef4444,
-  info: 0x3b82f6,
-};
-
 interface EmbedOptions {
-  kind?: EmbedKind;
+  kind?: EmbedKind | ModuleKind;
   title?: string;
   description?: string;
   footer?: string;
@@ -24,10 +18,12 @@ interface EmbedOptions {
 }
 
 export function brandEmbed(opts: EmbedOptions = {}): EmbedBuilder {
-  const embed = new EmbedBuilder().setColor(COLORS[opts.kind ?? "default"] as ColorResolvable);
+  const kind = (opts.kind ?? "default") as ModuleKind;
+  const color = MODULE_COLOR[kind] ?? BRAND.color;
+  const embed = new EmbedBuilder().setColor(color as ColorResolvable);
   if (opts.title) embed.setTitle(opts.title);
   if (opts.description) embed.setDescription(opts.description);
-  if (opts.footer ?? true) embed.setFooter({ text: opts.footer ?? BRAND.footer });
+  if (opts.footer ?? true) embed.setFooter({ text: opts.footer ?? MODULE_FOOTER[kind] ?? BRAND.footer });
   if (opts.thumbnail) embed.setThumbnail(opts.thumbnail);
   if (opts.image) embed.setImage(opts.image);
   if (opts.fields?.length) embed.addFields(opts.fields);
@@ -47,4 +43,7 @@ export const Emoji = {
   shield: "🛡️",
   bolt: "⚡",
   cog: "⚙️",
+  coin: "🪙",
+  xp: "📈",
+  crown: "👑",
 } as const;

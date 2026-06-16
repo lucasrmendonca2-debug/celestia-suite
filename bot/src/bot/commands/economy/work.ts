@@ -38,7 +38,9 @@ const command: SlashCommand = {
 
     const base = Math.floor(cfg.economyWorkMin + Math.random() * (cfg.economyWorkMax - cfg.economyWorkMin));
     const mult = (await isVip(interaction.guildId!, interaction.user.id)) ? cfg.economyVipMultiplier : 1;
-    const amount = Math.floor(base * mult);
+    const { getUserVipMultiplier } = await import("../../systems/premium/premium.features.js");
+    const premiumMult = await getUserVipMultiplier(interaction.user.id, interaction.guildId, "work").catch(() => 1);
+    const amount = Math.floor(base * mult * premiumMult);
     acc.wallet += amount;
     acc.lastWork = now;
     await acc.save();

@@ -90,7 +90,7 @@ const command: SlashCommand = {
         .filter((b) => profile.selected_badges.includes(b.code))
         .slice(0, 3)
         .map((b) => `${b.emoji} **${b.name}**`)
-        .join(" • ") || "_Nenhuma badge em destaque_";
+        .join(" • ") || `_${pick(socialResponses.noBadges)}_`;
 
       await interaction.reply({
         embeds: [

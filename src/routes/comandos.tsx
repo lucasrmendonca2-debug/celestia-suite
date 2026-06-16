@@ -473,7 +473,7 @@ function CommandsPage() {
         <div className="absolute inset-x-0 top-0 h-[420px] bg-[radial-gradient(ellipse_55%_60%_at_50%_0%,theme(colors.primary/0.10),transparent_70%)]" />
       </div>
 
-      <div className="mx-auto flex min-h-screen max-w-5xl flex-col px-5 py-6 sm:px-8 sm:py-10">
+      <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-5 py-6 sm:px-8 sm:py-10">
         <header className="flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2.5">
             <div className="flex size-8 items-center justify-center rounded-md bg-primary/15 ring-1 ring-primary/40">

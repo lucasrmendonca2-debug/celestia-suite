@@ -4,7 +4,7 @@ import { brandEmbed } from "../../utils/embed.js";
 import { supabase } from "../../../database/supabase.js";
 import { deriveLevel } from "../../systems/social/formulas.js";
 import { renderRankCard } from "../../systems/social/rank-card.service.js";
-import { getProfile } from "../../systems/social/profile.service.js";
+import { getProfile, getResolvedCardLook } from "../../systems/social/profile.service.js";
 
 const command: SlashCommand = {
   category: "level",
@@ -38,6 +38,7 @@ const command: SlashCommand = {
     const rank = (count ?? 0) + 1;
 
     const profile = await getProfile(interaction.guildId!, target.id);
+    const look = await getResolvedCardLook(interaction.guildId!, profile);
 
     try {
       const buffer = await renderRankCard({
@@ -49,7 +50,10 @@ const command: SlashCommand = {
         xpForNext: derived.xpForNext,
         totalXp,
         rank,
-        color: profile.color || "#5865F2",
+        accentColor: look.accent,
+        backgroundColor: look.background,
+        textColor: look.text,
+        cardStyle: look.style,
         title: profile.title,
         bannerUrl: profile.banner_url,
       });

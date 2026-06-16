@@ -4,6 +4,8 @@ import { brandEmbed } from "../../utils/embed.js";
 import { fmtCoins, fmtDuration } from "../../utils/format.js";
 import { getAccount, getCurrency, isVip } from "../../systems/economy/economy.js";
 import { getConfig } from "../../utils/guildCache.js";
+import { logTx } from "../../systems/economy/economy.tx.js";
+import { incrementMissionProgress } from "../../systems/economy/missions.js";
 
 const DAY = 24 * 3600 * 1000;
 
@@ -42,6 +44,17 @@ const command: SlashCommand = {
     acc.wallet += amount;
     acc.lastDaily = now;
     await acc.save();
+
+    await logTx({
+      guildId: interaction.guildId!,
+      userId: interaction.user.id,
+      kind: "daily",
+      amount,
+      balanceAfter: acc.wallet,
+      reason: `Diária (streak ${acc.streakDaily})`,
+    });
+    await incrementMissionProgress(interaction.guildId!, interaction.user.id, "daily");
+
 
     await interaction.reply({
       embeds: [

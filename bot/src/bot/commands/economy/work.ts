@@ -4,6 +4,8 @@ import { brandEmbed } from "../../utils/embed.js";
 import { fmtCoins, fmtDuration } from "../../utils/format.js";
 import { getAccount, getCurrency, isVip } from "../../systems/economy/economy.js";
 import { getConfig } from "../../utils/guildCache.js";
+import { logTx } from "../../systems/economy/economy.tx.js";
+import { incrementMissionProgress } from "../../systems/economy/missions.js";
 
 const COOLDOWN = 60 * 60 * 1000; // 1h
 
@@ -44,6 +46,16 @@ const command: SlashCommand = {
     acc.wallet += amount;
     acc.lastWork = now;
     await acc.save();
+
+    await logTx({
+      guildId: interaction.guildId!,
+      userId: interaction.user.id,
+      kind: "work",
+      amount,
+      balanceAfter: acc.wallet,
+      reason: "Trabalho",
+    });
+    await incrementMissionProgress(interaction.guildId!, interaction.user.id, "work");
 
     const job = JOBS[Math.floor(Math.random() * JOBS.length)];
     await interaction.reply({

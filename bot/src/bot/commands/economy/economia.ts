@@ -85,12 +85,22 @@ const command: SlashCommand = {
     }
 
     if (sub === "historico") {
+      const { listTx } = await import("../../systems/economy/economy.tx.js");
+      const rows = await listTx(guildId, interaction.user.id, 15);
+      const lines =
+        rows
+          .map((r: any) => {
+            const sign = r.amount >= 0 ? "+" : "";
+            const ts = `<t:${Math.floor(new Date(r.created_at).getTime() / 1000)}:R>`;
+            return `\`${r.kind.padEnd(14)}\` ${sign}${r.amount} ${c.emoji} · ${r.reason ?? "—"} · ${ts}`;
+          })
+          .join("\n") || "_Nenhuma transação registrada ainda._";
       return interaction.reply({
         embeds: [
           brandEmbed({
-            kind: "info",
             title: "📜 Histórico de transações",
-            description: "Esse recurso está sendo preparado — a partir do próximo pass, todas as transações vão aparecer aqui (daily, work, transferências, compras, etc.).",
+            description: lines,
+            footer: "Últimas 15 transações",
           }),
         ],
         ephemeral: true,

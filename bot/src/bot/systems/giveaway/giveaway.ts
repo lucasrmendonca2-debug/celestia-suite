@@ -59,23 +59,39 @@ export async function handleGiveawayButton(interaction: ButtonInteraction) {
     });
     return;
   }
+  // Verifica requisitos avançados
+  const fails: string[] = [];
   if (g.requiredRoleId && interaction.member && "roles" in interaction.member) {
     const roles = interaction.member.roles as { cache: Map<string, unknown> } | string[];
     const has =
       Array.isArray(roles) ? roles.includes(g.requiredRoleId) : roles.cache.has(g.requiredRoleId);
-    if (!has) {
-      await interaction.reply({
-        embeds: [
-          brandEmbed({
-            kind: "error",
-            title: "Sem permissão",
-            description: `Você precisa do cargo <@&${g.requiredRoleId}> para participar.`,
-          }),
-        ],
-        ephemeral: true,
-      });
-      return;
-    }
+    if (!has) fails.push(`Cargo obrigatório: <@&${g.requiredRoleId}>`);
+  }
+  if (g.minAccountDays && g.minAccountDays > 0) {
+    const ageDays = (Date.now() - interaction.user.createdTimestamp) / 86_400_000;
+    if (ageDays < g.minAccountDays) fails.push(`Conta com pelo menos **${g.minAccountDays}d** de idade`);
+  }
+  if (g.minLevel && g.minLevel > 0) {
+    const lvl = await LevelAccount.findOne({ guildId: g.guildId, userId: interaction.user.id }).select("level");
+    if (!lvl || (lvl.level ?? 0) < g.minLevel) fails.push(`Nível mínimo **${g.minLevel}**`);
+  }
+  if (g.minCoins && g.minCoins > 0) {
+    const eco = await EconomyAccount.findOne({ guildId: g.guildId, userId: interaction.user.id }).select("balance");
+    const bal = (eco as { balance?: number } | null)?.balance ?? 0;
+    if (bal < g.minCoins) fails.push(`Mínimo de **${g.minCoins}** moedas`);
+  }
+  if (fails.length > 0) {
+    await interaction.reply({
+      embeds: [
+        brandEmbed({
+          kind: "error",
+          title: "Você não cumpre os requisitos",
+          description: fails.map((f) => `• ${f}`).join("\n"),
+        }),
+      ],
+      ephemeral: true,
+    });
+    return;
   }
 
   if (g.participants.includes(interaction.user.id)) {

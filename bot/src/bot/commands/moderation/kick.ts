@@ -47,6 +47,21 @@ const command: SlashCommand = {
 
     const user = interaction.options.getUser("usuario", true);
     const reason = interaction.options.getString("motivo") ?? undefined;
+
+    const { pick, moderationResponses } = await import("../../systems/personality/random-responses.js");
+    if (user.id === interaction.user.id) {
+      return interaction.reply({
+        embeds: [brandEmbed({ kind: "warn", title: "Auto-kick?", description: "Você não pode se expulsar. Mas pode dar /sair do canal, talvez? 😅" })],
+        ephemeral: true,
+      });
+    }
+    if (user.id === interaction.client.user.id) {
+      return interaction.reply({
+        embeds: [brandEmbed({ kind: "warn", title: "Expulsar o bot?", description: pick(moderationResponses.kickBot) })],
+        ephemeral: true,
+      });
+    }
+
     const member = await guild.members.fetch(user.id).catch(() => null);
     if (!member) {
       return interaction.reply({

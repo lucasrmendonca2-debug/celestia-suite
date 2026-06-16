@@ -69,6 +69,21 @@ const command: SlashCommand = {
     const user = interaction.options.getUser("usuario", true);
     const reason = interaction.options.getString("motivo") ?? undefined;
     const deleteDays = interaction.options.getInteger("apagar_dias") ?? 0;
+
+    const { pick, moderationResponses } = await import("../../systems/personality/random-responses.js");
+    if (user.id === interaction.user.id) {
+      return interaction.reply({
+        embeds: [brandEmbed({ kind: "warn", title: "Auto-ban?", description: "Tá querendo se exilar do servidor? Pensa com calma. 😅" })],
+        ephemeral: true,
+      });
+    }
+    if (user.id === interaction.client.user.id) {
+      return interaction.reply({
+        embeds: [brandEmbed({ kind: "warn", title: "Banir o bot?", description: pick(moderationResponses.banBot) })],
+        ephemeral: true,
+      });
+    }
+
     const member = await guild.members.fetch(user.id).catch(() => null);
 
     if (member) {

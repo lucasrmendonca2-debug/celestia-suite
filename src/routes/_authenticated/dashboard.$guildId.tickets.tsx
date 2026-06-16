@@ -272,7 +272,7 @@ function GeneralTab({
   const closeRef = useRef<HTMLTextAreaElement>(null);
 
   function insertAtCursor(
-    ref: React.RefObject<HTMLTextAreaElement>,
+    ref: React.RefObject<HTMLTextAreaElement | null>,
     key: "panel_description" | "ticket_welcome_message" | "close_message",
     text: string,
   ) {

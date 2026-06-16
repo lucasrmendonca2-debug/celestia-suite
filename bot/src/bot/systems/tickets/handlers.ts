@@ -22,6 +22,7 @@ import {
   listAccessLevels,
   listPermissionRoles,
   reopenTicketRow,
+  setTicketRating,
   writeLog,
   type TicketCategory,
   type TicketConfig,
@@ -30,6 +31,7 @@ import {
   buildClosedActions,
   buildClosedEmbed,
   buildLogEmbed,
+  buildRatingActions,
   buildTicketActions,
   buildWelcomeEmbed,
 } from "./ticket.components.js";

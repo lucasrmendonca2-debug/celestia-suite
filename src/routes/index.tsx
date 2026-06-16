@@ -34,7 +34,11 @@ function Landing() {
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-8">
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="size-8 rounded-lg bg-primary/20 ring-1 ring-primary/40" />
+            <img
+              src={zenoxAvatar.url}
+              alt="Zenox"
+              className="size-9 rounded-lg object-cover ring-1 ring-primary/40"
+            />
             <span className="text-lg font-semibold tracking-tight">Zenox</span>
           </div>
           <nav className="flex items-center gap-3 text-sm">

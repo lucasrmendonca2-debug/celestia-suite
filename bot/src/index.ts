@@ -47,6 +47,8 @@ async function bootstrap() {
   await client.login(env.DISCORD_TOKEN);
   startSchedulers(client);
   startModerationScheduler(client);
+  startTicketSlaScheduler(client);
+  startTicketAutocloseScheduler(client);
 
 
   const shutdown = async (sig: string) => {

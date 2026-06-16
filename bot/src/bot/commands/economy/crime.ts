@@ -3,6 +3,7 @@ import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { fmtCoins, fmtDuration } from "../../utils/format.js";
 import { getAccount, getCurrency } from "../../systems/economy/economy.js";
+import { economyResponses, pick } from "../../systems/personality/index.js";
 
 const COOLDOWN = 2 * 3600 * 1000;
 

@@ -543,9 +543,6 @@ function GeneralTab({
         </div>
       </div>
 
-      <p className="text-xs text-muted-foreground">
-        💡 Salve as configurações antes de <strong>enviar</strong> ou <strong>editar</strong> o painel.
-      </p>
     </form>
   );
 }

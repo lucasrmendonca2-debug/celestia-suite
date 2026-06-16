@@ -30,6 +30,10 @@ import { PermissionsTab } from "@/components/dashboard/tickets/PermissionsTab";
 import { ActiveTicketsCard } from "@/components/dashboard/tickets/ActiveTicketsCard";
 import { WebhookCard } from "@/components/dashboard/tickets/WebhookCard";
 import { GuildEmojiPicker } from "@/components/dashboard/tickets/GuildEmojiPicker";
+import { AppearanceTab } from "@/components/dashboard/tickets/AppearanceTab";
+import { HistoryTab } from "@/components/dashboard/tickets/HistoryTab";
+import { RatingsTab } from "@/components/dashboard/tickets/RatingsTab";
+import { ChannelPicker, RolePicker } from "@/components/dashboard/tickets/DiscordPickers";
 
 export const Route = createFileRoute("/_authenticated/dashboard/$guildId/tickets")({
   loader: async ({ context, params }) => {
@@ -66,15 +70,12 @@ export const Route = createFileRoute("/_authenticated/dashboard/$guildId/tickets
 
 const TABS = [
   { value: "general", label: "Geral" },
-  { value: "panel", label: "Painel" },
   { value: "categories", label: "Categorias" },
   { value: "permissions", label: "Permissões" },
   { value: "levels", label: "Níveis" },
-  { value: "messages", label: "Mensagens" },
-  { value: "logs", label: "Logs" },
+  { value: "appearance", label: "Aparência" },
   { value: "history", label: "Histórico" },
   { value: "ratings", label: "Avaliações" },
-  { value: "appearance", label: "Aparência" },
 ] as const;
 
 function TicketsPage() {

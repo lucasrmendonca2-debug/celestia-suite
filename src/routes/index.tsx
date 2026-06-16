@@ -111,12 +111,13 @@ function Landing() {
             >
               Módulos
             </a>
-            <a
-              href="#mascot"
+            <Link
+              to="/dashboard"
               className="hidden text-muted-foreground hover:text-foreground sm:inline"
             >
-              O que faço
-            </a>
+              Dashboard
+            </Link>
+
             <Link
               to="/dashboard"
               className="hidden text-muted-foreground hover:text-foreground sm:inline"

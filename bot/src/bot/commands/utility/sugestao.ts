@@ -83,6 +83,16 @@ const command: SlashCommand = {
         return;
       }
       const text = interaction.options.getString("texto", true).slice(0, 1500);
+      const wantAnon = interaction.options.getBoolean("anonima") ?? false;
+      const allowAnon = config?.suggestions_allow_anonymous ?? false;
+      if (wantAnon && !allowAnon) {
+        await interaction.reply({
+          embeds: [brandEmbed({ kind: "warn", title: "Anônimo desativado", description: "A staff não permite sugestões anônimas neste servidor." })],
+          ephemeral: true,
+        });
+        return;
+      }
+      const anonymous = wantAnon && allowAnon;
 
       const { data, error } = await supabase
         .from("suggestions")
@@ -92,6 +102,7 @@ const command: SlashCommand = {
           author_id: interaction.user.id,
           content: text,
           status: "PENDING",
+          anonymous,
         })
         .select("*")
         .single();

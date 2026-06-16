@@ -1,6 +1,6 @@
 import { AttachmentBuilder, SlashCommandBuilder } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
-import { brandEmbed } from "../../utils/embed.js";
+import { ui } from "../../systems/ui/embed.factory.js";
 import { supabase } from "../../../database/supabase.js";
 import { deriveLevel } from "../../systems/social/formulas.js";
 import { renderRankCard } from "../../systems/social/rank-card.service.js";
@@ -63,8 +63,9 @@ const command: SlashCommand = {
       // fallback embed se canvas falhar
       await interaction.editReply({
         embeds: [
-          brandEmbed({
-            title: `📈 ${target.username}`,
+          ui.social({
+            guildId: interaction.guildId!,
+            title: `📈 Rank de ${target.username}`,
             thumbnail: target.displayAvatarURL(),
             fields: [
               { name: "Nível", value: String(derived.level), inline: true },

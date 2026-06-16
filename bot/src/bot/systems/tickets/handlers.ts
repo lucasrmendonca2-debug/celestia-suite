@@ -215,13 +215,113 @@ export async function closeTicket(
 
   await channel.send({
     embeds: [buildClosedEmbed(cfg.close_message, member.id, cfg.panel_color)],
+    components: [buildClosedActions()],
   });
 
+  // Transcript opcional
+  let transcript: ReturnType<typeof buildTranscript> extends Promise<infer T> ? T | null : null = null;
+  if (cfg.transcript_enabled) {
+    try {
+      transcript = await buildTranscript(channel);
+    } catch {
+      /* ignora */
+    }
+  }
+
   await writeLog(guild.id, ticket.id, "closed", member.id, { reason: reason ?? null });
-  await sendClosedLog(guild, cfg, channel, member, ticket.user_id);
+  await sendClosedLog(guild, cfg, channel, member, ticket.user_id, transcript);
 
   // renomeia opcionalmente
   await channel.setName(`closed-${ticket.username}`.slice(0, 90)).catch(() => {});
+}
+
+/* ===================== REOPEN ===================== */
+
+export async function reopenTicket(channel: TextChannel, member: GuildMember): Promise<void> {
+  const ticket = await findTicketByChannel(channel.id);
+  if (!ticket) throw new Error("Este canal não é um ticket.");
+  if (ticket.status === "open") throw new Error("Este ticket já está aberto.");
+  if (
+    !member.permissions.has(PermissionFlagsBits.ManageChannels) &&
+    member.id !== ticket.user_id
+  ) {
+    const cfg = await getTicketConfig(channel.guild.id);
+    if (!cfg.default_support_role_id || !member.roles.cache.has(cfg.default_support_role_id)) {
+      throw new Error("Você não tem permissão para reabrir este ticket.");
+    }
+  }
+  await reopenTicketRow(ticket.id);
+  await channel.permissionOverwrites
+    .edit(ticket.user_id, { SendMessages: true, ViewChannel: true })
+    .catch(() => {});
+  await channel.setName(`ticket-${ticket.username}`.slice(0, 90)).catch(() => {});
+  await channel.send({
+    embeds: [
+      brandEmbed({
+        kind: "success",
+        title: "🔓 Ticket reaberto",
+        description: `Reaberto por <@${member.id}>.`,
+      }),
+    ],
+  });
+  await writeLog(channel.guild.id, ticket.id, "reopened", member.id, {});
+}
+
+/* ===================== ADD / REMOVE USER ===================== */
+
+export async function addUserToTicket(
+  channel: TextChannel,
+  staff: GuildMember,
+  targetId: string,
+): Promise<void> {
+  const ticket = await findTicketByChannel(channel.id);
+  if (!ticket) throw new Error("Este canal não é um ticket.");
+  await ensureStaff(channel, staff);
+  await channel.permissionOverwrites.edit(targetId, {
+    ViewChannel: true,
+    SendMessages: true,
+    ReadMessageHistory: true,
+    AttachFiles: true,
+  });
+  await channel.send({
+    embeds: [
+      brandEmbed({
+        kind: "success",
+        title: "👥 Usuário adicionado",
+        description: `<@${targetId}> agora tem acesso ao ticket.`,
+      }),
+    ],
+  });
+  await writeLog(channel.guild.id, ticket.id, "user_added", staff.id, { targetId });
+}
+
+export async function removeUserFromTicket(
+  channel: TextChannel,
+  staff: GuildMember,
+  targetId: string,
+): Promise<void> {
+  const ticket = await findTicketByChannel(channel.id);
+  if (!ticket) throw new Error("Este canal não é um ticket.");
+  if (targetId === ticket.user_id) throw new Error("Não dá pra remover o dono do ticket.");
+  await ensureStaff(channel, staff);
+  await channel.permissionOverwrites.delete(targetId).catch(() => {});
+  await channel.send({
+    embeds: [
+      brandEmbed({
+        kind: "info",
+        title: "👋 Usuário removido",
+        description: `<@${targetId}> foi removido do ticket.`,
+      }),
+    ],
+  });
+  await writeLog(channel.guild.id, ticket.id, "user_removed", staff.id, { targetId });
+}
+
+async function ensureStaff(channel: TextChannel, member: GuildMember): Promise<void> {
+  if (member.permissions.has(PermissionFlagsBits.ManageChannels)) return;
+  const cfg = await getTicketConfig(channel.guild.id);
+  if (cfg.default_support_role_id && member.roles.cache.has(cfg.default_support_role_id)) return;
+  throw new Error("Apenas a equipe pode usar este comando.");
 }
 
 /* ===================== LOGS ===================== */

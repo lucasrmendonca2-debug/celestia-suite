@@ -23,6 +23,9 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { CategoriesTab } from "@/components/dashboard/tickets/CategoriesTab";
+import { LevelsTab } from "@/components/dashboard/tickets/LevelsTab";
+import { PermissionsTab } from "@/components/dashboard/tickets/PermissionsTab";
 
 export const Route = createFileRoute("/_authenticated/dashboard/$guildId/tickets")({
   loader: async ({ context, params }) => {

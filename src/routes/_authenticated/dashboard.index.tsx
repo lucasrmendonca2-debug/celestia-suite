@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Crown, ShieldCheck } from "lucide-react";
+import { Crown, ShieldCheck, Search, ArrowRight, Plus } from "lucide-react";
+import { useMemo, useState } from "react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
 
@@ -25,40 +26,87 @@ function ServerPicker() {
     queryFn: () => listMyGuilds(),
   });
 
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<"all" | "owner" | "manager">("all");
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return guilds.filter((g) => {
+      if (filter === "owner" && !g.owner) return false;
+      if (filter === "manager" && g.owner) return false;
+      if (q && !g.name.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [guilds, query, filter]);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <DashboardTopbar
         user={user}
         title="Seus servidores"
-        subtitle="Mostrando apenas servidores onde você pode gerenciar configurações."
+        subtitle="Apenas servidores onde você pode gerenciar configurações."
       />
 
-      <main className="mx-auto max-w-6xl px-6 py-8">
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         {guilds.length === 0 ? (
           <EmptyState />
         ) : (
           <>
-            <p className="mb-6 text-sm text-muted-foreground">
-              {guilds.length} servidor{guilds.length === 1 ? "" : "es"} disponível
-              {guilds.length === 1 ? "" : "is"}.
+            {/* Controls */}
+            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="relative w-full sm:max-w-sm">
+                <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                <input
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Buscar servidor..."
+                  className="h-10 w-full rounded-lg border border-input bg-card pl-9 pr-3 text-sm outline-none transition focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+              <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1">
+                {(["all", "owner", "manager"] as const).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setFilter(f)}
+                    className={`rounded-md px-3 py-1.5 text-xs font-medium transition ${
+                      filter === f
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {f === "all" ? "Todos" : f === "owner" ? "Dono" : "Gerente"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <p className="mb-4 text-xs text-muted-foreground">
+              Mostrando {filtered.length} de {guilds.length} servidor
+              {guilds.length === 1 ? "" : "es"}.
             </p>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {guilds.map((g) => (
-                <Link
-                  key={g.id}
-                  to="/dashboard/$guildId"
-                  params={{ guildId: g.id }}
-                  className="group relative overflow-hidden rounded-xl border border-border bg-card p-5 transition hover:border-primary/50 hover:bg-card/80"
-                >
-                  <div className="flex items-center gap-3">
+
+            {filtered.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center text-sm text-muted-foreground">
+                Nenhum servidor corresponde à busca.
+              </div>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {filtered.map((g) => (
+                  <Link
+                    key={g.id}
+                    to="/dashboard/$guildId"
+                    params={{ guildId: g.id }}
+                    className="group relative flex items-center gap-3 overflow-hidden rounded-xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:border-primary/50 hover:bg-card/80 hover:shadow-lg hover:shadow-primary/10"
+                  >
+                    <div className="pointer-events-none absolute inset-0 -z-0 bg-gradient-to-br from-primary/0 via-transparent to-primary/0 opacity-0 transition group-hover:from-primary/10 group-hover:to-purple-500/5 group-hover:opacity-100" />
                     {g.iconUrl ? (
                       <img
                         src={g.iconUrl}
                         alt=""
-                        className="size-12 rounded-xl ring-1 ring-border"
+                        className="size-12 shrink-0 rounded-xl ring-1 ring-border"
                       />
                     ) : (
-                      <div className="flex size-12 items-center justify-center rounded-xl bg-primary/15 text-sm font-semibold text-primary ring-1 ring-primary/30">
+                      <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-sm font-semibold text-primary ring-1 ring-primary/30">
                         {g.name.slice(0, 2).toUpperCase()}
                       </div>
                     )}
@@ -67,7 +115,7 @@ function ServerPicker() {
                       <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                         {g.owner ? (
                           <>
-                            <Crown className="size-3" /> Você é o dono
+                            <Crown className="size-3 text-amber-400" /> Você é o dono
                           </>
                         ) : (
                           <>
@@ -76,10 +124,11 @@ function ServerPicker() {
                         )}
                       </p>
                     </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
+                    <ArrowRight className="size-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary" />
+                  </Link>
+                ))}
+              </div>
+            )}
           </>
         )}
       </main>
@@ -90,6 +139,9 @@ function ServerPicker() {
 function EmptyState() {
   return (
     <div className="mx-auto mt-10 max-w-md rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center">
+      <div className="mx-auto mb-3 inline-flex size-12 items-center justify-center rounded-xl bg-primary/15 text-primary ring-1 ring-primary/30">
+        <Plus className="size-6" />
+      </div>
       <p className="text-base font-medium">Nenhum servidor gerenciável</p>
       <p className="mt-2 text-sm text-muted-foreground">
         Você precisa ter <strong>Gerenciar Servidor</strong> ou <strong>Administrador</strong> em

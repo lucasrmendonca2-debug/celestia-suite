@@ -145,13 +145,17 @@ function TicketsPage() {
           <LevelsTab guildId={guildId} />
         </TabsContent>
 
-        {TABS.filter(
-          (t) => !["general", "categories", "permissions", "levels"].includes(t.value),
-        ).map((t) => (
-          <TabsContent key={t.value} value={t.value} className="mt-6">
-            <SoonCard title={t.label} />
-          </TabsContent>
-        ))}
+        <TabsContent value="appearance" className="mt-6">
+          <AppearanceTab guildId={guildId} cfg={config} />
+        </TabsContent>
+
+        <TabsContent value="history" className="mt-6">
+          <HistoryTab guildId={guildId} />
+        </TabsContent>
+
+        <TabsContent value="ratings" className="mt-6">
+          <RatingsTab guildId={guildId} />
+        </TabsContent>
       </Tabs>
     </ModuleLayout>
   );

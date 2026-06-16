@@ -858,3 +858,44 @@ export const deletePermissionRole = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/* ===================== GUILD EMOJIS ===================== */
+
+export interface GuildEmoji {
+  id: string;
+  name: string;
+  animated: boolean;
+  /** Mention string to use inside Discord messages (e.g. <:name:id>) */
+  mention: string;
+  /** CDN URL for preview */
+  url: string;
+}
+
+export const listGuildEmojis = createServerFn({ method: "GET" })
+  .inputValidator((d: { guildId: string }) =>
+    z.object({ guildId: guildIdSchema }).parse(d),
+  )
+  .handler(async ({ data }): Promise<GuildEmoji[]> => {
+    await perm(data.guildId);
+    const token = process.env.DISCORD_BOT_TOKEN;
+    if (!token) throw new Error("DISCORD_BOT_TOKEN não configurado no servidor.");
+    const res = await fetch(`${DISCORD}/guilds/${data.guildId}/emojis`, {
+      headers: { Authorization: `Bot ${token}` },
+    });
+    if (!res.ok) return [];
+    const raw = (await res.json()) as Array<{
+      id: string;
+      name: string;
+      animated?: boolean;
+      available?: boolean;
+    }>;
+    return raw
+      .filter((e) => e.id && e.name && e.available !== false)
+      .map((e) => ({
+        id: e.id,
+        name: e.name,
+        animated: !!e.animated,
+        mention: `<${e.animated ? "a" : ""}:${e.name}:${e.id}>`,
+        url: `https://cdn.discordapp.com/emojis/${e.id}.${e.animated ? "gif" : "png"}`,
+      }));
+  });

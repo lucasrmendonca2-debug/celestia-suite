@@ -29,6 +29,7 @@ import { LevelsTab } from "@/components/dashboard/tickets/LevelsTab";
 import { PermissionsTab } from "@/components/dashboard/tickets/PermissionsTab";
 import { ActiveTicketsCard } from "@/components/dashboard/tickets/ActiveTicketsCard";
 import { WebhookCard } from "@/components/dashboard/tickets/WebhookCard";
+import { GuildEmojiPicker } from "@/components/dashboard/tickets/GuildEmojiPicker";
 
 export const Route = createFileRoute("/_authenticated/dashboard/$guildId/tickets")({
   loader: async ({ context, params }) => {
@@ -419,8 +420,13 @@ function GeneralTab({
               <Input
                 value={form.panel_button_emoji}
                 onChange={(e) => setForm({ ...form, panel_button_emoji: e.target.value })}
-                className="w-20"
+                className="w-24"
                 placeholder="🎫"
+              />
+              <GuildEmojiPicker
+                guildId={guildId}
+                asMention
+                onPick={(v) => setForm({ ...form, panel_button_emoji: v })}
               />
               <Input
                 value={form.panel_button_label}

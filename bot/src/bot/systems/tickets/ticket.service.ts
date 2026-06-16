@@ -163,6 +163,20 @@ export async function closeTicketRow(
   if (error) throw error;
 }
 
+export async function claimTicketRow(
+  ticketId: string,
+  staffId: string,
+): Promise<TicketRow> {
+  const { data, error } = await supabase
+    .from("tickets")
+    .update({ claimed_by: staffId })
+    .eq("id", ticketId)
+    .select()
+    .single();
+  if (error) throw error;
+  return data as TicketRow;
+}
+
 export async function setPanelMessage(
   guildId: string,
   channelId: string,

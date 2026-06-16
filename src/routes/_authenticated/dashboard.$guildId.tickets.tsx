@@ -30,6 +30,10 @@ import { PermissionsTab } from "@/components/dashboard/tickets/PermissionsTab";
 import { ActiveTicketsCard } from "@/components/dashboard/tickets/ActiveTicketsCard";
 import { WebhookCard } from "@/components/dashboard/tickets/WebhookCard";
 import { GuildEmojiPicker } from "@/components/dashboard/tickets/GuildEmojiPicker";
+import { AppearanceTab } from "@/components/dashboard/tickets/AppearanceTab";
+import { HistoryTab } from "@/components/dashboard/tickets/HistoryTab";
+import { RatingsTab } from "@/components/dashboard/tickets/RatingsTab";
+import { ChannelPicker, RolePicker } from "@/components/dashboard/tickets/DiscordPickers";
 
 export const Route = createFileRoute("/_authenticated/dashboard/$guildId/tickets")({
   loader: async ({ context, params }) => {
@@ -66,15 +70,12 @@ export const Route = createFileRoute("/_authenticated/dashboard/$guildId/tickets
 
 const TABS = [
   { value: "general", label: "Geral" },
-  { value: "panel", label: "Painel" },
   { value: "categories", label: "Categorias" },
   { value: "permissions", label: "Permissões" },
   { value: "levels", label: "Níveis" },
-  { value: "messages", label: "Mensagens" },
-  { value: "logs", label: "Logs" },
+  { value: "appearance", label: "Aparência" },
   { value: "history", label: "Histórico" },
   { value: "ratings", label: "Avaliações" },
-  { value: "appearance", label: "Aparência" },
 ] as const;
 
 function TicketsPage() {
@@ -144,13 +145,17 @@ function TicketsPage() {
           <LevelsTab guildId={guildId} />
         </TabsContent>
 
-        {TABS.filter(
-          (t) => !["general", "categories", "permissions", "levels"].includes(t.value),
-        ).map((t) => (
-          <TabsContent key={t.value} value={t.value} className="mt-6">
-            <SoonCard title={t.label} />
-          </TabsContent>
-        ))}
+        <TabsContent value="appearance" className="mt-6">
+          <AppearanceTab guildId={guildId} cfg={config} />
+        </TabsContent>
+
+        <TabsContent value="history" className="mt-6">
+          <HistoryTab guildId={guildId} />
+        </TabsContent>
+
+        <TabsContent value="ratings" className="mt-6">
+          <RatingsTab guildId={guildId} />
+        </TabsContent>
       </Tabs>
     </ModuleLayout>
   );
@@ -244,16 +249,7 @@ function SetupChecklist({
   );
 }
 
-function SoonCard({ title }: { title: string }) {
-  return (
-    <div className="rounded-xl border border-dashed border-border bg-card/30 p-10 text-center">
-      <p className="text-sm font-medium">{title} chega na próxima fase ✨</p>
-      <p className="mt-2 text-xs text-muted-foreground">
-        A Fase 1 entrega Geral, painel único e abrir/fechar. Próximas fases adicionam categorias, permissões dinâmicas, transcript, histórico e avaliações.
-      </p>
-    </div>
-  );
-}
+/* SoonCard removido — todas as abas estão implementadas */
 
 /* ---------------- General tab ---------------- */
 
@@ -356,34 +352,52 @@ function GeneralTab({
         title="Canais e cargo"
         description="Cole os IDs do Discord (Configurações → Avançado → Modo Desenvolvedor → clique-direito → Copiar ID)."
       >
-        <Field
+        <PickerField
           label="Canal do painel"
-          hint="Onde o painel único será publicado quando você rodar /ticket painel."
-          value={form.panel_channel_id ?? ""}
-          onChange={(v) => setForm({ ...form, panel_channel_id: v })}
-          placeholder="ex: 1234567890123456789"
-        />
-        <Field
+          hint="Onde o painel único será publicado."
+        >
+          <ChannelPicker
+            guildId={guildId}
+            value={form.panel_channel_id}
+            onChange={(v) => setForm({ ...form, panel_channel_id: v })}
+            types={[0, 5]}
+            placeholder="Selecione o canal de texto"
+          />
+        </PickerField>
+        <PickerField
           label="Categoria do Discord para tickets"
           hint="Categoria onde os canais de ticket serão criados."
-          value={form.category_id ?? ""}
-          onChange={(v) => setForm({ ...form, category_id: v })}
-          placeholder="ID da categoria"
-        />
-        <Field
+        >
+          <ChannelPicker
+            guildId={guildId}
+            value={form.category_id}
+            onChange={(v) => setForm({ ...form, category_id: v })}
+            types={[4]}
+            placeholder="Selecione a categoria"
+          />
+        </PickerField>
+        <PickerField
           label="Cargo de suporte padrão"
           hint="Esse cargo vê e responde todos os tickets."
-          value={form.default_support_role_id ?? ""}
-          onChange={(v) => setForm({ ...form, default_support_role_id: v })}
-          placeholder="ID do cargo"
-        />
-        <Field
+        >
+          <RolePicker
+            guildId={guildId}
+            value={form.default_support_role_id}
+            onChange={(v) => setForm({ ...form, default_support_role_id: v })}
+          />
+        </PickerField>
+        <PickerField
           label="Canal de logs"
-          hint="Onde vai receber abertura, fechamento e outras ações."
-          value={form.log_channel_id ?? ""}
-          onChange={(v) => setForm({ ...form, log_channel_id: v })}
-          placeholder="ID do canal"
-        />
+          hint="Recebe abertura, fechamento, transcript e outras ações."
+        >
+          <ChannelPicker
+            guildId={guildId}
+            value={form.log_channel_id}
+            onChange={(v) => setForm({ ...form, log_channel_id: v })}
+            types={[0, 5]}
+            placeholder="Selecione o canal de logs"
+          />
+        </PickerField>
       </SectionCard>
 
       <SectionCard title="Limites e comportamento">
@@ -699,6 +713,24 @@ function SectionCard({
         )}
       </div>
       {children}
+    </div>
+  );
+}
+
+function PickerField({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <Label className="text-sm">{label}</Label>
+      <div className="mt-1">{children}</div>
+      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
 }

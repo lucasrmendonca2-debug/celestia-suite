@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Modal, Field, Empty } from "./LevelsTab";
+import { RolePicker } from "./DiscordPickers";
 
 type Perm = Awaited<ReturnType<typeof listPermissionRoles>>[number];
 
@@ -170,12 +171,13 @@ function Editor({
     <Modal onClose={onClose} title={p.id ? "Editar cargo" : "Novo cargo"}>
       <div className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="ID do cargo">
-            <Input
-              value={p.role_id}
-              onChange={(e) => setP({ ...p, role_id: e.target.value })}
-              placeholder="123456789012345678"
-              className="font-mono text-xs"
+          <Field label="Cargo">
+            <RolePicker
+              guildId={guildId}
+              value={p.role_id || null}
+              onChange={(v) => setP({ ...p, role_id: v ?? "" })}
+              allowEmpty={false}
+              placeholder="Selecione um cargo"
             />
           </Field>
           <Field label="Nível de acesso" hint="Use uma chave da aba Níveis (ex: vip, staff).">

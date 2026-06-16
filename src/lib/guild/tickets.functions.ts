@@ -915,3 +915,146 @@ export const listGuildEmojis = createServerFn({ method: "GET" })
         url: `https://cdn.discordapp.com/emojis/${e.id}.${e.animated ? "gif" : "png"}`,
       }));
   });
+
+/* ===================== GUILD CHANNELS / ROLES (pickers) ===================== */
+
+export interface GuildChannel {
+  id: string;
+  name: string;
+  /** Discord channel type — 0 text, 2 voice, 4 category, 5 announcement, 13 stage, 15 forum */
+  type: number;
+  parent_id: string | null;
+  position: number;
+}
+
+export interface GuildRole {
+  id: string;
+  name: string;
+  color: number;
+  position: number;
+  managed: boolean;
+}
+
+export const listGuildChannels = createServerFn({ method: "GET" })
+  .inputValidator((d: { guildId: string }) =>
+    z.object({ guildId: guildIdSchema }).parse(d),
+  )
+  .handler(async ({ data }): Promise<GuildChannel[]> => {
+    await perm(data.guildId);
+    const token = process.env.DISCORD_BOT_TOKEN;
+    if (!token) throw new Error("DISCORD_BOT_TOKEN não configurado no servidor.");
+    const res = await fetch(`${DISCORD}/guilds/${data.guildId}/channels`, {
+      headers: { Authorization: `Bot ${token}` },
+    });
+    if (!res.ok) return [];
+    const raw = (await res.json()) as Array<{
+      id: string;
+      name: string;
+      type: number;
+      parent_id?: string | null;
+      position?: number;
+    }>;
+    return raw.map((c) => ({
+      id: c.id,
+      name: c.name,
+      type: c.type,
+      parent_id: c.parent_id ?? null,
+      position: c.position ?? 0,
+    }));
+  });
+
+export const listGuildRoles = createServerFn({ method: "GET" })
+  .inputValidator((d: { guildId: string }) =>
+    z.object({ guildId: guildIdSchema }).parse(d),
+  )
+  .handler(async ({ data }): Promise<GuildRole[]> => {
+    await perm(data.guildId);
+    const token = process.env.DISCORD_BOT_TOKEN;
+    if (!token) throw new Error("DISCORD_BOT_TOKEN não configurado no servidor.");
+    const res = await fetch(`${DISCORD}/guilds/${data.guildId}/roles`, {
+      headers: { Authorization: `Bot ${token}` },
+    });
+    if (!res.ok) return [];
+    const raw = (await res.json()) as Array<{
+      id: string;
+      name: string;
+      color: number;
+      position: number;
+      managed: boolean;
+    }>;
+    return raw
+      .filter((r) => r.name !== "@everyone")
+      .sort((a, b) => b.position - a.position)
+      .map((r) => ({
+        id: r.id,
+        name: r.name,
+        color: r.color,
+        position: r.position,
+        managed: r.managed,
+      }));
+  });
+
+/* ===================== HISTÓRICO + AVALIAÇÕES ===================== */
+
+export const listTicketLogs = createServerFn({ method: "GET" })
+  .inputValidator((d: { guildId: string; limit?: number }) =>
+    z.object({ guildId: guildIdSchema, limit: z.number().int().min(1).max(200).default(100) }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { data: rows, error } = await sb
+      .from("ticket_logs")
+      .select("id,ticket_id,action,user_id,details,created_at")
+      .eq("guild_id", data.guildId)
+      .order("created_at", { ascending: false })
+      .limit(data.limit);
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+export const getTicketRatings = createServerFn({ method: "GET" })
+  .inputValidator((d: { guildId: string }) =>
+    z.object({ guildId: guildIdSchema }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { data: rows, error } = await sb
+      .from("tickets")
+      .select("id,username,category_name,rating,closed_at,closed_by")
+      .eq("guild_id", data.guildId)
+      .not("rating", "is", null)
+      .order("closed_at", { ascending: false })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    const list = rows ?? [];
+    const avg =
+      list.length > 0
+        ? list.reduce((acc, r) => acc + (r.rating ?? 0), 0) / list.length
+        : 0;
+    return { items: list, average: avg, count: list.length };
+  });
+
+/* ===================== APARÊNCIA (color etc) ===================== */
+
+export const updateTicketAppearance = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        guildId: guildIdSchema,
+        panel_color: z.number().int().min(0).max(0xffffff),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { error } = await sb
+      .from("ticket_configs")
+      .update({ panel_color: data.panel_color })
+      .eq("guild_id", data.guildId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+

@@ -30,22 +30,61 @@ const TICKET_DEFAULTS = {
   category_id: null as string | null,
   default_support_role_id: null as string | null,
   log_channel_id: null as string | null,
-  max_open_tickets_per_user: 1,
+  max_open_tickets_per_user: 5,
   panel_title: "🎫 Central de Atendimento",
   panel_description:
-    "Precisa de ajuda? Abra um ticket clicando no botão abaixo. Nossa equipe vai te atender por aqui em instantes.",
+    "Precisa de ajuda? Selecione no menu abaixo o tipo de atendimento e nossa equipe te responde aqui em instantes.",
   panel_button_label: "Abrir ticket",
   panel_button_emoji: "🎫",
   panel_color: 8141549,
   ticket_welcome_message:
-    "Olá {user}! 👋 Conta pra gente como podemos te ajudar — alguém da equipe já vem aqui.",
+    "Olá {user}! 👋 Obrigado por abrir um ticket.\n\nDescreva com calma o que aconteceu, mande prints se ajudar, e a equipe {staff} responde em instantes. ⏳",
   close_message:
-    "Este ticket foi fechado por {staff}. Se precisar continuar o atendimento, peça pra equipe reabrir.",
+    "Este ticket foi fechado por {staff}. Avalie nosso atendimento ou peça reabertura caso ainda precise de ajuda. 💜",
   transcript_enabled: true,
   rating_enabled: false,
   allow_user_close_ticket: true,
   use_single_panel: true,
 };
+
+const TEMPLATE_CATEGORIES = [
+  {
+    name: "Suporte Geral",
+    emoji: "🛠️",
+    description: "Dúvidas, problemas e ajuda em geral.",
+    welcome_message:
+      "Olá {user}! 👋 Conta pra gente qual é a sua dúvida ou problema. A equipe já está a caminho.",
+    priority: false,
+    position: 0,
+  },
+  {
+    name: "Dúvida",
+    emoji: "❓",
+    description: "Perguntas rápidas sobre o servidor ou o bot.",
+    welcome_message:
+      "Olá {user}! 🤔 Pode mandar sua pergunta — quanto mais detalhe, mais rápido a gente responde.",
+    priority: false,
+    position: 1,
+  },
+  {
+    name: "Denúncia",
+    emoji: "🚨",
+    description: "Reportar um usuário, mensagem ou comportamento.",
+    welcome_message:
+      "Olá {user}! 🚨 Descreva o ocorrido, marque o usuário envolvido e envie prints/links como prova. Tudo é confidencial.",
+    priority: true,
+    position: 2,
+  },
+  {
+    name: "Parcerias",
+    emoji: "🤝",
+    description: "Propostas comerciais, divulgação ou colaboração.",
+    welcome_message:
+      "Olá {user}! 🤝 Conta um pouco sobre a sua proposta de parceria e a equipe responsável responde em breve.",
+    priority: false,
+    position: 3,
+  },
+];
 
 export const getTicketConfig = createServerFn({ method: "GET" })
   .inputValidator((d: { guildId: string }) =>

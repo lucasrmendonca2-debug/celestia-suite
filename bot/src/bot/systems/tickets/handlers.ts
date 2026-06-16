@@ -21,11 +21,13 @@ import {
   getTicketConfig,
   listAccessLevels,
   listPermissionRoles,
+  reopenTicketRow,
   writeLog,
   type TicketCategory,
   type TicketConfig,
 } from "./ticket.service.js";
 import {
+  buildClosedActions,
   buildClosedEmbed,
   buildLogEmbed,
   buildTicketActions,
@@ -36,6 +38,7 @@ import {
   canOpenCategory,
   resolveAccessLevel,
 } from "./ticket.permissions.js";
+import { buildTranscript } from "./transcript.js";
 
 /* ===================== OPEN ===================== */
 

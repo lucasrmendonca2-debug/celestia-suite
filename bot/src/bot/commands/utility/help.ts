@@ -9,6 +9,7 @@ import {
 import type { SlashCommand, ZenoxClient } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { Tone } from "../../utils/messages.js";
+import { findCommand, searchCommands, toMeta, type CommandMeta } from "../../systems/registry/command.registry.js";
 
 export const HELP_CATEGORIES = [
   { key: "moderation", label: "Moderação", emoji: "🛡️", desc: "Ban, kick, mute, warns, anti-raid" },

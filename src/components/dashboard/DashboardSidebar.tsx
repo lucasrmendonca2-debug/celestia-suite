@@ -1,4 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import {
   LayoutDashboard,
   Shield,
@@ -17,6 +18,8 @@ import {
   Crown,
   type LucideIcon,
 } from "lucide-react";
+import { getGuildPremiumStatus } from "@/lib/guild/premium.functions";
+import { PremiumBadge } from "@/components/premium/PremiumBadge";
 
 interface Item {
   to: string;
@@ -79,12 +82,19 @@ const SECTIONS: { title: string; items: Item[] }[] = [
 export function DashboardSidebar({ guildId }: { guildId: string }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const base = `/dashboard/${guildId}`;
+  const { data: premium } = useQuery({
+    queryKey: ["premium-status", guildId],
+    queryFn: () => getGuildPremiumStatus({ data: { guildId } }),
+    staleTime: 60_000,
+  });
+  const isPremium = Boolean(premium?.subscription);
 
   return (
     <aside className="hidden w-60 shrink-0 border-r border-border bg-card/40 backdrop-blur md:flex md:flex-col">
       <div className="flex items-center gap-2 px-5 py-5">
         <div className="size-7 rounded-lg bg-primary/20 ring-1 ring-primary/40" />
         <span className="text-base font-semibold tracking-tight">Zenox</span>
+        {isPremium && <PremiumBadge guildId={guildId} />}
       </div>
       <nav className="flex-1 space-y-5 overflow-y-auto px-3 pb-6">
         {SECTIONS.map((s) => (
@@ -98,18 +108,28 @@ export function DashboardSidebar({ guildId }: { guildId: string }) {
                 const active =
                   pathname === href || (it.to === "overview" && pathname === base);
                 const Icon = it.icon;
+                const isPremiumItem = it.to === "premium";
                 return (
                   <li key={it.to}>
                     <Link
                       to={href}
                       className={`group flex items-center gap-2.5 rounded-md px-3 py-2 text-sm transition ${
                         active
-                          ? "bg-primary/15 text-foreground"
+                          ? isPremiumItem
+                            ? "premium-link-active"
+                            : "bg-primary/15 text-foreground"
                           : "text-muted-foreground hover:bg-accent hover:text-foreground"
                       }`}
                     >
-                      <Icon className="size-4" />
+                      <Icon
+                        className={`size-4 ${isPremiumItem && (isPremium || active) ? "premium-icon" : ""}`}
+                      />
                       <span className="flex-1">{it.label}</span>
+                      {isPremiumItem && isPremium && (
+                        <span className="rounded-full bg-[var(--premium-gold)]/20 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[var(--premium-deep)]">
+                          on
+                        </span>
+                      )}
                       {it.soon && (
                         <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-muted-foreground">
                           em breve

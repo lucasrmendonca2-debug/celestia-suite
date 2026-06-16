@@ -31,6 +31,10 @@ const SOCIAL_DEFAULTS = {
   ignored_channel_ids: [] as string[],
   ignored_role_ids: [] as string[],
   embed_color: "#5865F2",
+  card_accent_color: "#5865F2",
+  card_background_color: "#0f1117",
+  card_text_color: "#ffffff",
+  card_style: "default" as "default" | "minimal" | "gradient",
 };
 
 export const getSocialConfig = createServerFn({ method: "GET" })
@@ -58,6 +62,10 @@ const SocialInput = z.object({
   ignored_channel_ids: z.array(snowflake).max(100),
   ignored_role_ids: z.array(snowflake).max(100),
   embed_color: hexColor,
+  card_accent_color: hexColor.default("#5865F2"),
+  card_background_color: hexColor.default("#0f1117"),
+  card_text_color: hexColor.default("#ffffff"),
+  card_style: z.enum(["default", "minimal", "gradient"]).default("default"),
 });
 
 export const updateSocialConfig = createServerFn({ method: "POST" })

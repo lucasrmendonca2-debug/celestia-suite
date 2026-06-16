@@ -1,4 +1,7 @@
 import { supabase } from "../../../database/supabase.js";
+import { getSocialConfig } from "./social.config.js";
+
+export type CardStyle = "default" | "minimal" | "gradient";
 
 export interface SocialProfileRow {
   guild_id: string;
@@ -10,6 +13,10 @@ export interface SocialProfileRow {
   reputation: number;
   profile_views: number;
   selected_badges: string[];
+  accent_color: string | null;
+  background_color: string | null;
+  text_color: string | null;
+  card_style: CardStyle;
 }
 
 const DEFAULT: Omit<SocialProfileRow, "guild_id" | "user_id"> = {
@@ -20,6 +27,10 @@ const DEFAULT: Omit<SocialProfileRow, "guild_id" | "user_id"> = {
   reputation: 0,
   profile_views: 0,
   selected_badges: [],
+  accent_color: null,
+  background_color: null,
+  text_color: null,
+  card_style: "default",
 };
 
 export async function getProfile(guildId: string, userId: string): Promise<SocialProfileRow> {
@@ -32,10 +43,50 @@ export async function getProfile(guildId: string, userId: string): Promise<Socia
   return { ...DEFAULT, ...(data ?? {}), guild_id: guildId, user_id: userId } as SocialProfileRow;
 }
 
+export interface ResolvedCardLook {
+  accent: string;
+  background: string;
+  text: string;
+  style: CardStyle;
+}
+
+/** Resolve cores efetivas do card: usa o do perfil quando definido, senão default do guild. */
+export async function getResolvedCardLook(
+  guildId: string,
+  profile: SocialProfileRow,
+): Promise<ResolvedCardLook> {
+  const social = await getSocialConfig(guildId);
+  const cfg = social as typeof social & {
+    card_accent_color?: string;
+    card_background_color?: string;
+    card_text_color?: string;
+    card_style?: CardStyle;
+  };
+  return {
+    accent: profile.accent_color || profile.color || cfg.card_accent_color || "#5865F2",
+    background: profile.background_color || cfg.card_background_color || "#0f1117",
+    text: profile.text_color || cfg.card_text_color || "#ffffff",
+    style: profile.card_style || cfg.card_style || "default",
+  };
+}
+
 export async function updateProfile(
   guildId: string,
   userId: string,
-  patch: Partial<Pick<SocialProfileRow, "bio" | "title" | "color" | "banner_url" | "selected_badges">>,
+  patch: Partial<
+    Pick<
+      SocialProfileRow,
+      | "bio"
+      | "title"
+      | "color"
+      | "banner_url"
+      | "selected_badges"
+      | "accent_color"
+      | "background_color"
+      | "text_color"
+      | "card_style"
+    >
+  >,
 ): Promise<SocialProfileRow> {
   const current = await getProfile(guildId, userId);
   const next = { ...current, ...patch };
@@ -48,6 +99,10 @@ export async function updateProfile(
       color: next.color,
       banner_url: next.banner_url,
       selected_badges: next.selected_badges,
+      accent_color: next.accent_color,
+      background_color: next.background_color,
+      text_color: next.text_color,
+      card_style: next.card_style,
     },
     { onConflict: "guild_id,user_id" },
   );
@@ -81,4 +136,8 @@ export function isValidColor(c: string): boolean {
 const URL_RE = /^https?:\/\/[^\s]+\.(png|jpg|jpeg|gif|webp)(\?.*)?$/i;
 export function isValidImageUrl(u: string): boolean {
   return URL_RE.test(u);
+}
+
+export function isValidCardStyle(s: string): s is CardStyle {
+  return s === "default" || s === "minimal" || s === "gradient";
 }

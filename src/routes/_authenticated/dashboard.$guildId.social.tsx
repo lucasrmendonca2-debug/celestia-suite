@@ -122,6 +122,10 @@ function SocialPage() {
             ? parseList(s.ignored_role_ids)
             : s.ignored_role_ids ?? [],
           embed_color: s.embed_color,
+          card_accent_color: s.card_accent_color ?? "#5865F2",
+          card_background_color: s.card_background_color ?? "#0f1117",
+          card_text_color: s.card_text_color ?? "#ffffff",
+          card_style: (s.card_style as "default" | "minimal" | "gradient") ?? "default",
         },
       }),
     onSuccess: () => {
@@ -201,6 +205,7 @@ function SocialPage() {
         <TabsList className="flex w-full flex-wrap justify-start gap-1 rounded-xl bg-card p-1">
           <TabsTrigger value="geral">Geral</TabsTrigger>
           <TabsTrigger value="xp">XP & Level</TabsTrigger>
+          <TabsTrigger value="card">Card visual</TabsTrigger>
           <TabsTrigger value="rewards">Recompensas</TabsTrigger>
           <TabsTrigger value="leaderboard">Ranking</TabsTrigger>
           <TabsTrigger value="logs">Logs</TabsTrigger>
@@ -334,7 +339,69 @@ function SocialPage() {
           <SaveBar onClick={() => saveLevel.mutate()} loading={saveLevel.isPending} />
         </TabsContent>
 
-        {/* REWARDS */}
+        {/* CARD VISUAL — defaults do rank card por servidor */}
+        <TabsContent value="card" className="space-y-4">
+          <Card title="Padrão visual do rank card">
+            <p className="text-sm text-muted-foreground mb-4">
+              Estas cores e estilo são aplicados quando o membro ainda não personalizou seu próprio rank card.
+            </p>
+            <div className="grid gap-4 md:grid-cols-2">
+              <Field label="Cor de destaque (accent)">
+                <div className="flex gap-2 items-center">
+                  <Input type="color" value={s.card_accent_color ?? "#5865F2"}
+                    onChange={(e) => setS({ ...s, card_accent_color: e.target.value })}
+                    className="h-10 w-16 p-1" />
+                  <Input value={s.card_accent_color ?? "#5865F2"}
+                    onChange={(e) => setS({ ...s, card_accent_color: e.target.value })} className="font-mono" />
+                </div>
+              </Field>
+              <Field label="Cor de fundo">
+                <div className="flex gap-2 items-center">
+                  <Input type="color" value={s.card_background_color ?? "#0f1117"}
+                    onChange={(e) => setS({ ...s, card_background_color: e.target.value })}
+                    className="h-10 w-16 p-1" />
+                  <Input value={s.card_background_color ?? "#0f1117"}
+                    onChange={(e) => setS({ ...s, card_background_color: e.target.value })} className="font-mono" />
+                </div>
+              </Field>
+              <Field label="Cor do texto">
+                <div className="flex gap-2 items-center">
+                  <Input type="color" value={s.card_text_color ?? "#ffffff"}
+                    onChange={(e) => setS({ ...s, card_text_color: e.target.value })}
+                    className="h-10 w-16 p-1" />
+                  <Input value={s.card_text_color ?? "#ffffff"}
+                    onChange={(e) => setS({ ...s, card_text_color: e.target.value })} className="font-mono" />
+                </div>
+              </Field>
+              <Field label="Estilo do card">
+                <select
+                  value={s.card_style ?? "default"}
+                  onChange={(e) => setS({ ...s, card_style: e.target.value })}
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                >
+                  <option value="default">Padrão — gradient na barra, overlay médio</option>
+                  <option value="minimal">Minimal — borda fina, sem gradient</option>
+                  <option value="gradient">Gradient — fundo dégradé com accent</option>
+                </select>
+              </Field>
+            </div>
+
+            {/* Preview */}
+            <div className="mt-6">
+              <p className="text-xs uppercase tracking-wide text-muted-foreground mb-2">Pré-visualização</p>
+              <RankCardPreview
+                accent={s.card_accent_color ?? "#5865F2"}
+                background={s.card_background_color ?? "#0f1117"}
+                text={s.card_text_color ?? "#ffffff"}
+                style={(s.card_style as "default" | "minimal" | "gradient") ?? "default"}
+              />
+            </div>
+          </Card>
+
+          <SaveBar onClick={() => saveSocial.mutate()} loading={saveSocial.isPending} />
+        </TabsContent>
+
+
         <TabsContent value="rewards" className="space-y-4">
           <Card title="Nova recompensa">
             <div className="grid gap-4 md:grid-cols-5">
@@ -478,6 +545,71 @@ function SaveBar({ onClick, loading }: { onClick: () => void; loading: boolean }
       <Button onClick={onClick} disabled={loading} size="lg" className="shadow-lg">
         <Save className="mr-2 size-4" /> {loading ? "Salvando..." : "Salvar alterações"}
       </Button>
+    </div>
+  );
+}
+
+function RankCardPreview({
+  accent,
+  background,
+  text,
+  style,
+}: {
+  accent: string;
+  background: string;
+  text: string;
+  style: "default" | "minimal" | "gradient";
+}) {
+  const muted = text + "99";
+  const bgStyle =
+    style === "gradient"
+      ? { background: `linear-gradient(90deg, ${background} 0%, ${accent}55 100%)` }
+      : { background };
+  const border = style === "minimal" ? `1px solid ${accent}88` : "none";
+  return (
+    <div
+      className="rounded-2xl p-5 flex items-center gap-5 shadow-inner"
+      style={{ ...bgStyle, border, color: text, minHeight: 140 }}
+    >
+      <div
+        className="size-20 rounded-full shrink-0"
+        style={{ background: accent, boxShadow: `0 0 0 3px ${accent}` }}
+      />
+      <div className="flex-1 min-w-0">
+        <div className="flex items-baseline justify-between gap-3">
+          <div>
+            <div className="font-bold text-lg truncate" style={{ color: text }}>
+              Nome do membro
+            </div>
+            <div className="text-sm truncate" style={{ color: muted }}>
+              Título personalizado
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <div className="text-xs uppercase" style={{ color: muted }}>Rank #1</div>
+            <div className="font-bold text-2xl leading-none" style={{ color: accent }}>LVL 42</div>
+          </div>
+        </div>
+        <div className="mt-3">
+          <div
+            className="h-3 w-full rounded-full overflow-hidden"
+            style={{ background: text + "14" }}
+          >
+            <div
+              className="h-full rounded-full"
+              style={{
+                width: "65%",
+                background:
+                  style === "minimal" ? accent : `linear-gradient(90deg, ${accent}, ${text})`,
+              }}
+            />
+          </div>
+          <div className="mt-1 flex justify-between text-xs" style={{ color: muted }}>
+            <span>650 / 1.000 XP</span>
+            <span>Total 12.350 XP</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

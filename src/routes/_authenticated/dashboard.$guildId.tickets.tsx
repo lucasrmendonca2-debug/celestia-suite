@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -267,6 +267,28 @@ function GeneralTab({
   const update = useServerFn(updateTicketConfig);
   const qc = useQueryClient();
   const [form, setForm] = useState(initial);
+  const descRef = useRef<HTMLTextAreaElement>(null);
+  const welcomeRef = useRef<HTMLTextAreaElement>(null);
+  const closeRef = useRef<HTMLTextAreaElement>(null);
+
+  function insertAtCursor(
+    ref: React.RefObject<HTMLTextAreaElement | null>,
+    key: "panel_description" | "ticket_welcome_message" | "close_message",
+    text: string,
+  ) {
+    const el = ref.current;
+    const current = form[key] ?? "";
+    const start = el?.selectionStart ?? current.length;
+    const end = el?.selectionEnd ?? current.length;
+    const next = current.slice(0, start) + text + current.slice(end);
+    setForm({ ...form, [key]: next });
+    requestAnimationFrame(() => {
+      if (!el) return;
+      const pos = start + text.length;
+      el.focus();
+      el.setSelectionRange(pos, pos);
+    });
+  }
 
   const mutation = useMutation({
     mutationFn: () =>
@@ -437,14 +459,22 @@ function GeneralTab({
           </div>
         </div>
         <div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <Label className="text-sm">Descrição do painel</Label>
-            <PresetMenu
-              presets={PANEL_DESC_PRESETS}
-              onPick={(v) => setForm({ ...form, panel_description: v })}
-            />
+            <div className="flex items-center gap-1">
+              <GuildEmojiPicker
+                guildId={guildId}
+                asMention
+                onPick={(v) => insertAtCursor(descRef, "panel_description", v)}
+              />
+              <PresetMenu
+                presets={PANEL_DESC_PRESETS}
+                onPick={(v) => setForm({ ...form, panel_description: v })}
+              />
+            </div>
           </div>
           <Textarea
+            ref={descRef}
             value={form.panel_description}
             onChange={(e) => setForm({ ...form, panel_description: e.target.value })}
             rows={3}
@@ -453,14 +483,22 @@ function GeneralTab({
           />
         </div>
         <div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <Label className="text-sm">Mensagem de boas-vindas dentro do ticket</Label>
-            <PresetMenu
-              presets={WELCOME_PRESETS}
-              onPick={(v) => setForm({ ...form, ticket_welcome_message: v })}
-            />
+            <div className="flex items-center gap-1">
+              <GuildEmojiPicker
+                guildId={guildId}
+                asMention
+                onPick={(v) => insertAtCursor(welcomeRef, "ticket_welcome_message", v)}
+              />
+              <PresetMenu
+                presets={WELCOME_PRESETS}
+                onPick={(v) => setForm({ ...form, ticket_welcome_message: v })}
+              />
+            </div>
           </div>
           <Textarea
+            ref={welcomeRef}
             value={form.ticket_welcome_message}
             onChange={(e) => setForm({ ...form, ticket_welcome_message: e.target.value })}
             rows={3}
@@ -472,14 +510,22 @@ function GeneralTab({
           </p>
         </div>
         <div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <Label className="text-sm">Mensagem ao fechar o ticket</Label>
-            <PresetMenu
-              presets={CLOSE_PRESETS}
-              onPick={(v) => setForm({ ...form, close_message: v })}
-            />
+            <div className="flex items-center gap-1">
+              <GuildEmojiPicker
+                guildId={guildId}
+                asMention
+                onPick={(v) => insertAtCursor(closeRef, "close_message", v)}
+              />
+              <PresetMenu
+                presets={CLOSE_PRESETS}
+                onPick={(v) => setForm({ ...form, close_message: v })}
+              />
+            </div>
           </div>
           <Textarea
+            ref={closeRef}
             value={form.close_message}
             onChange={(e) => setForm({ ...form, close_message: e.target.value })}
             rows={2}

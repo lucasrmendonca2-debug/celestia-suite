@@ -171,13 +171,59 @@ export const getTicketStats = createServerFn({ method: "GET" })
     };
   });
 
-/* ----------- Enviar painel pelo dashboard (via Discord REST) ----------- */
+/* ----------- Discord REST helpers (escopo do arquivo) ----------- */
+const DISCORD = "https://discord.com/api/v10";
+
+function botHeaders(token: string) {
+  return {
+    Authorization: `Bot ${token}`,
+    "Content-Type": "application/json",
+  };
+}
+
+async function discord<T = unknown>(
+  url: string,
+  init: RequestInit & { body?: string },
+  errPrefix: string,
+): Promise<T> {
+  const res = await fetch(url, init);
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`${errPrefix} (${res.status}). ${text.slice(0, 220)}`);
+  }
+  if (res.status === 204) return undefined as unknown as T;
+  return (await res.json()) as T;
+}
+
+async function fetchGuildBanner(guildId: string, token: string): Promise<string | null> {
+  try {
+    const guild = await discord<{ banner?: string | null; icon?: string | null }>(
+      `${DISCORD}/guilds/${guildId}`,
+      { method: "GET", headers: botHeaders(token) },
+      "Não consegui ler o servidor",
+    );
+    if (guild.banner) {
+      const ext = guild.banner.startsWith("a_") ? "gif" : "png";
+      return `https://cdn.discordapp.com/banners/${guildId}/${guild.banner}.${ext}?size=1024`;
+    }
+    if (guild.icon) {
+      const ext = guild.icon.startsWith("a_") ? "gif" : "png";
+      return `https://cdn.discordapp.com/icons/${guildId}/${guild.icon}.${ext}?size=512`;
+    }
+  } catch {
+    /* ignora */
+  }
+  return null;
+}
+
+/* ----------- Enviar / Editar painel ----------- */
 export const sendTicketPanel = createServerFn({ method: "POST" })
-  .inputValidator((d: { guildId: string; channelId?: string | null }) =>
+  .inputValidator((d: { guildId: string; channelId?: string | null; mode?: "auto" | "send" | "edit" }) =>
     z
       .object({
         guildId: guildIdSchema,
         channelId: snowflakeNullable.optional(),
+        mode: z.enum(["auto", "send", "edit"]).default("auto"),
       })
       .parse(d),
   )
@@ -199,7 +245,6 @@ export const sendTicketPanel = createServerFn({ method: "POST" })
     const channelId = data.channelId ?? cfg.panel_channel_id;
     if (!channelId) throw new Error("Defina o canal do painel antes de enviar.");
 
-    // Carrega categorias ativas pra montar painel multi-categoria (fase 2)
     const { data: cats } = await sb
       .from("ticket_categories")
       .select("id,name,emoji,active,priority,position")
@@ -209,8 +254,6 @@ export const sendTicketPanel = createServerFn({ method: "POST" })
       .order("created_at", { ascending: true });
 
     const activeCats = cats ?? [];
-
-    // Sempre dropdown — mais limpo e escala melhor.
     const options =
       activeCats.length === 0
         ? [
@@ -244,42 +287,336 @@ export const sendTicketPanel = createServerFn({ method: "POST" })
       },
     ];
 
-    const body = {
-      embeds: [
-        {
-          title: cfg.panel_title,
-          description: cfg.panel_description,
-          color: cfg.panel_color,
-        },
-      ],
-      components,
-    };
-
-    const res = await fetch(
-      `https://discord.com/api/v10/channels/${channelId}/messages`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bot ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      },
-    );
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new Error(
-        `Discord recusou (${res.status}). Confira se o bot está no servidor e tem acesso ao canal. ${text.slice(0, 200)}`,
-      );
+    // imagem grande: URL explícita vence; senão usa banner do servidor se ligado
+    let imageUrl: string | null = cfg.panel_image_url ?? null;
+    if (!imageUrl && cfg.panel_use_guild_banner) {
+      imageUrl = await fetchGuildBanner(data.guildId, token);
     }
-    const msg = (await res.json()) as { id: string };
+
+    const embed: Record<string, unknown> = {
+      title: cfg.panel_title,
+      description: cfg.panel_description,
+      color: cfg.panel_color,
+    };
+    if (imageUrl) embed.image = { url: imageUrl };
+    if (cfg.panel_thumbnail_url) embed.thumbnail = { url: cfg.panel_thumbnail_url };
+
+    const body = { embeds: [embed], components };
+
+    // decide enviar via webhook (se houver) ou via bot
+    const useWebhook =
+      !!cfg.webhook_id &&
+      !!cfg.webhook_token &&
+      cfg.webhook_channel_id === channelId;
+
+    const mode =
+      data.mode === "auto" ? (cfg.panel_message_id ? "edit" : "send") : data.mode;
+
+    let messageId = cfg.panel_message_id as string | null;
+
+    if (mode === "edit") {
+      if (!messageId) throw new Error("Não há painel anterior para editar. Envie um novo.");
+      if (useWebhook) {
+        await discord(
+          `${DISCORD}/webhooks/${cfg.webhook_id}/${cfg.webhook_token}/messages/${messageId}`,
+          { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) },
+          "Discord recusou ao editar pelo webhook",
+        );
+      } else {
+        await discord(
+          `${DISCORD}/channels/${channelId}/messages/${messageId}`,
+          { method: "PATCH", headers: botHeaders(token), body: JSON.stringify(body) },
+          "Discord recusou ao editar a mensagem",
+        );
+      }
+    } else {
+      let msg: { id: string };
+      if (useWebhook) {
+        msg = await discord<{ id: string }>(
+          `${DISCORD}/webhooks/${cfg.webhook_id}/${cfg.webhook_token}?wait=true`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              ...body,
+              username: cfg.webhook_name || undefined,
+              avatar_url: cfg.webhook_avatar_url || undefined,
+            }),
+          },
+          "Discord recusou ao publicar pelo webhook",
+        );
+      } else {
+        msg = await discord<{ id: string }>(
+          `${DISCORD}/channels/${channelId}/messages`,
+          { method: "POST", headers: botHeaders(token), body: JSON.stringify(body) },
+          "Discord recusou ao publicar o painel",
+        );
+      }
+      messageId = msg.id;
+    }
 
     await sb
       .from("ticket_configs")
-      .update({ panel_channel_id: channelId, panel_message_id: msg.id })
+      .update({ panel_channel_id: channelId, panel_message_id: messageId })
       .eq("guild_id", data.guildId);
 
-    return { ok: true, channelId, messageId: msg.id };
+    return { ok: true, channelId, messageId, mode };
+  });
+
+/* ----------- Apagar o painel publicado ----------- */
+export const deleteTicketPanel = createServerFn({ method: "POST" })
+  .inputValidator((d: { guildId: string }) =>
+    z.object({ guildId: guildIdSchema }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const token = process.env.DISCORD_BOT_TOKEN;
+    if (!token) throw new Error("DISCORD_BOT_TOKEN não configurado no servidor.");
+    const sb = await admin();
+    const { data: cfg } = await sb
+      .from("ticket_configs")
+      .select("panel_channel_id,panel_message_id,webhook_id,webhook_token")
+      .eq("guild_id", data.guildId)
+      .maybeSingle();
+    if (!cfg?.panel_message_id || !cfg.panel_channel_id) {
+      return { ok: true, already: true };
+    }
+    try {
+      if (cfg.webhook_id && cfg.webhook_token) {
+        await discord(
+          `${DISCORD}/webhooks/${cfg.webhook_id}/${cfg.webhook_token}/messages/${cfg.panel_message_id}`,
+          { method: "DELETE", headers: { "Content-Type": "application/json" } },
+          "Discord recusou ao apagar pelo webhook",
+        );
+      } else {
+        await discord(
+          `${DISCORD}/channels/${cfg.panel_channel_id}/messages/${cfg.panel_message_id}`,
+          { method: "DELETE", headers: botHeaders(token) },
+          "Discord recusou ao apagar a mensagem",
+        );
+      }
+    } catch (e) {
+      // mensagem pode já ter sido removida — limpamos mesmo assim
+      console.warn("deleteTicketPanel:", (e as Error).message);
+    }
+    await sb
+      .from("ticket_configs")
+      .update({ panel_message_id: null })
+      .eq("guild_id", data.guildId);
+    return { ok: true };
+  });
+
+/* ----------- Tickets ativos (listar / apagar) ----------- */
+export const listOpenTickets = createServerFn({ method: "GET" })
+  .inputValidator((d: { guildId: string }) =>
+    z.object({ guildId: guildIdSchema }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { data: rows, error } = await sb
+      .from("tickets")
+      .select("id,channel_id,user_id,username,category_name,priority,created_at")
+      .eq("guild_id", data.guildId)
+      .eq("status", "open")
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+export const deleteActiveTicket = createServerFn({ method: "POST" })
+  .inputValidator((d: { guildId: string; ticketId: string }) =>
+    z
+      .object({ guildId: guildIdSchema, ticketId: z.string().uuid() })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const token = process.env.DISCORD_BOT_TOKEN;
+    if (!token) throw new Error("DISCORD_BOT_TOKEN não configurado no servidor.");
+    const sb = await admin();
+    const { data: ticket, error } = await sb
+      .from("tickets")
+      .select("id,channel_id,status")
+      .eq("id", data.ticketId)
+      .eq("guild_id", data.guildId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!ticket) throw new Error("Ticket não encontrado.");
+
+    try {
+      await discord(
+        `${DISCORD}/channels/${ticket.channel_id}`,
+        { method: "DELETE", headers: botHeaders(token) },
+        "Discord recusou ao apagar o canal",
+      );
+    } catch (e) {
+      // canal pode já ter sido apagado manualmente — segue marcando como deleted
+      console.warn("deleteActiveTicket:", (e as Error).message);
+    }
+
+    await sb
+      .from("tickets")
+      .update({ status: "deleted", closed_at: new Date().toISOString() })
+      .eq("id", ticket.id);
+
+    return { ok: true };
+  });
+
+/* ----------- Webhook do painel (criar / editar / apagar) ----------- */
+export const createPanelWebhook = createServerFn({ method: "POST" })
+  .inputValidator((d: {
+    guildId: string;
+    channelId: string;
+    name?: string;
+    avatarUrl?: string | null;
+  }) =>
+    z
+      .object({
+        guildId: guildIdSchema,
+        channelId: z.string().regex(/^\d{5,32}$/),
+        name: z.string().min(1).max(80).default("Central de Tickets"),
+        avatarUrl: z.string().url().max(1000).nullable().optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const token = process.env.DISCORD_BOT_TOKEN;
+    if (!token) throw new Error("DISCORD_BOT_TOKEN não configurado no servidor.");
+    const sb = await admin();
+
+    // se já existir, atualiza ao invés de duplicar
+    const { data: existing } = await sb
+      .from("ticket_configs")
+      .select("webhook_id,webhook_token,webhook_channel_id")
+      .eq("guild_id", data.guildId)
+      .maybeSingle();
+    if (existing?.webhook_id && existing.webhook_token) {
+      // muda canal se for diferente
+      if (existing.webhook_channel_id !== data.channelId) {
+        await discord(
+          `${DISCORD}/webhooks/${existing.webhook_id}`,
+          {
+            method: "PATCH",
+            headers: botHeaders(token),
+            body: JSON.stringify({ channel_id: data.channelId, name: data.name }),
+          },
+          "Discord recusou ao mover o webhook",
+        );
+      }
+      await sb
+        .from("ticket_configs")
+        .update({
+          webhook_channel_id: data.channelId,
+          webhook_name: data.name,
+          webhook_avatar_url: data.avatarUrl ?? null,
+        })
+        .eq("guild_id", data.guildId);
+      return { ok: true, reused: true };
+    }
+
+    const hook = await discord<{ id: string; token: string }>(
+      `${DISCORD}/channels/${data.channelId}/webhooks`,
+      {
+        method: "POST",
+        headers: botHeaders(token),
+        body: JSON.stringify({ name: data.name }),
+      },
+      "Discord recusou ao criar o webhook",
+    );
+
+    await sb
+      .from("ticket_configs")
+      .update({
+        webhook_id: hook.id,
+        webhook_token: hook.token,
+        webhook_channel_id: data.channelId,
+        webhook_name: data.name,
+        webhook_avatar_url: data.avatarUrl ?? null,
+      })
+      .eq("guild_id", data.guildId);
+
+    return { ok: true, reused: false };
+  });
+
+export const updatePanelWebhook = createServerFn({ method: "POST" })
+  .inputValidator((d: { guildId: string; name?: string; avatarUrl?: string | null }) =>
+    z
+      .object({
+        guildId: guildIdSchema,
+        name: z.string().min(1).max(80).optional(),
+        avatarUrl: z.string().url().max(1000).nullable().optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { data: cfg } = await sb
+      .from("ticket_configs")
+      .select("webhook_id,webhook_token")
+      .eq("guild_id", data.guildId)
+      .maybeSingle();
+    if (!cfg?.webhook_id || !cfg.webhook_token) {
+      throw new Error("Webhook ainda não foi criado.");
+    }
+    // Atualiza no Discord (nome). Avatar dá pra mudar via webhook URL; mantemos só nos posts.
+    if (data.name) {
+      await discord(
+        `${DISCORD}/webhooks/${cfg.webhook_id}/${cfg.webhook_token}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: data.name }),
+        },
+        "Discord recusou ao atualizar o webhook",
+      );
+    }
+    const update: Record<string, unknown> = {};
+    if (data.name !== undefined) update.webhook_name = data.name;
+    if (data.avatarUrl !== undefined) update.webhook_avatar_url = data.avatarUrl;
+    if (Object.keys(update).length) {
+      await sb.from("ticket_configs").update(update).eq("guild_id", data.guildId);
+    }
+    return { ok: true };
+  });
+
+export const deletePanelWebhook = createServerFn({ method: "POST" })
+  .inputValidator((d: { guildId: string }) =>
+    z.object({ guildId: guildIdSchema }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { data: cfg } = await sb
+      .from("ticket_configs")
+      .select("webhook_id,webhook_token")
+      .eq("guild_id", data.guildId)
+      .maybeSingle();
+    if (cfg?.webhook_id && cfg.webhook_token) {
+      try {
+        await discord(
+          `${DISCORD}/webhooks/${cfg.webhook_id}/${cfg.webhook_token}`,
+          { method: "DELETE", headers: { "Content-Type": "application/json" } },
+          "Discord recusou ao apagar o webhook",
+        );
+      } catch (e) {
+        console.warn("deletePanelWebhook:", (e as Error).message);
+      }
+    }
+    await sb
+      .from("ticket_configs")
+      .update({
+        webhook_id: null,
+        webhook_token: null,
+        webhook_channel_id: null,
+        webhook_name: null,
+        webhook_avatar_url: null,
+      })
+      .eq("guild_id", data.guildId);
+    return { ok: true };
   });
 
 /* ----------- Carrega categorias-modelo (idempotente) ----------- */

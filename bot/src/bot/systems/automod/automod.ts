@@ -67,6 +67,20 @@ export async function runAutoMod(msg: Message): Promise<boolean> {
       }
     }
   }
+  if (cfg.anti_caps_enabled && content.length >= 10) {
+    const letters = content.replace(/[^a-zA-ZÀ-ÿ]/g, "");
+    const upper = letters.replace(/[^A-ZÀ-Ý]/g, "");
+    const ratio = letters.length ? (upper.length / letters.length) * 100 : 0;
+    if (ratio >= (cfg.anti_caps_threshold ?? 70)) {
+      return await act(msg, "anti-caps", "Evite enviar mensagens com excesso de letras maiúsculas.", cfg);
+    }
+  }
+  if (cfg.anti_mention_enabled) {
+    const mentions = msg.mentions.users.size + msg.mentions.roles.size;
+    if (mentions >= (cfg.anti_mention_threshold ?? 5)) {
+      return await act(msg, "anti-mention", "Você mencionou usuários/cargos demais em uma mensagem.", cfg);
+    }
+  }
   if (cfg.anti_spam_enabled) {
     const key = `${msg.guildId}:${msg.author.id}`;
     const arr = spamMap.get(key) ?? [];

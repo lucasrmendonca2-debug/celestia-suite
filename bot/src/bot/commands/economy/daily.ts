@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
-import { brandEmbed } from "../../utils/embed.js";
+import { ui } from "../../systems/ui/embed.factory.js";
+import { getAsset } from "../../systems/ui/embed.assets.js";
 import { fmtCoins, fmtDuration } from "../../utils/format.js";
 import { getAccount, getCurrency, isVip } from "../../systems/economy/economy.js";
 import { getConfig } from "../../utils/guildCache.js";
@@ -15,9 +16,10 @@ const command: SlashCommand = {
   guildOnly: true,
   data: new SlashCommandBuilder().setName("daily").setDescription("Recompensa diária."),
   async execute(interaction) {
-    const acc = await getAccount(interaction.guildId!, interaction.user.id);
-    const cfg = await getConfig(interaction.guildId!);
-    const c = await getCurrency(interaction.guildId!);
+    const guildId = interaction.guildId!;
+    const acc = await getAccount(guildId, interaction.user.id);
+    const cfg = await getConfig(guildId);
+    const c = await getCurrency(guildId);
     const now = new Date();
 
     if (acc.lastDaily) {
@@ -25,7 +27,12 @@ const command: SlashCommand = {
       if (diff < DAY) {
         const remaining = DAY - diff;
         await interaction.reply({
-          embeds: [brandEmbed({ kind: "warn", title: "⏳ Já coletou", description: `Volte em **${fmtDuration(remaining)}**.` })],
+          embeds: [
+            ui.warn({
+              title: "Já coletou hoje",
+              description: `Volte em **${fmtDuration(remaining)}** para a próxima recompensa diária.`,
+            }),
+          ],
           ephemeral: true,
         });
         return;
@@ -35,9 +42,9 @@ const command: SlashCommand = {
       acc.streakDaily = 1;
     }
 
-    const vipMult = (await isVip(interaction.guildId!, interaction.user.id)) ? cfg.economyVipMultiplier : 1;
+    const vipMult = (await isVip(guildId, interaction.user.id)) ? cfg.economyVipMultiplier : 1;
     const { getUserVipMultiplier } = await import("../../systems/premium/premium.features.js");
-    const premiumMult = await getUserVipMultiplier(interaction.user.id, interaction.guildId, "daily").catch(() => 1);
+    const premiumMult = await getUserVipMultiplier(interaction.user.id, guildId, "daily").catch(() => 1);
     const streakBonus = Math.min(acc.streakDaily, 7) * 50;
     const amount = Math.floor((cfg.economyDailyAmount + streakBonus) * vipMult * premiumMult);
 
@@ -46,22 +53,27 @@ const command: SlashCommand = {
     await acc.save();
 
     await logTx({
-      guildId: interaction.guildId!,
+      guildId,
       userId: interaction.user.id,
       kind: "daily",
       amount,
       balanceAfter: acc.wallet,
       reason: `Diária (streak ${acc.streakDaily})`,
     });
-    await incrementMissionProgress(interaction.guildId!, interaction.user.id, "daily");
+    await incrementMissionProgress(guildId, interaction.user.id, "daily");
 
-
+    const image = await getAsset(guildId, "economy.daily_image");
     await interaction.reply({
       embeds: [
-        brandEmbed({
-          kind: "success",
-          title: "🎁 Diária coletada!",
-          description: `Você ganhou ${fmtCoins(amount, c.emoji, c.name)}\n**Streak:** ${acc.streakDaily} dia(s) ${vipMult > 1 ? "• 💎 VIP boost" : ""}`,
+        ui.economy({
+          guildId,
+          title: "Recompensa diária liberada",
+          description: `Você ganhou ${fmtCoins(amount, c.emoji, c.name)}\n**Streak:** ${acc.streakDaily} dia(s)${vipMult > 1 ? " · 💎 VIP boost" : ""}${premiumMult > 1 ? " · ✨ Premium" : ""}`,
+          image,
+          fields: [
+            { name: "Carteira", value: fmtCoins(acc.wallet, c.emoji, c.name), inline: true },
+            { name: "Bônus de streak", value: `+${streakBonus}`, inline: true },
+          ],
         }),
       ],
     });

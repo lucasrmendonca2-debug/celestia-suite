@@ -146,3 +146,39 @@
 #lovable-badge {
   display: none !important;
 }
+
+/* ===== Premium / VIP appearance ===== */
+:root {
+  --premium-gold: oklch(0.82 0.16 85);
+  --premium-amber: oklch(0.75 0.18 60);
+  --premium-deep: oklch(0.55 0.18 45);
+  --gradient-premium: linear-gradient(
+    135deg,
+    var(--premium-amber) 0%,
+    var(--premium-gold) 50%,
+    var(--premium-deep) 100%
+  );
+  --shadow-premium: 0 6px 24px -8px color-mix(in oklab, var(--premium-amber) 60%, transparent);
+}
+
+.premium-badge {
+  background: var(--gradient-premium);
+  color: #1a0f00;
+  box-shadow: var(--shadow-premium);
+  border: 1px solid color-mix(in oklab, var(--premium-gold) 70%, white 0%);
+}
+
+.premium-link-active {
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--premium-gold) 18%, transparent),
+    transparent
+  );
+  color: var(--foreground);
+  border-left: 2px solid var(--premium-gold);
+}
+
+.premium-icon {
+  color: var(--premium-gold);
+  filter: drop-shadow(0 0 6px color-mix(in oklab, var(--premium-gold) 60%, transparent));
+}

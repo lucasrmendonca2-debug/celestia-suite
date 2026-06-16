@@ -29,7 +29,7 @@ const command: SlashCommand = {
         ephemeral: true,
       });
     }
-    const fields = [
+    const fields: { name: string; value: string; inline?: boolean }[] = [
       { name: "Ação", value: c.action, inline: true },
       { name: "Status", value: c.active ? "🟢 Ativo" : "⚪ Inativo", inline: true },
       { name: "Origem", value: c.source, inline: true },

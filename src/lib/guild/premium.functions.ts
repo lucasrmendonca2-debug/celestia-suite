@@ -172,3 +172,108 @@ export const redeemGuildCode = createServerFn({ method: "POST" })
 
     return { ok: true as const, plan, subscription: sub };
   });
+
+/**
+ * Snapshot do uso/benefícios premium da guild + VIP do usuário logado.
+ * Retorna plano, multiplicadores efetivos e uso/limite atual.
+ */
+export const getPremiumUsage = createServerFn({ method: "GET" })
+  .inputValidator((d: { guildId: string }) => z.object({ guildId: guildIdSchema }).parse(d))
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { FREE_LIMITS } = await import("./premium-limits.server");
+
+    // plano da guild
+    const { data: guildSub } = await sb
+      .from("premium_subscriptions")
+      .select("*, plan:premium_plans(*)")
+      .eq("type", "GUILD_PREMIUM")
+      .eq("guild_id", data.guildId)
+      .eq("status", "ACTIVE")
+      .order("expires_at", { ascending: false, nullsFirst: false })
+      .limit(1)
+      .maybeSingle();
+
+    const guildPlan = (guildSub?.plan as { features?: Record<string, unknown>; limits?: Record<string, number>; name?: string } | undefined) ?? null;
+    const guildLimits = guildPlan?.limits ?? {};
+    const guildFeatures = guildPlan?.features ?? {};
+
+    // VIP do user logado (global)
+    const { getSession } = await import("@/lib/auth/session.server");
+    const session = await getSession();
+    const userId = session.data.userId ?? null;
+    let userPlan: { features?: Record<string, unknown>; name?: string } | null = null;
+    let userSubscription: { expires_at: string | null; status: string } | null = null;
+    if (userId) {
+      const { data: userSub } = await sb
+        .from("premium_subscriptions")
+        .select("*, plan:premium_plans(*)")
+        .eq("type", "USER_VIP")
+        .eq("user_id", userId)
+        .eq("status", "ACTIVE")
+        .order("expires_at", { ascending: false, nullsFirst: false })
+        .limit(1)
+        .maybeSingle();
+      if (userSub && (!userSub.expires_at || new Date(userSub.expires_at) >= new Date())) {
+        userPlan = (userSub.plan as typeof userPlan) ?? null;
+        userSubscription = { expires_at: userSub.expires_at, status: userSub.status };
+      }
+    }
+
+    const userFeatures = userPlan?.features ?? {};
+    const pickNum = (obj: Record<string, unknown>, key: string): number => {
+      const v = obj[key];
+      return typeof v === "number" && v > 0 ? v : 1;
+    };
+
+    const multipliers = {
+      xp: pickNum(userFeatures, "level.multiplier.xp"),
+      daily: pickNum(userFeatures, "economy.multiplier.daily"),
+      work: pickNum(userFeatures, "economy.multiplier.work"),
+      crime: pickNum(userFeatures, "economy.multiplier.crime"),
+    };
+
+    // contagens atuais
+    const tables: Array<{ key: string; table: "ticket_categories" | "shop_items" | "level_rewards" | "badges"; label: string }> = [
+      { key: "tickets.categories", table: "ticket_categories", label: "Categorias de ticket" },
+      { key: "shop.items", table: "shop_items", label: "Itens da loja" },
+      { key: "level.rewards", table: "level_rewards", label: "Recompensas de nível" },
+      { key: "badges.custom", table: "badges", label: "Badges" },
+    ];
+
+    const usage = await Promise.all(
+      tables.map(async (t) => {
+        const { count } = await sb.from(t.table).select("id", { count: "exact", head: true }).eq("guild_id", data.guildId);
+        const planLimit = guildLimits[t.key];
+        const limit = typeof planLimit === "number" && planLimit > 0 ? planLimit : (FREE_LIMITS[t.key] ?? 0);
+        const used = count ?? 0;
+        return {
+          key: t.key,
+          label: t.label,
+          used,
+          limit,
+          remaining: Math.max(0, limit - used),
+          pct: limit > 0 ? Math.min(100, Math.round((used / limit) * 100)) : 0,
+        };
+      }),
+    );
+
+    return {
+      guild: guildSub
+        ? {
+            plan_name: guildPlan?.name ?? "Premium",
+            expires_at: guildSub.expires_at,
+            features: guildFeatures,
+          }
+        : null,
+      user: userPlan
+        ? {
+            plan_name: userPlan.name ?? "VIP",
+            expires_at: userSubscription?.expires_at ?? null,
+          }
+        : null,
+      multipliers,
+      usage,
+    };
+  });

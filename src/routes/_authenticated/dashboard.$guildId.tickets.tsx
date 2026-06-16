@@ -267,6 +267,28 @@ function GeneralTab({
   const update = useServerFn(updateTicketConfig);
   const qc = useQueryClient();
   const [form, setForm] = useState(initial);
+  const descRef = useRef<HTMLTextAreaElement>(null);
+  const welcomeRef = useRef<HTMLTextAreaElement>(null);
+  const closeRef = useRef<HTMLTextAreaElement>(null);
+
+  function insertAtCursor(
+    ref: React.RefObject<HTMLTextAreaElement>,
+    key: "panel_description" | "ticket_welcome_message" | "close_message",
+    text: string,
+  ) {
+    const el = ref.current;
+    const current = form[key] ?? "";
+    const start = el?.selectionStart ?? current.length;
+    const end = el?.selectionEnd ?? current.length;
+    const next = current.slice(0, start) + text + current.slice(end);
+    setForm({ ...form, [key]: next });
+    requestAnimationFrame(() => {
+      if (!el) return;
+      const pos = start + text.length;
+      el.focus();
+      el.setSelectionRange(pos, pos);
+    });
+  }
 
   const mutation = useMutation({
     mutationFn: () =>

@@ -29,6 +29,7 @@ import { LevelsTab } from "@/components/dashboard/tickets/LevelsTab";
 import { PermissionsTab } from "@/components/dashboard/tickets/PermissionsTab";
 import { ActiveTicketsCard } from "@/components/dashboard/tickets/ActiveTicketsCard";
 import { WebhookCard } from "@/components/dashboard/tickets/WebhookCard";
+import { GuildEmojiPicker } from "@/components/dashboard/tickets/GuildEmojiPicker";
 
 export const Route = createFileRoute("/_authenticated/dashboard/$guildId/tickets")({
   loader: async ({ context, params }) => {

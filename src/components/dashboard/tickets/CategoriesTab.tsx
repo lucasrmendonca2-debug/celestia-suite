@@ -303,18 +303,26 @@ function CategoryEditor({
             onChange={(v) => setC({ ...c, priority: v })}
           />
 
-          <IdListField
+          <Labeled
             label="Cargos obrigatórios"
             hint="Só quem tem pelo menos UM desses cargos pode abrir. Vazio = todos."
-            value={c.required_role_ids ?? []}
-            onChange={(v) => setC({ ...c, required_role_ids: v })}
-          />
-          <IdListField
+          >
+            <MultiRolePicker
+              guildId={guildId}
+              value={c.required_role_ids ?? []}
+              onChange={(v) => setC({ ...c, required_role_ids: v })}
+            />
+          </Labeled>
+          <Labeled
             label="Cargos bloqueados"
             hint="Quem tem qualquer desses cargos é impedido."
-            value={c.blocked_role_ids ?? []}
-            onChange={(v) => setC({ ...c, blocked_role_ids: v })}
-          />
+          >
+            <MultiRolePicker
+              guildId={guildId}
+              value={c.blocked_role_ids ?? []}
+              onChange={(v) => setC({ ...c, blocked_role_ids: v })}
+            />
+          </Labeled>
           <KeyListField
             label="Níveis de acesso permitidos"
             hint="Use as chaves da aba Níveis. Vazio = todos."

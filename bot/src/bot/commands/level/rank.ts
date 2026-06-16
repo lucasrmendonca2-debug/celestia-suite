@@ -1,47 +1,78 @@
-import { SlashCommandBuilder } from "discord.js";
+import { AttachmentBuilder, SlashCommandBuilder } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
-import { LevelAccount } from "../../../database/models.js";
-import { xpForLevel } from "../../systems/level/level.js";
-
-function bar(current: number, max: number, length = 18) {
-  const ratio = Math.max(0, Math.min(1, current / max));
-  const filled = Math.round(ratio * length);
-  return `${"█".repeat(filled)}${"░".repeat(length - filled)}`;
-}
+import { supabase } from "../../../database/supabase.js";
+import { deriveLevel } from "../../systems/social/formulas.js";
+import { renderRankCard } from "../../systems/social/rank-card.service.js";
+import { getProfile } from "../../systems/social/profile.service.js";
 
 const command: SlashCommand = {
   category: "level",
-  cooldown: 3,
+  cooldown: 5,
   guildOnly: true,
   data: new SlashCommandBuilder()
     .setName("rank")
-    .setDescription("Mostra seu nível e XP.")
-    .addUserOption((o) => o.setName("usuario").setDescription("Outro usuário")),
+    .setDescription("Mostra seu rank card visual.")
+    .addUserOption((o) => o.setName("usuario").setDescription("Outro usuário")) as SlashCommandBuilder,
   async execute(interaction) {
+    if (!interaction.inGuild()) return;
     const target = interaction.options.getUser("usuario") ?? interaction.user;
-    const acc = await LevelAccount.findOne({ guildId: interaction.guildId!, userId: target.id });
-    if (!acc) {
-      await interaction.reply({
-        embeds: [brandEmbed({ kind: "info", title: "Sem XP ainda", description: `${target.username} ainda não enviou mensagens.` })],
+    await interaction.deferReply();
+
+    const { data: row } = await supabase
+      .from("level_users")
+      .select("total_xp")
+      .eq("guild_id", interaction.guildId!)
+      .eq("user_id", target.id)
+      .maybeSingle();
+
+    const totalXp = row?.total_xp ?? 0;
+    const derived = deriveLevel(totalXp);
+
+    // Rank no servidor
+    const { count } = await supabase
+      .from("level_users")
+      .select("user_id", { count: "exact", head: true })
+      .eq("guild_id", interaction.guildId!)
+      .gt("total_xp", totalXp);
+    const rank = (count ?? 0) + 1;
+
+    const profile = await getProfile(interaction.guildId!, target.id);
+
+    try {
+      const buffer = await renderRankCard({
+        username: target.username,
+        displayName: target.displayName ?? target.username,
+        avatarUrl: target.displayAvatarURL({ extension: "png", size: 256 }),
+        level: derived.level,
+        xpInLevel: derived.xpInLevel,
+        xpForNext: derived.xpForNext,
+        totalXp,
+        rank,
+        color: profile.color || "#5865F2",
+        title: profile.title,
+        bannerUrl: profile.banner_url,
       });
-      return;
+      const attachment = new AttachmentBuilder(buffer, { name: "rank.png" });
+      await interaction.editReply({ files: [attachment] });
+    } catch (err) {
+      // fallback embed se canvas falhar
+      await interaction.editReply({
+        embeds: [
+          brandEmbed({
+            title: `📈 ${target.username}`,
+            thumbnail: target.displayAvatarURL(),
+            fields: [
+              { name: "Nível", value: String(derived.level), inline: true },
+              { name: "XP", value: `${derived.xpInLevel.toLocaleString("pt-BR")} / ${derived.xpForNext.toLocaleString("pt-BR")}`, inline: true },
+              { name: "Rank", value: `#${rank}`, inline: true },
+              { name: "Total", value: `${totalXp.toLocaleString("pt-BR")} XP` },
+            ],
+            footer: `Card visual indisponível: ${(err as Error).message.slice(0, 80)}`,
+          }),
+        ],
+      });
     }
-    const next = xpForLevel(acc.level);
-    await interaction.reply({
-      embeds: [
-        brandEmbed({
-          title: `📈 ${target.username}`,
-          thumbnail: target.displayAvatarURL(),
-          fields: [
-            { name: "Nível", value: String(acc.level), inline: true },
-            { name: "XP", value: `${acc.xp.toLocaleString("pt-BR")} / ${next.toLocaleString("pt-BR")}`, inline: true },
-            { name: "Total", value: acc.totalXp.toLocaleString("pt-BR"), inline: true },
-            { name: "Progresso", value: `\`${bar(acc.xp, next)}\`` },
-          ],
-        }),
-      ],
-    });
   },
 };
 export default command;

@@ -53,7 +53,7 @@ const SECTIONS: { title: string; items: Item[] }[] = [
   {
     title: "Engajamento",
     items: [
-      { to: "leveling", label: "Níveis & XP", icon: TrendingUp },
+      { to: "social", label: "Social & Level", icon: TrendingUp },
       { to: "economy", label: "Economia", icon: Coins },
     ],
   },

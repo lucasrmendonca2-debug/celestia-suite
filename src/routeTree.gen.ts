@@ -20,6 +20,7 @@ import { Route as ApiAuthDiscordLoginRouteImport } from './routes/api/auth/disco
 import { Route as ApiAuthDiscordCallbackRouteImport } from './routes/api/auth/discord/callback'
 import { Route as AuthenticatedDashboardGuildIdWelcomeRouteImport } from './routes/_authenticated/dashboard.$guildId.welcome'
 import { Route as AuthenticatedDashboardGuildIdTicketsRouteImport } from './routes/_authenticated/dashboard.$guildId.tickets'
+import { Route as AuthenticatedDashboardGuildIdSocialRouteImport } from './routes/_authenticated/dashboard.$guildId.social'
 import { Route as AuthenticatedDashboardGuildIdReactionRolesRouteImport } from './routes/_authenticated/dashboard.$guildId.reaction-roles'
 import { Route as AuthenticatedDashboardGuildIdModerationRouteImport } from './routes/_authenticated/dashboard.$guildId.moderation'
 import { Route as AuthenticatedDashboardGuildIdLogsRouteImport } from './routes/_authenticated/dashboard.$guildId.logs'
@@ -87,6 +88,12 @@ const AuthenticatedDashboardGuildIdTicketsRoute =
   AuthenticatedDashboardGuildIdTicketsRouteImport.update({
     id: '/tickets',
     path: '/tickets',
+    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+  } as any)
+const AuthenticatedDashboardGuildIdSocialRoute =
+  AuthenticatedDashboardGuildIdSocialRouteImport.update({
+    id: '/social',
+    path: '/social',
     getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
   } as any)
 const AuthenticatedDashboardGuildIdReactionRolesRoute =
@@ -159,6 +166,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
   '/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
   '/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
+  '/dashboard/$guildId/social': typeof AuthenticatedDashboardGuildIdSocialRoute
   '/dashboard/$guildId/tickets': typeof AuthenticatedDashboardGuildIdTicketsRoute
   '/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
@@ -179,6 +187,7 @@ export interface FileRoutesByTo {
   '/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
   '/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
   '/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
+  '/dashboard/$guildId/social': typeof AuthenticatedDashboardGuildIdSocialRoute
   '/dashboard/$guildId/tickets': typeof AuthenticatedDashboardGuildIdTicketsRoute
   '/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
@@ -202,6 +211,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
   '/_authenticated/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
   '/_authenticated/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
+  '/_authenticated/dashboard/$guildId/social': typeof AuthenticatedDashboardGuildIdSocialRoute
   '/_authenticated/dashboard/$guildId/tickets': typeof AuthenticatedDashboardGuildIdTicketsRoute
   '/_authenticated/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
@@ -225,6 +235,7 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId/logs'
     | '/dashboard/$guildId/moderation'
     | '/dashboard/$guildId/reaction-roles'
+    | '/dashboard/$guildId/social'
     | '/dashboard/$guildId/tickets'
     | '/dashboard/$guildId/welcome'
     | '/api/auth/discord/callback'
@@ -245,6 +256,7 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId/logs'
     | '/dashboard/$guildId/moderation'
     | '/dashboard/$guildId/reaction-roles'
+    | '/dashboard/$guildId/social'
     | '/dashboard/$guildId/tickets'
     | '/dashboard/$guildId/welcome'
     | '/api/auth/discord/callback'
@@ -267,6 +279,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/$guildId/logs'
     | '/_authenticated/dashboard/$guildId/moderation'
     | '/_authenticated/dashboard/$guildId/reaction-roles'
+    | '/_authenticated/dashboard/$guildId/social'
     | '/_authenticated/dashboard/$guildId/tickets'
     | '/_authenticated/dashboard/$guildId/welcome'
     | '/api/auth/discord/callback'
@@ -362,6 +375,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardGuildIdTicketsRouteImport
       parentRoute: typeof AuthenticatedDashboardGuildIdRoute
     }
+    '/_authenticated/dashboard/$guildId/social': {
+      id: '/_authenticated/dashboard/$guildId/social'
+      path: '/social'
+      fullPath: '/dashboard/$guildId/social'
+      preLoaderRoute: typeof AuthenticatedDashboardGuildIdSocialRouteImport
+      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+    }
     '/_authenticated/dashboard/$guildId/reaction-roles': {
       id: '/_authenticated/dashboard/$guildId/reaction-roles'
       path: '/reaction-roles'
@@ -438,6 +458,7 @@ interface AuthenticatedDashboardGuildIdRouteChildren {
   AuthenticatedDashboardGuildIdLogsRoute: typeof AuthenticatedDashboardGuildIdLogsRoute
   AuthenticatedDashboardGuildIdModerationRoute: typeof AuthenticatedDashboardGuildIdModerationRoute
   AuthenticatedDashboardGuildIdReactionRolesRoute: typeof AuthenticatedDashboardGuildIdReactionRolesRoute
+  AuthenticatedDashboardGuildIdSocialRoute: typeof AuthenticatedDashboardGuildIdSocialRoute
   AuthenticatedDashboardGuildIdTicketsRoute: typeof AuthenticatedDashboardGuildIdTicketsRoute
   AuthenticatedDashboardGuildIdWelcomeRoute: typeof AuthenticatedDashboardGuildIdWelcomeRoute
   AuthenticatedDashboardGuildIdIndexRoute: typeof AuthenticatedDashboardGuildIdIndexRoute
@@ -463,6 +484,8 @@ const AuthenticatedDashboardGuildIdRouteChildren: AuthenticatedDashboardGuildIdR
       AuthenticatedDashboardGuildIdModerationRoute,
     AuthenticatedDashboardGuildIdReactionRolesRoute:
       AuthenticatedDashboardGuildIdReactionRolesRoute,
+    AuthenticatedDashboardGuildIdSocialRoute:
+      AuthenticatedDashboardGuildIdSocialRoute,
     AuthenticatedDashboardGuildIdTicketsRoute:
       AuthenticatedDashboardGuildIdTicketsRoute,
     AuthenticatedDashboardGuildIdWelcomeRoute:
@@ -502,3 +525,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

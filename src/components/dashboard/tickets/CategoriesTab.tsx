@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { ChannelPicker, MultiRolePicker, RolePicker } from "./DiscordPickers";
 
 type Category = Awaited<ReturnType<typeof listTicketCategories>>[number];
 
@@ -239,20 +240,21 @@ function CategoryEditor({
           </Labeled>
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <Labeled label="Cargo de suporte (ID)" hint="Sobrescreve o cargo global.">
-              <Input
-                value={c.support_role_id ?? ""}
-                onChange={(e) => setC({ ...c, support_role_id: e.target.value })}
-                placeholder="ID do cargo"
-                className="font-mono text-xs"
+            <Labeled label="Cargo de suporte" hint="Sobrescreve o cargo global.">
+              <RolePicker
+                guildId={guildId}
+                value={c.support_role_id}
+                onChange={(v) => setC({ ...c, support_role_id: v })}
+                placeholder="Cargo padrão do servidor"
               />
             </Labeled>
-            <Labeled label="Categoria Discord (ID)" hint="Onde criar o canal.">
-              <Input
-                value={c.discord_category_id ?? ""}
-                onChange={(e) => setC({ ...c, discord_category_id: e.target.value })}
-                placeholder="ID da categoria"
-                className="font-mono text-xs"
+            <Labeled label="Categoria Discord" hint="Onde criar o canal.">
+              <ChannelPicker
+                guildId={guildId}
+                value={c.discord_category_id}
+                onChange={(v) => setC({ ...c, discord_category_id: v })}
+                types={[4]}
+                placeholder="Categoria padrão"
               />
             </Labeled>
           </div>

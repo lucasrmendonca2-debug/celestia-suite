@@ -106,6 +106,21 @@ export function buildClosedEmbed(closeMessage: string, staffId: string, color: n
     .setTimestamp(new Date());
 }
 
+export function buildClosedActions(): ActionRowBuilder<ButtonBuilder> {
+  return new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setCustomId("ticket:reopen")
+      .setLabel("Reabrir")
+      .setEmoji("🔓")
+      .setStyle(ButtonStyle.Success),
+    new ButtonBuilder()
+      .setCustomId("ticket:delete")
+      .setLabel("Excluir canal")
+      .setEmoji("🗑️")
+      .setStyle(ButtonStyle.Danger),
+  );
+}
+
 export function buildLogEmbed(opts: {
   title: string;
   color: number;

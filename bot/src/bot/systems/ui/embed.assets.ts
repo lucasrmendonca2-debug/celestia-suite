@@ -331,7 +331,7 @@ export const ASSET_KEYS = {
     name: "Banner do automod",
     module: "MODERATION",
     type: "BANNER",
-    default: null,
+    default: "https://project--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app/__l5e/assets-v1/6e4d9b64-48e2-4600-9bc8-c0648a69a052/moderation-banner.png",
   },
   "logs.icon_message_deleted": {
     key: "logs.icon_message_deleted",

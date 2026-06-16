@@ -1002,6 +1002,48 @@ export type Database = {
         }
         Relationships: []
       }
+      mod_appeals: {
+        Row: {
+          case_number: number
+          created_at: string
+          guild_id: string
+          id: string
+          reason: string
+          resolution_note: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          case_number: number
+          created_at?: string
+          guild_id: string
+          id?: string
+          reason: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          case_number?: number
+          created_at?: string
+          guild_id?: string
+          id?: string
+          reason?: string
+          resolution_note?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       mod_cases: {
         Row: {
           action: string
@@ -2562,6 +2604,36 @@ export type Database = {
           guild_id?: string
           id?: string
           role_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ticket_quick_replies: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string
+          guild_id: string
+          id: string
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by: string
+          guild_id: string
+          id?: string
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string
+          guild_id?: string
+          id?: string
+          slug?: string
           updated_at?: string
         }
         Relationships: []

@@ -119,6 +119,32 @@ const command: SlashCommand = {
         .setName("renomear")
         .setDescription("Renomeia este canal de ticket.")
         .addStringOption((o) => o.setName("nome").setDescription("Novo nome").setRequired(true)),
+    )
+    .addSubcommand((s) =>
+      s.setName("metricas").setDescription("Mostra métricas do sistema de tickets."),
+    )
+    .addSubcommand((s) =>
+      s
+        .setName("resposta")
+        .setDescription("Gerencia respostas rápidas de staff.")
+        .addStringOption((o) =>
+          o
+            .setName("acao")
+            .setDescription("Ação")
+            .setRequired(true)
+            .addChoices(
+              { name: "Usar", value: "usar" },
+              { name: "Listar", value: "listar" },
+              { name: "Criar", value: "criar" },
+              { name: "Remover", value: "remover" },
+            ),
+        )
+        .addStringOption((o) =>
+          o.setName("slug").setDescription("Identificador curto (ex: ola, encerrar)"),
+        )
+        .addStringOption((o) =>
+          o.setName("conteudo").setDescription("Conteúdo da resposta (ao criar)"),
+        ),
     ),
   async execute(interaction: ChatInputCommandInteraction) {
     const sub = interaction.options.getSubcommand(true);
@@ -133,6 +159,8 @@ const command: SlashCommand = {
     if (sub === "prioridade") return runPrioridade(interaction);
     if (sub === "nota") return runNota(interaction);
     if (sub === "renomear") return runRenomear(interaction);
+    if (sub === "metricas") return runMetricas(interaction);
+    if (sub === "resposta") return runResposta(interaction);
   },
 };
 
@@ -456,6 +484,212 @@ async function runRenomear(interaction: ChatInputCommandInteraction) {
   await channel.setName(nome).catch(() => {});
   await interaction.reply({
     embeds: [brandEmbed({ kind: "success", title: `Canal renomeado para \`${nome}\`` })],
+    ephemeral: true,
+  });
+}
+
+async function runMetricas(interaction: ChatInputCommandInteraction) {
+  await interaction.deferReply({ ephemeral: true });
+  const guildId = interaction.guildId!;
+  const since = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
+
+  const [{ count: openCount }, { count: closedWeek }, { data: rows }] = await Promise.all([
+    supabase
+      .from("tickets")
+      .select("id", { count: "exact", head: true })
+      .eq("guild_id", guildId)
+      .eq("status", "open"),
+    supabase
+      .from("tickets")
+      .select("id", { count: "exact", head: true })
+      .eq("guild_id", guildId)
+      .eq("status", "closed")
+      .gte("closed_at", since),
+    supabase
+      .from("tickets")
+      .select("created_at,first_response_at,closed_at,claimed_by,status")
+      .eq("guild_id", guildId)
+      .gte("created_at", since)
+      .limit(500),
+  ]);
+
+  let firstRespMs = 0;
+  let firstRespN = 0;
+  let resolutionMs = 0;
+  let resolutionN = 0;
+  const byClaim = new Map<string, number>();
+  for (const r of rows ?? []) {
+    if (r.first_response_at) {
+      firstRespMs += new Date(r.first_response_at).getTime() - new Date(r.created_at).getTime();
+      firstRespN++;
+    }
+    if (r.closed_at) {
+      resolutionMs += new Date(r.closed_at).getTime() - new Date(r.created_at).getTime();
+      resolutionN++;
+    }
+    if (r.claimed_by) byClaim.set(r.claimed_by, (byClaim.get(r.claimed_by) ?? 0) + 1);
+  }
+
+  const fmt = (ms: number) => {
+    if (!ms) return "—";
+    const m = Math.round(ms / 60000);
+    if (m < 60) return `${m}m`;
+    const h = Math.floor(m / 60);
+    return `${h}h ${m % 60}m`;
+  };
+  const top = [...byClaim.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([id, n], i) => `**${i + 1}.** <@${id}> · ${n} ticket${n > 1 ? "s" : ""}`)
+    .join("\n") || "_Nenhum ticket atribuído nos últimos 7 dias._";
+
+  await interaction.editReply({
+    embeds: [
+      brandEmbed({
+        title: "📊 Métricas de Tickets",
+        description: `Janela: últimos **7 dias**`,
+        fields: [
+          { name: "Abertos agora", value: String(openCount ?? 0), inline: true },
+          { name: "Fechados (7d)", value: String(closedWeek ?? 0), inline: true },
+          { name: "Criados (7d)", value: String(rows?.length ?? 0), inline: true },
+          { name: "1ª resposta média", value: fmt(firstRespN ? firstRespMs / firstRespN : 0), inline: true },
+          { name: "Resolução média", value: fmt(resolutionN ? resolutionMs / resolutionN : 0), inline: true },
+          { name: "Top staff (claims)", value: top, inline: false },
+        ],
+      }),
+    ],
+  });
+}
+
+async function runResposta(interaction: ChatInputCommandInteraction) {
+  const guildId = interaction.guildId!;
+  const acao = interaction.options.getString("acao", true);
+  const slug = interaction.options.getString("slug")?.toLowerCase().trim() ?? null;
+  const conteudo = interaction.options.getString("conteudo");
+
+  const member = interaction.member;
+  const isStaff =
+    !!member &&
+    typeof member.permissions !== "string" &&
+    member.permissions.has(PermissionFlagsBits.ManageMessages);
+
+  if (acao === "listar") {
+    const { data } = await supabase
+      .from("ticket_quick_replies")
+      .select("slug,content")
+      .eq("guild_id", guildId)
+      .order("slug", { ascending: true })
+      .limit(25);
+    const lines = (data ?? [])
+      .map((r) => `• \`${r.slug}\` — ${r.content.slice(0, 80)}${r.content.length > 80 ? "…" : ""}`)
+      .join("\n");
+    await interaction.reply({
+      embeds: [
+        brandEmbed({
+          title: "💬 Respostas rápidas",
+          description: lines || "_Nenhuma resposta cadastrada. Use `acao:Criar` para começar._",
+        }),
+      ],
+      ephemeral: true,
+    });
+    return;
+  }
+
+  if (acao === "criar") {
+    if (!isStaff) {
+      await interaction.reply({
+        embeds: [brandEmbed({ kind: "error", title: "Sem permissão para criar." })],
+        ephemeral: true,
+      });
+      return;
+    }
+    if (!slug || !conteudo) {
+      await interaction.reply({
+        embeds: [brandEmbed({ kind: "error", title: "Informe `slug` e `conteudo`." })],
+        ephemeral: true,
+      });
+      return;
+    }
+    const { error } = await supabase.from("ticket_quick_replies").upsert(
+      {
+        guild_id: guildId,
+        slug,
+        content: conteudo,
+        created_by: interaction.user.id,
+      },
+      { onConflict: "guild_id,slug" },
+    );
+    if (error) {
+      await interaction.reply({
+        embeds: [brandEmbed({ kind: "error", title: "Falha ao salvar", description: error.message })],
+        ephemeral: true,
+      });
+      return;
+    }
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "success", title: `Resposta \`${slug}\` salva.` })],
+      ephemeral: true,
+    });
+    return;
+  }
+
+  if (acao === "remover") {
+    if (!isStaff) {
+      await interaction.reply({
+        embeds: [brandEmbed({ kind: "error", title: "Sem permissão." })],
+        ephemeral: true,
+      });
+      return;
+    }
+    if (!slug) {
+      await interaction.reply({
+        embeds: [brandEmbed({ kind: "error", title: "Informe `slug`." })],
+        ephemeral: true,
+      });
+      return;
+    }
+    await supabase.from("ticket_quick_replies").delete().eq("guild_id", guildId).eq("slug", slug);
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "success", title: `Resposta \`${slug}\` removida.` })],
+      ephemeral: true,
+    });
+    return;
+  }
+
+  // usar
+  if (!slug) {
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "error", title: "Informe `slug` da resposta a usar." })],
+      ephemeral: true,
+    });
+    return;
+  }
+  const ticket = await findTicketByChannel(interaction.channelId);
+  if (!ticket) {
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "error", title: "Use dentro de um ticket." })],
+      ephemeral: true,
+    });
+    return;
+  }
+  const { data: qr } = await supabase
+    .from("ticket_quick_replies")
+    .select("content")
+    .eq("guild_id", guildId)
+    .eq("slug", slug)
+    .maybeSingle();
+  if (!qr) {
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "error", title: `Resposta \`${slug}\` não existe.` })],
+      ephemeral: true,
+    });
+    return;
+  }
+  const channel = interaction.channel as TextChannel | null;
+  if (!channel?.isTextBased()) return;
+  await channel.send({ content: qr.content });
+  await interaction.reply({
+    embeds: [brandEmbed({ kind: "success", title: "Resposta enviada." })],
     ephemeral: true,
   });
 }

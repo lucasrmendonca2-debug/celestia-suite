@@ -249,16 +249,7 @@ function SetupChecklist({
   );
 }
 
-function SoonCard({ title }: { title: string }) {
-  return (
-    <div className="rounded-xl border border-dashed border-border bg-card/30 p-10 text-center">
-      <p className="text-sm font-medium">{title} chega na próxima fase ✨</p>
-      <p className="mt-2 text-xs text-muted-foreground">
-        A Fase 1 entrega Geral, painel único e abrir/fechar. Próximas fases adicionam categorias, permissões dinâmicas, transcript, histórico e avaliações.
-      </p>
-    </div>
-  );
-}
+/* SoonCard removido — todas as abas estão implementadas */
 
 /* ---------------- General tab ---------------- */
 
@@ -361,34 +352,52 @@ function GeneralTab({
         title="Canais e cargo"
         description="Cole os IDs do Discord (Configurações → Avançado → Modo Desenvolvedor → clique-direito → Copiar ID)."
       >
-        <Field
+        <PickerField
           label="Canal do painel"
-          hint="Onde o painel único será publicado quando você rodar /ticket painel."
-          value={form.panel_channel_id ?? ""}
-          onChange={(v) => setForm({ ...form, panel_channel_id: v })}
-          placeholder="ex: 1234567890123456789"
-        />
-        <Field
+          hint="Onde o painel único será publicado."
+        >
+          <ChannelPicker
+            guildId={guildId}
+            value={form.panel_channel_id}
+            onChange={(v) => setForm({ ...form, panel_channel_id: v })}
+            types={[0, 5]}
+            placeholder="Selecione o canal de texto"
+          />
+        </PickerField>
+        <PickerField
           label="Categoria do Discord para tickets"
           hint="Categoria onde os canais de ticket serão criados."
-          value={form.category_id ?? ""}
-          onChange={(v) => setForm({ ...form, category_id: v })}
-          placeholder="ID da categoria"
-        />
-        <Field
+        >
+          <ChannelPicker
+            guildId={guildId}
+            value={form.category_id}
+            onChange={(v) => setForm({ ...form, category_id: v })}
+            types={[4]}
+            placeholder="Selecione a categoria"
+          />
+        </PickerField>
+        <PickerField
           label="Cargo de suporte padrão"
           hint="Esse cargo vê e responde todos os tickets."
-          value={form.default_support_role_id ?? ""}
-          onChange={(v) => setForm({ ...form, default_support_role_id: v })}
-          placeholder="ID do cargo"
-        />
-        <Field
+        >
+          <RolePicker
+            guildId={guildId}
+            value={form.default_support_role_id}
+            onChange={(v) => setForm({ ...form, default_support_role_id: v })}
+          />
+        </PickerField>
+        <PickerField
           label="Canal de logs"
-          hint="Onde vai receber abertura, fechamento e outras ações."
-          value={form.log_channel_id ?? ""}
-          onChange={(v) => setForm({ ...form, log_channel_id: v })}
-          placeholder="ID do canal"
-        />
+          hint="Recebe abertura, fechamento, transcript e outras ações."
+        >
+          <ChannelPicker
+            guildId={guildId}
+            value={form.log_channel_id}
+            onChange={(v) => setForm({ ...form, log_channel_id: v })}
+            types={[0, 5]}
+            placeholder="Selecione o canal de logs"
+          />
+        </PickerField>
       </SectionCard>
 
       <SectionCard title="Limites e comportamento">

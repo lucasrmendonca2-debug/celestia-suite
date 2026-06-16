@@ -10,6 +10,7 @@ import {
   isValidCardStyle,
 } from "../../systems/social/profile.service.js";
 import { listUserBadges, countUserBadges } from "../../systems/social/badge.service.js";
+import { pick, socialResponses } from "../../systems/personality/index.js";
 
 const command: SlashCommand = {
   category: "utility",

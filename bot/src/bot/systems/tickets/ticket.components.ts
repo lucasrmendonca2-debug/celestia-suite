@@ -3,9 +3,11 @@ import {
   ButtonBuilder,
   ButtonStyle,
   EmbedBuilder,
+  StringSelectMenuBuilder,
+  StringSelectMenuOptionBuilder,
   type APIEmbed,
 } from "discord.js";
-import type { TicketConfig } from "./ticket.service.js";
+import type { TicketCategory, TicketConfig } from "./ticket.service.js";
 
 export function buildPanelEmbed(cfg: TicketConfig, guildName: string): APIEmbed {
   return new EmbedBuilder()
@@ -16,15 +18,44 @@ export function buildPanelEmbed(cfg: TicketConfig, guildName: string): APIEmbed 
     .toJSON();
 }
 
-export function buildPanelComponents(cfg: TicketConfig) {
-  const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId("ticket:open:default")
-      .setLabel(cfg.panel_button_label)
-      .setEmoji(cfg.panel_button_emoji || "🎫")
-      .setStyle(ButtonStyle.Primary),
-  );
-  return [row];
+export function buildPanelComponents(
+  cfg: TicketConfig,
+  categories: TicketCategory[] = [],
+) {
+  if (categories.length === 0) {
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId("ticket:open:default")
+        .setLabel(cfg.panel_button_label)
+        .setEmoji(cfg.panel_button_emoji || "🎫")
+        .setStyle(ButtonStyle.Primary),
+    );
+    return [row];
+  }
+
+  const options = categories.slice(0, 25).map((c) => {
+    const opt = new StringSelectMenuOptionBuilder()
+      .setLabel(c.name.slice(0, 100))
+      .setValue(c.id)
+      .setDescription((c.description ?? "Abrir ticket nesta categoria").slice(0, 100));
+    if (c.emoji) {
+      try {
+        opt.setEmoji(c.emoji);
+      } catch {
+        /* emoji inválido — ignora */
+      }
+    }
+    return opt;
+  });
+
+  const menu = new StringSelectMenuBuilder()
+    .setCustomId("ticket:select")
+    .setPlaceholder(cfg.panel_button_label || "Selecione um atendimento…")
+    .setMinValues(1)
+    .setMaxValues(1)
+    .addOptions(options);
+
+  return [new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(menu)];
 }
 
 export function buildWelcomeEmbed(

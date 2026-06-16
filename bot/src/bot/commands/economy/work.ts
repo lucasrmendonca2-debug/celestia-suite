@@ -4,6 +4,8 @@ import { brandEmbed } from "../../utils/embed.js";
 import { fmtCoins, fmtDuration } from "../../utils/format.js";
 import { getAccount, getCurrency, isVip } from "../../systems/economy/economy.js";
 import { getConfig } from "../../utils/guildCache.js";
+import { logTx } from "../../systems/economy/economy.tx.js";
+import { incrementMissionProgress } from "../../systems/economy/missions.js";
 
 const COOLDOWN = 60 * 60 * 1000; // 1h
 

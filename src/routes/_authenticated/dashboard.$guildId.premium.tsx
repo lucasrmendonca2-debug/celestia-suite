@@ -149,6 +149,7 @@ function PremiumPage() {
           <TabsTrigger value="benefits">Benefícios</TabsTrigger>
           <TabsTrigger value="plans">Planos</TabsTrigger>
           <TabsTrigger value="codes">Códigos</TabsTrigger>
+          <TabsTrigger value="config">Configuração</TabsTrigger>
           <TabsTrigger value="logs">Logs</TabsTrigger>
         </TabsList>
 

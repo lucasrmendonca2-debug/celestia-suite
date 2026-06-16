@@ -16,6 +16,7 @@ import {
 } from "../../systems/tickets/handlers.js";
 import {
   getTicketConfig,
+  listActiveCategories,
   setPanelMessage,
 } from "../../systems/tickets/ticket.service.js";
 import {

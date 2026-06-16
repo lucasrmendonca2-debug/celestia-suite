@@ -14,6 +14,9 @@ import { brandEmbed } from "../../utils/embed.js";
 import {
   closeTicketRow,
   countOpenTickets,
+  claimTicketRow,
+  closeTicketRow,
+  countOpenTickets,
   createTicketRow,
   findTicketByChannel,
   getCategoryById,

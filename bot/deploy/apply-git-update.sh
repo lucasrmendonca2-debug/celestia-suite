@@ -22,13 +22,23 @@ done
 
 mkdir -p logs
 
+if grep -R "handleMessageXp" -n src/bot/events/messageCreate.ts src/bot/systems/social 2>/dev/null; then
+  echo "ERRO: a cópia sincronizada ainda contém handleMessageXp. Abortando para evitar subir código antigo."
+  exit 1
+fi
+
 echo "==> Instalando dependências..."
 npm install --include=dev
 
 echo "==> Reiniciando bot..."
 pm2 delete zenox-bot 2>/dev/null || true
+pm2 flush zenox-bot 2>/dev/null || true
+: > logs/out.log
+: > logs/err.log
 pm2 start deploy/ecosystem.config.cjs
 pm2 save
+
+sleep 5
 
 echo "==> Logs recentes:"
 pm2 logs zenox-bot --lines 40 --nostream

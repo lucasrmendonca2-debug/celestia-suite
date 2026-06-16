@@ -237,6 +237,7 @@ function SocialPage() {
           <TabsTrigger value="geral">Geral</TabsTrigger>
           <TabsTrigger value="xp">XP & Level</TabsTrigger>
           <TabsTrigger value="card">Card visual</TabsTrigger>
+          <TabsTrigger value="meu-card">Meu card</TabsTrigger>
           <TabsTrigger value="rewards">Recompensas</TabsTrigger>
           <TabsTrigger value="leaderboard">Ranking</TabsTrigger>
           <TabsTrigger value="logs">Logs</TabsTrigger>

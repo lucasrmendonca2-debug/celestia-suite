@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { MouseEvent } from "react";
+import zenoxAvatar from "@/assets/zenox-avatar.png.asset.json";
+import zenoxBanner from "@/assets/zenox-banner.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({

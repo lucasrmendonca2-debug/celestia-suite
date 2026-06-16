@@ -393,6 +393,35 @@ async function sendClosedLog(
     .catch(() => {});
 }
 
+async function sendClosureDm(
+  guild: Guild,
+  cfg: TicketConfig,
+  ticketId: string,
+  ownerId: string,
+  staffId: string,
+  transcript: import("discord.js").AttachmentBuilder | null,
+) {
+  try {
+    const user = await guild.client.users.fetch(ownerId);
+    const embed = brandEmbed({
+      kind: "info",
+      title: `🔒 Seu ticket em ${guild.name} foi fechado`,
+      description: cfg.close_message.replace(/\{staff\}/g, `<@${staffId}>`),
+    });
+    const payload: Parameters<typeof user.send>[0] = {
+      embeds: [embed],
+      files: transcript ? [transcript] : [],
+    };
+    if (cfg.rating_enabled) {
+      payload.components = [buildRatingActions(ticketId)];
+      embed.setFooter({ text: "Avalie nosso atendimento abaixo 💜" });
+    }
+    await user.send(payload);
+  } catch {
+    /* DM fechada — ignora */
+  }
+}
+
 /* ===================== BUTTON ENTRY POINT ===================== */
 
 export async function handleTicketButton(interaction: ButtonInteraction): Promise<void> {

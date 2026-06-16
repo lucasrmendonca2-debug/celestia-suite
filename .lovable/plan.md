@@ -1,119 +1,96 @@
-# Fase 3 — Moderação Profissional Avançada
+## Fase 4 — Logs do servidor + Tickets v2
 
-Após a Fase 2 (ações principais funcionando), esta fase eleva o sistema ao nível dos bots comerciais (Dyno, Wick, MEE6 Pro). Foco em **qualidade do histórico**, **automação temporal real** e **upgrades no /warn**.
-
----
-
-## 1. Upgrade do sistema de Warnings
-
-Hoje o `/warn` é binário (warn ativo ou removido). Vamos torná-lo profissional:
-
-- **Severidade** (`LOW` / `MEDIUM` / `HIGH`) — cada nível conta como N pontos para a auto-punição (1/2/3). Configurável no dashboard.
-- **Expiração automática** — warns viram inativos após X dias (campo `expires_at`). Default 90 dias, configurável.
-- **Anotações internas** (`/note`) — registro privado de moderação que NÃO conta como warn, NÃO envia DM, só aparece em `/history` para a staff.
-- **/warn com prova** — campo opcional `prova` (URL de imagem/print) anexado no embed e no log.
-- **DM com link de apelo** — se `appeal_url` estiver setado na config, o DM ao usuário inclui botão "Apelar".
-
-## 2. Sistema unificado de casos (`mod_cases`)
-
-A tabela `mod_cases` já existe mas está subutilizada. Vamos centralizar tudo:
-
-- Toda ação (ban/kick/mute/warn/unban/unmute/note) cria um `case_id` sequencial por guild.
-- Logs do Discord exibem `#42` como referência clicável.
-- Novos comandos:
-  - `/case <id>` — mostra detalhes completos de um caso.
-  - `/history @user` — lista paginada de todos os casos do usuário (ativos + arquivados).
-  - `/reason <case_id> <novo motivo>` — edita motivo de um caso registrado.
-
-## 3. Ações temporárias automatizadas
-
-A tabela `temporary_actions` está criada mas vazia. Substituir o scheduler legado (Mongoose) por um worker que:
-
-- Lê `temporary_actions` a cada 30s.
-- Expira `TEMP_BAN` → executa `guild.bans.remove()` + log.
-- Expira `TEMP_MUTE` → remove `mute_role_id` ou timeout + log.
-- Expira `WARN` (com `expires_at`) → marca `active=false`.
-- Registra `expired_at` para auditoria.
-
-Comando novo: `/tempban` e `/tempmute` populam essa tabela; o scheduler limpa sozinho.
-
-## 4. Integração com Discord Audit Log
-
-Quando um mod bane/kicka/timeouta um usuário **manualmente** pelo Discord (sem usar o bot), o bot deve detectar via eventos `guildBanAdd` / `guildMemberUpdate` / `guildMemberRemove`, cruzar com o Audit Log e:
-
-- Criar um `mod_case` automático com `source: "DISCORD_UI"`.
-- Postar no canal de log de moderação.
-- Manter histórico consistente.
-
-## 5. Comandos de utilidade da staff
-
-- `/modstats` — estatísticas do mês (warns/bans/kicks por mod, top infratores).
-- `/purge` — bulk delete avançado (filtros por usuário + texto + dias).
-- `/nickname` — força mudança de nick com log.
-
-## 6. Dashboard — Aba "Histórico"
-
-Tab `HistoryTab.tsx` (já existe placeholder em tickets, replicar para moderação):
-
-- Filtros: usuário, moderador, tipo de ação, intervalo de datas.
-- Paginação server-side via `mod_cases`.
-- Botão "Editar motivo" e "Marcar como inválido".
-- Export CSV.
-
-## 7. Refinos do bot
-
-- Remover dependência do Mongoose no `scheduler.ts` e `vip.ts` (migrar para Supabase).
-- Auto-cleanup: rotina diária limpa `moderation_logs` > 180 dias (configurável).
-- Cooldown anti-flood no `/warn` (evita spam de warn em segundos).
-- Erro padronizado: todos os comandos de mod com `try/catch` global → embed amigável + log no Sentry-style (Pino).
+Vou atacar os dois módulos em sequência (Logs primeiro, depois Tickets v2), reaproveitando a infra de `mod_cases` e o padrão visual do dashboard.
 
 ---
 
-## Detalhes técnicos
+### Parte A — Sistema de Logs do servidor
 
-**Schema novo:**
+**Objetivo:** painel de auditoria completo, comparável ao Logger/Dyno, com filtros e canais separados por categoria.
 
-```text
-ALTER TABLE warnings
-  ADD COLUMN severity text DEFAULT 'MEDIUM',  -- LOW/MEDIUM/HIGH
-  ADD COLUMN expires_at timestamptz,
-  ADD COLUMN proof_url text,
-  ADD COLUMN points int DEFAULT 1;
+**Migração de banco**
+- Estender `guild_logs_config` (já tem 22 colunas) com:
+  - canais dedicados por categoria: `message_channel`, `member_channel`, `role_channel`, `channel_channel`, `voice_channel`, `server_channel`, `mod_channel`, `invite_channel`
+  - toggles individuais por evento (`log_message_delete`, `log_message_edit`, `log_member_join`, `log_member_leave`, `log_member_update`, `log_role_create/update/delete`, `log_channel_create/update/delete`, `log_voice_join/leave/move`, `log_server_update`, `log_invite_create/delete`, `log_emoji_update`)
+  - `ignored_channels text[]`, `ignored_roles text[]`, `ignored_users text[]`
+- Nova tabela `server_audit_logs` (id, guild_id, category, event, actor_id, target_id, channel_id, before jsonb, after jsonb, metadata jsonb, created_at) — usada pelo dashboard para histórico pesquisável. TTL de 30 dias via cron.
+- GRANT + RLS apropriados.
 
-ALTER TABLE moderation_configs
-  ADD COLUMN warn_expiry_days int DEFAULT 90,
-  ADD COLUMN appeal_url text,
-  ADD COLUMN warn_points_low int DEFAULT 1,
-  ADD COLUMN warn_points_medium int DEFAULT 2,
-  ADD COLUMN warn_points_high int DEFAULT 3;
+**Bot — eventos a adicionar/refatorar** (`bot/src/bot/events/`)
+- `messageDelete` (já existe) — refatorar para usar novo schema, embed com autor, conteúdo, anexos.
+- `messageUpdate` (já existe) — diff before/after.
+- `messageDeleteBulk` (novo) — agrupar exclusões em massa.
+- `guildMemberAdd` / `guildMemberRemove` (existem) — log dedicado, conta tempo no servidor.
+- `guildMemberUpdate` (novo) — mudança de nick, cargos adicionados/removidos, timeout.
+- `userUpdate` (novo) — mudança de avatar/username.
+- `roleCreate` / `roleUpdate` / `roleDelete` (novos).
+- `channelCreate` / `channelUpdate` / `channelDelete` (novos).
+- `voiceStateUpdate` (novo) — join/leave/move/mute/deafen.
+- `guildUpdate` (novo) — nome, ícone, owner.
+- `inviteCreate` / `inviteDelete` (novos).
+- `emojiCreate` / `emojiUpdate` / `emojiDelete` (novos).
 
-ALTER TABLE mod_cases
-  ADD COLUMN source text DEFAULT 'BOT',  -- BOT/DISCORD_UI/DASHBOARD
-  ADD COLUMN edited_at timestamptz,
-  ADD COLUMN edited_by text;
-```
+Cada evento:
+1. Lê `guild_logs_config`, verifica toggle e ignored lists.
+2. Resolve canal de destino (categoria → fallback global).
+3. Posta embed padronizado via `logger.service.ts` (novo helper).
+4. Insere linha em `server_audit_logs`.
 
-**Arquivos a criar:**
-
-- `bot/src/bot/systems/moderation/cases.service.ts` — CRUD de mod_cases + auto-incremento de case_id por guild.
-- `bot/src/bot/systems/moderation/temporary.scheduler.ts` — worker novo (substitui parte do scheduler.ts).
-- `bot/src/bot/systems/moderation/auditlog.watcher.ts` — listener de eventos manuais.
-- `bot/src/bot/commands/moderation/note.ts`, `case.ts`, `history.ts`, `reason.ts`, `tempban.ts`, `tempmute.ts`, `modstats.ts`, `purge.ts`, `nickname.ts`.
-- `src/components/dashboard/moderation/HistoryTab.tsx`.
-- `src/lib/guild/moderation-history.functions.ts`.
-
-**Arquivos a editar:**
-
-- `bot/src/bot/commands/moderation/warn.ts` — severidade, expiração, prova, pontos.
-- `bot/src/bot/commands/moderation/ban.ts`, `mute.ts` — registrar via cases.service.
-- `bot/src/bot/systems/moderation/moderation.logger.ts` — exibir `#case_id` e botão de apelo.
-- `bot/src/bot/events/guildBanAdd.ts` (criar), `guildMemberRemove.ts` (editar) — audit log.
-- `src/routes/_authenticated/dashboard.$guildId.moderation.tsx` — nova tab Histórico + 3 campos de severidade/apelo.
+**Dashboard — `dashboard.$guildId.logs.tsx`** (existe, será reescrito)
+- Tabs: **Geral / Mensagens / Membros / Cargos / Canais / Voz / Servidor / Histórico**.
+- Cada tab: switch master + canal de destino (DiscordPickers) + toggles individuais.
+- Tab "Histórico": tabela paginada de `server_audit_logs` com filtros (categoria, autor, alvo, período) e export CSV.
+- Server fns: `getLogsConfig`, `updateLogsConfig`, `listAuditLogs`, `exportAuditLogs`.
 
 ---
 
-## Escopo desta entrega
+### Parte B — Tickets v2
 
-Vou implementar tudo acima em uma única passagem (com migration, código do bot, dashboard). Bot reinicia automaticamente após mudanças.
+**Objetivo:** elevar o sistema atual para padrão comercial (Tickets Bot, Helper.gg).
 
-**Fora do escopo:** Economia, Level, Diversão, VIP — fica para fase posterior.
+**Migração de banco**
+- `tickets` (já existe, 17 colunas) acrescentar: `claimed_by`, `claimed_at`, `priority` (LOW/MEDIUM/HIGH/URGENT), `tags text[]`, `first_response_at`, `closed_by`, `close_reason`, `rating`, `rating_comment`, `transcript_url`, `sla_deadline`.
+- Nova tabela `ticket_tags` (guild_id, name, color, emoji).
+- Nova tabela `ticket_notes` (id, ticket_id, author_id, content, internal bool, created_at) — notas privadas do staff.
+- Nova tabela `ticket_sla_configs` (guild_id, category_id, first_response_minutes, resolution_hours, alert_role_id).
+- `ticket_categories` acrescentar: `claim_required bool`, `auto_close_hours int`, `welcome_embed_id`, `priority_default`.
+
+**Bot — comandos novos/atualizados**
+- `/ticket claim` — atribui o ticket ao staff atual, marca `claimed_by`.
+- `/ticket transfer @user` — transfere claim.
+- `/ticket priority <low|medium|high|urgent>` — muda prioridade, atualiza cor do canal.
+- `/ticket tag add/remove <tag>` — gerencia tags.
+- `/ticket note <texto>` — nota interna (não visível para o usuário).
+- `/ticket rename <nome>` — renomeia canal.
+- `/ticket reopen` — reabre ticket fechado (até 7 dias).
+- Botões no painel: **Claim**, **Transcript**, **Notas** (modal), **Prioridade** (select).
+- Mensagem de avaliação (1-5 estrelas) no fechamento, salva em `tickets.rating`.
+
+**Bot — sistemas**
+- `tickets/sla.scheduler.ts` (novo, 60s) — checa tickets sem primeira resposta e alerta cargo configurado.
+- `tickets/autoclose.scheduler.ts` (novo, 5min) — fecha tickets inativos conforme `auto_close_hours`.
+- `tickets/transcript.ts` (existe) — gerar HTML melhor, fazer upload para Supabase Storage (bucket `ticket-transcripts`, público com URL assinada de 30 dias), salvar em `transcript_url`.
+
+**Dashboard — `dashboard.$guildId.tickets.tsx`**
+- Nova tab **SLA & Auto-close**: por categoria, define minutos para primeira resposta, horas até fechar inativo, cargo de alerta.
+- Nova tab **Tags**: CRUD de tags com cor/emoji.
+- Tab **Categorias** ganha campos: `claim_required`, `priority_default`, `auto_close_hours`.
+- Tab **Histórico** (existe): adicionar colunas `claimed_by`, `priority`, `rating`, `tags`, `transcript_url` (link), filtros por prioridade/tag/rating, export CSV.
+- Tab **Métricas** (nova): tickets abertos/fechados últimos 30d, tempo médio de primeira resposta, tempo médio de resolução, top 10 staff por volume, distribuição de rating.
+
+**Storage**
+- Novo bucket `ticket-transcripts` (privado, URL assinada por 30 dias quando solicitado).
+
+---
+
+### Ordem de execução
+
+1. Migração unificada (logs + tickets v2) — única aprovação.
+2. Bot: eventos de logs + helper `logger.service.ts`.
+3. Bot: comandos/sistemas/transcripts de tickets v2.
+4. Dashboard: rota de Logs (reescrita).
+5. Dashboard: tabs novas de Tickets v2.
+6. Registro de slash commands + reinício do bot no sandbox.
+
+### Fora de escopo desta fase
+Economia, Leveling, VIP, Diversão, Reaction Roles — ficam para fase 5+.

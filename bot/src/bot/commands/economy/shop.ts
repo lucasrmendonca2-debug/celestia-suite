@@ -123,7 +123,7 @@ const command: SlashCommand = {
           brandEmbed({
             title: "🔥 Loja rotativa",
             description: lines || "_Itens da rotação não existem mais na loja._",
-            footer: `Reseta em <t:${Math.floor(new Date(rotation[0].expires_at).getTime() / 1000)}:R>`,
+            footer: `Reseta em <t:${Math.floor(new Date(rotation[0]!.expires_at).getTime() / 1000)}:R>`,
           }),
         ],
       });

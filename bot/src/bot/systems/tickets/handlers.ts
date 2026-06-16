@@ -575,30 +575,63 @@ export async function handleTicketButton(interaction: ButtonInteraction): Promis
     return;
   }
 
-  if (action === "rate") {
-    const [, , ticketId, ratingStr] = interaction.customId.split(":");
-    const rating = Number.parseInt(ratingStr ?? "0", 10);
-    if (!ticketId || rating < 1 || rating > 5) return;
-    try {
-      await setTicketRating(ticketId, rating);
-      await writeLog(interaction.guild.id, ticketId, "rated", interaction.user.id, { rating });
-      await interaction.update({
-        embeds: [
-          brandEmbed({
-            kind: "success",
-            title: "💜 Obrigado pelo feedback!",
-            description: `Você avaliou o atendimento com ${"⭐".repeat(rating)}.`,
-          }),
-        ],
-        components: [],
-      });
-    } catch (err) {
+}
+
+async function handleRateAction(interaction: ButtonInteraction): Promise<void> {
+  const [, , ticketId, ratingStr] = interaction.customId.split(":");
+  const rating = Number.parseInt(ratingStr ?? "0", 10);
+  if (!ticketId || rating < 1 || rating > 5) return;
+  try {
+    const ticket = await findTicketById(ticketId);
+    if (!ticket) throw new Error("Ticket não encontrado.");
+    await setTicketRating(ticketId, rating);
+    await writeLog(ticket.guild_id, ticketId, "rated", interaction.user.id, { rating });
+    await interaction.update({
+      embeds: [
+        brandEmbed({
+          kind: "success",
+          title: "💜 Obrigado pelo feedback!",
+          description: `Você avaliou o atendimento com ${"⭐".repeat(rating)}.`,
+        }),
+      ],
+      components: [],
+    });
+    // Posta a avaliação no canal configurado (rating_channel_id ou log_channel_id)
+    const cfg = await getTicketConfig(ticket.guild_id);
+    const targetId = cfg.rating_channel_id ?? cfg.log_channel_id;
+    if (targetId) {
+      const guild = interaction.client.guilds.cache.get(ticket.guild_id);
+      const ch = guild?.channels.cache.get(targetId);
+      if (ch && ch.type === ChannelType.GuildText) {
+        await (ch as TextChannel)
+          .send({
+            embeds: [
+              buildLogEmbed({
+                title: "⭐ Avaliação recebida",
+                color: 0xeab308,
+                fields: [
+                  { name: "Ticket", value: `\`${ticketId.slice(0, 8)}\``, inline: true },
+                  { name: "Usuário", value: `<@${ticket.user_id}>`, inline: true },
+                  { name: "Nota", value: "⭐".repeat(rating), inline: false },
+                ],
+              }),
+            ],
+          })
+          .catch(() => {});
+      }
+    }
+  } catch (err) {
+    if (interaction.replied || interaction.deferred) {
+      await interaction.followUp({
+        embeds: [brandEmbed({ kind: "error", title: "Erro", description: (err as Error).message })],
+        ephemeral: true,
+      }).catch(() => {});
+    } else {
       await interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Erro", description: (err as Error).message })],
         ephemeral: true,
-      });
+      }).catch(() => {});
     }
-    return;
   }
 }
 

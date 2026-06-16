@@ -2,7 +2,6 @@
  * Render do rank card com @napi-rs/canvas.
  * Suporta personalização: accent color, background color, text color e variantes (default/minimal/gradient).
  */
-import { createCanvas, loadImage, GlobalFonts } from "@napi-rs/canvas";
 
 export type CardStyle = "default" | "minimal" | "gradient";
 
@@ -30,9 +29,7 @@ export interface RankCardInput {
 const WIDTH = 900;
 const HEIGHT = 280;
 
-try { if (!GlobalFonts.has("Inter")) { /* fallback do sistema */ } } catch { /* noop */ }
-
-function roundRect(ctx: import("@napi-rs/canvas").SKRSContext2D, x: number, y: number, w: number, h: number, r: number) {
+function roundRect(ctx: any, x: number, y: number, w: number, h: number, r: number) {
   ctx.beginPath();
   ctx.moveTo(x + r, y);
   ctx.arcTo(x + w, y, x + w, y + h, r);
@@ -57,6 +54,9 @@ function mutedFrom(textColor: string): string {
 }
 
 export async function renderRankCard(input: RankCardInput): Promise<Buffer> {
+  const { createCanvas, loadImage, GlobalFonts } = await import("@napi-rs/canvas");
+  try { if (!GlobalFonts.has("Inter")) { /* fallback do sistema */ } } catch { /* noop */ }
+
   const style: CardStyle = input.cardStyle ?? "default";
   const accent = input.accentColor || "#5865F2";
   const bg = input.backgroundColor || "#0f1117";
@@ -203,7 +203,7 @@ export async function renderRankCard(input: RankCardInput): Promise<Buffer> {
   return canvas.toBuffer("image/png");
 }
 
-function truncate(ctx: import("@napi-rs/canvas").SKRSContext2D, text: string, maxWidth: number): string {
+function truncate(ctx: any, text: string, maxWidth: number): string {
   if (ctx.measureText(text).width <= maxWidth) return text;
   let s = text;
   while (s.length > 0 && ctx.measureText(s + "…").width > maxWidth) s = s.slice(0, -1);

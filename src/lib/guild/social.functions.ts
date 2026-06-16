@@ -175,6 +175,8 @@ export const addSocialReward = createServerFn({ method: "POST" })
     await perm(data.guildId);
     const sb = await admin();
     const { guildId, ...rest } = data;
+    const { enforceGuildLimit } = await import("./premium-limits.server");
+    await enforceGuildLimit(guildId, "level.rewards", "level_rewards");
     const { error } = await sb.from("level_rewards").insert({ guild_id: guildId, ...rest });
     if (error) throw new Error(error.message);
     return { ok: true };

@@ -1,76 +1,77 @@
-## Sistema de Tickets — Fase 1
+# Sistema de Moderação Profissional
 
-**Decisão de arquitetura:** o bot vai ler/escrever no **Supabase Postgres** (mesma fonte do site) via `@supabase/supabase-js` com service role. Adeus Mongo pra esse módulo. Os modelos antigos do Mongoose (`Ticket`, etc.) continuam vivos pra não quebrar nada, mas o sistema novo usa só Supabase.
+Implementação em **5 fases incrementais**, cada uma deixa o sistema usável e testável antes da próxima. Stack: Postgres (Supabase) — não Prisma — para manter coerência com o resto do bot. Tabelas serão criadas via migration com RLS + GRANTs.
 
-**Escopo desta fase (testável end-to-end):**
-- Schema completo no Supabase (todas as 6 tabelas do brief)
-- Bot conectado ao Supabase
-- Comando `/ticket painel` envia o painel único
-- Botão "Abrir ticket" cria canal privado, salva no DB, envia log
-- Botão "Fechar" + `/ticket fechar` arquivam o ticket
-- Aba **Geral** do dashboard (ligar/desligar, canais, cargo de suporte, limites)
-- Validações de permissão do bot (criar canal, gerenciar permissões)
+## Fase 1 — Fundação (Banco + permissões + página dashboard vazia)
 
-**Fora desta fase** (vão nas próximas):
-- Fase 2: categorias customizadas + permissões dinâmicas por cargo + níveis de acesso
-- Fase 3: transcript + reabrir + adicionar/remover usuário + assumir
-- Fase 4: avaliação + histórico + aparência
+**Banco** — migration única criando:
+- `moderation_configs` — config geral por guild (log_channel_id, mute_role_id, max_warnings, default_warn_punishment, protected_role_ids[], protected_user_ids[], allow_temp_ban, allow_temp_mute, dm_punished_user, punishment_dm_template, embed_color, etc.)
+- `moderation_permission_roles` — uma linha por cargo com 15 booleans (can_ban, can_kick, can_mute, can_warn, can_clear, can_lock, can_manage_automod, can_view_history, can_view_logs, can_manage_blacklist, can_manage_config, ...)
+- `punishments` — id, guild_id, user_id, username, moderator_id, moderator_name, type (enum: BAN/TEMP_BAN/KICK/MUTE/TEMP_MUTE/WARN/CLEAR/LOCK/UNLOCK/SLOWMODE/UNBAN/UNMUTE), reason, duration_seconds, expires_at, active, created_at
+- `warnings` — id, guild_id, user_id, moderator_id, reason, active
+- `moderation_logs` — id, guild_id, user_id, moderator_id, action, reason, details (jsonb)
+- `automod_configs` (já existe `automod_config`, vou reaproveitar + ALTER)
+- `blacklisted_words` — id, guild_id, word, punishment, delete_message, active
+- `allowed_domains` — id, guild_id, domain
+- `temporary_actions` — id, guild_id, user_id, action_type, expires_at, active
 
----
+Todas com GRANTs `service_role` (bot) + `authenticated` (dashboard) e RLS via security-definer `user_can_manage_guild()`.
 
-### Passo a passo
+**Dashboard** — Nova rota `dashboard.$guildId.moderation.tsx` com tabs vazias (placeholders). Apenas a aba **Geral** funcional nesta fase. Item "Moderação" no menu lateral.
 
-**1. Migração Supabase** (1 migration, todas as tabelas + RLS + grants)
-- `ticket_configs` (config geral por guild)
-- `ticket_categories` (categorias — só "default" preenchida na fase 1)
-- `ticket_permission_roles` (permissões por cargo — vazia na fase 1)
-- `ticket_access_levels` (níveis — vazio na fase 1)
-- `tickets` (tickets abertos)
-- `ticket_messages`, `ticket_logs`
-- RLS: dono do guild lê/escreve via dashboard (checa via `discord_guild_admins` ou similar); service_role total
+**Bot** — pasta `bot/src/bot/systems/moderation/` com `moderation.service.ts` (CRUD config) e `moderation.permissions.ts` (validação hierarquia + cargos protegidos + OWNER_ID + role do staff + role do bot).
 
-**2. Bot: integração Supabase**
-- `bun add @supabase/supabase-js` no `bot/`
-- Novo `bot/src/database/supabase.ts` → cliente service-role
-- Novos arquivos em `bot/src/bot/systems/tickets/`:
-  - `ticket.service.ts` — CRUD (config, abrir, fechar, log)
-  - `ticket.permissions.ts` — checagens (limite, owner, staff role)
-  - `ticket.components.ts` — embeds + botões (painel + dentro do ticket)
-- Atualiza `bot/src/bot/commands/tickets/panel.ts` para enviar o painel novo
-- Reescreve `bot/src/bot/systems/tickets/handlers.ts` para a lógica nova (mantém os custom IDs `ticket:open` e `ticket:close`)
-- Adiciona `/ticket fechar` em `bot/src/bot/commands/tickets/`
-- Adiciona `SUPABASE_URL` + `SUPABASE_SERVICE_ROLE_KEY` no `bot/.env`
+## Fase 2 — Comandos manuais essenciais (Prioridade 1)
 
-**3. Dashboard: página /dashboard/[guildId]/tickets**
-- `src/lib/tickets.functions.ts` — serverFns: `getTicketConfig`, `updateTicketConfig`, `sendPanel` (chama o bot? não — gera embed e envia via REST do Discord usando token do bot)
-- `src/routes/_authenticated/dashboard/$guildId/tickets.tsx` — página com tabs (shadcn `Tabs`)
-- Componente `TicketGeneralTab.tsx` com:
-  - Switch "Sistema ativo"
-  - Select canal do painel, canal de logs, categoria Discord
-  - Select cargo de suporte padrão
-  - Number max tickets por usuário
-  - Switches: permitir usuário fechar / habilitar transcript / habilitar avaliação
-  - Botão "Salvar" + "Enviar painel agora"
-- Outras tabs (Painel, Categorias, Permissões...) → stub "Em breve" só com header
+`/ban`, `/kick`, `/mute` (timeout nativo do Discord), `/warn`, `/clear`. Todos:
+- Validam permissão configurada no dashboard
+- Validam hierarquia (cargo do staff > cargo do alvo; cargo do bot > cargo do alvo)
+- Validam usuário/cargo protegido
+- Persistem em `punishments` + `moderation_logs`
+- Postam embed bonito no canal de logs configurado
+- Mandam DM ao punido (se ativo)
 
-**4. Validação**
-- Build do bot passa
-- Rebuilda e reinicia bot
-- Testo o fluxo manualmente nos logs (script de smoke se necessário)
+**Dashboard:** aba **Permissões** (lista de cargos com 15 toggles, picker de cargo para adicionar) + aba **Histórico** (tabela das punições com filtros por usuário/moderador/tipo/data/status).
 
-### Detalhes técnicos
+## Fase 3 — Punições temporárias + utilitários (Prioridade 2)
 
-- Bot usa **service_role** → bypassa RLS (é confiável, está no servidor). Não exponho a chave em lugar nenhum do dashboard.
-- Custom IDs dos botões: `ticket:open:<categoryId>`, `ticket:close:<ticketId>`. Já existe parser em `handlers.ts`.
-- A página do dashboard precisa carregar canais/cargos do Discord para os selects — uso o token do bot via `GET /guilds/:id/channels` e `/guilds/:id/roles` em serverFn (com cache curto).
-- Painel envia: embed + ActionRow com botão "Abrir ticket" (na fase 1 só uma categoria default; na fase 2 vira menu).
-- Ao abrir: cria canal `ticket-<username>` na categoria configurada, aplica overwrites (everyone deny, user allow, support role allow, bot allow).
+`/unban`, `/unmute`, `/warnings`, `/removewarn`, `/lock`, `/unlock`, `/slowmode`, `/modhistory`, `/modconfig`.
 
-### Como testar (após eu entregar)
-1. Aprovar a migração
-2. Eu adiciono os secrets do Supabase no `bot/.env` e reinicio
-3. Você abre `/dashboard/<guildId>/tickets` → aba Geral, configura canais e clica "Salvar" → "Enviar painel"
-4. No Discord, clica o botão "Abrir ticket" → vê canal criado, mensagem com botão fechar
-5. Clica fechar → canal arquivado, log enviado
+Mute/ban temporário: `/mute @user 10m motivo` registra em `temporary_actions` com `expires_at`. Scheduler já existente (1 min tick) ganha um job que faz unmute/unban quando expira.
 
-Próxima fase começa quando você validar essa.
+Sistema de **escalation** de warns: ao atingir `max_warnings`, aplica `default_warn_punishment` automaticamente.
+
+**Dashboard:** aba **Punições** (max_warnings, ação automática, duração mute padrão, DM ativo, template DM).
+
+## Fase 4 — AutoMod (Prioridade 3)
+
+`messageCreate` listener com pipeline:
+1. Ignorar admins, bot, cargos/canais ignorados
+2. Anti-spam (X msgs em Y segundos via cache em memória + Redis-like LRU)
+3. Anti-flood (mensagens repetidas)
+4. Anti-mass-mention
+5. Anti-invite (regex `discord.gg/`)
+6. Anti-link (com whitelist `allowed_domains`)
+7. Blacklist palavras (match boundary)
+
+Cada gatilho: apaga (se configurado), aplica punição configurada (warn/mute_temp/kick/ban), loga.
+
+**Dashboard:** abas **AutoMod**, **Anti-Spam**, **Anti-Link** (+ domínios permitidos), **Blacklist** (CRUD palavras).
+
+## Fase 5 — Acabamento (Prioridade 3 final)
+
+Aba **Logs** (toggles por tipo de evento + preview). Aba **Aparência** (cor embeds, rodapé, ícone, mensagens customizadas com preview). Gating visual das abas conforme permissão no banco. Renomear `automod_config` antigo se necessário, ajustes finais.
+
+## Detalhes técnicos
+
+- **Permissões dashboard:** server fn `assertCanModerate(guildId, capability)` verifica OWNER_ID env > dono da guild (Discord API) > `moderation_permission_roles` casado com cargos do usuário.
+- **Permissões bot:** helper `assertCanPunish(staff, target, capability)` em `moderation.permissions.ts`, usado por todo comando antes de agir.
+- **Mute:** preferir timeout nativo do Discord (até 28 dias) e fallback para mute_role_id quando configurado.
+- **Hierarquia:** sempre `staff.roles.highest.position > target.roles.highest.position` (exceto owner) e `botMember.roles.highest.position > target.roles.highest.position`.
+- **Logs:** componente compartilhado `buildModLogEmbed(action, target, moderator, reason, ...)` reaproveitado em todos os pontos.
+
+## Por que faseado
+
+Cada fase é deployável e testável. Se eu fizer tudo de uma vez (10+ tabelas, 14 comandos, 10 abas dashboard, 5 sistemas AutoMod) a chance de bug ou regressão fica enorme e fica difícil revisar. Quero entregar Fase 1 → você testa → Fase 2 → etc.
+
+## Quer que eu comece pela Fase 1 agora?

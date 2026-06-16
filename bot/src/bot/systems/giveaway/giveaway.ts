@@ -102,11 +102,24 @@ export async function handleGiveawayButton(interaction: ButtonInteraction) {
       ephemeral: true,
     });
   } else {
-    g.participants.push(interaction.user.id);
+    let entries = 1;
+    if (g.vipBonusEntries && g.vipBonusEntries > 0) {
+      const vip = await VipMembership.findOne({
+        guildId: g.guildId,
+        userId: interaction.user.id,
+        active: true,
+      });
+      if (vip) entries += g.vipBonusEntries;
+    }
+    for (let i = 0; i < entries; i++) g.participants.push(interaction.user.id);
     await g.save();
     await interaction.reply({
       embeds: [
-        brandEmbed({ kind: "success", title: "Entrou no giveaway!", description: "Boa sorte 🍀" }),
+        brandEmbed({
+          kind: "success",
+          title: "Entrou no giveaway!",
+          description: entries > 1 ? `Boa sorte 🍀 (entradas: **${entries}** — bônus VIP)` : "Boa sorte 🍀",
+        }),
       ],
       ephemeral: true,
     });

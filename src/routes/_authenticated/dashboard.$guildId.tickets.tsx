@@ -3,11 +3,12 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Ticket, Save, AlertCircle } from "lucide-react";
+import { Ticket, Save, AlertCircle, Send } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getTicketConfig,
   getTicketStats,
+  sendTicketPanel,
   updateTicketConfig,
 } from "@/lib/guild/tickets.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
@@ -335,7 +336,8 @@ function GeneralTab({
         </div>
       </SectionCard>
 
-      <div className="sticky bottom-4 flex justify-end">
+      <div className="sticky bottom-4 flex flex-wrap items-center justify-end gap-2">
+        <SendPanelButton guildId={guildId} disabled={mutation.isPending} />
         <Button
           type="submit"
           size="lg"
@@ -348,9 +350,37 @@ function GeneralTab({
       </div>
 
       <p className="text-xs text-muted-foreground">
-        💡 Depois de salvar e ativar, vá ao Discord e rode <code>/ticket painel</code> para publicar o painel no canal escolhido.
+        💡 Salve antes de enviar. O botão <strong>Enviar painel</strong> publica direto pelo bot — sem precisar abrir o Discord.
       </p>
     </form>
+  );
+}
+
+function SendPanelButton({ guildId, disabled }: { guildId: string; disabled?: boolean }) {
+  const send = useServerFn(sendTicketPanel);
+  const mutation = useMutation({
+    mutationFn: () => send({ data: { guildId } }),
+    onSuccess: (r) =>
+      toast.success("Painel publicado!", {
+        description: `Mensagem ${r.messageId.slice(0, 6)}… enviada no canal configurado.`,
+      }),
+    onError: (e) =>
+      toast.error("Não consegui enviar o painel.", {
+        description: (e as Error).message,
+      }),
+  });
+  return (
+    <Button
+      type="button"
+      size="lg"
+      variant="secondary"
+      disabled={disabled || mutation.isPending}
+      onClick={() => mutation.mutate()}
+      className="gap-2"
+    >
+      <Send className="size-4" />
+      {mutation.isPending ? "Enviando..." : "Enviar painel"}
+    </Button>
   );
 }
 

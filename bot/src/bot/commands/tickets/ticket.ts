@@ -1,10 +1,14 @@
 import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   ChannelType,
   ChatInputCommandInteraction,
   PermissionFlagsBits,
   SlashCommandBuilder,
   TextChannel,
 } from "discord.js";
+import { env } from "../../../config/env.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import {
@@ -162,28 +166,27 @@ async function runFechar(interaction: ChatInputCommandInteraction) {
 
 async function runConfigurar(interaction: ChatInputCommandInteraction) {
   const cfg = await getTicketConfig(interaction.guildId!);
+  const dashUrl = `${env.APP_URL.replace(/\/$/, "")}/dashboard/${interaction.guildId}/tickets`;
+
+  const linkRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+    new ButtonBuilder()
+      .setStyle(ButtonStyle.Link)
+      .setLabel("Abrir dashboard")
+      .setEmoji("🌐")
+      .setURL(dashUrl),
+  );
+
   await interaction.reply({
     embeds: [
       brandEmbed({
         kind: "info",
         title: "⚙️ Configuração de Tickets",
-        description:
-          "Use o dashboard web pra editar tudo. Aqui só uma prévia rápida do que está salvo.",
+        description: `Toda configuração é feita pelo **dashboard web**. Abre rapidinho aí ⬇️\n\n🔗 ${dashUrl}`,
         fields: [
           { name: "Sistema", value: cfg.enabled ? "🟢 Ativo" : "🔴 Desativado", inline: true },
           {
-            name: "Limite por usuário",
-            value: `${cfg.max_open_tickets_per_user}`,
-            inline: true,
-          },
-          {
             name: "Canal do painel",
             value: cfg.panel_channel_id ? `<#${cfg.panel_channel_id}>` : "_não definido_",
-            inline: true,
-          },
-          {
-            name: "Categoria Discord",
-            value: cfg.category_id ? `<#${cfg.category_id}>` : "_não definida_",
             inline: true,
           },
           {
@@ -193,14 +196,10 @@ async function runConfigurar(interaction: ChatInputCommandInteraction) {
               : "_não definido_",
             inline: true,
           },
-          {
-            name: "Canal de logs",
-            value: cfg.log_channel_id ? `<#${cfg.log_channel_id}>` : "_não definido_",
-            inline: true,
-          },
         ],
       }),
     ],
+    components: [linkRow],
     ephemeral: true,
   });
 }

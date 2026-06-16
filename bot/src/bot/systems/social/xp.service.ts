@@ -155,6 +155,34 @@ export async function handleSocialXp(msg: Message): Promise<void> {
       level: derived.level,
       details: { previous: previousLevel },
     });
+    // Conquistas — level alcançado
+    const { evaluateAchievements } = await import("./achievement.service.js");
+    const { announceAchievements } = await import("./achievement.notify.js");
+    const unlocked = await evaluateAchievements(msg.guild, msg.member, userId, {
+      type: "level_reached",
+      value: derived.level,
+    }).catch(() => []);
+    if (unlocked.length > 0) await announceAchievements(msg, unlocked).catch(() => {});
+  }
+
+  // Conquistas — total de mensagens (avalia depois do flush periódico, mas tentamos no momento também)
+  try {
+    const { evaluateAchievements } = await import("./achievement.service.js");
+    const { announceAchievements } = await import("./achievement.notify.js");
+    const { data: row } = await supabase
+      .from("level_users")
+      .select("messages_count")
+      .eq("guild_id", guildId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    const total = (row?.messages_count ?? 0) + (pending.messagesDelta);
+    const unlocked = await evaluateAchievements(msg.guild, msg.member, userId, {
+      type: "messages_count",
+      value: total,
+    });
+    if (unlocked.length > 0) await announceAchievements(msg, unlocked);
+  } catch (err) {
+    logger.debug({ err }, "achievement (messages_count) falhou");
   }
 }
 

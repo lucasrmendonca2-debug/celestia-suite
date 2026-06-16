@@ -328,7 +328,7 @@ export function MultiRolePicker({
                     key={r.id}
                     onClick={() => {
                       onChange(
-                        isOn ? value.filter((id) => id !== r.id) : [...value, c.id],
+                        isOn ? value.filter((id) => id !== r.id) : [...value, r.id],
                       );
                     }}
                     active={isOn}

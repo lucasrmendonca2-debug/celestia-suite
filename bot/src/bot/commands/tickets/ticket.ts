@@ -191,6 +191,64 @@ async function runFechar(interaction: ChatInputCommandInteraction) {
   }
 }
 
+async function runReabrir(interaction: ChatInputCommandInteraction) {
+  try {
+    await reopenTicket(
+      interaction.channel as TextChannel,
+      interaction.member as import("discord.js").GuildMember,
+    );
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "success", title: "Ticket reaberto" })],
+      ephemeral: true,
+    });
+  } catch (err) {
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "error", title: "Erro", description: (err as Error).message })],
+      ephemeral: true,
+    });
+  }
+}
+
+async function runAdicionar(interaction: ChatInputCommandInteraction) {
+  const user = interaction.options.getUser("usuario", true);
+  try {
+    await addUserToTicket(
+      interaction.channel as TextChannel,
+      interaction.member as import("discord.js").GuildMember,
+      user.id,
+    );
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "success", title: "Usuário adicionado" })],
+      ephemeral: true,
+    });
+  } catch (err) {
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "error", title: "Erro", description: (err as Error).message })],
+      ephemeral: true,
+    });
+  }
+}
+
+async function runRemover(interaction: ChatInputCommandInteraction) {
+  const user = interaction.options.getUser("usuario", true);
+  try {
+    await removeUserFromTicket(
+      interaction.channel as TextChannel,
+      interaction.member as import("discord.js").GuildMember,
+      user.id,
+    );
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "success", title: "Usuário removido" })],
+      ephemeral: true,
+    });
+  } catch (err) {
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "error", title: "Erro", description: (err as Error).message })],
+      ephemeral: true,
+    });
+  }
+}
+
 async function runConfigurar(interaction: ChatInputCommandInteraction) {
   const cfg = await getTicketConfig(interaction.guildId!);
   const dashUrl = `${env.APP_URL.replace(/\/$/, "")}/dashboard/${interaction.guildId}/tickets`;

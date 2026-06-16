@@ -47,7 +47,7 @@ const command: SlashCommand = {
         .setName("comando")
         .setDescription("Detalhes de um comando específico.")
         .addStringOption((o) =>
-          o.setName("nome").setDescription("Nome do comando (ex: saldo)").setRequired(true).setAutocomplete(true),
+          o.setName("nome").setDescription("Nome do comando (ex: saldo)").setRequired(true),
         ),
     )
     .addSubcommand((s) =>

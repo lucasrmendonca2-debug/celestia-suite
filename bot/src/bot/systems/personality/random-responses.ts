@@ -261,5 +261,83 @@ export const utilityResponses = {
   ],
   avatarBot: [
     "Esse é meu visual oficial. Simples, digital e cheio de responsabilidade. 🤖",
+    "Meu avatar foi renderizado com muito carinho (e uns pixels caprichados). ✨",
+    "Bonito, né? Demorei só uns nanossegundos pra carregar. 😎",
+  ],
+  serverInfoFlavor: [
+    "Servidor analisado com muito carinho. 💛",
+    "Levantei essas infos rapidinho pra você.",
+    "Tudo certinho, sem precisar mexer no painel.",
+  ],
+  userInfoFlavor: [
+    "Aqui está tudo o que consegui descobrir (de forma legal, claro).",
+    "Dossiê pronto. Use com responsabilidade. 🕵️",
+  ],
+  reminderSet: [
+    "Anotado! Vou te lembrar em **{time}**. ⏰",
+    "Pode deixar comigo. Te chamo em **{time}**.",
+    "Lembrete agendado pra **{time}**. Vou aparecer no momento certo.",
+  ],
+  reminderFire: [
+    "Ei, {author}! Você pediu pra eu lembrar disso: ",
+    "Olha eu aqui de novo, {author}! Lembrete: ",
+    "Hora marcada, {author}! ",
+  ],
+} as const;
+
+// ---------- DIVERSÃO ----------
+export const funResponses = {
+  coinHeads: ["Caiu **cara**! 🪙", "**Cara**! 🪙", "Foi de **cara**. 🪙"],
+  coinTails: ["Caiu **coroa**! 👑", "**Coroa**! 👑", "Foi de **coroa**. 👑"],
+  diceFlavor: [
+    "Rolagem perfeita.",
+    "A sorte tá com você?",
+    "Os dados não mentem.",
+  ],
+  eightBallYes: [
+    "Com certeza.",
+    "Pode apostar.",
+    "Sim, sem dúvida.",
+    "As estrelas dizem que sim.",
+    "Vai dar bom.",
+  ],
+  eightBallNo: [
+    "Hmm, melhor não.",
+    "Tô vendo que não.",
+    "Negativo.",
+    "Esquece. Não é dessa vez.",
+  ],
+  eightBallMaybe: [
+    "Talvez. Depende.",
+    "Pergunta de novo daqui a pouco.",
+    "Tá meio nublado por aqui.",
+    "Tenho minhas dúvidas.",
+  ],
+} as const;
+
+// ---------- SUCESSO/ERRO GENÉRICOS ----------
+export const genericResponses = {
+  success: [
+    "Feito! ✨",
+    "Pronto.",
+    "Tudo certo por aqui. ✅",
+    "Resolvido!",
+  ],
+  cooldown: [
+    "Calma aí! Espera **{time}** antes de tentar de novo.",
+    "Cooldown ativo. Tenta de novo em **{time}**.",
+    "Tô ainda processando o último. Volta em **{time}**.",
+  ],
+  noPermission: [
+    "Você não tem permissão pra isso por aqui. ⛔",
+    "Essa ação é restrita. Fala com a staff. 🛡️",
+  ],
+  botMissingPerm: [
+    "Eu não tenho permissão suficiente pra fazer isso. Confere meus cargos? 🤖",
+    "Faltou permissão pra mim. Dá uma olhada nas configurações do servidor.",
+  ],
+  unexpectedError: [
+    "Eita, algo deu errado por aqui. Tenta de novo? 🛠️",
+    "Hmm, falhou. Não foi você — foi um bug bem chato.",
   ],
 } as const;

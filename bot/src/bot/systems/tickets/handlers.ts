@@ -17,6 +17,7 @@ import {
   countOpenTickets,
   createTicketRow,
   findTicketByChannel,
+  findTicketById,
   getCategoryById,
   getTicketConfig,
   listAccessLevels,

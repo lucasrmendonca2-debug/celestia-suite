@@ -1,3 +1,5 @@
+import { getAutomodConfig } from "@/lib/guild/modules.functions";
+import { AutomodTab } from "@/components/dashboard/moderation/AutomodTab";
 import { useState } from "react";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -52,7 +54,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/$guildId/moderat
       queryFn: () => listMyGuilds(),
     });
     if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
-    const [config, stats] = await Promise.all([
+    const [config, stats, automodConfig] = await Promise.all([
       context.queryClient.ensureQueryData({
         queryKey: ["moderation-config", params.guildId],
         queryFn: () => getModerationConfig({ data: { guildId: params.guildId } }),
@@ -60,9 +62,13 @@ export const Route = createFileRoute("/_authenticated/dashboard/$guildId/moderat
       context.queryClient.ensureQueryData({
         queryKey: ["moderation-stats", params.guildId],
         queryFn: () => getModerationStats({ data: { guildId: params.guildId } }),
+      context.queryClient.ensureQueryData({
+        queryKey: ["automod", params.guildId],
+        queryFn: () => getAutomodConfig({ data: { guildId: params.guildId } }),
+      }),
       }),
     ]);
-    return { user, config, stats };
+    return { user, config, stats, automodConfig };
   },
   errorComponent: ({ error }) => (
     <div className="p-8">
@@ -91,7 +97,7 @@ const TABS = [
 ] as const;
 
 function ModerationPage() {
-  const { user, config, stats } = Route.useLoaderData();
+  const { user, config, stats, automodConfig } = Route.useLoaderData();
   const { guildId } = Route.useParams();
 
   return (
@@ -135,8 +141,11 @@ function ModerationPage() {
         <TabsContent value="general" className="mt-4">
           <GeneralTab guildId={guildId} initial={config} />
         </TabsContent>
+        <TabsContent value="automod" className="mt-4">
+          <AutomodTab guildId={guildId} initial={automodConfig} />
+        </TabsContent>
 
-        {(["permissions", "punishments", "automod", "antispam", "antilink", "blacklist", "logs", "history", "appearance"] as const).map(
+        {(["permissions", "punishments", "antispam", "antilink", "blacklist", "logs", "history", "appearance"] as const).map(
           (v) => (
             <TabsContent key={v} value={v} className="mt-4">
               <SoonCard

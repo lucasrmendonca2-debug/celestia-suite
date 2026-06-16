@@ -331,30 +331,54 @@ function GeneralTab({
           </div>
         </div>
         <div>
-          <Label className="text-sm">Descrição do painel</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-sm">Descrição do painel</Label>
+            <PresetMenu
+              presets={PANEL_DESC_PRESETS}
+              onPick={(v) => setForm({ ...form, panel_description: v })}
+            />
+          </div>
           <Textarea
             value={form.panel_description}
             onChange={(e) => setForm({ ...form, panel_description: e.target.value })}
             rows={3}
             className="mt-1"
+            placeholder={PANEL_DESC_PRESETS[0].text}
           />
         </div>
         <div>
-          <Label className="text-sm">Mensagem de boas-vindas dentro do ticket</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-sm">Mensagem de boas-vindas dentro do ticket</Label>
+            <PresetMenu
+              presets={WELCOME_PRESETS}
+              onPick={(v) => setForm({ ...form, ticket_welcome_message: v })}
+            />
+          </div>
           <Textarea
             value={form.ticket_welcome_message}
             onChange={(e) => setForm({ ...form, ticket_welcome_message: e.target.value })}
             rows={3}
             className="mt-1"
+            placeholder={WELCOME_PRESETS[0].text}
           />
+          <p className="mt-1 text-xs text-muted-foreground">
+            Use <code>{"{user}"}</code> pra mencionar quem abriu e <code>{"{staff}"}</code> pro cargo de suporte.
+          </p>
         </div>
         <div>
-          <Label className="text-sm">Mensagem ao fechar o ticket</Label>
+          <div className="flex items-center justify-between">
+            <Label className="text-sm">Mensagem ao fechar o ticket</Label>
+            <PresetMenu
+              presets={CLOSE_PRESETS}
+              onPick={(v) => setForm({ ...form, close_message: v })}
+            />
+          </div>
           <Textarea
             value={form.close_message}
             onChange={(e) => setForm({ ...form, close_message: e.target.value })}
             rows={2}
             className="mt-1"
+            placeholder={CLOSE_PRESETS[0].text}
           />
         </div>
 
@@ -577,3 +601,87 @@ function emptyToNull(v: string | null | undefined) {
   const s = String(v).trim();
   return s.length ? s : null;
 }
+
+type Preset = { label: string; text: string };
+
+const PANEL_DESC_PRESETS: Preset[] = [
+  {
+    label: "Padrão amigável",
+    text: "Precisa de ajuda? Selecione no menu abaixo o tipo de atendimento e nossa equipe te responde aqui em instantes.",
+  },
+  {
+    label: "Formal",
+    text: "Bem-vindo(a) à nossa Central de Atendimento. Selecione abaixo a categoria que melhor descreve sua solicitação e aguarde — um membro da equipe irá atendê-lo(a) em breve.",
+  },
+  {
+    label: "Comunidade / gaming",
+    text: "Algo travou, bugou ou você só quer dar um alô? 🎮 Escolhe no menu o tipo de ticket e a staff já chega pra resolver contigo!",
+  },
+  {
+    label: "Suporte rápido",
+    text: "🎫 Abra um ticket pelo menu abaixo. Tente já incluir prints e detalhes — assim a gente resolve mais rápido.",
+  },
+];
+
+const WELCOME_PRESETS: Preset[] = [
+  {
+    label: "Padrão amigável",
+    text: "Olá {user}! 👋 Obrigado por abrir um ticket.\n\nDescreva com calma o que aconteceu, mande prints se ajudar, e a equipe {staff} responde em instantes. ⏳",
+  },
+  {
+    label: "Formal",
+    text: "Olá {user}. Seu ticket foi registrado com sucesso.\n\nPor favor, descreva detalhadamente sua solicitação. A equipe {staff} responderá assim que possível.",
+  },
+  {
+    label: "Comunidade / gaming",
+    text: "Eaí {user}! 🎮 Bem-vindo(a) ao seu ticket.\n\nConta o que tá rolando, manda print se precisar, e a staff {staff} vai te ajudar rapidinho. 💜",
+  },
+  {
+    label: "Denúncia",
+    text: "Olá {user}. 🚨 Descreva o ocorrido, marque o usuário envolvido e envie prints/links como prova.\n\nTudo é confidencial e a equipe {staff} vai analisar com cuidado.",
+  },
+];
+
+const CLOSE_PRESETS: Preset[] = [
+  {
+    label: "Padrão",
+    text: "Este ticket foi fechado por {staff}. Avalie nosso atendimento ou peça reabertura caso ainda precise de ajuda. 💜",
+  },
+  {
+    label: "Formal",
+    text: "Ticket encerrado por {staff}. Caso a sua dúvida não tenha sido totalmente resolvida, solicite a reabertura.",
+  },
+  {
+    label: "Curto",
+    text: "Ticket fechado por {staff}. Valeu! ✅",
+  },
+];
+
+function PresetMenu({
+  presets,
+  onPick,
+}: {
+  presets: Preset[];
+  onPick: (text: string) => void;
+}) {
+  return (
+    <select
+      value=""
+      onChange={(e) => {
+        const p = presets.find((p) => p.label === e.target.value);
+        if (p) onPick(p.text);
+        e.currentTarget.value = "";
+      }}
+      className="h-7 rounded-md border border-input bg-background px-2 text-xs text-muted-foreground hover:text-foreground"
+      title="Usar um modelo"
+    >
+      <option value="">Usar modelo…</option>
+      {presets.map((p) => (
+        <option key={p.label} value={p.label}>
+          {p.label}
+        </option>
+      ))}
+    </select>
+  );
+}
+

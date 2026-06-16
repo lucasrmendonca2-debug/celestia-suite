@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import type { CurrentUser } from "@/lib/auth/auth.functions";
 import { LogOut } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeProvider";
+import { PremiumBadge } from "@/components/premium/PremiumBadge";
 import mascot from "@/assets/zenox-mascot.png.asset.json";
 
 function avatarUrl(u: CurrentUser): string {
@@ -17,10 +18,12 @@ export function DashboardTopbar({
   user,
   title,
   subtitle,
+  guildId,
 }: {
   user: CurrentUser;
   title: string;
   subtitle?: string;
+  guildId?: string;
 }) {
   return (
     <header className="sticky top-0 z-10 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background/70 px-4 py-3 backdrop-blur sm:px-6">
@@ -29,7 +32,10 @@ export function DashboardTopbar({
           <img src={mascot.url} alt="" className="absolute inset-0 size-full scale-[2.2] object-cover object-top" />
         </div>
         <div className="min-w-0">
-          <h1 className="truncate text-sm font-semibold tracking-tight sm:text-base">{title}</h1>
+          <div className="flex items-center gap-2">
+            <h1 className="truncate text-sm font-semibold tracking-tight sm:text-base">{title}</h1>
+            {guildId && <PremiumBadge guildId={guildId} />}
+          </div>
           {subtitle && (
             <p className="truncate text-xs text-muted-foreground">{subtitle}</p>
           )}

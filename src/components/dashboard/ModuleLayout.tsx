@@ -40,6 +40,7 @@ export function ModuleLayout({
           user={user}
           title={guild?.name ?? "Servidor"}
           subtitle={title}
+          guildId={guildId}
         />
         <main className="mx-auto max-w-5xl px-6 py-8">
           <nav className="mb-4 flex items-center gap-1.5 text-xs text-muted-foreground">

@@ -122,6 +122,10 @@ function SocialPage() {
             ? parseList(s.ignored_role_ids)
             : s.ignored_role_ids ?? [],
           embed_color: s.embed_color,
+          card_accent_color: s.card_accent_color ?? "#5865F2",
+          card_background_color: s.card_background_color ?? "#0f1117",
+          card_text_color: s.card_text_color ?? "#ffffff",
+          card_style: (s.card_style as "default" | "minimal" | "gradient") ?? "default",
         },
       }),
     onSuccess: () => {
@@ -201,6 +205,7 @@ function SocialPage() {
         <TabsList className="flex w-full flex-wrap justify-start gap-1 rounded-xl bg-card p-1">
           <TabsTrigger value="geral">Geral</TabsTrigger>
           <TabsTrigger value="xp">XP & Level</TabsTrigger>
+          <TabsTrigger value="card">Card visual</TabsTrigger>
           <TabsTrigger value="rewards">Recompensas</TabsTrigger>
           <TabsTrigger value="leaderboard">Ranking</TabsTrigger>
           <TabsTrigger value="logs">Logs</TabsTrigger>

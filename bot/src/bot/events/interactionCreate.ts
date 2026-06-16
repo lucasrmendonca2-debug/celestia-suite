@@ -38,6 +38,11 @@ const event: BotEvent<"interactionCreate"> = {
         return;
       }
 
+      if (interaction.isStringSelectMenu() && interaction.customId === "ticket:select") {
+        await handleTicketSelect(interaction);
+        return;
+      }
+
       if (!interaction.isChatInputCommand()) return;
 
       const ix = interaction as ChatInputCommandInteraction;

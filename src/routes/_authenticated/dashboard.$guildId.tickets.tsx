@@ -296,6 +296,7 @@ function GeneralTab({
           category_id: emptyToNull(form.category_id),
           default_support_role_id: emptyToNull(form.default_support_role_id),
           log_channel_id: emptyToNull(form.log_channel_id),
+          rating_channel_id: emptyToNull(form.rating_channel_id),
           max_open_tickets_per_user: Number(form.max_open_tickets_per_user) || 1,
           panel_title: form.panel_title,
           panel_description: form.panel_description,

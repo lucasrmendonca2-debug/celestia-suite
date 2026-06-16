@@ -7,7 +7,6 @@ import {
   Sparkles,
   Settings,
   ScrollText,
-  Lock,
   UserPlus,
   Smile,
   Terminal,
@@ -49,10 +48,7 @@ const SECTIONS: { title: string; items: Item[] }[] = [
   },
   {
     title: "Moderação",
-    items: [
-      { to: "moderation", label: "Casos", icon: Shield },
-      { to: "automod", label: "AutoMod", icon: Lock },
-    ],
+    items: [{ to: "moderation", label: "Moderação", icon: Shield }],
   },
   {
     title: "Engajamento",

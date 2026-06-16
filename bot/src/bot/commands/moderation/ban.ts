@@ -16,6 +16,7 @@ import {
   parseDurationSeconds,
   postModerationLog,
 } from "../../systems/moderation/moderation.logger.js";
+import { createCase } from "../../systems/moderation/cases.service.js";
 
 const command: SlashCommand = {
   category: "moderation",
@@ -88,6 +89,20 @@ const command: SlashCommand = {
 
     await interaction.deferReply();
 
+    const expiresAt = durationSec ? new Date(Date.now() + durationSec * 1000) : null;
+    const modCase = await createCase({
+      guildId: guild.id,
+      userId: user.id,
+      userTag: user.tag,
+      moderatorId: interaction.user.id,
+      moderatorTag: interaction.user.tag,
+      action: durationSec ? "TEMP_BAN" : "BAN",
+      reason,
+      durationSeconds: durationSec,
+      expiresAt,
+      source: "BOT",
+    });
+
     // DM antes de banir
     await dmPunishedUser({
       guild,
@@ -97,6 +112,7 @@ const command: SlashCommand = {
       reason,
       durationSeconds: durationSec,
       config,
+      caseNumber: modCase.case_number,
     });
 
     await guild.bans.create(user.id, {
@@ -115,12 +131,12 @@ const command: SlashCommand = {
       durationSeconds: durationSec,
     });
 
-    if (durationSec) {
+    if (durationSec && expiresAt) {
       await scheduleTemporaryAction({
         guildId: guild.id,
         userId: user.id,
         actionType: "TEMP_BAN",
-        expiresAt: new Date(Date.now() + durationSec * 1000),
+        expiresAt,
         punishmentId: punishment?.id ?? null,
       });
     }
@@ -131,6 +147,7 @@ const command: SlashCommand = {
       moderatorId: interaction.user.id,
       action: durationSec ? "TEMP_BAN" : "BAN",
       reason,
+      details: { caseNumber: modCase.case_number, duration: durationSec },
     });
     await postModerationLog({
       guild,
@@ -140,13 +157,16 @@ const command: SlashCommand = {
       reason,
       durationSeconds: durationSec,
       config,
+      caseNumber: modCase.case_number,
     });
 
     await interaction.editReply({
       embeds: [
         brandEmbed({
           kind: "success",
-          title: durationSec ? "Banimento temporário aplicado" : "Banimento aplicado",
+          title: durationSec
+            ? `Banimento temporário · Caso #${modCase.case_number}`
+            : `Banimento aplicado · Caso #${modCase.case_number}`,
           description: `<@${user.id}> foi banido.`,
         }),
       ],

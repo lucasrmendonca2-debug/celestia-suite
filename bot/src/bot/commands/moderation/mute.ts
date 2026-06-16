@@ -16,6 +16,7 @@ import {
   parseDurationSeconds,
   postModerationLog,
 } from "../../systems/moderation/moderation.logger.js";
+import { createCase } from "../../systems/moderation/cases.service.js";
 
 const MAX_TIMEOUT = 28 * 24 * 60 * 60;
 
@@ -79,6 +80,20 @@ const command: SlashCommand = {
     }
 
     await interaction.deferReply();
+    const expiresAt = new Date(Date.now() + durationSec * 1000);
+    const modCase = await createCase({
+      guildId: guild.id,
+      userId: user.id,
+      userTag: user.tag,
+      moderatorId: interaction.user.id,
+      moderatorTag: interaction.user.tag,
+      action: "TEMP_MUTE",
+      reason,
+      durationSeconds: durationSec,
+      expiresAt,
+      source: "BOT",
+    });
+
     await dmPunishedUser({
       guild,
       type: "TEMP_MUTE",
@@ -87,6 +102,7 @@ const command: SlashCommand = {
       reason,
       durationSeconds: durationSec,
       config,
+      caseNumber: modCase.case_number,
     });
 
     if (config.mute_role_id) {
@@ -121,7 +137,7 @@ const command: SlashCommand = {
         guildId: guild.id,
         userId: user.id,
         actionType: "TEMP_MUTE",
-        expiresAt: new Date(Date.now() + durationSec * 1000),
+        expiresAt,
         punishmentId: punishment?.id ?? null,
       });
     }
@@ -132,6 +148,7 @@ const command: SlashCommand = {
       moderatorId: interaction.user.id,
       action: "TEMP_MUTE",
       reason,
+      details: { caseNumber: modCase.case_number, duration: durationSec },
     });
     await postModerationLog({
       guild,
@@ -141,13 +158,14 @@ const command: SlashCommand = {
       reason,
       durationSeconds: durationSec,
       config,
+      caseNumber: modCase.case_number,
     });
 
     await interaction.editReply({
       embeds: [
         brandEmbed({
           kind: "success",
-          title: "Usuário silenciado",
+          title: `Usuário silenciado · Caso #${modCase.case_number}`,
           description: `<@${user.id}> silenciado.`,
         }),
       ],

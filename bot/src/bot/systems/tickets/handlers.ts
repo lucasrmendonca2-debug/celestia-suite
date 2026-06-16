@@ -487,6 +487,44 @@ export async function handleTicketButton(interaction: ButtonInteraction): Promis
       });
     }
   }
+
+  if (action === "reopen") {
+    try {
+      await reopenTicket(
+        interaction.channel as TextChannel,
+        interaction.member as GuildMember,
+      );
+      await interaction.reply({
+        embeds: [brandEmbed({ kind: "success", title: "Ticket reaberto" })],
+        ephemeral: true,
+      });
+    } catch (err) {
+      await interaction.reply({
+        embeds: [brandEmbed({ kind: "error", title: "Erro", description: (err as Error).message })],
+        ephemeral: true,
+      });
+    }
+    return;
+  }
+
+  if (action === "delete") {
+    const channel = interaction.channel as TextChannel;
+    const member = interaction.member as GuildMember;
+    if (!member.permissions.has(PermissionFlagsBits.ManageChannels)) {
+      await interaction.reply({
+        embeds: [brandEmbed({ kind: "error", title: "Sem permissão" })],
+        ephemeral: true,
+      });
+      return;
+    }
+    await interaction.reply({
+      embeds: [brandEmbed({ kind: "warn", title: "Canal será excluído em 5s…" })],
+    });
+    setTimeout(() => {
+      channel.delete("Ticket excluído").catch(() => {});
+    }, 5_000);
+    return;
+  }
 }
 
 /* ===================== SLASH ENTRY POINTS ===================== */

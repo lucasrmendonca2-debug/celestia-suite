@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as ComandosRouteImport } from './routes/comandos'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
@@ -40,6 +41,11 @@ import { Route as AuthenticatedDashboardGuildIdAchievementsRouteImport } from '.
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ComandosRoute = ComandosRouteImport.update({
+  id: '/comandos',
+  path: '/comandos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -195,6 +201,7 @@ const AuthenticatedDashboardGuildIdAchievementsRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/comandos': typeof ComandosRoute
   '/login': typeof LoginRoute
   '/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRouteWithChildren
@@ -223,6 +230,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/comandos': typeof ComandosRoute
   '/login': typeof LoginRoute
   '/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
@@ -252,6 +260,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/comandos': typeof ComandosRoute
   '/login': typeof LoginRoute
   '/_authenticated/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/_authenticated/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRouteWithChildren
@@ -282,6 +291,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/comandos'
     | '/login'
     | '/admin/premium'
     | '/dashboard/$guildId'
@@ -310,6 +320,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/comandos'
     | '/login'
     | '/admin/premium'
     | '/api/auth/logout'
@@ -338,6 +349,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/comandos'
     | '/login'
     | '/_authenticated/admin/premium'
     | '/_authenticated/dashboard/$guildId'
@@ -368,6 +380,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  ComandosRoute: typeof ComandosRoute
   LoginRoute: typeof LoginRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
   ApiAuthDiscordCallbackRoute: typeof ApiAuthDiscordCallbackRoute
@@ -381,6 +394,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/comandos': {
+      id: '/comandos'
+      path: '/comandos'
+      fullPath: '/comandos'
+      preLoaderRoute: typeof ComandosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -654,6 +674,7 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  ComandosRoute: ComandosRoute,
   LoginRoute: LoginRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
   ApiAuthDiscordCallbackRoute: ApiAuthDiscordCallbackRoute,

@@ -76,6 +76,9 @@ function Landing() {
             <a href="#modulos" className="hidden text-muted-foreground hover:text-foreground sm:inline">
               Módulos
             </a>
+            <Link to="/comandos" className="hidden text-muted-foreground hover:text-foreground sm:inline">
+              Comandos
+            </Link>
             <Link to="/dashboard" className="hidden text-muted-foreground hover:text-foreground sm:inline">
               Dashboard
             </Link>
@@ -204,6 +207,7 @@ function Landing() {
         <footer className="mt-20 flex flex-col items-start justify-between gap-4 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
           <span>© {new Date().getFullYear()} Zenox. Todos os direitos reservados.</span>
           <div className="flex items-center gap-4">
+            <Link to="/comandos" className="hover:text-foreground">Comandos</Link>
             <Link to="/dashboard" className="hover:text-foreground">Dashboard</Link>
             <a href="#modulos" className="hover:text-foreground">Módulos</a>
           </div>

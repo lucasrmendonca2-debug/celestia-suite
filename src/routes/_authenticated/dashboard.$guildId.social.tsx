@@ -109,6 +109,31 @@ function SocialPage() {
     queryKey: ["social-logs", guildId],
     queryFn: () => getSocialLogs({ data: { guildId } }),
   });
+  const myProfile = useSuspenseQuery({
+    queryKey: ["my-profile", guildId],
+    queryFn: () => getMyProfile({ data: { guildId } }),
+  });
+
+  const updMyProfile = useServerFn(updateMyProfile);
+  const [mp, setMp] = useState<any>(myProfile.data);
+
+  const saveMyProfile = useMutation({
+    mutationFn: () =>
+      updMyProfile({
+        data: {
+          guildId,
+          accent_color: mp.accent_color || null,
+          background_color: mp.background_color || null,
+          text_color: mp.text_color || null,
+          card_style: (mp.card_style as "default" | "minimal" | "gradient") ?? "default",
+        },
+      }),
+    onSuccess: () => {
+      toast.success("Seu card foi atualizado.");
+      qc.invalidateQueries({ queryKey: ["my-profile", guildId] });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Erro ao salvar."),
+  });
 
   const saveSocial = useMutation({
     mutationFn: () =>

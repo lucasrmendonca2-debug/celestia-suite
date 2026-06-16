@@ -526,42 +526,49 @@ function CommandsPage() {
             )}
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Chip active={active === "all"} onClick={() => setActive("all")}>Todos</Chip>
+        </section>
+
+        {/* Sticky category nav */}
+        <div className="sticky top-2 z-30 mt-6 -mx-2 px-2">
+          <div className="flex gap-1.5 overflow-x-auto rounded-xl border border-border bg-background/80 p-1.5 backdrop-blur-md [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <Chip active={active === "all"} onClick={() => setActive("all")}>
+              Todos <span className="ml-1 opacity-60">{total}</span>
+            </Chip>
             {CATEGORIES.map((c) => (
               <Chip key={c.key} active={active === c.key} onClick={() => setActive(c.key)}>
                 <span className="mr-1">{c.emoji}</span>
                 {c.label}
+                <span className="ml-1 opacity-60">{c.cmds.length}</span>
               </Chip>
             ))}
           </div>
-        </section>
+        </div>
 
-        {/* Categories */}
-        <section className="mt-14 space-y-12">
+        {/* Categories — card grid */}
+        <section className="mt-10 space-y-14">
           {filtered.length === 0 && (
             <p className="rounded-lg border border-border bg-card/40 p-8 text-center text-sm text-muted-foreground">
               Nenhum comando encontrado para “{q}”. Tenta outro termo.
             </p>
           )}
           {filtered.map((cat) => (
-            <div key={cat.key}>
-              <div className="mb-5 border-b border-border pb-3">
-                <p className="mb-1 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
-                  {cat.emoji} {cat.label} — {cat.cmds.length}
-                </p>
-                <h2 className="text-xl font-semibold tracking-tight">{cat.intro}</h2>
+            <div key={cat.key} id={`cat-${cat.key}`} className="scroll-mt-24">
+              <div className="mb-5 flex flex-wrap items-end justify-between gap-3 border-b border-border pb-3">
+                <div>
+                  <p className="mb-1 font-mono text-[11px] uppercase tracking-[0.2em] text-muted-foreground">
+                    {cat.emoji} {cat.label} · {cat.cmds.length} comando{cat.cmds.length > 1 ? "s" : ""}
+                  </p>
+                  <h2 className="text-xl font-semibold tracking-tight">{cat.intro}</h2>
+                </div>
               </div>
-              <div className="space-y-2">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {cat.cmds.map((cmd) => {
                   const id = `${cat.key}:${cmd.name}`;
-                  const isOpen = open === id;
                   return (
-                    <CommandRow
+                    <CommandCard
                       key={id}
                       cmd={cmd}
-                      open={isOpen}
-                      onToggle={() => setOpen(isOpen ? null : id)}
+                      onClick={() => setOpen(id)}
                     />
                   );
                 })}
@@ -569,6 +576,17 @@ function CommandsPage() {
             </div>
           ))}
         </section>
+
+        {/* Detail modal */}
+        {open && (() => {
+          const [catKey, cmdName] = open.split(":");
+          const cat = CATEGORIES.find((c) => c.key === catKey);
+          const cmd = cat?.cmds.find((c) => c.name === cmdName);
+          if (!cmd) return null;
+          return (
+            <CommandDetailModal cat={cat!} cmd={cmd} onClose={() => setOpen(null)} />
+          );
+        })()}
 
         <footer className="mt-20 flex flex-col items-start justify-between gap-4 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
           <span>© {new Date().getFullYear()} Zenox. Todos os direitos reservados.</span>

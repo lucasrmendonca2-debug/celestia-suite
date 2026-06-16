@@ -40,6 +40,22 @@ const event: BotEvent<"interactionCreate"> = {
         else if (interaction.customId.startsWith("giveaway:")) await handleGiveawayButton(interaction);
         else if (interaction.customId.startsWith("poll:")) await handlePollButton(interaction);
         else if (interaction.customId.startsWith("suggestion:")) await handleSuggestionButton(interaction);
+        else if (interaction.customId.startsWith("mission_claim:")) {
+          const missionId = interaction.customId.split(":")[1];
+          const { claimMission } = await import("../systems/economy/missions.js");
+          const { brandEmbed } = await import("../utils/embed.js");
+          const res = await claimMission(interaction.guildId!, interaction.user.id, missionId);
+          await interaction.reply({
+            embeds: [
+              brandEmbed({
+                kind: res.ok ? "success" : "error",
+                title: res.ok ? `+${res.reward} coletado!` : "Falhou",
+                description: res.reason,
+              }),
+            ],
+            ephemeral: true,
+          });
+        }
         return;
       }
 

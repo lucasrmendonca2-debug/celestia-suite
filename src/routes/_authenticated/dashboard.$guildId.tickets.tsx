@@ -107,7 +107,21 @@ function TicketsPage() {
           <GeneralTab guildId={guildId} initial={config} />
         </TabsContent>
 
-        {TABS.filter((t) => t.value !== "general").map((t) => (
+        <TabsContent value="categories" className="mt-6">
+          <CategoriesTab guildId={guildId} />
+        </TabsContent>
+
+        <TabsContent value="permissions" className="mt-6">
+          <PermissionsTab guildId={guildId} />
+        </TabsContent>
+
+        <TabsContent value="levels" className="mt-6">
+          <LevelsTab guildId={guildId} />
+        </TabsContent>
+
+        {TABS.filter(
+          (t) => !["general", "categories", "permissions", "levels"].includes(t.value),
+        ).map((t) => (
           <TabsContent key={t.value} value={t.value} className="mt-6">
             <SoonCard title={t.label} />
           </TabsContent>

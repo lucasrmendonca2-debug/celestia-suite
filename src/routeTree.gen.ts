@@ -37,6 +37,7 @@ import { Route as AuthenticatedDashboardGuildIdCommandsRouteImport } from './rou
 import { Route as AuthenticatedDashboardGuildIdBadgesRouteImport } from './routes/_authenticated/dashboard.$guildId.badges'
 import { Route as AuthenticatedDashboardGuildIdAutoroleRouteImport } from './routes/_authenticated/dashboard.$guildId.autorole'
 import { Route as AuthenticatedDashboardGuildIdAutomodRouteImport } from './routes/_authenticated/dashboard.$guildId.automod'
+import { Route as AuthenticatedDashboardGuildIdAssetsRouteImport } from './routes/_authenticated/dashboard.$guildId.assets'
 import { Route as AuthenticatedDashboardGuildIdAchievementsRouteImport } from './routes/_authenticated/dashboard.$guildId.achievements'
 
 const LoginRoute = LoginRouteImport.update({
@@ -199,6 +200,12 @@ const AuthenticatedDashboardGuildIdAutomodRoute =
     path: '/automod',
     getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
   } as any)
+const AuthenticatedDashboardGuildIdAssetsRoute =
+  AuthenticatedDashboardGuildIdAssetsRouteImport.update({
+    id: '/assets',
+    path: '/assets',
+    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+  } as any)
 const AuthenticatedDashboardGuildIdAchievementsRoute =
   AuthenticatedDashboardGuildIdAchievementsRouteImport.update({
     id: '/achievements',
@@ -215,6 +222,7 @@ export interface FileRoutesByFullPath {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/$guildId/achievements': typeof AuthenticatedDashboardGuildIdAchievementsRoute
+  '/dashboard/$guildId/assets': typeof AuthenticatedDashboardGuildIdAssetsRoute
   '/dashboard/$guildId/automod': typeof AuthenticatedDashboardGuildIdAutomodRoute
   '/dashboard/$guildId/autorole': typeof AuthenticatedDashboardGuildIdAutoroleRoute
   '/dashboard/$guildId/badges': typeof AuthenticatedDashboardGuildIdBadgesRoute
@@ -244,6 +252,7 @@ export interface FileRoutesByTo {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/$guildId/achievements': typeof AuthenticatedDashboardGuildIdAchievementsRoute
+  '/dashboard/$guildId/assets': typeof AuthenticatedDashboardGuildIdAssetsRoute
   '/dashboard/$guildId/automod': typeof AuthenticatedDashboardGuildIdAutomodRoute
   '/dashboard/$guildId/autorole': typeof AuthenticatedDashboardGuildIdAutoroleRoute
   '/dashboard/$guildId/badges': typeof AuthenticatedDashboardGuildIdBadgesRoute
@@ -276,6 +285,7 @@ export interface FileRoutesById {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/dashboard/$guildId/achievements': typeof AuthenticatedDashboardGuildIdAchievementsRoute
+  '/_authenticated/dashboard/$guildId/assets': typeof AuthenticatedDashboardGuildIdAssetsRoute
   '/_authenticated/dashboard/$guildId/automod': typeof AuthenticatedDashboardGuildIdAutomodRoute
   '/_authenticated/dashboard/$guildId/autorole': typeof AuthenticatedDashboardGuildIdAutoroleRoute
   '/_authenticated/dashboard/$guildId/badges': typeof AuthenticatedDashboardGuildIdBadgesRoute
@@ -308,6 +318,7 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/dashboard/'
     | '/dashboard/$guildId/achievements'
+    | '/dashboard/$guildId/assets'
     | '/dashboard/$guildId/automod'
     | '/dashboard/$guildId/autorole'
     | '/dashboard/$guildId/badges'
@@ -337,6 +348,7 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/dashboard'
     | '/dashboard/$guildId/achievements'
+    | '/dashboard/$guildId/assets'
     | '/dashboard/$guildId/automod'
     | '/dashboard/$guildId/autorole'
     | '/dashboard/$guildId/badges'
@@ -368,6 +380,7 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/_authenticated/dashboard/'
     | '/_authenticated/dashboard/$guildId/achievements'
+    | '/_authenticated/dashboard/$guildId/assets'
     | '/_authenticated/dashboard/$guildId/automod'
     | '/_authenticated/dashboard/$guildId/autorole'
     | '/_authenticated/dashboard/$guildId/badges'
@@ -598,6 +611,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardGuildIdAutomodRouteImport
       parentRoute: typeof AuthenticatedDashboardGuildIdRoute
     }
+    '/_authenticated/dashboard/$guildId/assets': {
+      id: '/_authenticated/dashboard/$guildId/assets'
+      path: '/assets'
+      fullPath: '/dashboard/$guildId/assets'
+      preLoaderRoute: typeof AuthenticatedDashboardGuildIdAssetsRouteImport
+      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+    }
     '/_authenticated/dashboard/$guildId/achievements': {
       id: '/_authenticated/dashboard/$guildId/achievements'
       path: '/achievements'
@@ -610,6 +630,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedDashboardGuildIdRouteChildren {
   AuthenticatedDashboardGuildIdAchievementsRoute: typeof AuthenticatedDashboardGuildIdAchievementsRoute
+  AuthenticatedDashboardGuildIdAssetsRoute: typeof AuthenticatedDashboardGuildIdAssetsRoute
   AuthenticatedDashboardGuildIdAutomodRoute: typeof AuthenticatedDashboardGuildIdAutomodRoute
   AuthenticatedDashboardGuildIdAutoroleRoute: typeof AuthenticatedDashboardGuildIdAutoroleRoute
   AuthenticatedDashboardGuildIdBadgesRoute: typeof AuthenticatedDashboardGuildIdBadgesRoute
@@ -634,6 +655,8 @@ const AuthenticatedDashboardGuildIdRouteChildren: AuthenticatedDashboardGuildIdR
   {
     AuthenticatedDashboardGuildIdAchievementsRoute:
       AuthenticatedDashboardGuildIdAchievementsRoute,
+    AuthenticatedDashboardGuildIdAssetsRoute:
+      AuthenticatedDashboardGuildIdAssetsRoute,
     AuthenticatedDashboardGuildIdAutomodRoute:
       AuthenticatedDashboardGuildIdAutomodRoute,
     AuthenticatedDashboardGuildIdAutoroleRoute:

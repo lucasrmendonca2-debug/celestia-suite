@@ -31,6 +31,14 @@ async function perm(guildId: string) {
 // ============================================================
 const LOGS_DEFAULTS = {
   log_channel_id: null as string | null,
+  message_channel_id: null as string | null,
+  member_channel_id: null as string | null,
+  role_channel_id: null as string | null,
+  channel_channel_id: null as string | null,
+  voice_channel_id: null as string | null,
+  server_channel_id: null as string | null,
+  mod_channel_id: null as string | null,
+  invite_channel_id: null as string | null,
   member_join: true,
   member_leave: true,
   member_ban: true,
@@ -38,6 +46,8 @@ const LOGS_DEFAULTS = {
   member_kick: true,
   member_role_update: true,
   member_nickname_update: false,
+  member_timeout: true,
+  user_update: false,
   message_delete: true,
   message_edit: true,
   message_bulk_delete: true,
@@ -48,6 +58,13 @@ const LOGS_DEFAULTS = {
   role_delete: false,
   role_update: false,
   voice_state_update: false,
+  server_update: false,
+  invite_create: false,
+  invite_delete: false,
+  emoji_update: false,
+  ignored_channels: [] as string[],
+  ignored_roles: [] as string[],
+  ignored_users: [] as string[],
 };
 
 export const getLogsConfig = createServerFn({ method: "GET" })
@@ -66,9 +83,19 @@ export const getLogsConfig = createServerFn({ method: "GET" })
     return row ?? { guild_id: data.guildId, ...LOGS_DEFAULTS };
   });
 
+const idArray = z.array(snowflake).max(50);
+
 const LogsInput = z.object({
   guildId: guildIdSchema,
   log_channel_id: snowflakeNullable,
+  message_channel_id: snowflakeNullable,
+  member_channel_id: snowflakeNullable,
+  role_channel_id: snowflakeNullable,
+  channel_channel_id: snowflakeNullable,
+  voice_channel_id: snowflakeNullable,
+  server_channel_id: snowflakeNullable,
+  mod_channel_id: snowflakeNullable,
+  invite_channel_id: snowflakeNullable,
   member_join: z.boolean(),
   member_leave: z.boolean(),
   member_ban: z.boolean(),
@@ -76,6 +103,8 @@ const LogsInput = z.object({
   member_kick: z.boolean(),
   member_role_update: z.boolean(),
   member_nickname_update: z.boolean(),
+  member_timeout: z.boolean(),
+  user_update: z.boolean(),
   message_delete: z.boolean(),
   message_edit: z.boolean(),
   message_bulk_delete: z.boolean(),
@@ -86,6 +115,13 @@ const LogsInput = z.object({
   role_delete: z.boolean(),
   role_update: z.boolean(),
   voice_state_update: z.boolean(),
+  server_update: z.boolean(),
+  invite_create: z.boolean(),
+  invite_delete: z.boolean(),
+  emoji_update: z.boolean(),
+  ignored_channels: idArray,
+  ignored_roles: idArray,
+  ignored_users: idArray,
 });
 
 export const updateLogsConfig = createServerFn({ method: "POST" })
@@ -104,6 +140,35 @@ export const updateLogsConfig = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
     return row;
+  });
+
+export const listAuditLogs = createServerFn({ method: "GET" })
+  .inputValidator((d: unknown) =>
+    z
+      .object({
+        guildId: guildIdSchema,
+        category: z.string().nullable().optional(),
+        actorId: snowflake.nullable().optional(),
+        targetId: snowflake.nullable().optional(),
+        limit: z.number().int().min(1).max(500).default(100),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    let q = sb
+      .from("server_audit_logs")
+      .select("*")
+      .eq("guild_id", data.guildId)
+      .order("created_at", { ascending: false })
+      .limit(data.limit);
+    if (data.category) q = q.eq("category", data.category);
+    if (data.actorId) q = q.eq("actor_id", data.actorId);
+    if (data.targetId) q = q.eq("target_id", data.targetId);
+    const { data: rows, error } = await q;
+    if (error) throw new Error(error.message);
+    return rows ?? [];
   });
 
 // ============================================================

@@ -30,6 +30,7 @@ import { Route as AuthenticatedDashboardGuildIdLogsRouteImport } from './routes/
 import { Route as AuthenticatedDashboardGuildIdLevelingRouteImport } from './routes/_authenticated/dashboard.$guildId.leveling'
 import { Route as AuthenticatedDashboardGuildIdEmbedsRouteImport } from './routes/_authenticated/dashboard.$guildId.embeds'
 import { Route as AuthenticatedDashboardGuildIdEconomyRouteImport } from './routes/_authenticated/dashboard.$guildId.economy'
+import { Route as AuthenticatedDashboardGuildIdCommunityRouteImport } from './routes/_authenticated/dashboard.$guildId.community'
 import { Route as AuthenticatedDashboardGuildIdCommandsRouteImport } from './routes/_authenticated/dashboard.$guildId.commands'
 import { Route as AuthenticatedDashboardGuildIdBadgesRouteImport } from './routes/_authenticated/dashboard.$guildId.badges'
 import { Route as AuthenticatedDashboardGuildIdAutoroleRouteImport } from './routes/_authenticated/dashboard.$guildId.autorole'
@@ -155,6 +156,12 @@ const AuthenticatedDashboardGuildIdEconomyRoute =
     path: '/economy',
     getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
   } as any)
+const AuthenticatedDashboardGuildIdCommunityRoute =
+  AuthenticatedDashboardGuildIdCommunityRouteImport.update({
+    id: '/community',
+    path: '/community',
+    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+  } as any)
 const AuthenticatedDashboardGuildIdCommandsRoute =
   AuthenticatedDashboardGuildIdCommandsRouteImport.update({
     id: '/commands',
@@ -198,6 +205,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/$guildId/autorole': typeof AuthenticatedDashboardGuildIdAutoroleRoute
   '/dashboard/$guildId/badges': typeof AuthenticatedDashboardGuildIdBadgesRoute
   '/dashboard/$guildId/commands': typeof AuthenticatedDashboardGuildIdCommandsRoute
+  '/dashboard/$guildId/community': typeof AuthenticatedDashboardGuildIdCommunityRoute
   '/dashboard/$guildId/economy': typeof AuthenticatedDashboardGuildIdEconomyRoute
   '/dashboard/$guildId/embeds': typeof AuthenticatedDashboardGuildIdEmbedsRoute
   '/dashboard/$guildId/leveling': typeof AuthenticatedDashboardGuildIdLevelingRoute
@@ -224,6 +232,7 @@ export interface FileRoutesByTo {
   '/dashboard/$guildId/autorole': typeof AuthenticatedDashboardGuildIdAutoroleRoute
   '/dashboard/$guildId/badges': typeof AuthenticatedDashboardGuildIdBadgesRoute
   '/dashboard/$guildId/commands': typeof AuthenticatedDashboardGuildIdCommandsRoute
+  '/dashboard/$guildId/community': typeof AuthenticatedDashboardGuildIdCommunityRoute
   '/dashboard/$guildId/economy': typeof AuthenticatedDashboardGuildIdEconomyRoute
   '/dashboard/$guildId/embeds': typeof AuthenticatedDashboardGuildIdEmbedsRoute
   '/dashboard/$guildId/leveling': typeof AuthenticatedDashboardGuildIdLevelingRoute
@@ -253,6 +262,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/$guildId/autorole': typeof AuthenticatedDashboardGuildIdAutoroleRoute
   '/_authenticated/dashboard/$guildId/badges': typeof AuthenticatedDashboardGuildIdBadgesRoute
   '/_authenticated/dashboard/$guildId/commands': typeof AuthenticatedDashboardGuildIdCommandsRoute
+  '/_authenticated/dashboard/$guildId/community': typeof AuthenticatedDashboardGuildIdCommunityRoute
   '/_authenticated/dashboard/$guildId/economy': typeof AuthenticatedDashboardGuildIdEconomyRoute
   '/_authenticated/dashboard/$guildId/embeds': typeof AuthenticatedDashboardGuildIdEmbedsRoute
   '/_authenticated/dashboard/$guildId/leveling': typeof AuthenticatedDashboardGuildIdLevelingRoute
@@ -282,6 +292,7 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId/autorole'
     | '/dashboard/$guildId/badges'
     | '/dashboard/$guildId/commands'
+    | '/dashboard/$guildId/community'
     | '/dashboard/$guildId/economy'
     | '/dashboard/$guildId/embeds'
     | '/dashboard/$guildId/leveling'
@@ -308,6 +319,7 @@ export interface FileRouteTypes {
     | '/dashboard/$guildId/autorole'
     | '/dashboard/$guildId/badges'
     | '/dashboard/$guildId/commands'
+    | '/dashboard/$guildId/community'
     | '/dashboard/$guildId/economy'
     | '/dashboard/$guildId/embeds'
     | '/dashboard/$guildId/leveling'
@@ -336,6 +348,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/$guildId/autorole'
     | '/_authenticated/dashboard/$guildId/badges'
     | '/_authenticated/dashboard/$guildId/commands'
+    | '/_authenticated/dashboard/$guildId/community'
     | '/_authenticated/dashboard/$guildId/economy'
     | '/_authenticated/dashboard/$guildId/embeds'
     | '/_authenticated/dashboard/$guildId/leveling'
@@ -510,6 +523,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardGuildIdEconomyRouteImport
       parentRoute: typeof AuthenticatedDashboardGuildIdRoute
     }
+    '/_authenticated/dashboard/$guildId/community': {
+      id: '/_authenticated/dashboard/$guildId/community'
+      path: '/community'
+      fullPath: '/dashboard/$guildId/community'
+      preLoaderRoute: typeof AuthenticatedDashboardGuildIdCommunityRouteImport
+      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+    }
     '/_authenticated/dashboard/$guildId/commands': {
       id: '/_authenticated/dashboard/$guildId/commands'
       path: '/commands'
@@ -554,6 +574,7 @@ interface AuthenticatedDashboardGuildIdRouteChildren {
   AuthenticatedDashboardGuildIdAutoroleRoute: typeof AuthenticatedDashboardGuildIdAutoroleRoute
   AuthenticatedDashboardGuildIdBadgesRoute: typeof AuthenticatedDashboardGuildIdBadgesRoute
   AuthenticatedDashboardGuildIdCommandsRoute: typeof AuthenticatedDashboardGuildIdCommandsRoute
+  AuthenticatedDashboardGuildIdCommunityRoute: typeof AuthenticatedDashboardGuildIdCommunityRoute
   AuthenticatedDashboardGuildIdEconomyRoute: typeof AuthenticatedDashboardGuildIdEconomyRoute
   AuthenticatedDashboardGuildIdEmbedsRoute: typeof AuthenticatedDashboardGuildIdEmbedsRoute
   AuthenticatedDashboardGuildIdLevelingRoute: typeof AuthenticatedDashboardGuildIdLevelingRoute
@@ -580,6 +601,8 @@ const AuthenticatedDashboardGuildIdRouteChildren: AuthenticatedDashboardGuildIdR
       AuthenticatedDashboardGuildIdBadgesRoute,
     AuthenticatedDashboardGuildIdCommandsRoute:
       AuthenticatedDashboardGuildIdCommandsRoute,
+    AuthenticatedDashboardGuildIdCommunityRoute:
+      AuthenticatedDashboardGuildIdCommunityRoute,
     AuthenticatedDashboardGuildIdEconomyRoute:
       AuthenticatedDashboardGuildIdEconomyRoute,
     AuthenticatedDashboardGuildIdEmbedsRoute:

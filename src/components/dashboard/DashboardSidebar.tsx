@@ -16,6 +16,7 @@ import {
   Award,
   Trophy,
   Crown,
+  Users,
   type LucideIcon,
 } from "lucide-react";
 import { getGuildPremiumStatus } from "@/lib/guild/premium.functions";

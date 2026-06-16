@@ -180,7 +180,7 @@ function PollsTab({ guildId }: { guildId: string }) {
                 <span className="truncate text-sm font-medium">{p.question}</span>
               </div>
               <p className="mt-1 text-xs text-muted-foreground">
-                {p.options.length} opções · canal {p.channel_id}
+                {Array.isArray(p.options) ? p.options.length : 0} opções · canal {p.channel_id}
                 {p.ends_at ? ` · termina ${new Date(p.ends_at).toLocaleString("pt-BR")}` : ""}
               </p>
             </div>

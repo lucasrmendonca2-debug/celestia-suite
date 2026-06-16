@@ -1,5 +1,5 @@
-import { Client } from "discord.js";
-import { VipMembership, Punishment, Giveaway } from "../../database/models.js";
+import { Client, type TextChannel } from "discord.js";
+import { VipMembership, Punishment, Giveaway, Reminder, Announcement } from "../../database/models.js";
 import { logger } from "../utils/logger.js";
 import { getConfig } from "../utils/guildCache.js";
 import { sendLog } from "./logs/sender.js";

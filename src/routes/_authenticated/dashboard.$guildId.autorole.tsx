@@ -12,7 +12,7 @@ import {
 } from "@/lib/guild/modules.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
 import {
   Select,
   SelectContent,
@@ -77,10 +77,12 @@ function AutorolePage() {
       <div className="space-y-4">
         <div className="rounded-2xl border border-border bg-card p-5">
           <div className="grid gap-2 sm:grid-cols-[1fr_140px_auto]">
-            <Input
-              placeholder="ID do cargo"
-              value={roleId}
-              onChange={(e) => setRoleId(e.target.value.trim())}
+            <RoleSelect
+              guildId={guildId}
+              value={roleId || null}
+              onChange={(id) => setRoleId(id ?? "")}
+              excludeManaged
+              placeholder="Selecionar cargo"
             />
             <Select value={target} onValueChange={(v) => setTarget(v as "member" | "bot")}>
               <SelectTrigger>

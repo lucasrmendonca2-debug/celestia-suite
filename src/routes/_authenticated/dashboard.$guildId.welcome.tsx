@@ -1,9 +1,9 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Save, Sparkles } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getGuildConfig,
@@ -12,7 +12,8 @@ import {
 } from "@/lib/guild/guild.functions";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
-import { Button } from "@/components/ui/button";
+import { ChannelSelect } from "@/components/dashboard/selectors/ChannelSelect";
+import { SaveBar } from "@/components/dashboard/SaveBar";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -46,8 +47,12 @@ function WelcomePage() {
   const { user, guild, config } = Route.useLoaderData();
   const updateFn = useServerFn(updateWelcomeConfig);
 
-
   const [form, setForm] = useState<WelcomeConfig>(config);
+  const [baseline, setBaseline] = useState<WelcomeConfig>(config);
+  const dirty = useMemo(
+    () => JSON.stringify(form) !== JSON.stringify(baseline),
+    [form, baseline],
+  );
 
   const mutation = useMutation({
     mutationFn: (next: WelcomeConfig) =>
@@ -63,9 +68,9 @@ function WelcomePage() {
       }),
     onSuccess: (saved) => {
       setForm(saved);
+      setBaseline(saved);
       toast.success("Configurações salvas. O bot já está usando.");
     },
-
     onError: (err) => toast.error((err as Error).message ?? "Falha ao salvar."),
   });
 
@@ -99,7 +104,7 @@ function WelcomePage() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              mutation.mutate(form);
+              if (dirty) mutation.mutate(form);
             }}
             className="space-y-6 rounded-2xl border border-border bg-card p-6"
           >
@@ -118,21 +123,15 @@ function WelcomePage() {
 
             <div className="space-y-1.5">
               <Label htmlFor="channel" className="text-sm font-medium">
-                ID do canal
+                Canal de boas-vindas
               </Label>
-              <Input
-                id="channel"
-                placeholder="Ex: 123456789012345678"
-                value={form.welcome_channel_id ?? ""}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    welcome_channel_id: e.target.value.trim() || null,
-                  })
-                }
+              <ChannelSelect
+                guildId={guild.id}
+                value={form.welcome_channel_id}
+                onChange={(id) => setForm({ ...form, welcome_channel_id: id })}
               />
               <p className="text-xs text-muted-foreground">
-                Modo desenvolvedor → clique direito no canal → Copiar ID.
+                Lista carregada direto do Discord via bot.
               </p>
             </div>
 
@@ -190,15 +189,11 @@ function WelcomePage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-2 border-t border-border pt-4">
-              <span className="mr-auto text-xs text-muted-foreground">
+            <div className="border-t border-border pt-4">
+              <span className="text-xs text-muted-foreground">
                 Última atualização:{" "}
                 {new Date(form.updated_at).toLocaleString("pt-BR")}
               </span>
-              <Button type="submit" disabled={mutation.isPending}>
-                <Save className="mr-1.5 size-4" />
-                {mutation.isPending ? "Salvando…" : "Salvar"}
-              </Button>
             </div>
           </form>
 
@@ -206,6 +201,15 @@ function WelcomePage() {
             O bot lê essas configurações do banco em tempo real. Sem reiniciar.
           </p>
         </main>
+
+        <SaveBar
+          dirty={dirty}
+          isPending={mutation.isPending}
+          isSuccess={mutation.isSuccess}
+          errorMessage={mutation.isError ? (mutation.error as Error).message : null}
+          onSave={() => mutation.mutate(form)}
+          onReset={() => setForm(baseline)}
+        />
       </div>
     </div>
   );

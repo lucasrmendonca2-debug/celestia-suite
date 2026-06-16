@@ -697,31 +697,128 @@ function CommandRow({ cmd, open, onToggle }: { cmd: Cmd; open: boolean; onToggle
   );
 }
 
+/** Render bold (**x**) e mentions (<@123>) com chips de cor primária. */
+function renderRich(text: string) {
+  // mentions
+  const parts: (string | React.ReactNode)[] = [];
+  const re = /<@[!&]?(\d+)>|\*\*(.+?)\*\*/g;
+  let last = 0;
+  let m: RegExpExecArray | null;
+  let i = 0;
+  while ((m = re.exec(text))) {
+    if (m.index > last) parts.push(text.slice(last, m.index));
+    if (m[1]) {
+      parts.push(
+        <span
+          key={`m${i++}`}
+          className="rounded bg-primary/15 px-1 py-px font-medium text-primary"
+        >
+          @user
+        </span>,
+      );
+    } else if (m[2]) {
+      parts.push(
+        <strong key={`b${i++}`} className="font-semibold text-foreground">
+          {m[2]}
+        </strong>,
+      );
+    }
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) parts.push(text.slice(last));
+  return parts;
+}
+
 function EmbedCard({ embed }: { embed: EmbedPreview }) {
-  const border = KIND_STYLES[embed.kind ?? "info"];
+  const s = KIND_STYLES[embed.kind ?? "info"];
+  const now = "Hoje às 14:32";
+
   return (
-    <div className={`rounded-md border border-border border-l-4 bg-background/80 p-3 ${border}`}>
-      <p className="text-sm font-semibold text-foreground">{embed.title}</p>
-      {embed.description && (
-        <p className="mt-1 whitespace-pre-wrap text-xs leading-relaxed text-muted-foreground">
-          {embed.description}
-        </p>
-      )}
-      {embed.fields?.length ? (
-        <div className="mt-2 grid grid-cols-3 gap-2">
-          {embed.fields.map((f) => (
-            <div key={f.name} className={f.inline === false ? "col-span-3" : ""}>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-foreground">{f.name}</p>
-              <p className="text-xs text-muted-foreground">{f.value}</p>
-            </div>
-          ))}
+    <div className="space-y-2">
+      {/* Bot header (estilo mensagem do Discord) */}
+      <div className="flex items-center gap-2.5">
+        <div className="relative flex size-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/40 ring-2 ring-background">
+          <span className="font-mono text-xs font-black text-background">Z</span>
+          <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full border-2 border-background bg-emerald-500" />
         </div>
-      ) : null}
-      {embed.footer && (
-        <p className="mt-2 border-t border-border pt-1.5 text-[10px] text-muted-foreground">
-          {embed.footer}
-        </p>
-      )}
+        <div className="flex min-w-0 flex-1 items-baseline gap-2">
+          <span className="text-sm font-semibold text-foreground">Zenox</span>
+          <span className="inline-flex items-center gap-0.5 rounded bg-primary/15 px-1 py-px text-[9px] font-bold uppercase tracking-wider text-primary">
+            <svg viewBox="0 0 16 16" className="size-2.5" fill="currentColor">
+              <path d="M7.4 11.6L4 8.2l1.4-1.4L7.4 8.8 10.6 5.6 12 7z" />
+            </svg>
+            App
+          </span>
+          <span className="truncate text-[11px] text-muted-foreground">{now}</span>
+        </div>
+      </div>
+
+      {/* Embed real */}
+      <div className={`relative overflow-hidden rounded-lg bg-[oklch(0.18_0.02_260)] ring-1 ring-border/60 ${s.glow}`}>
+        <div className={`absolute inset-y-0 left-0 w-1 ${s.bar}`} />
+        <div className="pl-3.5 pr-3 py-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <div className="mb-1.5 flex items-center gap-1.5">
+                <span className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ring-1 ring-inset ${s.chip}`}>
+                  <span className={`size-1 rounded-full ${s.bar}`} />
+                  {s.label}
+                </span>
+              </div>
+              <p className="text-[13px] font-semibold leading-snug text-white">{embed.title}</p>
+              {embed.description && (
+                <p className="mt-1 whitespace-pre-wrap text-[12.5px] leading-relaxed text-zinc-300">
+                  {renderRich(embed.description)}
+                </p>
+              )}
+
+              {embed.fields?.length ? (
+                <div className="mt-3 grid grid-cols-3 gap-x-3 gap-y-2.5">
+                  {embed.fields.map((f) => (
+                    <div key={f.name} className={f.inline === false ? "col-span-3" : "col-span-3 sm:col-span-1"}>
+                      <p className="text-[10.5px] font-semibold text-white">{f.name}</p>
+                      <p className="mt-0.5 text-[11.5px] leading-snug text-zinc-300">
+                        {renderRich(f.value)}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+
+              {embed.footer && (
+                <div className="mt-3 flex items-center gap-1.5 text-[10.5px] text-zinc-400">
+                  <span className="inline-block size-3 rounded-full bg-gradient-to-br from-primary to-primary/40" />
+                  <span>{embed.footer}</span>
+                  <span className="opacity-40">•</span>
+                  <span>{now}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Thumbnail "moderno" */}
+            <div className="hidden shrink-0 sm:block">
+              <div className={`flex size-12 items-center justify-center rounded-md bg-gradient-to-br from-primary/30 to-primary/5 ring-1 ring-primary/30`}>
+                <span className="font-mono text-[10px] font-bold text-primary">Z</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Reactions row */}
+      <div className="flex items-center gap-1.5">
+        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] ring-1 ring-primary/30">
+          <span>✨</span>
+          <span className="font-mono text-primary">12</span>
+        </span>
+        <span className="inline-flex items-center gap-1 rounded-full bg-muted/40 px-2 py-0.5 text-[11px] ring-1 ring-border">
+          <span>👀</span>
+          <span className="font-mono text-muted-foreground">3</span>
+        </span>
+        <button className="inline-flex size-5 items-center justify-center rounded-full text-muted-foreground/60 ring-1 ring-border hover:text-foreground">
+          <span className="text-[11px]">+</span>
+        </button>
+      </div>
     </div>
   );
 }

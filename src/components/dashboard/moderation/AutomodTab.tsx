@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Save, ShieldAlert } from "lucide-react";
-import { getAutomodConfig, updateAutomodConfig } from "@/lib/guild/modules.functions";
+import { updateAutomodConfig } from "@/lib/guild/modules.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

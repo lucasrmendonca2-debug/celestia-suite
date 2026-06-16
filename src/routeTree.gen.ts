@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
 import { Route as AuthenticatedDashboardGuildIdRouteImport } from './routes/_authenticated/dashboard.$guildId'
+import { Route as AuthenticatedAdminPremiumRouteImport } from './routes/_authenticated/admin.premium'
 import { Route as AuthenticatedDashboardGuildIdIndexRouteImport } from './routes/_authenticated/dashboard.$guildId.index'
 import { Route as ApiAuthDiscordLoginRouteImport } from './routes/api/auth/discord/login'
 import { Route as ApiAuthDiscordCallbackRouteImport } from './routes/api/auth/discord/callback'
@@ -64,6 +65,12 @@ const AuthenticatedDashboardGuildIdRoute =
   AuthenticatedDashboardGuildIdRouteImport.update({
     id: '/dashboard/$guildId',
     path: '/dashboard/$guildId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedAdminPremiumRoute =
+  AuthenticatedAdminPremiumRouteImport.update({
+    id: '/admin/premium',
+    path: '/admin/premium',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedDashboardGuildIdIndexRoute =
@@ -182,6 +189,7 @@ const AuthenticatedDashboardGuildIdAchievementsRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
@@ -208,6 +216,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
+  '/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/$guildId/achievements': typeof AuthenticatedDashboardGuildIdAchievementsRoute
@@ -235,6 +244,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/login': typeof LoginRoute
+  '/_authenticated/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/_authenticated/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
@@ -263,6 +273,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/admin/premium'
     | '/dashboard/$guildId'
     | '/api/auth/logout'
     | '/dashboard/'
@@ -289,6 +300,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/login'
+    | '/admin/premium'
     | '/api/auth/logout'
     | '/dashboard'
     | '/dashboard/$guildId/achievements'
@@ -315,6 +327,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/login'
+    | '/_authenticated/admin/premium'
     | '/_authenticated/dashboard/$guildId'
     | '/api/auth/logout'
     | '/_authenticated/dashboard/'
@@ -390,6 +403,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard/$guildId'
       fullPath: '/dashboard/$guildId'
       preLoaderRoute: typeof AuthenticatedDashboardGuildIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin/premium': {
+      id: '/_authenticated/admin/premium'
+      path: '/admin/premium'
+      fullPath: '/admin/premium'
+      preLoaderRoute: typeof AuthenticatedAdminPremiumRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard/$guildId/': {
@@ -592,11 +612,13 @@ const AuthenticatedDashboardGuildIdRouteWithChildren =
   )
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedAdminPremiumRoute: typeof AuthenticatedAdminPremiumRoute
   AuthenticatedDashboardGuildIdRoute: typeof AuthenticatedDashboardGuildIdRouteWithChildren
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAdminPremiumRoute: AuthenticatedAdminPremiumRoute,
   AuthenticatedDashboardGuildIdRoute:
     AuthenticatedDashboardGuildIdRouteWithChildren,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,

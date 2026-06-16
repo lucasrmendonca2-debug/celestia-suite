@@ -726,6 +726,10 @@ export const upsertTicketCategory = createServerFn({ method: "POST" })
     const sb = await admin();
     const { guildId, id, ...rest } = data;
     const payload = { guild_id: guildId, ...rest };
+    if (!id) {
+      const { enforceGuildLimit } = await import("./premium-limits.server");
+      await enforceGuildLimit(guildId, "tickets.categories", "ticket_categories");
+    }
     const query = id
       ? sb.from("ticket_categories").update(payload).eq("id", id).eq("guild_id", guildId)
       : sb.from("ticket_categories").insert(payload);

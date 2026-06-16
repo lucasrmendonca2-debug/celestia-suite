@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import type { MouseEvent } from "react";
+import zenoxAvatar from "@/assets/zenox-avatar.png.asset.json";
+import zenoxBanner from "@/assets/zenox-banner.png.asset.json";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,7 +34,11 @@ function Landing() {
       <div className="mx-auto flex min-h-screen max-w-6xl flex-col px-6 py-8">
         <header className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="size-8 rounded-lg bg-primary/20 ring-1 ring-primary/40" />
+            <img
+              src={zenoxAvatar.url}
+              alt="Zenox"
+              className="size-9 rounded-lg object-cover ring-1 ring-primary/40"
+            />
             <span className="text-lg font-semibold tracking-tight">Zenox</span>
           </div>
           <nav className="flex items-center gap-3 text-sm">
@@ -78,6 +84,14 @@ function Landing() {
               Ver dashboard
             </Link>
           </div>
+        </section>
+
+        <section className="mt-16 overflow-hidden rounded-2xl border border-primary/20 bg-card/40 shadow-2xl shadow-primary/10">
+          <img
+            src={zenoxBanner.url}
+            alt="Zenox — Discord Bot"
+            className="h-auto w-full object-cover"
+          />
         </section>
       </div>
     </main>

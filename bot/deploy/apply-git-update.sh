@@ -11,6 +11,23 @@ if [ ! -f bot/package.json ] || [ ! -d bot/src ]; then
   exit 1
 fi
 
+# === Aviso no Discord (canal de deploy) ===
+DEPLOY_CHANNEL_ID="801480652381356094"
+DISCORD_TOKEN_VAL="$(grep -E '^DISCORD_TOKEN=' .env 2>/dev/null | head -n1 | cut -d= -f2- | tr -d '"'"'"' \r')"
+COMMIT_HASH="$(git rev-parse --short HEAD 2>/dev/null || echo '?')"
+COMMIT_MSG="$(git log -1 --pretty=%s 2>/dev/null || echo '?')"
+notify_discord() {
+  local content="$1"
+  [ -z "$DISCORD_TOKEN_VAL" ] && return 0
+  curl -s -o /dev/null -X POST \
+    -H "Authorization: Bot $DISCORD_TOKEN_VAL" \
+    -H "Content-Type: application/json" \
+    -d "$(printf '{"content":%s}' "$(printf '%s' "$content" | python3 -c 'import json,sys;print(json.dumps(sys.stdin.read()))')")" \
+    "https://discord.com/api/v10/channels/$DEPLOY_CHANNEL_ID/messages" || true
+}
+notify_discord "🔄 Pegando commit \`$COMMIT_HASH\` — $COMMIT_MSG"
+
+
 echo "==> Sincronizando bot/ para a raiz usada pelo PM2..."
 cp -f bot/package.json bot/package-lock.json bot/bun.lock bot/tsconfig.json ./
 [ -f bot/.env.example ] && cp -f bot/.env.example ./.env.example
@@ -42,3 +59,5 @@ sleep 5
 
 echo "==> Logs recentes:"
 pm2 logs zenox-bot --lines 40 --nostream
+
+notify_discord "✅ Deploy concluído — commit \`$COMMIT_HASH\` ativo."

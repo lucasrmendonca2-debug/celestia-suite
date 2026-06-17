@@ -96,3 +96,7 @@ export const PAT = build("pat", "Faz carinho em alguém.");
 export const BONK = build("bonk", "Bonk em alguém.");
 export const CUDDLE = build("cuddle", "Faz chamego em alguém.");
 export const POKE = build("poke", "Cutuca alguém.");
+
+// Sem default export de propósito — este arquivo é só uma fábrica usada
+// pelos comandos irmãos. O loader deve ignorar arquivos prefixados com "_".
+export default null;

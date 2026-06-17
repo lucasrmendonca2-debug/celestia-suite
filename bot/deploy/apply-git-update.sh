@@ -59,3 +59,5 @@ sleep 5
 
 echo "==> Logs recentes:"
 pm2 logs zenox-bot --lines 40 --nostream
+
+notify_discord "✅ Deploy concluído — commit \`$COMMIT_HASH\` ativo."

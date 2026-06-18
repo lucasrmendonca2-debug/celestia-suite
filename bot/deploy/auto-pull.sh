@@ -24,3 +24,5 @@ fi
 echo "[$(date -Is)] novo commit detectado: $LOCAL -> $REMOTE" >> "$HOME/zenox-bot/logs/auto-pull.log"
 git pull --ff-only origin "$BRANCH" >> "$HOME/zenox-bot/logs/auto-pull.log" 2>&1
 bash bot/deploy/apply-git-update.sh >> "$HOME/zenox-bot/logs/auto-pull.log" 2>&1
+
+# auto-update test 2026-06-18T23:50:00Z

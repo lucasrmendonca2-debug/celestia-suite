@@ -2,7 +2,6 @@ import { createFileRoute, isRedirect, Link, Outlet, redirect } from "@tanstack/r
 import { getCurrentUser } from "@/lib/auth/auth.functions";
 
 export const Route = createFileRoute("/_authenticated")({
-  ssr: false,
   beforeLoad: async () => {
     try {
       const user = await getCurrentUser();

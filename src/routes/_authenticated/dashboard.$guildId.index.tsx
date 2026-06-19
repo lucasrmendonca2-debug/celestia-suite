@@ -125,7 +125,7 @@ function GuildOverviewPage() {
   const pct = Math.round((done / total) * 100);
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
+    <div className="cyber-shell cyber-grid-bg flex min-h-screen bg-background text-foreground">
       <DashboardSidebar guildId={guild.id} />
       <div className="flex-1">
         <DashboardTopbar
@@ -135,24 +135,25 @@ function GuildOverviewPage() {
           guildId={guild.id}
         />
 
-        <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
+        <main className="relative mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
           {/* Header do servidor */}
-          <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+          <section className="cyber-panel cyber-scanline rounded-xl p-5 sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex min-w-0 items-center gap-4">
                 {displayIcon ? (
                   <img
                     src={displayIcon}
                     alt=""
-                    className="size-14 shrink-0 rounded-2xl ring-1 ring-border sm:size-16"
+                    className="size-14 shrink-0 rounded-xl ring-1 ring-[var(--cyber-line)] sm:size-16"
                   />
                 ) : (
-                  <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-base font-semibold text-primary ring-1 ring-primary/30 sm:size-16">
+                  <div className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-base font-semibold text-primary ring-1 ring-[var(--cyber-line)] sm:size-16">
                     {displayName.slice(0, 2).toUpperCase()}
                   </div>
                 )}
                 <div className="min-w-0">
-                  <h2 className="truncate text-lg font-semibold sm:text-xl">{displayName}</h2>
+                  <p className="font-display mb-1 text-[10px] uppercase text-muted-foreground">nexus do servidor</p>
+                  <h2 className="font-display truncate text-xl font-semibold sm:text-2xl">{displayName}</h2>
                   <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                     <span>ID {guild.id}</span>
                     {overview.discord.memberCount != null && (
@@ -208,7 +209,7 @@ function GuildOverviewPage() {
           {/* Checklist + Saúde do bot */}
           <section className="grid gap-4 lg:grid-cols-5">
             {/* Checklist */}
-            <div className="rounded-2xl border border-border bg-card p-5 lg:col-span-3">
+            <div className="cyber-panel rounded-xl p-5 lg:col-span-3">
               <div className="mb-4 flex items-center justify-between">
                 <div>
                   <h3 className="text-sm font-semibold">Configuração inicial</h3>
@@ -216,13 +217,13 @@ function GuildOverviewPage() {
                     {done} de {total} prontos
                   </p>
                 </div>
-                <span className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                <span className="font-display rounded-full border border-[var(--cyber-line)] bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
                   {pct}%
                 </span>
               </div>
               <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-muted">
                 <div
-                  className="h-full rounded-full bg-primary transition-all"
+                  className="h-full rounded-full bg-primary shadow-[0_0_18px_var(--cyber-cyan)] transition-all"
                   style={{ width: `${pct}%` }}
                 />
               </div>
@@ -230,11 +231,11 @@ function GuildOverviewPage() {
                 {checklist.map((item) => (
                   <li
                     key={item.key}
-                    className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-background/40 px-3 py-2.5"
+                    className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-background/40 px-3 py-2.5 transition hover:border-[var(--cyber-line)] hover:bg-primary/5"
                   >
                     <div className="flex min-w-0 items-center gap-2.5">
                       {item.ok ? (
-                        <CheckCircle2 className="size-4 shrink-0 text-emerald-500" />
+                          <CheckCircle2 className="size-4 shrink-0 text-emerald-500" />
                       ) : (
                         <Circle className="size-4 shrink-0 text-muted-foreground" />
                       )}
@@ -249,7 +250,7 @@ function GuildOverviewPage() {
                     {!item.ok && item.to && (
                       <Link
                         to={item.to}
-                        className="inline-flex shrink-0 items-center gap-1 rounded-md border border-input bg-card px-2.5 py-1 text-xs font-medium transition hover:bg-accent"
+                          className="inline-flex shrink-0 items-center gap-1 rounded-md border border-[var(--cyber-line)] bg-card/80 px-2.5 py-1 text-xs font-medium transition hover:bg-primary/10"
                       >
                         {item.cta}
                         <ArrowRight className="size-3" />
@@ -261,7 +262,7 @@ function GuildOverviewPage() {
             </div>
 
             {/* Saúde do bot */}
-            <div className="rounded-2xl border border-border bg-card p-5 lg:col-span-2">
+            <div className="cyber-panel rounded-xl p-5 lg:col-span-2">
               <div className="mb-4 flex items-center gap-2">
                 <HeartPulse className="size-4 text-primary" />
                 <h3 className="text-sm font-semibold">Saúde do bot</h3>
@@ -371,12 +372,12 @@ function StatCard({
   hint?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
-      <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
+    <div className="cyber-panel cyber-card-hover rounded-xl p-5">
+      <div className="font-display flex items-center gap-2 text-xs uppercase text-muted-foreground">
         {icon}
         {label}
       </div>
-      <p className="mt-2 text-2xl font-semibold tabular-nums">{value}</p>
+      <p className="font-display mt-2 text-2xl font-semibold tabular-nums">{value}</p>
       {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
@@ -386,7 +387,7 @@ function BotStatusBadge({ present }: { present: boolean }) {
   if (present) {
     return (
       <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-        <span className="size-1.5 rounded-full bg-emerald-500 shadow-[0_0_6px_theme(colors.emerald.500)]" />
+        <span className="cyber-pulse-dot size-1.5 rounded-full" />
         Bot online
       </span>
     );
@@ -429,9 +430,9 @@ function QuickAction({
   return (
     <Link
       to={to}
-      className="group flex items-start gap-3 rounded-xl border border-border bg-card p-4 transition hover:border-primary/40 hover:bg-accent"
+      className="cyber-panel cyber-card-hover group flex items-start gap-3 rounded-xl p-4"
     >
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary ring-1 ring-primary/30">
+      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary ring-1 ring-[var(--cyber-line)]">
         {icon}
       </div>
       <div className="min-w-0 flex-1">

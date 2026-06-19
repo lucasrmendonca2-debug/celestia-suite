@@ -53,30 +53,31 @@ function ServerPicker() {
   }, [guilds, query, filter]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="cyber-shell cyber-grid-bg min-h-screen bg-background text-foreground">
       <DashboardTopbar
         user={user}
         title="Seus servidores"
         subtitle="Apenas servidores onde você pode gerenciar configurações."
       />
 
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <main className="relative mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         {guilds.length === 0 ? (
           <EmptyState />
         ) : (
           <>
             {/* Controls */}
-            <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <section className="cyber-panel mb-6 rounded-xl p-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="relative w-full sm:max-w-sm">
                 <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Buscar servidor..."
-                  className="h-10 w-full rounded-lg border border-input bg-card pl-9 pr-3 text-sm outline-none transition focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
+                  className="h-10 w-full rounded-lg border border-[var(--cyber-line)] bg-card/70 pl-9 pr-3 text-sm outline-none transition focus:border-primary/60 focus:ring-2 focus:ring-primary/20"
                 />
               </div>
-              <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1">
+              <div className="flex items-center gap-1 rounded-lg border border-[var(--cyber-line)] bg-card/70 p-1">
                 {(["all", "owner", "manager"] as const).map((f) => (
                   <button
                     key={f}
@@ -92,14 +93,15 @@ function ServerPicker() {
                 ))}
               </div>
             </div>
+            </section>
 
-            <p className="mb-4 text-xs text-muted-foreground">
+            <p className="font-display mb-4 text-xs uppercase text-muted-foreground">
               Mostrando {filtered.length} de {guilds.length} servidor
               {guilds.length === 1 ? "" : "es"}.
             </p>
 
             {filtered.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center text-sm text-muted-foreground">
+              <div className="cyber-panel rounded-xl border-dashed p-10 text-center text-sm text-muted-foreground">
                 Nenhum servidor corresponde à busca.
               </div>
             ) : (
@@ -109,14 +111,14 @@ function ServerPicker() {
                     key={g.id}
                     to="/dashboard/$guildId"
                     params={{ guildId: g.id }}
-                    className="group relative flex items-center gap-3 overflow-hidden rounded-xl border border-border bg-card p-4 transition hover:-translate-y-0.5 hover:border-primary/50 hover:bg-card/80 hover:shadow-lg hover:shadow-primary/10"
+                    className="cyber-panel cyber-card-hover group relative flex items-center gap-3 overflow-hidden rounded-xl p-4"
                   >
                     <div className="pointer-events-none absolute inset-0 -z-0 bg-gradient-to-br from-primary/0 via-transparent to-primary/0 opacity-0 transition group-hover:from-primary/10 group-hover:to-purple-500/5 group-hover:opacity-100" />
                     {g.iconUrl ? (
                       <img
                         src={g.iconUrl}
                         alt=""
-                        className="size-12 shrink-0 rounded-xl ring-1 ring-border"
+                          className="size-12 shrink-0 rounded-xl ring-1 ring-[var(--cyber-line)]"
                       />
                     ) : (
                       <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-sm font-semibold text-primary ring-1 ring-primary/30">
@@ -124,7 +126,7 @@ function ServerPicker() {
                       </div>
                     )}
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-medium">{g.name}</p>
+                      <p className="font-display truncate font-medium">{g.name}</p>
                       <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                         {g.owner ? (
                           <>

@@ -3,7 +3,7 @@
  * Troca o code por access_token, busca /users/@me e cria sessão.
  *
  */
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 
 function htmlError(message: string, status: number) {
   const html = `<!doctype html><meta charset="utf-8"><title>Erro de login</title>
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
         }
 
         const { exchangeCode, fetchDiscordUser, makeDiscordCallbackUri, verifyOAuthState } = await import("@/lib/auth/discord.server");
-        const { getSession } = await import("@/lib/auth/session.server");
+        const { createSessionSetCookie, getSession } = await import("@/lib/auth/session.server");
 
         const session = await getSession();
         if (!verifyOAuthState(state)) {
@@ -41,7 +41,7 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
           const redirectUri = session.data.oauthRedirectUri || makeDiscordCallbackUri(request);
           const token = await exchangeCode(code, redirectUri);
           const user = await fetchDiscordUser(token.access_token);
-          await session.update({
+          const nextSession = {
             userId: user.id,
             username: user.username,
             globalName: user.global_name,
@@ -50,6 +50,14 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
             refreshToken: token.refresh_token,
             oauthRedirectUri: undefined,
             expiresAt: Date.now() + token.expires_in * 1000,
+          };
+          return new Response(null, {
+            status: 302,
+            headers: {
+              Location: `${url.origin}/dashboard`,
+              "Cache-Control": "no-store",
+              "Set-Cookie": createSessionSetCookie(nextSession),
+            },
           });
         } catch (err) {
           console.error("[discord/callback]", err);
@@ -58,11 +66,6 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
             502,
           );
         }
-        return redirect({
-          to: "/dashboard",
-          statusCode: 302,
-          headers: { "Cache-Control": "no-store" },
-        });
       },
     },
   },

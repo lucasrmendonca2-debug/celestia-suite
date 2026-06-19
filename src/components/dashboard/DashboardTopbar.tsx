@@ -31,7 +31,7 @@ export function DashboardTopbar({
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-10 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background/70 px-4 py-3 backdrop-blur sm:px-6">
+    <header className="sticky top-0 z-10 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-[var(--cyber-line)] bg-background/70 px-4 py-3 backdrop-blur-xl sm:px-6">
       <div className="flex items-center gap-2">
         {guildId && (
           <Sheet open={open} onOpenChange={setOpen}>
@@ -39,16 +39,18 @@ export function DashboardTopbar({
               <button
                 type="button"
                 aria-label="Abrir menu"
-                className="inline-flex size-9 items-center justify-center rounded-md border border-input bg-card text-muted-foreground transition hover:bg-accent hover:text-foreground md:hidden"
+                className="inline-flex size-9 items-center justify-center rounded-md border border-[var(--cyber-line)] bg-card/80 text-muted-foreground transition hover:bg-primary/10 hover:text-foreground md:hidden"
               >
                 <Menu className="size-4" />
               </button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-72 border-r border-border bg-card p-0">
+            <SheetContent side="left" className="cyber-panel w-72 rounded-none border-y-0 border-l-0 p-0">
               <SheetTitle className="sr-only">Navegação do dashboard</SheetTitle>
               <div className="flex items-center gap-2 px-5 py-5">
-                <div className="size-7 rounded-lg bg-primary/20 ring-1 ring-primary/40" />
-                <span className="text-base font-semibold tracking-tight">Zenox</span>
+                <div className="grid size-8 place-items-center rounded-lg border border-[var(--cyber-line)] bg-primary/15">
+                  <span className="font-display text-xs font-black text-primary">ZX</span>
+                </div>
+                <span className="font-display text-base font-semibold">Zenox</span>
               </div>
               <SidebarNav guildId={guildId} onNavigate={() => setOpen(false)} />
               <div className="border-t border-border px-3 py-3">
@@ -63,14 +65,14 @@ export function DashboardTopbar({
             </SheetContent>
           </Sheet>
         )}
-        <div className="relative hidden size-9 shrink-0 overflow-hidden rounded-lg bg-primary/15 ring-1 ring-primary/40 sm:block">
+        <div className="relative hidden size-9 shrink-0 overflow-hidden rounded-lg border border-[var(--cyber-line)] bg-primary/15 shadow-[0_0_22px_-12px_var(--cyber-cyan)] sm:block">
           <img src={mascot.url} alt="" className="absolute inset-0 size-full scale-[2.2] object-cover object-top" />
         </div>
       </div>
 
       <div className="min-w-0">
         <div className="flex items-center gap-2">
-          <h1 className="truncate text-sm font-semibold tracking-tight sm:text-base">{title}</h1>
+          <h1 className="font-display truncate text-sm font-semibold sm:text-base">{title}</h1>
           {guildId && <PremiumBadge guildId={guildId} />}
         </div>
         {subtitle && (
@@ -89,12 +91,12 @@ export function DashboardTopbar({
         <img
           src={avatarUrl(user)}
           alt={user.username}
-          className="size-9 shrink-0 rounded-full ring-1 ring-border"
+          className="size-9 shrink-0 rounded-full ring-1 ring-[var(--cyber-line)]"
         />
         <Link
           to="/api/auth/logout"
           reloadDocument
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-input bg-card px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-accent hover:text-foreground sm:px-3"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-md border border-[var(--cyber-line)] bg-card/80 px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-primary/10 hover:text-foreground sm:px-3"
         >
           <LogOut className="size-3.5" />
           <span className="hidden sm:inline">Sair</span>

@@ -33,7 +33,7 @@ export function ModuleLayout({
   useRouterState({ select: (s) => s.location.pathname });
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
+    <div className="cyber-shell cyber-grid-bg flex min-h-screen bg-background text-foreground">
       <DashboardSidebar guildId={guildId} />
       <div className="flex-1">
         <DashboardTopbar
@@ -42,8 +42,8 @@ export function ModuleLayout({
           subtitle={title}
           guildId={guildId}
         />
-        <main className="mx-auto max-w-5xl px-6 py-8">
-          <nav className="mb-4 flex items-center gap-1.5 text-xs text-muted-foreground">
+        <main className="relative mx-auto max-w-6xl px-6 py-8">
+          <nav className="font-display mb-4 flex items-center gap-1.5 text-xs text-muted-foreground">
             <Link to="/dashboard" className="hover:text-foreground">
               Servidores
             </Link>
@@ -59,13 +59,13 @@ export function ModuleLayout({
             <span className="text-foreground">{title}</span>
           </nav>
 
-          <header className="mb-6 flex items-start justify-between gap-4">
+          <header className="cyber-panel mb-6 flex items-start justify-between gap-4 rounded-xl p-5">
             <div className="flex items-start gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-primary/15 text-primary ring-1 ring-primary/30">
+              <div className="flex size-10 items-center justify-center rounded-lg bg-primary/15 text-primary ring-1 ring-[var(--cyber-line)]">
                 <Icon className="size-5" />
               </div>
               <div>
-                <h1 className="text-xl font-semibold">{title}</h1>
+                <h1 className="font-display text-xl font-semibold">{title}</h1>
                 {description && (
                   <p className="mt-0.5 text-sm text-muted-foreground">{description}</p>
                 )}

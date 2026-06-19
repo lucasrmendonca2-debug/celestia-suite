@@ -92,16 +92,19 @@ interface HelpView {
 }
 
 function buildSelect(active?: HelpCategoryKey) {
+  const activeLabel = active ? HELP_CATEGORIES.find((c) => c.key === active)?.label : undefined;
   const menu = new StringSelectMenuBuilder()
     .setCustomId("help:select")
-    .setPlaceholder("Escolha uma categoria…")
+    .setPlaceholder(activeLabel ? `📂 ${activeLabel} — trocar de categoria…` : "Escolha uma categoria…")
+    .setMinValues(1)
+    .setMaxValues(1)
     .addOptions(
       HELP_CATEGORIES.map((c) => ({
         label: c.label,
         value: c.key,
         description: c.desc,
         emoji: c.emoji,
-        default: active === c.key,
+        // Não usar `default: true` — impede re-seleção fluida no client do Discord.
       })),
     );
   return new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(menu);

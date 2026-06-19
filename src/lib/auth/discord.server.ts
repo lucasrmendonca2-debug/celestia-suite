@@ -168,7 +168,10 @@ export async function exchangeCode(code: string, redirectUri: string) {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
   });
-  if (!res.ok) throw new Error(`Discord token exchange falhou: ${res.status}`);
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`Discord token exchange falhou: ${res.status} ${body} (redirect_uri=${redirectUri})`);
+  }
   return (await res.json()) as {
     access_token: string;
     refresh_token: string;

@@ -5,7 +5,7 @@ import { Reminder } from "../../../database/models.js";
 
 function parseDuration(input: string): number | null {
   const m = input.trim().toLowerCase().match(/^(\d+)\s*(s|m|h|d)$/);
-  if (!m) return null;
+  if (!m || !m[1] || !m[2]) return null;
   const n = parseInt(m[1], 10);
   const unit = m[2];
   const mult = unit === "s" ? 1_000 : unit === "m" ? 60_000 : unit === "h" ? 3_600_000 : 86_400_000;

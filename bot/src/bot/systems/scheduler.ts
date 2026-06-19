@@ -120,7 +120,7 @@ async function tick(client: Client) {
           ],
           allowedMentions:
             a.mention === "everyone" || a.mention === "here"
-              ? { parse: [a.mention as "everyone" | "here"] }
+              ? { parse: ["everyone"] }
               : a.mention && /^\d{17,20}$/.test(a.mention)
                 ? { roles: [a.mention] }
                 : { parse: [] },

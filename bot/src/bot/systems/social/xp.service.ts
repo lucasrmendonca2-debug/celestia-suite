@@ -1,7 +1,7 @@
 import type { Message, GuildMember } from "discord.js";
 import { supabase } from "../../../database/supabase.js";
 import { logger } from "../../utils/logger.js";
-import { getLevelConfig, getSocialConfig } from "./social.config.ts";
+import { getLevelConfig, getSocialConfig } from "./social.config.js";
 import { deriveLevel } from "./formulas.js";
 import { applyLevelRewards } from "./level-rewards.service.js";
 import { recordSeasonXp } from "./season.service.js";

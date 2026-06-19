@@ -54,8 +54,9 @@ export async function pollEmbed(poll: PollRow): Promise<EmbedBuilder> {
   const counts = await getVoteCounts(poll.id, poll.options.length);
   const total = counts.reduce((a, b) => a + b, 0);
   const lines = poll.options.map((opt, i) => {
-    const pct = total > 0 ? counts[i] / total : 0;
-    return `**${BUTTON_EMOJIS[i] ?? `#${i + 1}`} ${opt}**\n\`${progressBar(pct)}\` ${counts[i]} voto(s) · ${(pct * 100).toFixed(0)}%`;
+    const c = counts[i] ?? 0;
+    const pct = total > 0 ? c / total : 0;
+    return `**${BUTTON_EMOJIS[i] ?? `#${i + 1}`} ${opt}**\n\`${progressBar(pct)}\` ${c} voto(s) · ${(pct * 100).toFixed(0)}%`;
   });
 
   const ended = poll.status !== "ACTIVE";

@@ -128,6 +128,12 @@ const command: SlashCommand = {
       const categoria = interaction.options.getString("categoria", true);
       const canal = interaction.options.getChannel("canal");
       const col = CATEGORY_COLUMNS[categoria];
+      if (!col) {
+        return interaction.reply({
+          embeds: [brandEmbed({ kind: "error", title: "Categoria inválida", description: `Categoria \`${categoria}\` desconhecida.` })],
+          ephemeral: true,
+        });
+      }
       const { error } = await supabase.from("guild_logs_config").upsert(
         { guild_id: guildId, [col]: canal?.id ?? null },
         { onConflict: "guild_id" },

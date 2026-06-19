@@ -48,7 +48,7 @@ export async function applyLevelRewards(member: GuildMember, currentLevel: numbe
       } else if (r.reward_type === "coins") {
         const amount = Number(r.reward_value);
         if (!Number.isFinite(amount) || amount <= 0) continue;
-        await addCoins(member.guild.id, member.id, amount).catch(() => {});
+        await addWallet(member.guild.id, member.id, amount).catch(() => {});
       }
       // badge/title: aplicado em pass 2 (sistema de badges) — registramos no log
       await supabase.from("level_logs").insert({

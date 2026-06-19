@@ -5,7 +5,7 @@ const event: BotEvent<"messageDelete"> = {
   name: "messageDelete",
   async execute(_client, message) {
     if (message.partial) return;
-    if (!message.guild || message.author?.bot) return;
+    if (!message.inGuild() || message.author?.bot) return;
     await logMessageDelete(message);
   },
 };

@@ -45,6 +45,37 @@ notify_discord() {
     -d "$(printf '{"content":%s}' "$(printf '%s' "$content" | python3 -c 'import json,sys;print(json.dumps(sys.stdin.read()))')")" \
     "https://discord.com/api/v10/channels/$DEPLOY_CHANNEL_ID/messages" || true
 }
+
+validate_env() {
+  local errors=0
+  if [ ! -f .env ]; then
+    echo "ERRO: ~/zenox-bot/.env não existe. Crie o arquivo com os valores reais antes de reiniciar o bot."
+    exit 1
+  fi
+
+  check_required() {
+    local label="$1"
+    local value="$2"
+    if is_missing_or_placeholder "$value"; then
+      echo "ERRO: $label está ausente ou ainda está com placeholder COLE_..._AQUI no .env."
+      errors=1
+    fi
+  }
+
+  check_required "DISCORD_TOKEN ou DISCORD_BOT_TOKEN" "$DISCORD_TOKEN_VAL"
+  check_required "DISCORD_CLIENT_ID" "$(get_env_value DISCORD_CLIENT_ID)"
+  check_required "MONGO_URI" "$(get_env_value MONGO_URI)"
+  check_required "SUPABASE_URL" "$(get_env_value SUPABASE_URL)"
+  check_required "SUPABASE_SERVICE_ROLE_KEY" "$(get_env_value SUPABASE_SERVICE_ROLE_KEY)"
+
+  if [ "$errors" -ne 0 ]; then
+    echo "ERRO: deploy abortado para não subir o bot bugado com .env inválido."
+    echo "Dica: não use os textos COLE_..._AQUI; substitua pelos valores reais e rode este script de novo."
+    exit 1
+  fi
+}
+
+validate_env
 notify_discord "🔄 Pegando commit \`$COMMIT_HASH\` — $COMMIT_MSG"
 
 

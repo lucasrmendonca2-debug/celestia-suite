@@ -133,6 +133,33 @@ function EconomyPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["shop", guildId] }),
   });
 
+  const addMission = useMutation({
+    mutationFn: () =>
+      upsertMission({
+        data: {
+          guildId,
+          slug: mission.slug,
+          title: mission.title,
+          description: mission.description || null,
+          kind: mission.kind as any,
+          goal: Number(mission.goal),
+          reward: Number(mission.reward),
+          active: mission.active,
+          sort_order: Number(mission.sort_order),
+        },
+      }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["economy-missions", guildId] });
+      toast.success("Missão salva.");
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+
+  const deleteMission = useMutation({
+    mutationFn: (id: string) => removeMission({ data: { guildId, id } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["economy-missions", guildId] }),
+  });
+
   return (
     <ModuleLayout
       guildId={guildId}
@@ -151,6 +178,7 @@ function EconomyPage() {
         <TabsList>
           <TabsTrigger value="config">Configuração</TabsTrigger>
           <TabsTrigger value="shop">Loja ({shop.length})</TabsTrigger>
+          <TabsTrigger value="missions">Missões ({missions.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="config" className="mt-4 space-y-4">

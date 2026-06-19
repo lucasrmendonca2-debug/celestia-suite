@@ -65,8 +65,14 @@ validate_env() {
   check_required "DISCORD_TOKEN ou DISCORD_BOT_TOKEN" "$DISCORD_TOKEN_VAL"
   check_required "DISCORD_CLIENT_ID" "$(get_env_value DISCORD_CLIENT_ID)"
   check_required "MONGO_URI" "$(get_env_value MONGO_URI)"
-  check_required "SUPABASE_URL" "$(get_env_value SUPABASE_URL)"
-  check_required "SUPABASE_SERVICE_ROLE_KEY" "$(get_env_value SUPABASE_SERVICE_ROLE_KEY)"
+
+  # SUPABASE_* são opcionais — se faltar/placeholder, o bot sobe com stub e features
+  # que dependem do Supabase ficam inertes. Só avisa.
+  for opt in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY; do
+    if is_missing_or_placeholder "$(get_env_value "$opt")"; then
+      echo "AVISO: $opt ausente/placeholder — features que dependem do Supabase ficarão desativadas."
+    fi
+  done
 
   if [ "$errors" -ne 0 ]; then
     echo "ERRO: deploy abortado para não subir o bot bugado com .env inválido."

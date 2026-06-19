@@ -2,9 +2,11 @@ import { EconomyAccount, VipMembership } from "../../../database/models.js";
 import { getConfig } from "../../utils/guildCache.js";
 
 export async function getAccount(guildId: string, userId: string) {
-  let acc = await EconomyAccount.findOne({ guildId, userId });
-  if (!acc) acc = await EconomyAccount.create({ guildId, userId });
-  return acc;
+  return EconomyAccount.findOneAndUpdate(
+    { guildId, userId },
+    { $setOnInsert: { guildId, userId } },
+    { upsert: true, new: true, setDefaultsOnInsert: true },
+  );
 }
 
 export async function addWallet(guildId: string, userId: string, amount: number) {
@@ -30,6 +32,10 @@ export async function isVip(guildId: string, userId: string): Promise<boolean> {
 
 export async function getCurrency(guildId: string) {
   const cfg = await getConfig(guildId);
+  return currencyFromConfig(cfg);
+}
+
+export function currencyFromConfig(cfg: any) {
   return { emoji: cfg.economyCurrencyEmoji ?? "💜", name: cfg.economyCurrencyName ?? "Zen" };
 }
 

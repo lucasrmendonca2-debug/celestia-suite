@@ -70,30 +70,49 @@ const event: BotEvent<"interactionCreate"> = {
       const cmd = client.commands.get(ix.commandName);
       if (!cmd) return;
 
-      if (ix.guild) await ensureGuild(ix.guild).catch(() => {});
-      await ensureUser(ix.user.id, ix.user.username).catch(() => {});
+      // Upserts em background (não bloqueia o caminho quente).
+      if (ix.guild) ensureGuild(ix.guild);
+      ensureUser(ix.user.id, ix.user.username);
 
       const perm = checkPermissions(ix, cmd);
       if (!perm.ok) return denyWith(ix, perm.reason ?? Msg.missingPerm("necessária"));
 
-      // Permissões por comando configuradas no dashboard
-      const member = ix.guild && ix.member ? await ix.guild.members.fetch(ix.user.id).catch(() => null) : null;
-      const cmdPerm = await checkCommandPermission(ix, {
-        member,
-        channelId: ix.channelId,
-        isStaff: member?.permissions.has("ManageGuild") ?? false,
-        isVip: false, // TODO: integrar com sistema VIP no Pass D
-        isPremiumGuild: false, // TODO: integrar com premium_guild_config
-      });
+      // Usa cache do member primeiro; só faz fetch se realmente precisar (rápido).
+      const cachedMember = ix.guild && ix.member
+        ? ix.guild.members.cache.get(ix.user.id) ?? null
+        : null;
+      const member = cachedMember
+        ?? (ix.guild
+          ? await ix.guild.members.fetch(ix.user.id).catch(() => null)
+          : null);
+
+      // Permissões por comando + cooldown em paralelo (eram serial).
+      const cooldownPreemptive = cmd.cooldown && ix.guildId
+        ? consumeCooldown(ix, cmd.data.name, cmd.cooldown)
+        : Promise.resolve({ ok: true as const });
+      const [cmdPerm, cd] = await Promise.all([
+        checkCommandPermission(ix, {
+          member,
+          channelId: ix.channelId,
+          isStaff: member?.permissions.has("ManageGuild") ?? false,
+          isVip: false, // TODO: integrar com sistema VIP no Pass D
+          isPremiumGuild: false, // TODO: integrar com premium_guild_config
+        }),
+        cooldownPreemptive,
+      ]);
+
       if (!cmdPerm.ok) return denyWith(ix, cmdPerm.reason);
 
-      const cooldown = cmdPerm.cooldownOverride ?? cmd.cooldown;
-      if (cooldown && ix.guildId) {
-        const cd = await consumeCooldown(ix, cmd.data.name, cooldown);
-        if (!cd.ok) {
-          const seconds = Math.ceil((cd.remainingMs ?? 0) / 1000);
+      // Se houve override de cooldown e o original (já cobrado) era diferente, aplicamos o override por cima.
+      if (cmdPerm.cooldownOverride && cmdPerm.cooldownOverride !== cmd.cooldown && ix.guildId) {
+        const cd2 = await consumeCooldown(ix, cmd.data.name, cmdPerm.cooldownOverride);
+        if (!cd2.ok) {
+          const seconds = Math.ceil((cd2.remainingMs ?? 0) / 1000);
           return denyWith(ix, Msg.cooldown(seconds));
         }
+      } else if (!cd.ok) {
+        const seconds = Math.ceil((cd.remainingMs ?? 0) / 1000);
+        return denyWith(ix, Msg.cooldown(seconds));
       }
 
       await cmd.execute(ix, { client });

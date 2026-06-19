@@ -2,15 +2,8 @@
  * GET /api/auth/discord/callback?code=...&state=...
  * Troca o code por access_token, busca /users/@me e cria sessão.
  *
- * IMPORTANTE: o redirect final usa setResponseStatus/Header do runtime do
- * TanStack Start (não `new Response(...)`) para garantir que o Set-Cookie
- * gerado por session.update() seja mesclado na resposta. Quando devolvemos
- * `new Response(null, { headers: { Location } })`, as headers do contexto
- * (incluindo Set-Cookie) eram descartadas, então o cookie zenox_session
- * nunca persistia e o /dashboard bounce-ava pro /login.
  */
 import { createFileRoute } from "@tanstack/react-router";
-import { setResponseHeader, setResponseStatus } from "@tanstack/react-start/server";
 
 function htmlError(message: string, status: number) {
   const html = `<!doctype html><meta charset="utf-8"><title>Erro de login</title>
@@ -66,10 +59,13 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
           );
         }
 
-        setResponseStatus(302);
-        setResponseHeader("Location", "/dashboard");
-        setResponseHeader("Cache-Control", "no-store");
-        return new Response(null);
+        return new Response(null, {
+          status: 302,
+          headers: {
+            Location: "/dashboard",
+            "Cache-Control": "no-store",
+          },
+        });
       },
     },
   },

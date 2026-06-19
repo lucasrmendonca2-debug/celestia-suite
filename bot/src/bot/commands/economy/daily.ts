@@ -3,7 +3,7 @@ import type { SlashCommand } from "../../../types/command.js";
 import { ui } from "../../systems/ui/embed.factory.js";
 import { getAsset } from "../../systems/ui/embed.assets.js";
 import { fmtCoins, fmtDuration } from "../../utils/format.js";
-import { getAccount, getCurrency, isVip } from "../../systems/economy/economy.js";
+import { currencyFromConfig, getAccount, isVip } from "../../systems/economy/economy.js";
 import { getConfig } from "../../utils/guildCache.js";
 import { logTx } from "../../systems/economy/economy.tx.js";
 import { incrementMissionProgress } from "../../systems/economy/missions.js";
@@ -17,10 +17,17 @@ const command: SlashCommand = {
   data: new SlashCommandBuilder().setName("daily").setDescription("Recompensa diária."),
   async execute(interaction) {
     const guildId = interaction.guildId!;
-    const acc = await getAccount(guildId, interaction.user.id);
-    const cfg = await getConfig(guildId);
-    const c = await getCurrency(guildId);
+    const [acc, cfg] = await Promise.all([
+      getAccount(guildId, interaction.user.id),
+      getConfig(guildId),
+    ]);
+    const c = currencyFromConfig(cfg);
     const now = new Date();
+
+    if (cfg.economyEnabled === false) {
+      await interaction.reply({ embeds: [ui.warn({ title: "Economia desativada" })], ephemeral: true });
+      return;
+    }
 
     if (acc.lastDaily) {
       const diff = now.getTime() - acc.lastDaily.getTime();
@@ -42,9 +49,12 @@ const command: SlashCommand = {
       acc.streakDaily = 1;
     }
 
-    const vipMult = (await isVip(guildId, interaction.user.id)) ? cfg.economyVipMultiplier : 1;
     const { getUserVipMultiplier } = await import("../../systems/premium/premium.features.js");
-    const premiumMult = await getUserVipMultiplier(interaction.user.id, guildId, "daily").catch(() => 1);
+    const [vipMember, premiumMult] = await Promise.all([
+      isVip(guildId, interaction.user.id),
+      getUserVipMultiplier(interaction.user.id, guildId, "daily").catch(() => 1),
+    ]);
+    const vipMult = vipMember ? cfg.economyVipMultiplier : 1;
     const streakBonus = Math.min(acc.streakDaily, 7) * 50;
     const amount = Math.floor((cfg.economyDailyAmount + streakBonus) * vipMult * premiumMult);
 
@@ -52,7 +62,7 @@ const command: SlashCommand = {
     acc.lastDaily = now;
     await acc.save();
 
-    await logTx({
+    void logTx({
       guildId,
       userId: interaction.user.id,
       kind: "daily",
@@ -60,7 +70,7 @@ const command: SlashCommand = {
       balanceAfter: acc.wallet,
       reason: `Diária (streak ${acc.streakDaily})`,
     });
-    await incrementMissionProgress(guildId, interaction.user.id, "daily");
+    void incrementMissionProgress(guildId, interaction.user.id, "daily");
 
     const image = await getAsset(guildId, "economy.daily_image");
     await interaction.reply({

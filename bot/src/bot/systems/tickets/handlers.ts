@@ -112,6 +112,14 @@ export async function openTicket(
   member: GuildMember,
   categoryId?: string | null,
 ): Promise<{ channelId: string; ticketId: string }> {
+  return withOpenLock(`${guild.id}:${member.id}`, () => openTicketImpl(guild, member, categoryId));
+}
+
+async function openTicketImpl(
+  guild: Guild,
+  member: GuildMember,
+  categoryId?: string | null,
+): Promise<{ channelId: string; ticketId: string }> {
   const cfg = await getTicketConfig(guild.id);
 
   if (!cfg.enabled) {

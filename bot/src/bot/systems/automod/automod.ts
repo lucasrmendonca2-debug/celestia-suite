@@ -1,12 +1,21 @@
 import type { Message } from "discord.js";
 import { AutoModIncident } from "../../../database/models.js";
 import { supabase } from "../../../database/supabase.js";
+import { logger } from "../../utils/logger.js";
 
 const INVITE_RE = /(discord\.gg|discord(?:app)?\.com\/invite)\/\S+/i;
 const LINK_RE = /\bhttps?:\/\/\S+/i;
 
-// memória de spam
+// memória de spam (por guild:user)
 const spamMap = new Map<string, number[]>();
+
+// cache de config (30s) — antes era 1 query Supabase POR MENSAGEM
+const CFG_TTL_MS = 30_000;
+const cfgCache = new Map<string, { cfg: DashboardAutoModConfig | null; at: number }>();
+
+export function invalidateAutoModCache(guildId: string) {
+  cfgCache.delete(guildId);
+}
 
 interface DashboardAutoModConfig {
   enabled: boolean;
@@ -24,16 +33,26 @@ interface DashboardAutoModConfig {
   whitelist_roles: string[];
   whitelist_users: string[];
   warn_user_on_delete: boolean;
+  log_channel_id?: string | null;
 }
 
 async function getAutoModConfig(guildId: string): Promise<DashboardAutoModConfig | null> {
+  const hit = cfgCache.get(guildId);
+  if (hit && Date.now() - hit.at < CFG_TTL_MS) return hit.cfg;
+
   const { data, error } = await supabase
     .from("automod_config")
     .select("*")
     .eq("guild_id", guildId)
     .maybeSingle();
-  if (error) throw error;
-  return (data as DashboardAutoModConfig | null) ?? null;
+  if (error) {
+    logger.warn({ err: error, guildId }, "automod: falha ao ler config — usando cache vazio por 30s");
+    cfgCache.set(guildId, { cfg: null, at: Date.now() });
+    return null;
+  }
+  const cfg = (data as DashboardAutoModConfig | null) ?? null;
+  cfgCache.set(guildId, { cfg, at: Date.now() });
+  return cfg;
 }
 
 export async function runAutoMod(msg: Message): Promise<boolean> {
@@ -111,12 +130,28 @@ async function act(
       .then((m) => setTimeout(() => m.delete().catch(() => {}), 5000))
       .catch(() => {});
   }
-  await AutoModIncident.create({
-    guildId: msg.guildId!,
-    userId: msg.author.id,
-    rule,
-    action: "delete",
-    content: msg.content?.slice(0, 500) ?? "",
-  }).catch(() => {});
+
+  // Persistência: Mongo (legado) + Supabase moderation_logs (dashboard).
+  await Promise.allSettled([
+    AutoModIncident.create({
+      guildId: msg.guildId!,
+      userId: msg.author.id,
+      rule,
+      action: "delete",
+      content: msg.content?.slice(0, 500) ?? "",
+    }),
+    supabase.from("moderation_logs").insert({
+      guild_id: msg.guildId!,
+      user_id: msg.author.id,
+      moderator_id: null,
+      action: `automod:${rule}`,
+      reason,
+      details: {
+        channel_id: msg.channelId,
+        content: msg.content?.slice(0, 500) ?? "",
+      },
+    }),
+  ]);
+
   return true;
 }

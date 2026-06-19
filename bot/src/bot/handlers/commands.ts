@@ -30,7 +30,16 @@ export async function loadCommands(client: ZenoxClient): Promise<SlashCommand[]>
         logger.warn({ file }, "Comando sem export default — ignorado");
         continue;
       }
-      client.commands.set(cmd.data.name, cmd);
+      const name = cmd.data.name;
+      const existing = client.commands.get(name);
+      if (existing) {
+        logger.error(
+          { name, file },
+          "❌ Comando duplicado detectado — mantendo o primeiro carregado. Remova o arquivo extra.",
+        );
+        continue;
+      }
+      client.commands.set(name, cmd);
       list.push(cmd);
     } catch (err) {
       logger.error({ err, file }, "Falha ao carregar comando");

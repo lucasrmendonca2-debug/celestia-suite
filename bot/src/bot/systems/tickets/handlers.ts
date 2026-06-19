@@ -38,11 +38,34 @@ import {
   buildWelcomeEmbed,
 } from "./ticket.components.js";
 import {
+  canMemberClaim,
   canMemberClose,
+  canMemberReopen,
   canOpenCategory,
+  memberHasTicketPermission,
   resolveAccessLevel,
 } from "./ticket.permissions.js";
 import { buildTranscript } from "./transcript.js";
+
+/**
+ * Mutex em memória por (guild,user) pra evitar race condition:
+ * usuário spammando o botão abre vários tickets ao mesmo tempo porque
+ * o `countOpenTickets` ainda não enxergou os inserts pendentes.
+ */
+const openLocks = new Map<string, Promise<unknown>>();
+async function withOpenLock<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const prev = openLocks.get(key) ?? Promise.resolve();
+  let release!: () => void;
+  const next = new Promise<void>((r) => { release = r; });
+  openLocks.set(key, prev.then(() => next));
+  try {
+    await prev.catch(() => {});
+    return await fn();
+  } finally {
+    release();
+    if (openLocks.get(key) === prev.then(() => next)) openLocks.delete(key);
+  }
+}
 
 /* ===================== OPEN ===================== */
 

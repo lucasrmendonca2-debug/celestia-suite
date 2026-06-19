@@ -23,8 +23,9 @@ export async function syncDashboardShopItems(guildId: string): Promise<void> {
       return;
     }
 
+    const items = data as DashboardShopItem[];
     await Promise.all(
-      (data as DashboardShopItem[]).map((item) =>
+      items.map((item) =>
         ShopItem.findOneAndUpdate(
           { guildId, name: item.name },
           {
@@ -41,6 +42,10 @@ export async function syncDashboardShopItems(guildId: string): Promise<void> {
           { upsert: true, setDefaultsOnInsert: true },
         ),
       ),
+    );
+    await ShopItem.updateMany(
+      { guildId, source: "dashboard", name: { $nin: items.map((item) => item.name) } },
+      { enabled: false },
     );
   } catch (err) {
     logger.debug({ err, guildId }, "syncDashboardShopItems falhou silenciosamente");

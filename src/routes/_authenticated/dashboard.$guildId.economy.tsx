@@ -7,9 +7,12 @@ import { Coins, Plus, Save, Trash2 } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getEconomyConfig,
+  listEconomyMissions,
   listShopItems,
+  removeEconomyMission,
   removeShopItem,
   updateEconomyConfig,
+  upsertEconomyMission,
   upsertShopItem,
 } from "@/lib/guild/modules.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
@@ -36,6 +39,10 @@ export const Route = createFileRoute("/_authenticated/dashboard/$guildId/economy
       queryKey: ["shop", params.guildId],
       queryFn: () => listShopItems({ data: { guildId: params.guildId } }),
     });
+    await context.queryClient.ensureQueryData({
+      queryKey: ["economy-missions", params.guildId],
+      queryFn: () => listEconomyMissions({ data: { guildId: params.guildId } }),
+    });
     return { user, config };
   },
   component: EconomyPage,
@@ -48,6 +55,8 @@ function EconomyPage() {
   const updateFn = useServerFn(updateEconomyConfig);
   const upsertItem = useServerFn(upsertShopItem);
   const removeItem = useServerFn(removeShopItem);
+  const upsertMission = useServerFn(upsertEconomyMission);
+  const removeMission = useServerFn(removeEconomyMission);
 
   const [form, setForm] = useState<any>(config);
   const [item, setItem] = useState({
@@ -56,10 +65,24 @@ function EconomyPage() {
     price: 100,
     role_id: "",
   });
+  const [mission, setMission] = useState({
+    slug: "daily_claim",
+    title: "Pegue sua diária",
+    description: "Use /daily hoje.",
+    kind: "daily",
+    goal: 1,
+    reward: 150,
+    active: true,
+    sort_order: 1,
+  });
 
   const { data: shop } = useSuspenseQuery({
     queryKey: ["shop", guildId],
     queryFn: () => listShopItems({ data: { guildId } }),
+  });
+  const { data: missions } = useSuspenseQuery({
+    queryKey: ["economy-missions", guildId],
+    queryFn: () => listEconomyMissions({ data: { guildId } }),
   });
 
   const save = useMutation({

@@ -3,8 +3,7 @@
  * Troca o code por access_token, busca /users/@me e cria sessão.
  *
  */
-import { createFileRoute } from "@tanstack/react-router";
-import { setResponseHeader, setResponseStatus } from "@tanstack/react-start/server";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 function htmlError(message: string, status: number) {
   const html = `<!doctype html><meta charset="utf-8"><title>Erro de login</title>
@@ -59,11 +58,11 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
             502,
           );
         }
-
-        setResponseStatus(302);
-        setResponseHeader("Location", "/dashboard");
-        setResponseHeader("Cache-Control", "no-store");
-        return "Redirecting to dashboard...";
+        return redirect({
+          to: "/dashboard",
+          statusCode: 302,
+          headers: { "Cache-Control": "no-store" },
+        });
       },
     },
   },

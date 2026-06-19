@@ -3,8 +3,7 @@
  * Aceita GET também pra link direto.
  *
  */
-import { createFileRoute } from "@tanstack/react-router";
-import { setResponseHeader, setResponseStatus } from "@tanstack/react-start/server";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 
 async function clear() {
   const { getSession } = await import("@/lib/auth/session.server");
@@ -13,10 +12,11 @@ async function clear() {
 }
 
 function redirectHome() {
-  setResponseStatus(302);
-  setResponseHeader("Location", "/");
-  setResponseHeader("Cache-Control", "no-store");
-  return "Redirecting...";
+  return redirect({
+    to: "/",
+    statusCode: 302,
+    headers: { "Cache-Control": "no-store" },
+  });
 }
 
 export const Route = createFileRoute("/api/auth/logout")({

@@ -3,7 +3,7 @@
  * Aceita GET também pra link direto.
  *
  */
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 
 async function clear() {
   const { getSession } = await import("@/lib/auth/session.server");
@@ -11,11 +11,15 @@ async function clear() {
   await session.clear();
 }
 
-function redirectHome() {
-  return redirect({
-    to: "/",
-    statusCode: 302,
-    headers: { "Cache-Control": "no-store" },
+async function redirectHome() {
+  const { createSessionClearCookie } = await import("@/lib/auth/session.server");
+  return new Response(null, {
+    status: 302,
+    headers: {
+      Location: "/",
+      "Cache-Control": "no-store",
+      "Set-Cookie": createSessionClearCookie(),
+    },
   });
 }
 

@@ -2,11 +2,13 @@ import { EconomyAccount, VipMembership } from "../../../database/models.js";
 import { getConfig } from "../../utils/guildCache.js";
 
 export async function getAccount(guildId: string, userId: string) {
-  return EconomyAccount.findOneAndUpdate(
+  const acc = await EconomyAccount.findOneAndUpdate(
     { guildId, userId },
     { $setOnInsert: { guildId, userId } },
     { upsert: true, new: true, setDefaultsOnInsert: true },
   );
+  if (!acc) throw new Error("Não foi possível carregar a conta de economia.");
+  return acc;
 }
 
 export async function addWallet(guildId: string, userId: string, amount: number) {

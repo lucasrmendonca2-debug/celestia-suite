@@ -4,7 +4,7 @@
  *
  */
 import { createFileRoute } from "@tanstack/react-router";
-import { setResponseStatus } from "@tanstack/react-start/server";
+import { setResponseHeader, setResponseStatus } from "@tanstack/react-start/server";
 
 function htmlError(message: string, status: number) {
   const html = `<!doctype html><meta charset="utf-8"><title>Erro de login</title>
@@ -61,13 +61,9 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
         }
 
         setResponseStatus(302);
-        return new Response(null, {
-          status: 302,
-          headers: {
-            Location: "/dashboard",
-            "Cache-Control": "no-store",
-          },
-        });
+        setResponseHeader("Location", "/dashboard");
+        setResponseHeader("Cache-Control", "no-store");
+        return "Redirecting to dashboard...";
       },
     },
   },

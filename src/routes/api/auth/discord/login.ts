@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { setResponseStatus } from "@tanstack/react-start/server";
+import { setResponseHeader, setResponseStatus } from "@tanstack/react-start/server";
 
 export const Route = createFileRoute("/api/auth/discord/login")({
   server: {
@@ -16,13 +16,9 @@ export const Route = createFileRoute("/api/auth/discord/login")({
 
         const url = buildAuthorizeUrl(state, redirectUri);
         setResponseStatus(302);
-        return new Response(null, {
-          status: 302,
-          headers: {
-            Location: url,
-            "Cache-Control": "no-store",
-          },
-        });
+        setResponseHeader("Location", url);
+        setResponseHeader("Cache-Control", "no-store");
+        return "Redirecting to Discord...";
       },
     },
   },

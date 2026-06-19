@@ -4,7 +4,7 @@
  *
  */
 import { createFileRoute } from "@tanstack/react-router";
-import { setResponseStatus } from "@tanstack/react-start/server";
+import { setResponseHeader, setResponseStatus } from "@tanstack/react-start/server";
 
 async function clear() {
   const { getSession } = await import("@/lib/auth/session.server");
@@ -14,13 +14,9 @@ async function clear() {
 
 function redirectHome() {
   setResponseStatus(302);
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: "/",
-      "Cache-Control": "no-store",
-    },
-  });
+  setResponseHeader("Location", "/");
+  setResponseHeader("Cache-Control", "no-store");
+  return "Redirecting...";
 }
 
 export const Route = createFileRoute("/api/auth/logout")({

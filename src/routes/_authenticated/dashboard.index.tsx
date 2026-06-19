@@ -17,6 +17,19 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
     return { user, guildsCount: guilds.length };
   },
   component: ServerPicker,
+  errorComponent: ({ error, reset }) => (
+    <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background text-foreground p-6">
+      <h1 className="text-xl font-semibold">Falha ao carregar o dashboard</h1>
+      <pre className="max-w-2xl whitespace-pre-wrap rounded bg-card p-4 text-xs text-muted-foreground">
+        {error instanceof Error ? `${error.name}: ${error.message}\n\n${error.stack ?? ""}` : String(error)}
+      </pre>
+      <div className="flex gap-2">
+        <button onClick={reset} className="rounded-md border border-border px-3 py-1.5 text-sm">Tentar de novo</button>
+        <a href="/login" className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground">Logar novamente</a>
+      </div>
+    </div>
+  ),
+  notFoundComponent: () => <div className="p-6">Não encontrado.</div>,
 });
 
 function ServerPicker() {

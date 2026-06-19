@@ -11,6 +11,7 @@ import {
   TextChannel,
 } from "discord.js";
 import { brandEmbed } from "../../utils/embed.js";
+import { supabase } from "../../../database/supabase.js";
 import {
   claimTicketRow,
   closeTicketRow,
@@ -38,11 +39,34 @@ import {
   buildWelcomeEmbed,
 } from "./ticket.components.js";
 import {
+  canMemberClaim,
   canMemberClose,
+  canMemberReopen,
   canOpenCategory,
+  memberHasTicketPermission,
   resolveAccessLevel,
 } from "./ticket.permissions.js";
 import { buildTranscript } from "./transcript.js";
+
+/**
+ * Mutex em memória por (guild,user) pra evitar race condition:
+ * usuário spammando o botão abre vários tickets ao mesmo tempo porque
+ * o `countOpenTickets` ainda não enxergou os inserts pendentes.
+ */
+const openLocks = new Map<string, Promise<unknown>>();
+async function withOpenLock<T>(key: string, fn: () => Promise<T>): Promise<T> {
+  const prev = openLocks.get(key) ?? Promise.resolve();
+  let release!: () => void;
+  const next = new Promise<void>((r) => { release = r; });
+  openLocks.set(key, prev.then(() => next));
+  try {
+    await prev.catch(() => {});
+    return await fn();
+  } finally {
+    release();
+    if (openLocks.get(key) === prev.then(() => next)) openLocks.delete(key);
+  }
+}
 
 /* ===================== OPEN ===================== */
 
@@ -89,6 +113,14 @@ export async function openTicket(
   member: GuildMember,
   categoryId?: string | null,
 ): Promise<{ channelId: string; ticketId: string }> {
+  return withOpenLock(`${guild.id}:${member.id}`, () => openTicketImpl(guild, member, categoryId));
+}
+
+async function openTicketImpl(
+  guild: Guild,
+  member: GuildMember,
+  categoryId?: string | null,
+): Promise<{ channelId: string; ticketId: string }> {
   const cfg = await getTicketConfig(guild.id);
 
   if (!cfg.enabled) {
@@ -113,6 +145,30 @@ export async function openTicket(
     const lvl = resolveAccessLevel(member, levels, perms);
     const denial = canOpenCategory(member, category, lvl);
     if (denial) throw new Error(denial);
+  }
+
+  // Permissão granular global: se houver QUALQUER ticket_permission_roles configurada
+  // com can_open_ticket pra esta guild, exigimos que o membro tenha um cargo
+  // com can_open_ticket = true (ou ManageGuild). Caso contrário (nada configurado),
+  // todo mundo pode abrir como antes.
+  if (!member.permissions.has(PermissionFlagsBits.ManageGuild)) {
+    const { data: anyConfigured } = await supabase
+      .from("ticket_permission_roles")
+      .select("id")
+      .eq("guild_id", guild.id)
+      .eq("can_open_ticket", true)
+      .limit(1);
+    if (anyConfigured && anyConfigured.length > 0) {
+      const allowed = await memberHasTicketPermission(member, "can_open_ticket");
+      if (!allowed) throw new Error("Você não tem permissão para abrir tickets neste servidor.");
+    }
+    // Prioridade: se a categoria pediu priority, valida can_open_priority_ticket
+    if (category?.priority) {
+      const allowedPrio = await memberHasTicketPermission(member, "can_open_priority_ticket");
+      if (!allowedPrio) {
+        throw new Error("Você não tem permissão para abrir tickets prioritários.");
+      }
+    }
   }
 
   // limite (categoria sobrescreve global, se definido)
@@ -316,12 +372,10 @@ export async function reopenTicket(channel: TextChannel, member: GuildMember): P
   const ticket = await findTicketByChannel(channel.id);
   if (!ticket) throw new Error("Este canal não é um ticket.");
   if (ticket.status === "open") throw new Error("Este ticket já está aberto.");
-  if (
-    !member.permissions.has(PermissionFlagsBits.ManageChannels) &&
-    member.id !== ticket.user_id
-  ) {
+  if (member.id !== ticket.user_id) {
     const cfg = await getTicketConfig(channel.guild.id);
-    if (!cfg.default_support_role_id || !member.roles.cache.has(cfg.default_support_role_id)) {
+    const isDefaultSupport = !!cfg.default_support_role_id && member.roles.cache.has(cfg.default_support_role_id);
+    if (!isDefaultSupport && !(await canMemberReopen(member))) {
       throw new Error("Você não tem permissão para reabrir este ticket.");
     }
   }
@@ -565,11 +619,9 @@ export async function handleTicketButton(interaction: ButtonInteraction): Promis
       }
       const member = interaction.member as GuildMember;
       const cfg = await getTicketConfig(interaction.guild.id);
-      const isStaff =
-        member.permissions.has(PermissionFlagsBits.ManageChannels) ||
-        (!!cfg.default_support_role_id &&
-          member.roles.cache.has(cfg.default_support_role_id));
-      if (!isStaff) {
+      const isDefaultSupport = !!cfg.default_support_role_id && member.roles.cache.has(cfg.default_support_role_id);
+      const allowedToClaim = isDefaultSupport || (await canMemberClaim(member));
+      if (!allowedToClaim) {
         throw new Error("Apenas a equipe de suporte pode assumir tickets.");
       }
       if (ticket.claimed_by && ticket.claimed_by !== member.id) {

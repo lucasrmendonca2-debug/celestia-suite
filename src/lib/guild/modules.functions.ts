@@ -703,6 +703,64 @@ export const removeShopItem = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export const listEconomyMissions = createServerFn({ method: "GET" })
+  .inputValidator((d: { guildId: string }) =>
+    z.object({ guildId: guildIdSchema }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { data: rows, error } = await sb
+      .from("economy_missions")
+      .select("*")
+      .eq("guild_id", data.guildId)
+      .order("sort_order", { ascending: true });
+    if (error) throw new Error(error.message);
+    return rows ?? [];
+  });
+
+const MissionInput = z.object({
+  guildId: guildIdSchema,
+  id: z.string().uuid().optional(),
+  slug: z.string().min(1).max(64).regex(/^[a-z0-9_-]+$/),
+  title: z.string().min(1).max(120),
+  description: z.string().max(512).nullable().optional(),
+  kind: z.enum(["daily", "work", "shop_spend", "rob", "crime", "messages"]),
+  goal: z.number().int().min(1).max(1_000_000),
+  reward: z.number().int().min(0).max(1_000_000_000),
+  active: z.boolean().default(true),
+  sort_order: z.number().int().min(0).max(10_000).default(0),
+});
+
+export const upsertEconomyMission = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => MissionInput.parse(d))
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { guildId, ...rest } = data;
+    const { error } = await sb
+      .from("economy_missions")
+      .upsert({ guild_id: guildId, ...rest }, { onConflict: "id" });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const removeEconomyMission = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { error } = await sb
+      .from("economy_missions")
+      .delete()
+      .eq("id", data.id)
+      .eq("guild_id", data.guildId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 // ============================================================
 // MOD CASES (read-only no dashboard)
 // ============================================================

@@ -65,18 +65,12 @@ validate_env() {
   check_required "DISCORD_TOKEN ou DISCORD_BOT_TOKEN" "$DISCORD_TOKEN_VAL"
   check_required "DISCORD_CLIENT_ID" "$(get_env_value DISCORD_CLIENT_ID)"
   check_required "MONGO_URI" "$(get_env_value MONGO_URI)"
-
-  # Supabase é opcional. Se estiver com placeholder, limpa pra não quebrar o bot.
-  for opt in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY; do
-    val="$(get_env_value "$opt")"
-    if [ -n "$val" ] && is_missing_or_placeholder "$val"; then
-      echo "AVISO: $opt está com placeholder; removendo do .env (integração Supabase ficará desativada)."
-      sed -i.bak "/^${opt}=/d" .env
-    fi
-  done
+  check_required "SUPABASE_URL" "$(get_env_value SUPABASE_URL)"
+  check_required "SUPABASE_SERVICE_ROLE_KEY" "$(get_env_value SUPABASE_SERVICE_ROLE_KEY)"
 
   if [ "$errors" -ne 0 ]; then
-    echo "ERRO: deploy abortado — preencha os campos obrigatórios no .env e rode de novo."
+    echo "ERRO: deploy abortado para não subir o bot bugado com .env inválido."
+    echo "Dica: não use os textos COLE_..._AQUI; substitua pelos valores reais e rode este script de novo."
     exit 1
   fi
 }

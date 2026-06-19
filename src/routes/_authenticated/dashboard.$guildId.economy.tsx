@@ -46,6 +46,12 @@ export const Route = createFileRoute("/_authenticated/dashboard/$guildId/economy
     return { user, config };
   },
   component: EconomyPage,
+  errorComponent: ({ error }) => (
+    <div className="p-6 text-sm text-muted-foreground">
+      Falha ao carregar economia: {error instanceof Error ? error.message : String(error)}
+    </div>
+  ),
+  notFoundComponent: () => <div className="p-6 text-sm text-muted-foreground">Servidor não encontrado.</div>,
 });
 
 function EconomyPage() {

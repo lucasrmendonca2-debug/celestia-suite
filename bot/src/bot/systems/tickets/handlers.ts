@@ -27,6 +27,7 @@ import {
   writeLog,
   type TicketCategory,
   type TicketConfig,
+  type TicketRow,
 } from "./ticket.service.js";
 import {
   buildClosedActions,
@@ -44,6 +45,38 @@ import {
 import { buildTranscript } from "./transcript.js";
 
 /* ===================== OPEN ===================== */
+
+async function countLiveOpenTicketChannels(guild: Guild, userId: string): Promise<number> {
+  await guild.channels.fetch().catch(() => null);
+  return guild.channels.cache.filter((ch) => {
+    if (ch.type !== ChannelType.GuildText) return false;
+    const channel = ch as TextChannel;
+    return !channel.name.startsWith("closed-") && !!channel.topic?.includes(`• ${userId}`);
+  }).size;
+}
+
+function ticketFromChannelTopic(channel: TextChannel): TicketRow | null {
+  const topic = channel.topic ?? "";
+  const match = topic.match(/Ticket de (.+?) • (\d{5,32})$/);
+  if (!match) return null;
+  return {
+    id: channel.id,
+    guild_id: channel.guild.id,
+    channel_id: channel.id,
+    user_id: match[2],
+    username: match[1],
+    category_id: null,
+    category_name: topic.split(" • ")[0] ?? "Geral",
+    status: channel.name.startsWith("closed-") ? "closed" : "open",
+    priority: false,
+    claimed_by: null,
+    closed_by: null,
+    close_reason: null,
+    rating: null,
+    created_at: channel.createdAt?.toISOString() ?? new Date().toISOString(),
+    closed_at: null,
+  };
+}
 
 export async function openTicket(
   guild: Guild,
@@ -78,7 +111,11 @@ export async function openTicket(
 
   // limite (categoria sobrescreve global, se definido)
   const limit = category?.max_open_tickets_per_user ?? cfg.max_open_tickets_per_user;
-  const open = await countOpenTickets(guild.id, member.id);
+  const [dbOpen, liveOpen] = await Promise.all([
+    countOpenTickets(guild.id, member.id),
+    countLiveOpenTicketChannels(guild, member.id),
+  ]);
+  const open = Math.max(dbOpen, liveOpen);
   if (open >= limit) {
     throw new Error(
       `Você já possui o número máximo de tickets abertos (${limit}). Feche algum antes de abrir outro.`,
@@ -156,21 +193,26 @@ export async function openTicket(
     ],
   });
 
-  const ticket = await createTicketRow({
-    guild_id: guild.id,
-    channel_id: channel.id,
-    user_id: member.id,
-    username: member.user.username,
-    category_id: category?.id ?? null,
-    category_name: categoryName,
-    priority: category?.priority ?? false,
-  });
+  let ticket: TicketRow | null = null;
+  try {
+    ticket = await createTicketRow({
+      guild_id: guild.id,
+      channel_id: channel.id,
+      user_id: member.id,
+      username: member.user.username,
+      category_id: category?.id ?? null,
+      category_name: categoryName,
+      priority: category?.priority ?? false,
+    });
+  } catch (err) {
+    console.warn("createTicketRow falhou; seguindo com ticket sem registro no banco", err);
+  }
 
   // Mensagem de boas-vindas: categoria sobrescreve a global se definida
   const welcomeCfg: TicketConfig = category?.welcome_message
     ? { ...cfg, ticket_welcome_message: category.welcome_message }
     : cfg;
-  const welcome = buildWelcomeEmbed(welcomeCfg, ticket.id, member.id, supportRoleId);
+  const welcome = buildWelcomeEmbed(welcomeCfg, ticket?.id ?? channel.id, member.id, supportRoleId);
   const actions = buildTicketActions(cfg.allow_user_close_ticket);
 
   await channel.send({
@@ -181,13 +223,13 @@ export async function openTicket(
     components: [actions],
   });
 
-  await writeLog(guild.id, ticket.id, "opened", member.id, {
+  await writeLog(guild.id, ticket?.id ?? null, "opened", member.id, {
     channelId: channel.id,
     categoryId: category?.id ?? null,
   });
   await sendOpenedLog(guild, cfg, channel, member);
 
-  return { channelId: channel.id, ticketId: ticket.id };
+  return { channelId: channel.id, ticketId: ticket?.id ?? channel.id };
 }
 
 /* ===================== CLOSE ===================== */

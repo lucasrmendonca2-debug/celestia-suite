@@ -221,6 +221,7 @@ const shopItemSchema = new Schema(
     consumable: { type: Boolean, default: true },
     emoji: { type: String, default: "🛒" },
     enabled: { type: Boolean, default: true },
+    source: { type: String, enum: ["bot", "dashboard"], default: "bot" },
   },
   { timestamps: true },
 );

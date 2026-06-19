@@ -141,7 +141,7 @@ export function makeDiscordCallbackUri(request: Request, browserOrigin?: string 
   return `${protocol}://${host}/api/auth/discord/callback`;
 }
 
-export function buildAuthorizeUrl(state: string): string {
+export function buildAuthorizeUrl(state: string, redirectUri: string): string {
   const { clientId } = getOAuthConfig();
   const params = new URLSearchParams({
     client_id: clientId,
@@ -149,6 +149,7 @@ export function buildAuthorizeUrl(state: string): string {
     scope: "identify guilds",
     state,
     prompt: "consent",
+    redirect_uri: redirectUri,
   });
   return `https://discord.com/oauth2/authorize?${params.toString()}`;
 }

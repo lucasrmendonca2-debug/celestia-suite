@@ -7,7 +7,7 @@ const ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sem caracteres ambíguos
 function segment(len: number): string {
   const buf = randomBytes(len);
   let out = "";
-  for (let i = 0; i < len; i++) out += ALPHABET[buf[i] % ALPHABET.length];
+  for (let i = 0; i < len; i++) out += ALPHABET[(buf[i] ?? 0) % ALPHABET.length];
   return out;
 }
 

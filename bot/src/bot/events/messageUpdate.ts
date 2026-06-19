@@ -5,8 +5,9 @@ const event: BotEvent<"messageUpdate"> = {
   name: "messageUpdate",
   async execute(_client, oldMsg, newMsg) {
     if (oldMsg.partial || newMsg.partial) return;
-    if (!newMsg.guild || newMsg.author?.bot) return;
+    if (!newMsg.inGuild() || newMsg.author?.bot) return;
     if (oldMsg.content === newMsg.content) return;
+    if (!oldMsg.inGuild()) return;
     await logMessageEdit(oldMsg, newMsg);
   },
 };

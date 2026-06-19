@@ -58,9 +58,11 @@ const event: BotEvent<"ready"> = {
     setInterval(rotate, 20_000);
 
     for (const [, guild] of client.guilds.cache) {
-      await ensureGuild(guild).catch((err) =>
-        logger.error({ err, guildId: guild.id }, "ensureGuild"),
-      );
+      try {
+        await ensureGuild(guild);
+      } catch (err) {
+        logger.error({ err, guildId: guild.id }, "ensureGuild");
+      }
     }
   },
 };

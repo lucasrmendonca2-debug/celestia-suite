@@ -4,6 +4,7 @@
  *
  */
 import { createFileRoute } from "@tanstack/react-router";
+import { setResponseStatus } from "@tanstack/react-start/server";
 
 async function clear() {
   const { getSession } = await import("@/lib/auth/session.server");
@@ -12,6 +13,7 @@ async function clear() {
 }
 
 function redirectHome() {
+  setResponseStatus(302);
   return new Response(null, {
     status: 302,
     headers: {

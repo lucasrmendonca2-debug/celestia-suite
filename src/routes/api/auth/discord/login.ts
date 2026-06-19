@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { setResponseStatus } from "@tanstack/react-start/server";
 
 export const Route = createFileRoute("/api/auth/discord/login")({
   server: {
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/api/auth/discord/login")({
         await session.update({ ...session.data, oauthRedirectUri: redirectUri });
 
         const url = buildAuthorizeUrl(state, redirectUri);
+        setResponseStatus(302);
         return new Response(null, {
           status: 302,
           headers: {

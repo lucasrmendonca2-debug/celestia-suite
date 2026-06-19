@@ -15,7 +15,7 @@ mkdir -p logs
 
 get_env_value() {
   local key="$1"
-  { grep -E "^${key}=" .env 2>/dev/null || true; } | tail -n1 | cut -d= -f2- | tr -d '"'"'"'"'"' \r'
+  { grep -E "^${key}=" .env 2>/dev/null || true; } | tail -n1 | cut -d= -f2- | python3 -c 'import sys; print(sys.stdin.read().strip().strip("\""))'
 }
 
 is_missing_or_placeholder() {

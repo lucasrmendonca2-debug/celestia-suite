@@ -3,10 +3,8 @@ import WebSocket from "ws";
 import { env } from "../config/env.js";
 
 /**
- * Supabase client com service role — bypassa RLS.
- * Se SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY não estiverem definidos,
- * exporta um stub que lança ao ser usado (evita crash no boot por falta
- * de WebSocket nativo no Node 20).
+ * Cliente do backend. Usa service_role quando existe; senão usa a chave pública
+ * para leituras permitidas por RLS e mantém fallbacks no bot.
  */
 function makeStub(): SupabaseClient {
   const handler: ProxyHandler<object> = {
@@ -27,12 +25,19 @@ function readJwtRole(key?: string): string | null {
   }
 }
 
-export const supabaseKeyRole = readJwtRole(env.SUPABASE_SERVICE_ROLE_KEY);
+const supabaseKey =
+  env.SUPABASE_SERVICE_ROLE_KEY ||
+  env.SUPABASE_ANON_KEY ||
+  env.SUPABASE_PUBLISHABLE_KEY ||
+  process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  "";
+
+export const supabaseKeyRole = readJwtRole(supabaseKey);
 export const canWriteSupabase = supabaseKeyRole === "service_role";
 
 export const supabase: SupabaseClient =
-  env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY
-    ? createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
+  env.SUPABASE_URL && supabaseKey
+    ? createClient(env.SUPABASE_URL, supabaseKey, {
         auth: { persistSession: false, autoRefreshToken: false },
         realtime: {
           transport: WebSocket as unknown as typeof globalThis.WebSocket,

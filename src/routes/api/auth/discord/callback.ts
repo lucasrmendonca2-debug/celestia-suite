@@ -3,7 +3,7 @@
  * Troca o code por access_token, busca /users/@me e cria sessão.
  *
  */
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 
 function htmlError(message: string, status: number) {
   const html = `<!doctype html><meta charset="utf-8"><title>Erro de login</title>

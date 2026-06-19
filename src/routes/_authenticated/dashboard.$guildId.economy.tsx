@@ -323,6 +323,75 @@ function EconomyPage() {
             )}
           </div>
         </TabsContent>
+
+        <TabsContent value="missions" className="mt-4 space-y-4">
+          <Card>
+            <h3 className="mb-3 text-sm font-semibold">Nova missão</h3>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <Field label="Slug">
+                <Input value={mission.slug} onChange={(e) => setMission({ ...mission, slug: e.target.value })} />
+              </Field>
+              <Field label="Título">
+                <Input value={mission.title} onChange={(e) => setMission({ ...mission, title: e.target.value })} />
+              </Field>
+              <Field label="Tipo">
+                <select
+                  value={mission.kind}
+                  onChange={(e) => setMission({ ...mission, kind: e.target.value })}
+                  className="h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
+                >
+                  <option value="daily">Daily</option>
+                  <option value="work">Work</option>
+                  <option value="shop_spend">Gasto na loja</option>
+                  <option value="crime">Crime</option>
+                  <option value="rob">Roubo</option>
+                  <option value="messages">Mensagens</option>
+                </select>
+              </Field>
+              <Field label="Meta">
+                <Input type="number" value={mission.goal} onChange={(e) => setMission({ ...mission, goal: Number(e.target.value) })} />
+              </Field>
+              <Field label="Recompensa">
+                <Input type="number" value={mission.reward} onChange={(e) => setMission({ ...mission, reward: Number(e.target.value) })} />
+              </Field>
+              <Field label="Ordem">
+                <Input type="number" value={mission.sort_order} onChange={(e) => setMission({ ...mission, sort_order: Number(e.target.value) })} />
+              </Field>
+              <Field label="Descrição">
+                <Textarea rows={2} value={mission.description} onChange={(e) => setMission({ ...mission, description: e.target.value })} />
+              </Field>
+              <div className="flex items-end justify-between gap-3 rounded-lg border border-border px-3 py-2">
+                <Label>Ativa</Label>
+                <Switch checked={mission.active} onCheckedChange={(v) => setMission({ ...mission, active: v })} />
+              </div>
+            </div>
+            <div className="mt-3 flex justify-end">
+              <Button onClick={() => addMission.mutate()} disabled={!mission.slug || !mission.title || addMission.isPending}>
+                <Plus className="mr-1.5 size-4" /> Salvar missão
+              </Button>
+            </div>
+          </Card>
+
+          <div className="rounded-2xl border border-border bg-card">
+            {missions.length === 0 ? (
+              <p className="p-6 text-center text-sm text-muted-foreground">Nenhuma missão configurada.</p>
+            ) : (
+              <ul className="divide-y divide-border">
+                {(missions as any[]).map((m) => (
+                  <li key={m.id} className="flex items-center justify-between gap-4 px-5 py-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium">{m.title} <span className="text-xs text-muted-foreground">/{m.slug}</span></p>
+                      <p className="text-xs text-muted-foreground">{m.kind} · meta {m.goal} · recompensa {form.currency_emoji} {Number(m.reward).toLocaleString("pt-BR")}</p>
+                    </div>
+                    <Button variant="ghost" size="icon" onClick={() => deleteMission.mutate(m.id)}>
+                      <Trash2 className="size-4" />
+                    </Button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </TabsContent>
       </Tabs>
     </ModuleLayout>
   );

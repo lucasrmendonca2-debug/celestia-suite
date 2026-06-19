@@ -42,6 +42,7 @@ const event: BotEvent<"interactionCreate"> = {
         else if (interaction.customId.startsWith("suggestion:")) await handleSuggestionButton(interaction);
         else if (interaction.customId.startsWith("mission_claim:")) {
           const missionId = interaction.customId.split(":")[1];
+          if (!missionId) return;
           const { claimMission } = await import("../systems/economy/missions.js");
           const { brandEmbed } = await import("../utils/embed.js");
           const res = await claimMission(interaction.guildId!, interaction.user.id, missionId);

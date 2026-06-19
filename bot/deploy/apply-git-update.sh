@@ -11,20 +11,71 @@ if [ ! -f bot/package.json ] || [ ! -d bot/src ]; then
   exit 1
 fi
 
+mkdir -p logs
+
+get_env_value() {
+  local key="$1"
+  { grep -E "^${key}=" .env 2>/dev/null || true; } | tail -n1 | cut -d= -f2- | python3 -c 'import sys; print(sys.stdin.read().strip().strip("\""))'
+}
+
+is_missing_or_placeholder() {
+  local value="${1:-}"
+  [ -z "$value" ] && return 0
+  [[ "$value" == COLE_* ]] && return 0
+  [[ "$value" == *_AQUI ]] && return 0
+  [[ "$value" == *"COLE_"* ]] && return 0
+  return 1
+}
+
 # === Aviso no Discord (canal de deploy) ===
 DEPLOY_CHANNEL_ID="801480652381356094"
 DISCORD_TOKEN_VAL="$( { grep -E '^(DISCORD_TOKEN|DISCORD_BOT_TOKEN)=' .env 2>/dev/null || true; } | head -n1 | cut -d= -f2- | tr -d '"'"'"' \r')"
+DISCORD_TOKEN_VAL="$(get_env_value DISCORD_TOKEN)"
+[ -z "$DISCORD_TOKEN_VAL" ] && DISCORD_TOKEN_VAL="$(get_env_value DISCORD_BOT_TOKEN)"
+DEPLOY_CHANNEL_ID="$(get_env_value DEPLOY_CHANNEL_ID)"
+[ -z "$DEPLOY_CHANNEL_ID" ] && DEPLOY_CHANNEL_ID="801480652381356094"
 COMMIT_HASH="$(git rev-parse --short HEAD 2>/dev/null || echo '?')"
 COMMIT_MSG="$(git log -1 --pretty=%s 2>/dev/null || echo '?')"
 notify_discord() {
   local content="$1"
-  [ -z "$DISCORD_TOKEN_VAL" ] && return 0
+  is_missing_or_placeholder "$DISCORD_TOKEN_VAL" && return 0
   curl -s -o /dev/null -X POST \
     -H "Authorization: Bot $DISCORD_TOKEN_VAL" \
     -H "Content-Type: application/json" \
     -d "$(printf '{"content":%s}' "$(printf '%s' "$content" | python3 -c 'import json,sys;print(json.dumps(sys.stdin.read()))')")" \
     "https://discord.com/api/v10/channels/$DEPLOY_CHANNEL_ID/messages" || true
 }
+
+validate_env() {
+  local errors=0
+  if [ ! -f .env ]; then
+    echo "ERRO: ~/zenox-bot/.env não existe. Crie o arquivo com os valores reais antes de reiniciar o bot."
+    exit 1
+  fi
+
+  check_required() {
+    local label="$1"
+    local value="$2"
+    if is_missing_or_placeholder "$value"; then
+      echo "ERRO: $label está ausente ou ainda está com placeholder COLE_..._AQUI no .env."
+      errors=1
+    fi
+  }
+
+  check_required "DISCORD_TOKEN ou DISCORD_BOT_TOKEN" "$DISCORD_TOKEN_VAL"
+  check_required "DISCORD_CLIENT_ID" "$(get_env_value DISCORD_CLIENT_ID)"
+  check_required "MONGO_URI" "$(get_env_value MONGO_URI)"
+  check_required "SUPABASE_URL" "$(get_env_value SUPABASE_URL)"
+  check_required "SUPABASE_SERVICE_ROLE_KEY" "$(get_env_value SUPABASE_SERVICE_ROLE_KEY)"
+
+  if [ "$errors" -ne 0 ]; then
+    echo "ERRO: deploy abortado para não subir o bot bugado com .env inválido."
+    echo "Dica: não use os textos COLE_..._AQUI; substitua pelos valores reais e rode este script de novo."
+    exit 1
+  fi
+}
+
+validate_env
 notify_discord "🔄 Pegando commit \`$COMMIT_HASH\` — $COMMIT_MSG"
 
 

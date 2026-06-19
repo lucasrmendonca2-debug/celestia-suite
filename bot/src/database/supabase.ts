@@ -3,10 +3,8 @@ import WebSocket from "ws";
 import { env } from "../config/env.js";
 
 /**
- * Supabase client com service role — bypassa RLS.
- * Se SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY não estiverem definidos,
- * exporta um stub que lança ao ser usado (evita crash no boot por falta
- * de WebSocket nativo no Node 20).
+ * Cliente do backend. Usa service_role quando existe; senão usa a chave pública
+ * para leituras permitidas por RLS e mantém fallbacks no bot.
  */
 function makeStub(): SupabaseClient {
   const handler: ProxyHandler<object> = {

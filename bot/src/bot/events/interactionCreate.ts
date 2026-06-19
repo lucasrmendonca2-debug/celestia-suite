@@ -147,38 +147,35 @@ function getCmdName(i: Interaction): string | undefined {
 async function handleHelpInteraction(client: ZenoxClient, interaction: Interaction) {
   if (!interaction.isButton() && !interaction.isStringSelectMenu()) return;
 
-  // ACK rápido — evita "Interação falhou" (3s do Discord) mesmo se houver delay no render.
-  try {
-    if (!interaction.deferred && !interaction.replied) {
-      await interaction.deferUpdate();
+  // `interaction.update(...)` é atômico: ACK + edição na mesma chamada.
+  // Mais robusto que deferUpdate+editReply em mensagens ephemeral.
+  const send = async (view: { embeds: any[]; components: any[] }) => {
+    try {
+      if (!interaction.replied && !interaction.deferred) {
+        await interaction.update(view);
+      } else {
+        await interaction.editReply(view);
+      }
+    } catch (err) {
+      logger.error({ err, customId: (interaction as any).customId }, "help: update falhou");
     }
-  } catch (err) {
-    logger.warn({ err }, "help: deferUpdate falhou (provavelmente já expirou)");
-    return;
+  };
+
+  if (interaction.isButton() && interaction.customId === "help:home") {
+    return send(renderHome(client));
   }
 
-  try {
-    if (interaction.isButton() && interaction.customId === "help:home") {
-      await interaction.editReply(renderHome(client));
-      return;
-    }
+  if (interaction.isStringSelectMenu() && interaction.customId === "help:select") {
+    const value = interaction.values[0] as HelpCategoryKey;
+    if (!HELP_CATEGORIES.some((c) => c.key === value)) return;
+    return send(renderCategory(client, value, 0));
+  }
 
-    if (interaction.isStringSelectMenu() && interaction.customId === "help:select") {
-      const value = interaction.values[0] as HelpCategoryKey;
-      if (!HELP_CATEGORIES.some((c) => c.key === value)) return;
-      await interaction.editReply(renderCategory(client, value, 0));
-      return;
-    }
-
-    if (interaction.isButton() && interaction.customId.startsWith("help:nav:")) {
-      const [, , cat, pageStr] = interaction.customId.split(":");
-      if (!cat || !HELP_CATEGORIES.some((c) => c.key === cat)) return;
-      const page = Number.parseInt(pageStr ?? "0", 10) || 0;
-      await interaction.editReply(renderCategory(client, cat as HelpCategoryKey, page));
-      return;
-    }
-  } catch (err) {
-    logger.error({ err, customId: (interaction as any).customId }, "help: editReply falhou");
+  if (interaction.isButton() && interaction.customId.startsWith("help:nav:")) {
+    const [, , cat, pageStr] = interaction.customId.split(":");
+    if (!cat || !HELP_CATEGORIES.some((c) => c.key === cat)) return;
+    const page = Number.parseInt(pageStr ?? "0", 10) || 0;
+    return send(renderCategory(client, cat as HelpCategoryKey, page));
   }
 }
 

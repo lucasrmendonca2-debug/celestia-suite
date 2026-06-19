@@ -219,13 +219,19 @@ export async function openTicket(
   const welcome = buildWelcomeEmbed(welcomeCfg, ticket?.id ?? channel.id, member.id, supportRoleId);
   const actions = buildTicketActions(cfg.allow_user_close_ticket);
 
-  await channel.send({
-    content: [`<@${member.id}>`, supportRoleId ? `<@&${supportRoleId}>` : ""]
-      .filter(Boolean)
-      .join(" "),
-    embeds: [welcome],
-    components: [actions],
-  });
+  try {
+    await channel.send({
+      content: [`<@${member.id}>`, supportRoleId ? `<@&${supportRoleId}>` : ""]
+        .filter(Boolean)
+        .join(" "),
+      embeds: [welcome],
+      components: [actions],
+    });
+  } catch (err) {
+    if (ticket) await closeTicketRow(ticket.id, guild.client.user?.id ?? member.id, "Falha ao enviar mensagem inicial").catch(() => {});
+    await channel.delete("Falha ao enviar mensagem inicial do ticket").catch(() => {});
+    throw new Error("Criei o canal, mas não consegui enviar a mensagem inicial. Verifique se tenho permissão de Enviar Mensagens e Incorporar Links.");
+  }
 
   await writeLog(guild.id, ticket?.id ?? null, "opened", member.id, {
     channelId: channel.id,

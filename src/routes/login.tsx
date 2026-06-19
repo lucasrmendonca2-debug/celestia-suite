@@ -1,7 +1,12 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import type { MouseEvent } from "react";
+import { getCurrentUser } from "@/lib/auth/auth.functions";
 
 export const Route = createFileRoute("/login")({
+  beforeLoad: async () => {
+    const user = await getCurrentUser();
+    if (user) throw redirect({ to: "/dashboard" });
+  },
   head: () => ({
     meta: [
       { title: "Entrar — Zenox" },

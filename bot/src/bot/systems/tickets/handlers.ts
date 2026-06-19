@@ -261,9 +261,14 @@ export async function closeTicket(
     throw new Error("Você não tem permissão para fechar este ticket.");
   }
 
-  const persisted = hasPersistedTicket(ticket);
+  let persisted = hasPersistedTicket(ticket);
   if (persisted) {
-    await closeTicketRow(ticket.id, member.id, reason);
+    try {
+      await closeTicketRow(ticket.id, member.id, reason);
+    } catch (err) {
+      persisted = false;
+      console.warn("closeTicketRow falhou; fechando apenas o canal no Discord", err);
+    }
   }
 
   // tira permissão de envio do dono
@@ -552,7 +557,7 @@ export async function handleTicketButton(interaction: ButtonInteraction): Promis
   if (action === "claim") {
     try {
       const channel = interaction.channel as TextChannel;
-      const ticket = await findTicketByChannel(channel.id);
+      const ticket = (await findTicketByChannel(channel.id)) ?? ticketFromChannelTopic(channel);
       if (!ticket || ticket.status !== "open") {
         throw new Error("Este canal não é um ticket aberto.");
       }
@@ -568,8 +573,10 @@ export async function handleTicketButton(interaction: ButtonInteraction): Promis
       if (ticket.claimed_by && ticket.claimed_by !== member.id) {
         throw new Error(`Este ticket já foi assumido por <@${ticket.claimed_by}>.`);
       }
-      await claimTicketRow(ticket.id, member.id);
-      await writeLog(interaction.guild.id, ticket.id, "claimed", member.id, {});
+      if (hasPersistedTicket(ticket)) {
+        await claimTicketRow(ticket.id, member.id);
+        await writeLog(interaction.guild.id, ticket.id, "claimed", member.id, {});
+      }
       await interaction.reply({
         embeds: [
           brandEmbed({

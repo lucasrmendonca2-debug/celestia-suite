@@ -125,7 +125,7 @@ function GuildOverviewPage() {
   const pct = Math.round((done / total) * 100);
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
+    <div className="cyber-shell cyber-grid-bg flex min-h-screen bg-background text-foreground">
       <DashboardSidebar guildId={guild.id} />
       <div className="flex-1">
         <DashboardTopbar
@@ -135,24 +135,25 @@ function GuildOverviewPage() {
           guildId={guild.id}
         />
 
-        <main className="mx-auto max-w-6xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
+        <main className="relative mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
           {/* Header do servidor */}
-          <section className="rounded-2xl border border-border bg-card p-5 sm:p-6">
+          <section className="cyber-panel cyber-scanline rounded-xl p-5 sm:p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex min-w-0 items-center gap-4">
                 {displayIcon ? (
                   <img
                     src={displayIcon}
                     alt=""
-                    className="size-14 shrink-0 rounded-2xl ring-1 ring-border sm:size-16"
+                    className="size-14 shrink-0 rounded-xl ring-1 ring-[var(--cyber-line)] sm:size-16"
                   />
                 ) : (
-                  <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-base font-semibold text-primary ring-1 ring-primary/30 sm:size-16">
+                  <div className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-base font-semibold text-primary ring-1 ring-[var(--cyber-line)] sm:size-16">
                     {displayName.slice(0, 2).toUpperCase()}
                   </div>
                 )}
                 <div className="min-w-0">
-                  <h2 className="truncate text-lg font-semibold sm:text-xl">{displayName}</h2>
+                  <p className="font-display mb-1 text-[10px] uppercase text-muted-foreground">nexus do servidor</p>
+                  <h2 className="font-display truncate text-xl font-semibold sm:text-2xl">{displayName}</h2>
                   <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                     <span>ID {guild.id}</span>
                     {overview.discord.memberCount != null && (

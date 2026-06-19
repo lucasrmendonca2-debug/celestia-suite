@@ -128,7 +128,7 @@ const command: SlashCommand = {
         ],
         allowedMentions:
           mencao === "everyone" || mencao === "here"
-            ? { parse: [mencao as "everyone" | "here"] }
+            ? { parse: ["everyone"] }
             : mencao && /^\d{17,20}$/.test(mencao)
               ? { roles: [mencao] }
               : { parse: [] },

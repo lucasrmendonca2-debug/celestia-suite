@@ -11,6 +11,7 @@ import {
   rotateNow,
 } from "../../systems/economy/shop.rotation.js";
 import { logTx } from "../../systems/economy/economy.tx.js";
+import { syncDashboardShopItems } from "../../systems/economy/shop.dashboard.js";
 
 
 const command: SlashCommand = {
@@ -54,10 +55,13 @@ const command: SlashCommand = {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guildId!;
     const c = await getCurrency(guildId);
+    await syncDashboardShopItems(guildId);
 
     if (sub === "list") {
-      const items = await ShopItem.find({ guildId, enabled: true }).limit(25);
-      const rotation = await ensureRotation(guildId);
+      const [items, rotation] = await Promise.all([
+        ShopItem.find({ guildId, enabled: true }).limit(25),
+        ensureRotation(guildId),
+      ]);
       const rotSet = new Set(rotation.map((r) => r.item_name));
       const lines = items.map((i) => {
         const { price, discount_pct } = applyRotationPrice(i.price, rotation, i.name);
@@ -218,7 +222,7 @@ const command: SlashCommand = {
           { upsert: true },
         );
       }
-      await logTx({
+      void logTx({
         guildId,
         userId: interaction.user.id,
         kind: "shop_buy",
@@ -229,7 +233,7 @@ const command: SlashCommand = {
       });
       try {
         const { incrementMissionProgress } = await import("../../systems/economy/missions.js");
-        await incrementMissionProgress(guildId, interaction.user.id, "shop_spend", total);
+        void incrementMissionProgress(guildId, interaction.user.id, "shop_spend", total);
       } catch {
         /* noop */
       }

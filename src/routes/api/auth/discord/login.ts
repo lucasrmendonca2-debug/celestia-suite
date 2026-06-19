@@ -27,7 +27,7 @@ export const Route = createFileRoute("/api/auth/discord/login")({
         setResponseStatus(302);
         setResponseHeader("Location", url);
         setResponseHeader("Cache-Control", "no-store");
-        return null;
+        return new Response(null);
       },
     },
   },

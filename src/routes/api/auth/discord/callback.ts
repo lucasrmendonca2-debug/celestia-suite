@@ -13,14 +13,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { setResponseHeader, setResponseStatus } from "@tanstack/react-start/server";
 
 function htmlError(message: string, status: number) {
-  setResponseStatus(status);
-  setResponseHeader("Content-Type", "text/html; charset=utf-8");
-  return `<!doctype html><meta charset="utf-8"><title>Erro de login</title>
+  const html = `<!doctype html><meta charset="utf-8"><title>Erro de login</title>
     <style>body{font-family:system-ui;background:#0b0b10;color:#e7e7ea;display:grid;place-items:center;min-height:100vh;margin:0;padding:24px}
     .card{max-width:480px;border:1px solid #2a2a35;background:#15151c;border-radius:12px;padding:24px}
     a{color:#8aa9ff}</style>
     <div class="card"><h1 style="margin-top:0">Não foi possível entrar</h1>
     <p>${message}</p><p><a href="/login">Tentar de novo</a></p></div>`;
+  return new Response(html, {
+    status,
+    headers: { "Content-Type": "text/html; charset=utf-8" },
+  });
 }
 
 export const Route = createFileRoute("/api/auth/discord/callback")({
@@ -67,7 +69,7 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
         setResponseStatus(302);
         setResponseHeader("Location", "/dashboard");
         setResponseHeader("Cache-Control", "no-store");
-        return null;
+        return new Response(null);
       },
     },
   },

@@ -141,7 +141,7 @@ export function makeDiscordCallbackUri(request: Request, browserOrigin?: string 
   return `${protocol}://${host}/api/auth/discord/callback`;
 }
 
-export function buildAuthorizeUrl(state: string): string {
+export function buildAuthorizeUrl(state: string, redirectUri: string): string {
   const { clientId } = getOAuthConfig();
   const params = new URLSearchParams({
     client_id: clientId,
@@ -149,6 +149,7 @@ export function buildAuthorizeUrl(state: string): string {
     scope: "identify guilds",
     state,
     prompt: "consent",
+    redirect_uri: redirectUri,
   });
   return `https://discord.com/oauth2/authorize?${params.toString()}`;
 }
@@ -167,7 +168,10 @@ export async function exchangeCode(code: string, redirectUri: string) {
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
   });
-  if (!res.ok) throw new Error(`Discord token exchange falhou: ${res.status}`);
+  if (!res.ok) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`Discord token exchange falhou: ${res.status} ${body} (redirect_uri=${redirectUri})`);
+  }
   return (await res.json()) as {
     access_token: string;
     refresh_token: string;

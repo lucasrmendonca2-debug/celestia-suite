@@ -59,12 +59,14 @@ function ticketFromChannelTopic(channel: TextChannel): TicketRow | null {
   const topic = channel.topic ?? "";
   const match = topic.match(/Ticket de (.+?) • (\d{5,32})$/);
   if (!match) return null;
+  const userId = match[2];
+  if (!userId) return null;
   return {
     id: channel.id,
     guild_id: channel.guild.id,
     channel_id: channel.id,
-    user_id: match[2],
-    username: match[1],
+    user_id: userId,
+    username: match[1] ?? "desconhecido",
     category_id: null,
     category_name: topic.split(" • ")[0] ?? "Geral",
     status: channel.name.startsWith("closed-") ? "closed" : "open",

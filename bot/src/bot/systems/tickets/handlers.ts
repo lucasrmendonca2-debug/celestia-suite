@@ -78,6 +78,10 @@ function ticketFromChannelTopic(channel: TextChannel): TicketRow | null {
   };
 }
 
+function hasPersistedTicket(ticket: TicketRow): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(ticket.id);
+}
+
 export async function openTicket(
   guild: Guild,
   member: GuildMember,
@@ -241,7 +245,7 @@ export async function closeTicket(
 ): Promise<void> {
   const guild = channel.guild;
   const cfg = await getTicketConfig(guild.id);
-  const ticket = await findTicketByChannel(channel.id);
+  const ticket = (await findTicketByChannel(channel.id)) ?? ticketFromChannelTopic(channel);
   if (!ticket || ticket.status !== "open") {
     throw new Error("Este canal não é um ticket aberto.");
   }
@@ -251,7 +255,10 @@ export async function closeTicket(
     throw new Error("Você não tem permissão para fechar este ticket.");
   }
 
-  await closeTicketRow(ticket.id, member.id, reason);
+  const persisted = hasPersistedTicket(ticket);
+  if (persisted) {
+    await closeTicketRow(ticket.id, member.id, reason);
+  }
 
   // tira permissão de envio do dono
   await channel.permissionOverwrites
@@ -275,11 +282,11 @@ export async function closeTicket(
     }
   }
 
-  await writeLog(guild.id, ticket.id, "closed", member.id, { reason: reason ?? null });
+  await writeLog(guild.id, persisted ? ticket.id : null, "closed", member.id, { reason: reason ?? null });
   await sendClosedLog(guild, cfg, channel, member, ticket.user_id, transcript);
   await sendClosureDm(
     guild,
-    cfg,
+    persisted ? cfg : { ...cfg, rating_enabled: false },
     ticket.id,
     ticket.user_id,
     member.id,

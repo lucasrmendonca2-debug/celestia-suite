@@ -30,6 +30,10 @@ is_missing_or_placeholder() {
 # === Aviso no Discord (canal de deploy) ===
 DEPLOY_CHANNEL_ID="801480652381356094"
 DISCORD_TOKEN_VAL="$( { grep -E '^(DISCORD_TOKEN|DISCORD_BOT_TOKEN)=' .env 2>/dev/null || true; } | head -n1 | cut -d= -f2- | tr -d '"'"'"' \r')"
+DISCORD_TOKEN_VAL="$(get_env_value DISCORD_TOKEN)"
+[ -z "$DISCORD_TOKEN_VAL" ] && DISCORD_TOKEN_VAL="$(get_env_value DISCORD_BOT_TOKEN)"
+DEPLOY_CHANNEL_ID="$(get_env_value DEPLOY_CHANNEL_ID)"
+[ -z "$DEPLOY_CHANNEL_ID" ] && DEPLOY_CHANNEL_ID="801480652381356094"
 COMMIT_HASH="$(git rev-parse --short HEAD 2>/dev/null || echo '?')"
 COMMIT_MSG="$(git log -1 --pretty=%s 2>/dev/null || echo '?')"
 notify_discord() {

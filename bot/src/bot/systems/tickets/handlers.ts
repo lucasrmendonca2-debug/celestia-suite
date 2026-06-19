@@ -621,11 +621,9 @@ export async function handleTicketButton(interaction: ButtonInteraction): Promis
       }
       const member = interaction.member as GuildMember;
       const cfg = await getTicketConfig(interaction.guild.id);
-      const isStaff =
-        member.permissions.has(PermissionFlagsBits.ManageChannels) ||
-        (!!cfg.default_support_role_id &&
-          member.roles.cache.has(cfg.default_support_role_id));
-      if (!isStaff) {
+      const isDefaultSupport = !!cfg.default_support_role_id && member.roles.cache.has(cfg.default_support_role_id);
+      const allowedToClaim = isDefaultSupport || (await canMemberClaim(member));
+      if (!allowedToClaim) {
         throw new Error("Apenas a equipe de suporte pode assumir tickets.");
       }
       if (ticket.claimed_by && ticket.claimed_by !== member.id) {

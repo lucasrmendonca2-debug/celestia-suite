@@ -36,6 +36,7 @@ export async function syncDashboardShopItems(guildId: string): Promise<void> {
             roleId: item.role_id ?? null,
             consumable: item.type !== "role" || !item.role_id,
             enabled: item.enabled,
+            source: "dashboard",
           },
           { upsert: true, setDefaultsOnInsert: true },
         ),

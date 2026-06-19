@@ -38,7 +38,7 @@ COMMIT_HASH="$(git rev-parse --short HEAD 2>/dev/null || echo '?')"
 COMMIT_MSG="$(git log -1 --pretty=%s 2>/dev/null || echo '?')"
 notify_discord() {
   local content="$1"
-  [ -z "$DISCORD_TOKEN_VAL" ] && return 0
+  is_missing_or_placeholder "$DISCORD_TOKEN_VAL" && return 0
   curl -s -o /dev/null -X POST \
     -H "Authorization: Bot $DISCORD_TOKEN_VAL" \
     -H "Content-Type: application/json" \

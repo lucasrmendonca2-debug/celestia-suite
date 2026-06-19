@@ -55,7 +55,9 @@ const command: SlashCommand = {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guildId!;
     const c = await getCurrency(guildId);
-    await syncDashboardShopItems(guildId);
+    if (sub === "list" || sub === "buy" || sub === "rotacao" || sub === "rotacionar") {
+      await syncDashboardShopItems(guildId);
+    }
 
     if (sub === "list") {
       const [items, rotation] = await Promise.all([
@@ -168,7 +170,7 @@ const command: SlashCommand = {
       const stock = interaction.options.getInteger("estoque") ?? -1;
       await ShopItem.findOneAndUpdate(
         { guildId, name },
-        { guildId, name, price, description, stock, roleId: role?.id ?? null, consumable: !role },
+          { guildId, name, price, description, stock, roleId: role?.id ?? null, consumable: !role, source: "bot" },
         { upsert: true, setDefaultsOnInsert: true },
       );
       await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Item adicionado", description: `**${name}** — ${fmtCoins(price, c.emoji, c.name)}` })], ephemeral: true });

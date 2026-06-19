@@ -372,12 +372,10 @@ export async function reopenTicket(channel: TextChannel, member: GuildMember): P
   const ticket = await findTicketByChannel(channel.id);
   if (!ticket) throw new Error("Este canal não é um ticket.");
   if (ticket.status === "open") throw new Error("Este ticket já está aberto.");
-  if (
-    !member.permissions.has(PermissionFlagsBits.ManageChannels) &&
-    member.id !== ticket.user_id
-  ) {
+  if (member.id !== ticket.user_id) {
     const cfg = await getTicketConfig(channel.guild.id);
-    if (!cfg.default_support_role_id || !member.roles.cache.has(cfg.default_support_role_id)) {
+    const isDefaultSupport = !!cfg.default_support_role_id && member.roles.cache.has(cfg.default_support_role_id);
+    if (!isDefaultSupport && !(await canMemberReopen(member))) {
       throw new Error("Você não tem permissão para reabrir este ticket.");
     }
   }

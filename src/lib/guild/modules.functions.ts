@@ -737,10 +737,13 @@ export const upsertEconomyMission = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     await perm(data.guildId);
     const sb = await admin();
-    const { guildId, ...rest } = data;
+    const { guildId, id, ...rest } = data;
     const { error } = await sb
       .from("economy_missions")
-      .upsert({ guild_id: guildId, ...rest }, { onConflict: "id" });
+      .upsert(
+        id ? { id, guild_id: guildId, ...rest } : { guild_id: guildId, ...rest },
+        { onConflict: id ? "id" : "guild_id,slug" },
+      );
     if (error) throw new Error(error.message);
     return { ok: true };
   });

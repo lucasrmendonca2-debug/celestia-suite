@@ -11,6 +11,7 @@ import {
   TextChannel,
 } from "discord.js";
 import { brandEmbed } from "../../utils/embed.js";
+import { supabase } from "../../../database/supabase.js";
 import {
   claimTicketRow,
   closeTicketRow,

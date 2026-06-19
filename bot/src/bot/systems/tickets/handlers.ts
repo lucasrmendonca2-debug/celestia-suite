@@ -146,6 +146,30 @@ async function openTicketImpl(
     if (denial) throw new Error(denial);
   }
 
+  // Permissão granular global: se houver QUALQUER ticket_permission_roles configurada
+  // com can_open_ticket pra esta guild, exigimos que o membro tenha um cargo
+  // com can_open_ticket = true (ou ManageGuild). Caso contrário (nada configurado),
+  // todo mundo pode abrir como antes.
+  if (!member.permissions.has(PermissionFlagsBits.ManageGuild)) {
+    const { data: anyConfigured } = await supabase
+      .from("ticket_permission_roles")
+      .select("id")
+      .eq("guild_id", guild.id)
+      .eq("can_open_ticket", true)
+      .limit(1);
+    if (anyConfigured && anyConfigured.length > 0) {
+      const allowed = await memberHasTicketPermission(member, "can_open_ticket");
+      if (!allowed) throw new Error("Você não tem permissão para abrir tickets neste servidor.");
+    }
+    // Prioridade: se a categoria pediu priority, valida can_open_priority_ticket
+    if (category?.priority) {
+      const allowedPrio = await memberHasTicketPermission(member, "can_open_priority_ticket");
+      if (!allowedPrio) {
+        throw new Error("Você não tem permissão para abrir tickets prioritários.");
+      }
+    }
+  }
+
   // limite (categoria sobrescreve global, se definido)
   const limit = category?.max_open_tickets_per_user ?? cfg.max_open_tickets_per_user;
   const [dbOpen, liveOpen] = await Promise.all([

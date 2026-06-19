@@ -9,6 +9,8 @@ const schema = z.object({
   MONGO_URI: z.string().min(10),
   SUPABASE_URL: z.string().url().optional().or(z.literal("")),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional().or(z.literal("")),
+  SUPABASE_ANON_KEY: z.string().optional().or(z.literal("")),
+  SUPABASE_PUBLISHABLE_KEY: z.string().optional().or(z.literal("")),
   BRAND_NAME: z.string().default("Zenox"),
   BRAND_COLOR: z.string().default("0x7C3AED"),
   APP_URL: z

@@ -27,12 +27,19 @@ function readJwtRole(key?: string): string | null {
   }
 }
 
-export const supabaseKeyRole = readJwtRole(env.SUPABASE_SERVICE_ROLE_KEY);
+const supabaseKey =
+  env.SUPABASE_SERVICE_ROLE_KEY ||
+  env.SUPABASE_ANON_KEY ||
+  env.SUPABASE_PUBLISHABLE_KEY ||
+  process.env.VITE_SUPABASE_PUBLISHABLE_KEY ||
+  "";
+
+export const supabaseKeyRole = readJwtRole(supabaseKey);
 export const canWriteSupabase = supabaseKeyRole === "service_role";
 
 export const supabase: SupabaseClient =
-  env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY
-    ? createClient(env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
+  env.SUPABASE_URL && supabaseKey
+    ? createClient(env.SUPABASE_URL, supabaseKey, {
         auth: { persistSession: false, autoRefreshToken: false },
         realtime: {
           transport: WebSocket as unknown as typeof globalThis.WebSocket,

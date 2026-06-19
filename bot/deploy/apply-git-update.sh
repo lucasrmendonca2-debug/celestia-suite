@@ -66,11 +66,19 @@ validate_env() {
   check_required "DISCORD_CLIENT_ID" "$(get_env_value DISCORD_CLIENT_ID)"
   check_required "MONGO_URI" "$(get_env_value MONGO_URI)"
 
-  # SUPABASE_* são opcionais — se faltar/placeholder, o bot sobe com stub e features
-  # que dependem do Supabase ficam inertes. Só avisa.
-  for opt in SUPABASE_URL SUPABASE_SERVICE_ROLE_KEY; do
+  # SUPABASE_SERVICE_ROLE_KEY é opcional, mas tickets/dashboard precisam de
+  # SUPABASE_URL + SUPABASE_ANON_KEY/SUPABASE_PUBLISHABLE_KEY para ler configs.
+  if is_missing_or_placeholder "$(get_env_value SUPABASE_URL)"; then
+    echo "AVISO: SUPABASE_URL ausente/placeholder — tickets/dashboard podem ficar desativados no bot."
+  fi
+  local public_key="$(get_env_value SUPABASE_ANON_KEY)"
+  [ -z "$public_key" ] && public_key="$(get_env_value SUPABASE_PUBLISHABLE_KEY)"
+  if is_missing_or_placeholder "$public_key"; then
+    echo "AVISO: SUPABASE_ANON_KEY/SUPABASE_PUBLISHABLE_KEY ausente — o bot não consegue ler as configs do dashboard."
+  fi
+  for opt in SUPABASE_SERVICE_ROLE_KEY; do
     if is_missing_or_placeholder "$(get_env_value "$opt")"; then
-      echo "AVISO: $opt ausente/placeholder — features que dependem do Supabase ficarão desativadas."
+      echo "AVISO: $opt ausente/placeholder — o bot usará a chave pública e seguirá com fallbacks nos tickets."
     fi
   done
 

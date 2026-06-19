@@ -15,11 +15,25 @@ async function main() {
   const cmds = await loadCommands(fakeClient);
   const body = cmds.map((c) => c.data.toJSON());
 
+  // Detecta duplicatas locais antes de enviar pro Discord.
+  const names = body.map((b) => b.name);
+  const dups = names.filter((n, i) => names.indexOf(n) !== i);
+  if (dups.length) {
+    logger.error({ dups }, "❌ Comandos duplicados detectados — corrija antes de registrar");
+    process.exit(1);
+  }
+
   const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN);
   if (env.DISCORD_DEV_GUILD_ID) {
+    // Em DEV: limpa globais (que demoram ~1h pra propagar e causam duplicação visível).
+    await rest
+      .put(Routes.applicationCommands(env.DISCORD_CLIENT_ID), { body: [] })
+      .then(() => logger.info("🧹 Comandos globais limpos (modo DEV)"))
+      .catch((err) => logger.warn({ err }, "Falha ao limpar globais (segue mesmo assim)"));
     await rest.put(Routes.applicationGuildCommands(env.DISCORD_CLIENT_ID, env.DISCORD_DEV_GUILD_ID), { body });
     logger.info(`✅ ${body.length} comandos registrados no guild ${env.DISCORD_DEV_GUILD_ID}`);
   } else {
+    // Em PROD: limpa commands específicos de qualquer guild de dev residual.
     await rest.put(Routes.applicationCommands(env.DISCORD_CLIENT_ID), { body });
     logger.info(`✅ ${body.length} comandos registrados globalmente (pode levar ~1h)`);
   }

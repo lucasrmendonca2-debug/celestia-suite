@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Save, Sparkles, Trash2, Trophy, User } from "lucide-react";
+import { Plus, Save, Sparkles, Trash2, Trophy, User, Crown, Medal, Award } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   addSocialReward,
@@ -19,6 +19,8 @@ import {
   updateSocialConfig,
 } from "@/lib/guild/social.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
+import { Mascot } from "@/components/Mascot";
+import { AuroraStatCard } from "@/components/dashboard/aurora-ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -230,8 +232,45 @@ function SocialPage() {
       user={user}
       icon={Sparkles}
       title="Social & Level"
-      description="XP por mensagem, perfis sociais, reputação e recompensas. Tudo conectado ao banco."
+      description="XP por mensagem, perfis sociais, reputação e recompensas — tudo mágico."
     >
+      <div
+        className="aurora-panel relative mb-5 overflow-hidden p-5 sm:p-6"
+        style={{
+          background:
+            "linear-gradient(135deg, color-mix(in oklab, var(--aurora-lavender) 18%, var(--card)), color-mix(in oklab, var(--aurora-pink) 14%, var(--card)))",
+        }}
+      >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -right-12 -top-12 size-44 rounded-full blur-3xl opacity-60"
+          style={{
+            background:
+              "radial-gradient(circle, color-mix(in oklab, var(--aurora-lavender) 70%, transparent), transparent 70%)",
+          }}
+        />
+        <div className="relative flex items-center gap-4">
+          <Mascot variant={s.enabled ? "celebrate" : "sleeping"} size={84} glow />
+          <div className="min-w-0">
+            <h2 className="font-display text-lg font-bold tracking-tight sm:text-xl">
+              O coração social do servidor
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {s.enabled
+                ? `${lb.data?.length ?? 0} membro${(lb.data?.length ?? 0) === 1 ? "" : "s"} no ranking · ${rewards.data?.length ?? 0} recompensa${(rewards.data?.length ?? 0) === 1 ? "" : "s"} configurada${(rewards.data?.length ?? 0) === 1 ? "" : "s"}.`
+                : "Sistema desativado — ative em Geral para começar a contar XP."}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-5 grid gap-3 sm:grid-cols-4">
+        <AuroraStatCard label="Status" value={s.enabled ? "Ativo" : "Off"} icon={Sparkles} tone={s.enabled ? "mint" : "lavender"} />
+        <AuroraStatCard label="Membros no ranking" value={lb.data?.length ?? 0} icon={Trophy} tone="peach" />
+        <AuroraStatCard label="Recompensas" value={rewards.data?.length ?? 0} icon={Award} tone="pink" />
+        <AuroraStatCard label="XP min/máx" value={`${l.min_xp_per_message}-${l.max_xp_per_message}`} icon={Plus} tone="cyan" />
+      </div>
+
       <Tabs defaultValue="geral" className="space-y-6">
         <TabsList className="flex w-full flex-wrap justify-start gap-1 rounded-xl bg-card p-1">
           <TabsTrigger value="geral">Geral</TabsTrigger>

@@ -22,6 +22,12 @@ import {
 } from "lucide-react";
 import { Mascot } from "@/components/Mascot";
 import chibiPeek from "@/assets/mascot-chibi-peek.png";
+import chibiClimb1 from "@/assets/chibi-climb-1.png";
+import chibiClimb2 from "@/assets/chibi-climb-2.png";
+import chibiClimb3 from "@/assets/chibi-climb-3.png";
+import chibiClimb4 from "@/assets/chibi-climb-4.png";
+import chibiClimb5 from "@/assets/chibi-climb-5.png";
+import chibiClimb6 from "@/assets/chibi-climb-6.png";
 import paintEscape from "@/assets/mascot-paint-escape.png";
 import { SiteHeader, SiteFooter } from "@/components/site/SiteHeader";
 

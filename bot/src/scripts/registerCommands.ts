@@ -25,16 +25,37 @@ async function main() {
 
   const rest = new REST({ version: "10" }).setToken(env.DISCORD_TOKEN);
 
-  // Limpa guild commands residuais informados em CLEAR_GUILD_IDS="id1,id2,..."
-  const clearGuilds = (process.env.CLEAR_GUILD_IDS ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
-  for (const gid of clearGuilds) {
-    await rest
-      .put(Routes.applicationGuildCommands(env.DISCORD_CLIENT_ID, gid), { body: [] })
-      .then(() => logger.info(`🧹 Comandos da guild ${gid} limpos`))
-      .catch((err) => logger.warn({ err, gid }, "Falha ao limpar guild"));
+  /**
+   * Limpa comandos guild-scoped residuais.
+   * - Se CLEAR_GUILD_IDS estiver definido, usa essa lista.
+   * - Caso contrário, busca TODAS as guilds em que o bot está e limpa cada uma.
+   *   Isso garante que após um deploy global não restem duplicatas de uma
+   *   execução antiga em modo DEV.
+   */
+  async function clearGuildResiduals() {
+    const explicit = (process.env.CLEAR_GUILD_IDS ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+
+    let guildIds: string[] = explicit;
+    if (guildIds.length === 0) {
+      try {
+        const guilds = (await rest.get(Routes.userGuilds())) as Array<{ id: string; name: string }>;
+        guildIds = guilds.map((g) => g.id);
+        logger.info(`🔍 Detectadas ${guildIds.length} guilds para limpeza de comandos residuais`);
+      } catch (err) {
+        logger.warn({ err }, "Não foi possível listar guilds — pulando limpeza automática");
+        return;
+      }
+    }
+
+    for (const gid of guildIds) {
+      await rest
+        .put(Routes.applicationGuildCommands(env.DISCORD_CLIENT_ID, gid), { body: [] })
+        .then(() => logger.info(`🧹 Guild ${gid} limpa`))
+        .catch((err) => logger.warn({ err, gid }, "Falha ao limpar guild (sem permissão?)"));
+    }
   }
 
   if (env.DISCORD_DEV_GUILD_ID) {
@@ -46,11 +67,10 @@ async function main() {
     await rest.put(Routes.applicationGuildCommands(env.DISCORD_CLIENT_ID, env.DISCORD_DEV_GUILD_ID), { body });
     logger.info(`✅ ${body.length} comandos registrados no guild ${env.DISCORD_DEV_GUILD_ID}`);
   } else {
+    // Em PROD: limpa qualquer guild-scoped residual ANTES de publicar global.
+    await clearGuildResiduals();
     await rest.put(Routes.applicationCommands(env.DISCORD_CLIENT_ID), { body });
-    logger.info(`✅ ${body.length} comandos registrados globalmente (pode levar ~1h)`);
-    logger.info(
-      "Se aparecerem comandos duplicados, rode com CLEAR_GUILD_IDS=<id> para apagar registros residuais por guild.",
-    );
+    logger.info(`✅ ${body.length} comandos registrados globalmente (pode levar ~1h pra propagar 100%)`);
   }
 }
 

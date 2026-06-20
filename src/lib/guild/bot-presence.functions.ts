@@ -29,19 +29,23 @@ export const checkBotInGuild = createServerFn({ method: "GET" })
       return { present: false, inviteUrl };
     }
     try {
-      // /guilds/{id}/members/@me só responde 200 quando o bot é membro.
-      // É mais preciso que /guilds/{id} (que pode 200 com permissões parciais/cache).
+      // GET /guilds/{id} com Bot token: 200 = bot é membro, 404 = não é, 401 = token inválido.
+      // O endpoint /users/@me/guilds/{id}/member requer OAuth2 user token (não funciona com Bot).
       const res = await fetch(
-        `https://discord.com/api/v10/users/@me/guilds/${data.guildId}/member`,
+        `https://discord.com/api/v10/guilds/${data.guildId}`,
         { headers: { Authorization: `Bot ${token}` } },
       );
-      if (!res.ok) {
-        const body = await res.text().catch(() => "");
-        console.warn(
-          `[bot-presence] guild=${data.guildId} status=${res.status} body=${body.slice(0, 200)}`,
-        );
+      if (res.ok) {
+        return { present: true, inviteUrl };
       }
-      return { present: res.ok, inviteUrl };
+      if (res.status === 404) {
+        return { present: false, inviteUrl };
+      }
+      const body = await res.text().catch(() => "");
+      console.warn(
+        `[bot-presence] guild=${data.guildId} status=${res.status} body=${body.slice(0, 200)}`,
+      );
+      return { present: false, inviteUrl };
     } catch (err) {
       console.error("[bot-presence] fetch falhou", err);
       return { present: false, inviteUrl };

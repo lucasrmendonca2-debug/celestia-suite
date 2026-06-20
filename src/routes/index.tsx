@@ -442,17 +442,22 @@ function Landing() {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-12px); }
         }
-        @keyframes peek-up {
-          0%   { transform: translate(-50%, 100%) rotate(-12deg); opacity: 0; }
-          40%  { transform: translate(-50%, -55%) rotate(-8deg);  opacity: 1; }
-          55%  { transform: translate(-50%, -50%) rotate(6deg);   opacity: 1; }
-          70%  { transform: translate(-50%, -58%) rotate(-4deg);  opacity: 1; }
-          100% { transform: translate(-50%, -55%) rotate(0deg);   opacity: 1; }
+        @keyframes peek-down {
+          0%   { transform: translate(-50%, 40%) rotate(-8deg); opacity: 0; }
+          60%  { transform: translate(-50%, 8%)  rotate(4deg);  opacity: 1; }
+          80%  { transform: translate(-50%, 14%) rotate(-2deg); opacity: 1; }
+          100% { transform: translate(-50%, 10%) rotate(0deg);  opacity: 1; }
         }
-        @keyframes wiggle {
-          0%, 100% { transform: translate(-50%, -55%) rotate(0deg); }
-          25%      { transform: translate(-50%, -58%) rotate(-5deg); }
-          75%      { transform: translate(-50%, -52%) rotate(5deg); }
+        @keyframes curious-tilt {
+          0%, 100% { transform: translate(-50%, 10%) rotate(-3deg); }
+          50%      { transform: translate(-50%, 8%)  rotate(3deg); }
+        }
+        @keyframes punch-glass {
+          0%, 70%, 100% { transform: translate(-50%, 10%) rotate(0deg); }
+          75% { transform: translate(-50%, 4%)  rotate(-4deg); }
+          80% { transform: translate(-52%, 14%) rotate(-2deg); }
+          85% { transform: translate(-48%, 14%) rotate(2deg); }
+          90% { transform: translate(-50%, 12%) rotate(0deg); }
         }
         @keyframes glass-shake {
           0%, 100% { transform: translate(0, 0) rotate(0deg); }
@@ -478,15 +483,17 @@ function Landing() {
         }
         .peek-trigger .peek-chibi {
           opacity: 0;
-          transform: translate(-50%, 100%) rotate(-12deg);
+          transform: translate(-50%, 40%) rotate(-8deg);
           transition: opacity 0.15s ease-out;
         }
         .peek-trigger:hover .peek-chibi,
         .peek-trigger:focus-visible .peek-chibi {
           opacity: 1;
-          animation: peek-up 0.55s cubic-bezier(.34,1.56,.64,1) forwards,
-                     wiggle 1.6s ease-in-out 0.55s infinite;
+          animation: peek-down 0.5s cubic-bezier(.34,1.56,.64,1) forwards,
+                     curious-tilt 2.4s ease-in-out 0.5s infinite,
+                     punch-glass 4s ease-in-out 1.2s infinite;
         }
+
       `}</style>
     </div>
   );
@@ -514,18 +521,19 @@ function PeekButton({
   const chibiSize = large ? 110 : 88;
   return (
     <span className="peek-trigger relative inline-block">
-      {/* Chibi peeking from behind — só aparece no hover */}
+      {/* Chibi pendurado em cima do botão, espiando curioso e socando o vidro */}
       <span
         aria-hidden
-        className="peek-chibi pointer-events-none absolute left-1/2 top-0 z-0"
+        className="peek-chibi pointer-events-none absolute left-1/2 bottom-full z-20"
         style={{ width: chibiSize, height: chibiSize }}
       >
         <img
           src={chibiPeek}
           alt=""
-          className="size-full object-contain drop-shadow-[0_6px_8px_rgba(27,14,59,0.25)]"
+          className="size-full object-contain drop-shadow-[0_8px_10px_rgba(27,14,59,0.3)]"
         />
       </span>
+
       <a
         href={href}
         onClick={onClick}

@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Save, Sparkles, Trash2, Trophy, User } from "lucide-react";
+import { Plus, Save, Sparkles, Trash2, Trophy, User, Crown, Medal, Award } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   addSocialReward,
@@ -19,6 +19,8 @@ import {
   updateSocialConfig,
 } from "@/lib/guild/social.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
+import { Mascot } from "@/components/Mascot";
+import { AuroraStatCard } from "@/components/dashboard/aurora-ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -230,8 +232,45 @@ function SocialPage() {
       user={user}
       icon={Sparkles}
       title="Social & Level"
-      description="XP por mensagem, perfis sociais, reputação e recompensas. Tudo conectado ao banco."
+      description="XP por mensagem, perfis sociais, reputação e recompensas — tudo mágico."
     >
+      <div
+        className="aurora-panel relative mb-5 overflow-hidden p-5 sm:p-6"
+        style={{
+          background:
+            "linear-gradient(135deg, color-mix(in oklab, var(--aurora-lavender) 18%, var(--card)), color-mix(in oklab, var(--aurora-pink) 14%, var(--card)))",
+        }}
+      >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -right-12 -top-12 size-44 rounded-full blur-3xl opacity-60"
+          style={{
+            background:
+              "radial-gradient(circle, color-mix(in oklab, var(--aurora-lavender) 70%, transparent), transparent 70%)",
+          }}
+        />
+        <div className="relative flex items-center gap-4">
+          <Mascot variant={s.enabled ? "celebrate" : "sleeping"} size={84} glow />
+          <div className="min-w-0">
+            <h2 className="font-display text-lg font-bold tracking-tight sm:text-xl">
+              O coração social do servidor
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {s.enabled
+                ? `${lb.data?.length ?? 0} membro${(lb.data?.length ?? 0) === 1 ? "" : "s"} no ranking · ${rewards.data?.length ?? 0} recompensa${(rewards.data?.length ?? 0) === 1 ? "" : "s"} configurada${(rewards.data?.length ?? 0) === 1 ? "" : "s"}.`
+                : "Sistema desativado — ative em Geral para começar a contar XP."}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-5 grid gap-3 sm:grid-cols-4">
+        <AuroraStatCard label="Status" value={s.enabled ? "Ativo" : "Off"} icon={Sparkles} tone={s.enabled ? "mint" : "lavender"} />
+        <AuroraStatCard label="Membros no ranking" value={lb.data?.length ?? 0} icon={Trophy} tone="peach" />
+        <AuroraStatCard label="Recompensas" value={rewards.data?.length ?? 0} icon={Award} tone="pink" />
+        <AuroraStatCard label="XP min/máx" value={`${l.min_xp_per_message}-${l.max_xp_per_message}`} icon={Plus} tone="cyan" />
+      </div>
+
       <Tabs defaultValue="geral" className="space-y-6">
         <TabsList className="flex w-full flex-wrap justify-start gap-1 rounded-xl bg-card p-1">
           <TabsTrigger value="geral">Geral</TabsTrigger>
@@ -563,29 +602,60 @@ function SocialPage() {
 
         {/* LEADERBOARD */}
         <TabsContent value="leaderboard" className="space-y-4">
-          <Card title="Top 50 — Mais XP no servidor">
+          <Card title="Top — Mais XP no servidor">
             {lb.data && lb.data.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="text-left text-xs uppercase text-muted-foreground">
-                    <tr><th className="p-2">#</th><th className="p-2">Usuário</th><th className="p-2">Nível</th><th className="p-2">XP total</th><th className="p-2">Mensagens</th></tr>
+                    <tr>
+                      <th className="p-2">#</th>
+                      <th className="p-2">Usuário</th>
+                      <th className="p-2">Nível</th>
+                      <th className="p-2">XP total</th>
+                      <th className="p-2">Mensagens</th>
+                    </tr>
                   </thead>
                   <tbody>
-                    {lb.data.map((r: any, i: number) => (
-                      <tr key={r.user_id} className="border-t border-border/40">
-                        <td className="p-2">{i + 1}</td>
-                        <td className="p-2 font-medium">{r.username ?? r.user_id}</td>
-                        <td className="p-2">{r.level}</td>
-                        <td className="p-2">{Number(r.total_xp).toLocaleString("pt-BR")}</td>
-                        <td className="p-2 text-muted-foreground">{r.messages_count}</td>
-                      </tr>
-                    ))}
+                    {lb.data.map((r: any, i: number) => {
+                      const podiumIcon =
+                        i === 0 ? Crown : i === 1 ? Medal : i === 2 ? Award : null;
+                      const tone =
+                        i === 0 ? "peach" : i === 1 ? "lavender" : i === 2 ? "pink" : null;
+                      return (
+                        <tr
+                          key={r.user_id}
+                          className="border-t border-border/40 transition hover:bg-[color:color-mix(in_oklab,var(--aurora-lavender)_8%,transparent)]"
+                        >
+                          <td className="p-2">
+                            {podiumIcon ? (
+                              <span
+                                className="inline-flex size-7 items-center justify-center rounded-lg"
+                                style={{
+                                  background: `linear-gradient(135deg, color-mix(in oklab, var(--aurora-${tone}) 40%, transparent), transparent)`,
+                                }}
+                              >
+                                {(() => {
+                                  const Ico = podiumIcon;
+                                  return <Ico className="size-4" />;
+                                })()}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground">{i + 1}</span>
+                            )}
+                          </td>
+                          <td className="p-2 font-medium">{r.username ?? r.user_id}</td>
+                          <td className="p-2">{r.level}</td>
+                          <td className="p-2">{Number(r.total_xp).toLocaleString("pt-BR")}</td>
+                          <td className="p-2 text-muted-foreground">{r.messages_count}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             ) : (
               <div className="flex flex-col items-center gap-2 py-8 text-center text-sm text-muted-foreground">
-                <Trophy className="size-10 opacity-40" />
+                <Mascot variant="sleeping" size={72} />
                 <p>Ninguém ganhou XP ainda. Mande seu pessoal conversar!</p>
               </div>
             )}
@@ -598,17 +668,27 @@ function SocialPage() {
             {logs.data && logs.data.length > 0 ? (
               <ul className="space-y-1.5 text-sm">
                 {logs.data.map((log: any) => (
-                  <li key={log.id} className="flex flex-wrap items-center gap-2 rounded-md border border-border/50 bg-background/40 px-3 py-2">
+                  <li
+                    key={log.id}
+                    className="flex flex-wrap items-center gap-2 rounded-md border border-border/50 bg-background/40 px-3 py-2"
+                  >
                     <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{log.action}</code>
                     <span>user <code>{log.user_id}</code></span>
                     {log.level != null && <span>· nível <b>{log.level}</b></span>}
-                    {log.amount != null && <span>· {log.amount > 0 ? "+" : ""}{log.amount} XP</span>}
-                    <span className="ml-auto text-xs text-muted-foreground">{new Date(log.created_at).toLocaleString("pt-BR")}</span>
+                    {log.amount != null && (
+                      <span>· {log.amount > 0 ? "+" : ""}{log.amount} XP</span>
+                    )}
+                    <span className="ml-auto text-xs text-muted-foreground">
+                      {new Date(log.created_at).toLocaleString("pt-BR")}
+                    </span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-muted-foreground">Sem registros ainda.</p>
+              <div className="flex flex-col items-center gap-2 py-6 text-center">
+                <Mascot variant="sleeping" size={64} />
+                <p className="text-sm text-muted-foreground">Sem registros ainda.</p>
+              </div>
             )}
           </Card>
         </TabsContent>
@@ -619,9 +699,19 @@ function SocialPage() {
 
 function Card({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="space-y-4 rounded-xl border border-border bg-card p-5">
-      <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{title}</h3>
-      <div className="space-y-4">{children}</div>
+    <div className="aurora-panel aurora-card-hover relative overflow-hidden p-5">
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -right-12 -top-12 size-32 rounded-full blur-3xl opacity-40"
+        style={{
+          background:
+            "radial-gradient(circle, color-mix(in oklab, var(--aurora-lavender) 60%, transparent), transparent 70%)",
+        }}
+      />
+      <h3 className="font-display relative mb-4 text-sm font-semibold tracking-tight">
+        {title}
+      </h3>
+      <div className="relative space-y-4">{children}</div>
     </div>
   );
 }

@@ -8,7 +8,7 @@ import {
 } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { Shield, Trash2, Plus, History } from "lucide-react";
+import { Shield, Trash2, Plus, History, KeyRound, Users } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   DASHBOARD_AREAS,
@@ -22,6 +22,11 @@ import {
 } from "@/lib/guild/permissions.functions";
 import { listGuildRoles } from "@/lib/guild/discord-resources.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
+import {
+  AuroraSection,
+  AuroraStatCard,
+} from "@/components/dashboard/aurora-ui";
+import { Mascot } from "@/components/Mascot";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
@@ -31,26 +36,10 @@ type AreaKey = DashboardArea | "all";
 
 const PRESETS: { id: string; label: string; areas: AreaKey[] }[] = [
   { id: "owner", label: "Owner", areas: ["all"] },
-  {
-    id: "admin",
-    label: "Admin",
-    areas: [...DASHBOARD_AREAS],
-  },
-  {
-    id: "mod",
-    label: "Moderador",
-    areas: ["overview", "moderation", "automod", "logs"],
-  },
-  {
-    id: "support",
-    label: "Suporte",
-    areas: ["overview", "tickets", "logs"],
-  },
-  {
-    id: "community",
-    label: "Comunidade",
-    areas: ["overview", "welcome", "embeds", "community", "leveling", "economy"],
-  },
+  { id: "admin", label: "Admin", areas: [...DASHBOARD_AREAS] },
+  { id: "mod", label: "Moderador", areas: ["overview", "moderation", "automod", "logs"] },
+  { id: "support", label: "Suporte", areas: ["overview", "tickets", "logs"] },
+  { id: "community", label: "Comunidade", areas: ["overview", "welcome", "embeds", "community", "leveling", "economy"] },
   { id: "viewer", label: "Viewer", areas: ["overview"] },
 ];
 
@@ -135,26 +124,55 @@ function PermissionsPage() {
     upsert.mutate({ roleId: row.role_id, areas });
   };
 
+  const fullAccess = rows.filter((r) => (r.areas as AreaKey[]).includes("all")).length;
+
   return (
     <ModuleLayout
       guildId={guildId}
       user={user}
       icon={Shield}
       title="Permissões"
-      description="Controle quais cargos acessam quais áreas do dashboard."
+      description="Controle quais cargos acessam quais áreas do dashboard mágico."
     >
-      <div className="space-y-6">
-        {/* Adicionar cargo */}
-        <div className="rounded-2xl border border-border bg-card p-5">
-          <div className="mb-3 flex items-center justify-between">
-            <div>
-              <h2 className="text-sm font-semibold">Adicionar cargo</h2>
-              <p className="text-xs text-muted-foreground">
-                Sem regras configuradas, qualquer manager (MANAGE_GUILD) acessa tudo.
-              </p>
-            </div>
+      <div
+        className="aurora-panel relative mb-5 overflow-hidden p-5 sm:p-6"
+        style={{
+          background:
+            "linear-gradient(135deg, color-mix(in oklab, var(--aurora-lavender) 18%, var(--card)), color-mix(in oklab, var(--aurora-cyan) 14%, var(--card)))",
+        }}
+      >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -right-12 -top-12 size-44 rounded-full blur-3xl opacity-60"
+          style={{
+            background:
+              "radial-gradient(circle, color-mix(in oklab, var(--aurora-lavender) 70%, transparent), transparent 70%)",
+          }}
+        />
+        <div className="relative flex items-center gap-4">
+          <Mascot variant={rows.length > 0 ? "hero" : "sleeping"} size={84} glow />
+          <div className="min-w-0 flex-1">
+            <h2 className="font-display text-lg font-bold tracking-tight sm:text-xl">
+              Cofre de permissões
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {rows.length === 0
+                ? "Sem regras configuradas — qualquer manager (MANAGE_GUILD) acessa tudo."
+                : `${rows.length} cargo${rows.length === 1 ? "" : "s"} com acessos personalizados.`}
+            </p>
           </div>
-          <div className="flex gap-2">
+        </div>
+      </div>
+
+      <div className="mb-5 grid gap-3 sm:grid-cols-3">
+        <AuroraStatCard label="Cargos" value={rows.length} icon={Users} tone="lavender" />
+        <AuroraStatCard label="Acesso total" value={fullAccess} icon={KeyRound} tone="peach" />
+        <AuroraStatCard label="Áreas" value={DASHBOARD_AREAS.length} icon={Shield} tone="cyan" />
+      </div>
+
+      <div className="space-y-5">
+        <AuroraSection title="Adicionar cargo" icon={Plus} tone="cyan">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <div className="flex-1">
               <RoleSelect
                 guildId={guildId}
@@ -180,44 +198,48 @@ function PermissionsPage() {
               Adicionar
             </Button>
           </div>
-        </div>
+        </AuroraSection>
 
-        {/* Matrix */}
-        <div className="rounded-2xl border border-border bg-card">
-          <div className="border-b border-border px-5 py-3">
-            <h2 className="text-sm font-semibold">Cargos configurados</h2>
-            <p className="text-xs text-muted-foreground">
-              Marque as áreas que cada cargo pode acessar. "Tudo" libera todas.
-            </p>
-          </div>
+        <AuroraSection title={`Cargos configurados (${rows.length})`} icon={Shield} tone="lavender">
           {rows.length === 0 ? (
-            <p className="p-6 text-center text-sm text-muted-foreground">
-              Nenhum cargo configurado. Modo aberto pra managers.
-            </p>
+            <div className="rounded-2xl border border-dashed border-border/60 bg-card/40 p-8 text-center">
+              <Mascot variant="sleeping" size={72} />
+              <p className="mt-3 text-sm text-muted-foreground">
+                Nenhum cargo configurado. Modo aberto pra managers.
+              </p>
+            </div>
           ) : (
-            <ul className="divide-y divide-border">
+            <ul className="space-y-3">
               {rows.map((row) => {
                 const role = rolesById.get(row.role_id);
                 const areasSet = new Set(row.areas as AreaKey[]);
                 const all = areasSet.has("all");
                 return (
-                  <li key={row.id} className="p-5">
-                    <div className="mb-3 flex items-center justify-between gap-3">
+                  <li
+                    key={row.id}
+                    className="aurora-card-hover rounded-2xl border border-border/60 p-4"
+                    style={{
+                      background: all
+                        ? "linear-gradient(135deg, color-mix(in oklab, var(--aurora-peach) 14%, var(--card)), color-mix(in oklab, var(--aurora-pink) 8%, var(--card)))"
+                        : "color-mix(in oklab, var(--card) 80%, transparent)",
+                    }}
+                  >
+                    <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                       <div className="flex items-center gap-2">
                         <span
-                          className="size-3 rounded-full"
+                          className="size-3 rounded-full ring-2 ring-background"
                           style={{
                             backgroundColor: role
                               ? `#${role.color.toString(16).padStart(6, "0")}`
                               : "#99aab5",
                           }}
                         />
-                        <span className="font-medium">
+                        <span className="font-display font-semibold">
                           {role?.name ?? `Cargo ${row.role_id}`}
                         </span>
                         {all && (
-                          <Badge variant="default" className="text-[10px]">
-                            Acesso total
+                          <Badge className="border-[color:var(--aurora-peach)]/40 bg-[color:color-mix(in_oklab,var(--aurora-peach)_25%,transparent)] text-foreground">
+                            <KeyRound className="mr-1 size-3" /> Acesso total
                           </Badge>
                         )}
                       </div>
@@ -248,17 +270,17 @@ function PermissionsPage() {
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-6">
-                      <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-background/40 px-2 py-1.5 text-xs">
+                      <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-border/50 bg-background/40 px-2 py-1.5 text-xs transition hover:border-[color:color-mix(in_oklab,var(--aurora-lavender)_40%,var(--border))]">
                         <Checkbox
                           checked={all}
                           onCheckedChange={() => toggleArea(row, "all")}
                         />
-                        <span className="font-medium">Tudo</span>
+                        <span className="font-semibold">Tudo</span>
                       </label>
                       {DASHBOARD_AREAS.map((a) => (
                         <label
                           key={a}
-                          className="flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-background/40 px-2 py-1.5 text-xs"
+                          className="flex cursor-pointer items-center gap-2 rounded-xl border border-border/50 bg-background/40 px-2 py-1.5 text-xs transition hover:border-[color:color-mix(in_oklab,var(--aurora-lavender)_40%,var(--border))]"
                         >
                           <Checkbox
                             checked={all || areasSet.has(a)}
@@ -274,35 +296,28 @@ function PermissionsPage() {
               })}
             </ul>
           )}
-        </div>
+        </AuroraSection>
 
-        {/* Audit log */}
-        <div className="rounded-2xl border border-border bg-card">
-          <div className="flex items-center gap-2 border-b border-border px-5 py-3">
-            <History className="size-4 text-muted-foreground" />
-            <div>
-              <h2 className="text-sm font-semibold">Auditoria</h2>
-              <p className="text-xs text-muted-foreground">
-                Últimas 50 ações feitas pelo dashboard.
-              </p>
-            </div>
-          </div>
+        <AuroraSection
+          title="Auditoria"
+          description="Últimas 50 ações feitas pelo dashboard."
+          icon={History}
+          tone="peach"
+        >
           {!audit.data || audit.data.length === 0 ? (
-            <p className="p-6 text-center text-sm text-muted-foreground">
+            <p className="rounded-xl border border-dashed border-border/60 bg-card/40 p-6 text-center text-sm text-muted-foreground">
               Sem registros ainda.
             </p>
           ) : (
-            <ul className="divide-y divide-border">
+            <ul className="divide-y divide-border/60 rounded-xl border border-border/60 bg-card/40">
               {audit.data.map((entry) => (
                 <li
                   key={entry.id}
-                  className="flex items-center justify-between gap-3 px-5 py-2.5 text-sm"
+                  className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm"
                 >
                   <div className="min-w-0">
                     <p className="truncate">
-                      <span className="font-mono text-xs text-primary">
-                        {entry.event}
-                      </span>{" "}
+                      <span className="font-mono text-xs text-primary">{entry.event}</span>{" "}
                       <span className="text-muted-foreground">por</span>{" "}
                       <span className="font-medium">
                         {entry.actor_tag ?? entry.actor_id ?? "—"}
@@ -325,7 +340,7 @@ function PermissionsPage() {
               ))}
             </ul>
           )}
-        </div>
+        </AuroraSection>
       </div>
     </ModuleLayout>
   );

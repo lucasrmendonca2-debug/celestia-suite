@@ -1,7 +1,10 @@
 /**
- * Verifica se o bot está em um servidor (via GET /guilds/{id} com bot token).
+ * Verifica se o bot está em um servidor.
+ * Mesmo modelo usado por dashboards de bots: a API do Discord é consultada
+ * com token de BOT; 200 = instalado, 404/403 = fora/sem acesso, 401 = token errado.
  */
 import { createServerFn } from "@tanstack/react-start";
+import { getDiscordBotToken } from "@/lib/discord/bot-token.server";
 
 export interface BotPresence {
   present: boolean;
@@ -22,14 +25,14 @@ export const checkBotInGuild = createServerFn({ method: "GET" })
     return data;
   })
   .handler(async ({ data }): Promise<BotPresence> => {
-    const token = process.env.DISCORD_BOT_TOKEN;
+    const token = getDiscordBotToken();
     const inviteUrl = buildInviteUrl(data.guildId);
     if (!token) {
-      console.warn("[bot-presence] DISCORD_BOT_TOKEN ausente — assumindo bot fora do servidor");
+      console.warn("[bot-presence] token do bot ausente — assumindo bot fora do servidor");
       return { present: false, inviteUrl };
     }
     try {
-      // GET /guilds/{id} com Bot token: 200 = bot é membro, 404 = não é, 401 = token inválido.
+      // GET /guilds/{id} com Bot token: 200 = bot é membro, 404/403 = não é/sem acesso, 401 = token inválido.
       // O endpoint /users/@me/guilds/{id}/member requer OAuth2 user token (não funciona com Bot).
       const res = await fetch(
         `https://discord.com/api/v10/guilds/${data.guildId}`,
@@ -38,12 +41,14 @@ export const checkBotInGuild = createServerFn({ method: "GET" })
       if (res.ok) {
         return { present: true, inviteUrl };
       }
-      if (res.status === 404) {
+      if (res.status === 404 || res.status === 403) {
         return { present: false, inviteUrl };
       }
       const body = await res.text().catch(() => "");
       console.warn(
-        `[bot-presence] guild=${data.guildId} status=${res.status} body=${body.slice(0, 200)}`,
+        `[bot-presence] guild=${data.guildId} status=${res.status} body=${body.slice(0, 200)}${
+          res.status === 401 ? " — token recusado pelo Discord; confira se a secret é o token puro, sem prefixo Bot" : ""
+        }`,
       );
       return { present: false, inviteUrl };
     } catch (err) {

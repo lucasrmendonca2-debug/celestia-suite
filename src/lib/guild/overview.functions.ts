@@ -5,6 +5,7 @@
  */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { getDiscordBotToken } from "@/lib/discord/bot-token.server";
 
 // Bitflags Discord (BigInt)
 const P = {
@@ -82,7 +83,7 @@ export const getGuildOverview = createServerFn({ method: "GET" })
     const { assertCanManageGuild } = await import("./permissions.server");
     await assertCanManageGuild(data.guildId);
 
-    const token = process.env.DISCORD_BOT_TOKEN;
+    const token = getDiscordBotToken();
     const clientId = process.env.DISCORD_CLIENT_ID;
 
     let name = "Servidor";
@@ -115,6 +116,13 @@ export const getGuildOverview = createServerFn({ method: "GET" })
             : null;
           memberCount = g.approximate_member_count ?? null;
           presenceCount = g.approximate_presence_count ?? null;
+        } else if (gRes.status !== 404 && gRes.status !== 403) {
+          const body = await gRes.text().catch(() => "");
+          console.warn(
+            `[guild-overview] guild=${data.guildId} status=${gRes.status} body=${body.slice(0, 200)}${
+              gRes.status === 401 ? " — token recusado pelo Discord; confira se a secret é o token puro, sem prefixo Bot" : ""
+            }`,
+          );
         }
 
         if (present) {

@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, UserPlus } from "lucide-react";
+import { Plus, Trash2, UserPlus, Bot, Users } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   addAutorole,
@@ -20,6 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { AuroraSection, AuroraStatCard } from "@/components/dashboard/aurora-ui";
+import { Mascot } from "@/components/Mascot";
 
 export const Route = createFileRoute("/_authenticated/g/$guildId/cargo-automatico")({
   loader: async ({ context, params }) => {
@@ -66,17 +68,39 @@ function AutorolePage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["autoroles", guildId] }),
   });
 
+  const memberRoles = (rows as any[]).filter((r) => r.target !== "bot");
+  const botRoles = (rows as any[]).filter((r) => r.target === "bot");
+
   return (
     <ModuleLayout
       guildId={guildId}
       user={user}
       icon={UserPlus}
       title="Autorole"
-      description="Cargos atribuídos automaticamente a novos membros."
+      description="Cargos atribuídos automaticamente a novos membros ou bots."
     >
-      <div className="space-y-4">
-        <div className="rounded-2xl border border-border bg-card p-5">
-          <div className="grid gap-2 sm:grid-cols-[1fr_140px_auto]">
+      <div className="aurora-panel relative mb-6 flex items-center gap-4 overflow-hidden p-5">
+        <div className="aurora-float">
+          <Mascot variant="celebrate" size={76} glow />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h2 className="font-display text-lg font-bold tracking-tight">
+            Boas-vindas com cargo automático 🎀
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Sempre que alguém entrar, esses cargos são aplicados na hora. Sem comandos, sem complicação.
+          </p>
+        </div>
+      </div>
+
+      <div className="mb-6 grid gap-3 sm:grid-cols-2">
+        <AuroraStatCard label="Para membros" value={memberRoles.length} icon={Users} tone="lavender" />
+        <AuroraStatCard label="Para bots" value={botRoles.length} icon={Bot} tone="cyan" />
+      </div>
+
+      <div className="space-y-5">
+        <AuroraSection title="Adicionar cargo" icon={Plus} tone="mint">
+          <div className="grid gap-2 sm:grid-cols-[1fr_160px_auto]">
             <RoleSelect
               guildId={guildId}
               value={roleId || null}
@@ -93,43 +117,51 @@ function AutorolePage() {
                 <SelectItem value="bot">Bots</SelectItem>
               </SelectContent>
             </Select>
-            <Button
-              onClick={() => add.mutate()}
-              disabled={!roleId || add.isPending}
-            >
-              <Plus className="mr-1.5 size-4" />
-              Adicionar
+            <Button onClick={() => add.mutate()} disabled={!roleId || add.isPending}>
+              <Plus className="mr-1.5 size-4" /> Adicionar
             </Button>
           </div>
-        </div>
+        </AuroraSection>
 
-        <div className="rounded-2xl border border-border bg-card">
+        <AuroraSection title={`Cargos configurados (${rows.length})`} icon={UserPlus} tone="pink">
           {rows.length === 0 ? (
-            <p className="p-6 text-center text-sm text-muted-foreground">
-              Nenhum cargo configurado ainda.
-            </p>
+            <div className="flex flex-col items-center gap-3 p-6 text-center">
+              <Mascot variant="sleeping" size={64} />
+              <p className="text-sm text-muted-foreground">
+                Nenhum cargo configurado. Adicione o primeiro acima!
+              </p>
+            </div>
           ) : (
-            <ul className="divide-y divide-border">
-              {rows.map((r: any) => (
-                <li key={r.id} className="flex items-center justify-between px-5 py-3">
-                  <div>
-                    <p className="font-mono text-sm">{r.role_id}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Aplicado a {r.target === "bot" ? "bots" : "membros"}
-                    </p>
+            <ul className="divide-y divide-border/60">
+              {(rows as any[]).map((r) => (
+                <li
+                  key={r.id}
+                  className="flex items-center justify-between gap-3 py-3 transition first:pt-0 last:pb-0"
+                >
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="flex size-9 items-center justify-center rounded-xl"
+                      style={{
+                        background: `color-mix(in oklab, var(--aurora-${r.target === "bot" ? "cyan" : "lavender"}) 25%, transparent)`,
+                      }}
+                    >
+                      {r.target === "bot" ? <Bot className="size-4" /> : <Users className="size-4" />}
+                    </span>
+                    <div>
+                      <p className="font-mono text-sm">{r.role_id}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {r.target === "bot" ? "Aplicado a bots" : "Aplicado a membros"}
+                      </p>
+                    </div>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => remove.mutate(r.id)}
-                  >
+                  <Button variant="ghost" size="icon" onClick={() => remove.mutate(r.id)}>
                     <Trash2 className="size-4" />
                   </Button>
                 </li>
               ))}
             </ul>
           )}
-        </div>
+        </AuroraSection>
       </div>
     </ModuleLayout>
   );

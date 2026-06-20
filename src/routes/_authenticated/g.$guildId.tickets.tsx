@@ -34,6 +34,9 @@ import { AppearanceTab } from "@/components/dashboard/tickets/AppearanceTab";
 import { HistoryTab } from "@/components/dashboard/tickets/HistoryTab";
 import { RatingsTab } from "@/components/dashboard/tickets/RatingsTab";
 import { ChannelPicker, RolePicker } from "@/components/dashboard/tickets/DiscordPickers";
+import { AuroraStatCard } from "@/components/dashboard/aurora-ui";
+import { Mascot } from "@/components/Mascot";
+
 
 export const Route = createFileRoute("/_authenticated/g/$guildId/tickets")({
   loader: async ({ context, params }) => {
@@ -90,31 +93,45 @@ function TicketsPage() {
       title="Sistema de Tickets"
       description="Painel único, dinâmico e configurável. O bot lê tudo daqui em tempo real."
     >
+      {/* Hero banner */}
+      <div className="aurora-panel relative mb-6 flex items-center gap-4 overflow-hidden p-5">
+        <div className="aurora-float">
+          <Mascot variant={stats.open > 0 ? "loading" : "hero"} size={76} glow />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h2 className="font-display text-lg font-bold tracking-tight">
+            {stats.open > 0
+              ? `${stats.open} ticket${stats.open > 1 ? "s" : ""} aguardando atenção 🎫`
+              : "Suporte em dia ✨"}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Painel único, dinâmico e configurável. O bot lê tudo daqui em tempo real.
+          </p>
+        </div>
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-3">
-        <StatCard
-          label="Tickets abertos agora"
+        <AuroraStatCard
+          label="Abertos agora"
           value={stats.open}
           icon={Inbox}
-          accent="from-violet-500/20 to-fuchsia-500/10 text-violet-300"
+          tone="lavender"
         />
-        <StatCard
+        <AuroraStatCard
           label="Total já criados"
           value={stats.total}
           icon={Activity}
-          accent="from-sky-500/20 to-cyan-500/10 text-sky-300"
+          tone="cyan"
         />
-        <StatCard
+        <AuroraStatCard
           label="Status do sistema"
           value={config.enabled ? "Ativo" : "Desativado"}
+          hint={config.enabled ? "online" : "offline"}
           icon={Power}
-          accent={
-            config.enabled
-              ? "from-emerald-500/25 to-emerald-500/5 text-emerald-300"
-              : "from-rose-500/20 to-rose-500/5 text-rose-300"
-          }
-          badge={config.enabled ? "online" : "offline"}
+          tone={config.enabled ? "mint" : "pink"}
         />
       </div>
+
 
       <SetupChecklist config={config} />
 

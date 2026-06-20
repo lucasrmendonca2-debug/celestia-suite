@@ -38,8 +38,9 @@ async function assertCanManage(guildId: string): Promise<void> {
 }
 
 async function botFetch<T>(path: string): Promise<T> {
-  const token = process.env.DISCORD_BOT_TOKEN;
-  if (!token) throw new Error("DISCORD_BOT_TOKEN ausente.");
+  const { getDiscordBotToken } = await import("@/lib/discord/bot-token.server");
+  const token = getDiscordBotToken();
+  if (!token) throw new Error("Token do bot ausente.");
   const res = await fetch(`https://discord.com/api/v10${path}`, {
     headers: { Authorization: `Bot ${token}` },
   });

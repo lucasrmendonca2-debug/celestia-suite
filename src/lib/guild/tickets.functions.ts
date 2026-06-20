@@ -18,6 +18,12 @@ async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
+async function botToken() {
+  const { getDiscordBotToken } = await import("@/lib/discord/bot-token.server");
+  const token = getDiscordBotToken();
+  if (!token) throw new Error("Token do bot não configurado no servidor.");
+  return token;
+}
 async function perm(guildId: string) {
   const { assertCanManageGuild } = await import("./permissions.server");
   return assertCanManageGuild(guildId);

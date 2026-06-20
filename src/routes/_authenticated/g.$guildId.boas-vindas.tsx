@@ -82,7 +82,7 @@ function WelcomePage() {
 
         <main className="mx-auto max-w-3xl px-6 py-8">
           <Link
-            to="/dashboard/$guildId"
+            to="/g/$guildId"
             params={{ guildId: guild.id }}
             className="mb-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
           >

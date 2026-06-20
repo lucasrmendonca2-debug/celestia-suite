@@ -35,7 +35,7 @@ import { HistoryTab } from "@/components/dashboard/tickets/HistoryTab";
 import { RatingsTab } from "@/components/dashboard/tickets/RatingsTab";
 import { ChannelPicker, RolePicker } from "@/components/dashboard/tickets/DiscordPickers";
 
-export const Route = createFileRoute("/_authenticated/dashboard/$guildId/tickets")({
+export const Route = createFileRoute("/_authenticated/g/$guildId/tickets")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

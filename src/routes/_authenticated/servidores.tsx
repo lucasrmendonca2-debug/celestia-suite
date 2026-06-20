@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
 
-export const Route = createFileRoute("/_authenticated/dashboard/")({
+export const Route = createFileRoute("/_authenticated/servidores")({
   loader: async ({ context }) => {
     const [user, guilds] = await Promise.all([
       requireUser(),
@@ -25,7 +25,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/")({
       </pre>
       <div className="flex gap-2">
         <button onClick={reset} className="rounded-md border border-border px-3 py-1.5 text-sm">Tentar de novo</button>
-        <a href="/login" className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground">Logar novamente</a>
+        <a href="/entrar" className="rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground">Logar novamente</a>
       </div>
     </div>
   ),
@@ -109,7 +109,7 @@ function ServerPicker() {
                 {filtered.map((g) => (
                   <Link
                     key={g.id}
-                    to="/dashboard/$guildId"
+                    to="/g/$guildId"
                     params={{ guildId: g.id }}
                     className="cyber-panel cyber-card-hover group relative flex items-center gap-3 overflow-hidden rounded-xl p-4"
                   >

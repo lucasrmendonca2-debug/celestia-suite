@@ -9,41 +9,41 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as LoginRouteImport } from './routes/login'
+import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as ComandosRouteImport } from './routes/comandos'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
+import { Route as AuthenticatedServidoresRouteImport } from './routes/_authenticated/servidores'
 import { Route as ApiPublicBotGuildPresenceRouteImport } from './routes/api/public/bot-guild-presence'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
-import { Route as AuthenticatedDashboardGuildIdRouteImport } from './routes/_authenticated/dashboard.$guildId'
+import { Route as AuthenticatedGGuildIdRouteImport } from './routes/_authenticated/g.$guildId'
 import { Route as AuthenticatedAdminPremiumRouteImport } from './routes/_authenticated/admin.premium'
-import { Route as AuthenticatedDashboardGuildIdIndexRouteImport } from './routes/_authenticated/dashboard.$guildId.index'
+import { Route as AuthenticatedGGuildIdIndexRouteImport } from './routes/_authenticated/g.$guildId.index'
 import { Route as ApiAuthDiscordLoginRouteImport } from './routes/api/auth/discord/login'
 import { Route as ApiAuthDiscordCallbackRouteImport } from './routes/api/auth/discord/callback'
-import { Route as AuthenticatedDashboardGuildIdWelcomeRouteImport } from './routes/_authenticated/dashboard.$guildId.welcome'
-import { Route as AuthenticatedDashboardGuildIdTicketsRouteImport } from './routes/_authenticated/dashboard.$guildId.tickets'
-import { Route as AuthenticatedDashboardGuildIdSocialRouteImport } from './routes/_authenticated/dashboard.$guildId.social'
-import { Route as AuthenticatedDashboardGuildIdSeasonsRouteImport } from './routes/_authenticated/dashboard.$guildId.seasons'
-import { Route as AuthenticatedDashboardGuildIdReactionRolesRouteImport } from './routes/_authenticated/dashboard.$guildId.reaction-roles'
-import { Route as AuthenticatedDashboardGuildIdPremiumRouteImport } from './routes/_authenticated/dashboard.$guildId.premium'
-import { Route as AuthenticatedDashboardGuildIdPermissoesRouteImport } from './routes/_authenticated/dashboard.$guildId.permissoes'
-import { Route as AuthenticatedDashboardGuildIdModerationRouteImport } from './routes/_authenticated/dashboard.$guildId.moderation'
-import { Route as AuthenticatedDashboardGuildIdLogsRouteImport } from './routes/_authenticated/dashboard.$guildId.logs'
-import { Route as AuthenticatedDashboardGuildIdLevelingRouteImport } from './routes/_authenticated/dashboard.$guildId.leveling'
-import { Route as AuthenticatedDashboardGuildIdEmbedsRouteImport } from './routes/_authenticated/dashboard.$guildId.embeds'
-import { Route as AuthenticatedDashboardGuildIdEconomyRouteImport } from './routes/_authenticated/dashboard.$guildId.economy'
-import { Route as AuthenticatedDashboardGuildIdCommunityRouteImport } from './routes/_authenticated/dashboard.$guildId.community'
-import { Route as AuthenticatedDashboardGuildIdCommandsRouteImport } from './routes/_authenticated/dashboard.$guildId.commands'
-import { Route as AuthenticatedDashboardGuildIdBadgesRouteImport } from './routes/_authenticated/dashboard.$guildId.badges'
-import { Route as AuthenticatedDashboardGuildIdAutoroleRouteImport } from './routes/_authenticated/dashboard.$guildId.autorole'
-import { Route as AuthenticatedDashboardGuildIdAutomodRouteImport } from './routes/_authenticated/dashboard.$guildId.automod'
-import { Route as AuthenticatedDashboardGuildIdAssetsRouteImport } from './routes/_authenticated/dashboard.$guildId.assets'
-import { Route as AuthenticatedDashboardGuildIdAchievementsRouteImport } from './routes/_authenticated/dashboard.$guildId.achievements'
+import { Route as AuthenticatedGGuildIdTicketsRouteImport } from './routes/_authenticated/g.$guildId.tickets'
+import { Route as AuthenticatedGGuildIdTemporadasRouteImport } from './routes/_authenticated/g.$guildId.temporadas'
+import { Route as AuthenticatedGGuildIdSocialRouteImport } from './routes/_authenticated/g.$guildId.social'
+import { Route as AuthenticatedGGuildIdPremiumRouteImport } from './routes/_authenticated/g.$guildId.premium'
+import { Route as AuthenticatedGGuildIdPermissoesRouteImport } from './routes/_authenticated/g.$guildId.permissoes'
+import { Route as AuthenticatedGGuildIdNiveisRouteImport } from './routes/_authenticated/g.$guildId.niveis'
+import { Route as AuthenticatedGGuildIdModeracaoRouteImport } from './routes/_authenticated/g.$guildId.moderacao'
+import { Route as AuthenticatedGGuildIdLogsRouteImport } from './routes/_authenticated/g.$guildId.logs'
+import { Route as AuthenticatedGGuildIdEmbedsRouteImport } from './routes/_authenticated/g.$guildId.embeds'
+import { Route as AuthenticatedGGuildIdEconomiaRouteImport } from './routes/_authenticated/g.$guildId.economia'
+import { Route as AuthenticatedGGuildIdConquistasRouteImport } from './routes/_authenticated/g.$guildId.conquistas'
+import { Route as AuthenticatedGGuildIdComunidadeRouteImport } from './routes/_authenticated/g.$guildId.comunidade'
+import { Route as AuthenticatedGGuildIdComandosBotRouteImport } from './routes/_authenticated/g.$guildId.comandos-bot'
+import { Route as AuthenticatedGGuildIdCargosReacaoRouteImport } from './routes/_authenticated/g.$guildId.cargos-reacao'
+import { Route as AuthenticatedGGuildIdCargoAutomaticoRouteImport } from './routes/_authenticated/g.$guildId.cargo-automatico'
+import { Route as AuthenticatedGGuildIdBoasVindasRouteImport } from './routes/_authenticated/g.$guildId.boas-vindas'
+import { Route as AuthenticatedGGuildIdBadgesRouteImport } from './routes/_authenticated/g.$guildId.badges'
+import { Route as AuthenticatedGGuildIdAutomodRouteImport } from './routes/_authenticated/g.$guildId.automod'
+import { Route as AuthenticatedGGuildIdAssetsRouteImport } from './routes/_authenticated/g.$guildId.assets'
 
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
+const EntrarRoute = EntrarRouteImport.update({
+  id: '/entrar',
+  path: '/entrar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ComandosRoute = ComandosRouteImport.update({
@@ -60,12 +60,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedDashboardIndexRoute =
-  AuthenticatedDashboardIndexRouteImport.update({
-    id: '/dashboard/',
-    path: '/dashboard/',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
+const AuthenticatedServidoresRoute = AuthenticatedServidoresRouteImport.update({
+  id: '/servidores',
+  path: '/servidores',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const ApiPublicBotGuildPresenceRoute =
   ApiPublicBotGuildPresenceRouteImport.update({
     id: '/api/public/bot-guild-presence',
@@ -77,23 +76,22 @@ const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
   path: '/api/auth/logout',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedDashboardGuildIdRoute =
-  AuthenticatedDashboardGuildIdRouteImport.update({
-    id: '/dashboard/$guildId',
-    path: '/dashboard/$guildId',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
+const AuthenticatedGGuildIdRoute = AuthenticatedGGuildIdRouteImport.update({
+  id: '/g/$guildId',
+  path: '/g/$guildId',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedAdminPremiumRoute =
   AuthenticatedAdminPremiumRouteImport.update({
     id: '/admin/premium',
     path: '/admin/premium',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedDashboardGuildIdIndexRoute =
-  AuthenticatedDashboardGuildIdIndexRouteImport.update({
+const AuthenticatedGGuildIdIndexRoute =
+  AuthenticatedGGuildIdIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
   } as any)
 const ApiAuthDiscordLoginRoute = ApiAuthDiscordLoginRouteImport.update({
   id: '/api/auth/discord/login',
@@ -105,322 +103,322 @@ const ApiAuthDiscordCallbackRoute = ApiAuthDiscordCallbackRouteImport.update({
   path: '/api/auth/discord/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedDashboardGuildIdWelcomeRoute =
-  AuthenticatedDashboardGuildIdWelcomeRouteImport.update({
-    id: '/welcome',
-    path: '/welcome',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
-  } as any)
-const AuthenticatedDashboardGuildIdTicketsRoute =
-  AuthenticatedDashboardGuildIdTicketsRouteImport.update({
+const AuthenticatedGGuildIdTicketsRoute =
+  AuthenticatedGGuildIdTicketsRouteImport.update({
     id: '/tickets',
     path: '/tickets',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
   } as any)
-const AuthenticatedDashboardGuildIdSocialRoute =
-  AuthenticatedDashboardGuildIdSocialRouteImport.update({
+const AuthenticatedGGuildIdTemporadasRoute =
+  AuthenticatedGGuildIdTemporadasRouteImport.update({
+    id: '/temporadas',
+    path: '/temporadas',
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
+  } as any)
+const AuthenticatedGGuildIdSocialRoute =
+  AuthenticatedGGuildIdSocialRouteImport.update({
     id: '/social',
     path: '/social',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
   } as any)
-const AuthenticatedDashboardGuildIdSeasonsRoute =
-  AuthenticatedDashboardGuildIdSeasonsRouteImport.update({
-    id: '/seasons',
-    path: '/seasons',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
-  } as any)
-const AuthenticatedDashboardGuildIdReactionRolesRoute =
-  AuthenticatedDashboardGuildIdReactionRolesRouteImport.update({
-    id: '/reaction-roles',
-    path: '/reaction-roles',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
-  } as any)
-const AuthenticatedDashboardGuildIdPremiumRoute =
-  AuthenticatedDashboardGuildIdPremiumRouteImport.update({
+const AuthenticatedGGuildIdPremiumRoute =
+  AuthenticatedGGuildIdPremiumRouteImport.update({
     id: '/premium',
     path: '/premium',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
   } as any)
-const AuthenticatedDashboardGuildIdPermissoesRoute =
-  AuthenticatedDashboardGuildIdPermissoesRouteImport.update({
+const AuthenticatedGGuildIdPermissoesRoute =
+  AuthenticatedGGuildIdPermissoesRouteImport.update({
     id: '/permissoes',
     path: '/permissoes',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
   } as any)
-const AuthenticatedDashboardGuildIdModerationRoute =
-  AuthenticatedDashboardGuildIdModerationRouteImport.update({
-    id: '/moderation',
-    path: '/moderation',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+const AuthenticatedGGuildIdNiveisRoute =
+  AuthenticatedGGuildIdNiveisRouteImport.update({
+    id: '/niveis',
+    path: '/niveis',
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
   } as any)
-const AuthenticatedDashboardGuildIdLogsRoute =
-  AuthenticatedDashboardGuildIdLogsRouteImport.update({
+const AuthenticatedGGuildIdModeracaoRoute =
+  AuthenticatedGGuildIdModeracaoRouteImport.update({
+    id: '/moderacao',
+    path: '/moderacao',
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
+  } as any)
+const AuthenticatedGGuildIdLogsRoute =
+  AuthenticatedGGuildIdLogsRouteImport.update({
     id: '/logs',
     path: '/logs',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
   } as any)
-const AuthenticatedDashboardGuildIdLevelingRoute =
-  AuthenticatedDashboardGuildIdLevelingRouteImport.update({
-    id: '/leveling',
-    path: '/leveling',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
-  } as any)
-const AuthenticatedDashboardGuildIdEmbedsRoute =
-  AuthenticatedDashboardGuildIdEmbedsRouteImport.update({
+const AuthenticatedGGuildIdEmbedsRoute =
+  AuthenticatedGGuildIdEmbedsRouteImport.update({
     id: '/embeds',
     path: '/embeds',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
   } as any)
-const AuthenticatedDashboardGuildIdEconomyRoute =
-  AuthenticatedDashboardGuildIdEconomyRouteImport.update({
-    id: '/economy',
-    path: '/economy',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+const AuthenticatedGGuildIdEconomiaRoute =
+  AuthenticatedGGuildIdEconomiaRouteImport.update({
+    id: '/economia',
+    path: '/economia',
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
   } as any)
-const AuthenticatedDashboardGuildIdCommunityRoute =
-  AuthenticatedDashboardGuildIdCommunityRouteImport.update({
-    id: '/community',
-    path: '/community',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+const AuthenticatedGGuildIdConquistasRoute =
+  AuthenticatedGGuildIdConquistasRouteImport.update({
+    id: '/conquistas',
+    path: '/conquistas',
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
   } as any)
-const AuthenticatedDashboardGuildIdCommandsRoute =
-  AuthenticatedDashboardGuildIdCommandsRouteImport.update({
-    id: '/commands',
-    path: '/commands',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+const AuthenticatedGGuildIdComunidadeRoute =
+  AuthenticatedGGuildIdComunidadeRouteImport.update({
+    id: '/comunidade',
+    path: '/comunidade',
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
   } as any)
-const AuthenticatedDashboardGuildIdBadgesRoute =
-  AuthenticatedDashboardGuildIdBadgesRouteImport.update({
+const AuthenticatedGGuildIdComandosBotRoute =
+  AuthenticatedGGuildIdComandosBotRouteImport.update({
+    id: '/comandos-bot',
+    path: '/comandos-bot',
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
+  } as any)
+const AuthenticatedGGuildIdCargosReacaoRoute =
+  AuthenticatedGGuildIdCargosReacaoRouteImport.update({
+    id: '/cargos-reacao',
+    path: '/cargos-reacao',
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
+  } as any)
+const AuthenticatedGGuildIdCargoAutomaticoRoute =
+  AuthenticatedGGuildIdCargoAutomaticoRouteImport.update({
+    id: '/cargo-automatico',
+    path: '/cargo-automatico',
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
+  } as any)
+const AuthenticatedGGuildIdBoasVindasRoute =
+  AuthenticatedGGuildIdBoasVindasRouteImport.update({
+    id: '/boas-vindas',
+    path: '/boas-vindas',
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
+  } as any)
+const AuthenticatedGGuildIdBadgesRoute =
+  AuthenticatedGGuildIdBadgesRouteImport.update({
     id: '/badges',
     path: '/badges',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
   } as any)
-const AuthenticatedDashboardGuildIdAutoroleRoute =
-  AuthenticatedDashboardGuildIdAutoroleRouteImport.update({
-    id: '/autorole',
-    path: '/autorole',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
-  } as any)
-const AuthenticatedDashboardGuildIdAutomodRoute =
-  AuthenticatedDashboardGuildIdAutomodRouteImport.update({
+const AuthenticatedGGuildIdAutomodRoute =
+  AuthenticatedGGuildIdAutomodRouteImport.update({
     id: '/automod',
     path: '/automod',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
   } as any)
-const AuthenticatedDashboardGuildIdAssetsRoute =
-  AuthenticatedDashboardGuildIdAssetsRouteImport.update({
+const AuthenticatedGGuildIdAssetsRoute =
+  AuthenticatedGGuildIdAssetsRouteImport.update({
     id: '/assets',
     path: '/assets',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
-  } as any)
-const AuthenticatedDashboardGuildIdAchievementsRoute =
-  AuthenticatedDashboardGuildIdAchievementsRouteImport.update({
-    id: '/achievements',
-    path: '/achievements',
-    getParentRoute: () => AuthenticatedDashboardGuildIdRoute,
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/comandos': typeof ComandosRoute
-  '/login': typeof LoginRoute
+  '/entrar': typeof EntrarRoute
+  '/servidores': typeof AuthenticatedServidoresRoute
   '/admin/premium': typeof AuthenticatedAdminPremiumRoute
-  '/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRouteWithChildren
+  '/g/$guildId': typeof AuthenticatedGGuildIdRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/public/bot-guild-presence': typeof ApiPublicBotGuildPresenceRoute
-  '/dashboard/': typeof AuthenticatedDashboardIndexRoute
-  '/dashboard/$guildId/achievements': typeof AuthenticatedDashboardGuildIdAchievementsRoute
-  '/dashboard/$guildId/assets': typeof AuthenticatedDashboardGuildIdAssetsRoute
-  '/dashboard/$guildId/automod': typeof AuthenticatedDashboardGuildIdAutomodRoute
-  '/dashboard/$guildId/autorole': typeof AuthenticatedDashboardGuildIdAutoroleRoute
-  '/dashboard/$guildId/badges': typeof AuthenticatedDashboardGuildIdBadgesRoute
-  '/dashboard/$guildId/commands': typeof AuthenticatedDashboardGuildIdCommandsRoute
-  '/dashboard/$guildId/community': typeof AuthenticatedDashboardGuildIdCommunityRoute
-  '/dashboard/$guildId/economy': typeof AuthenticatedDashboardGuildIdEconomyRoute
-  '/dashboard/$guildId/embeds': typeof AuthenticatedDashboardGuildIdEmbedsRoute
-  '/dashboard/$guildId/leveling': typeof AuthenticatedDashboardGuildIdLevelingRoute
-  '/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
-  '/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
-  '/dashboard/$guildId/permissoes': typeof AuthenticatedDashboardGuildIdPermissoesRoute
-  '/dashboard/$guildId/premium': typeof AuthenticatedDashboardGuildIdPremiumRoute
-  '/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
-  '/dashboard/$guildId/seasons': typeof AuthenticatedDashboardGuildIdSeasonsRoute
-  '/dashboard/$guildId/social': typeof AuthenticatedDashboardGuildIdSocialRoute
-  '/dashboard/$guildId/tickets': typeof AuthenticatedDashboardGuildIdTicketsRoute
-  '/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
+  '/g/$guildId/assets': typeof AuthenticatedGGuildIdAssetsRoute
+  '/g/$guildId/automod': typeof AuthenticatedGGuildIdAutomodRoute
+  '/g/$guildId/badges': typeof AuthenticatedGGuildIdBadgesRoute
+  '/g/$guildId/boas-vindas': typeof AuthenticatedGGuildIdBoasVindasRoute
+  '/g/$guildId/cargo-automatico': typeof AuthenticatedGGuildIdCargoAutomaticoRoute
+  '/g/$guildId/cargos-reacao': typeof AuthenticatedGGuildIdCargosReacaoRoute
+  '/g/$guildId/comandos-bot': typeof AuthenticatedGGuildIdComandosBotRoute
+  '/g/$guildId/comunidade': typeof AuthenticatedGGuildIdComunidadeRoute
+  '/g/$guildId/conquistas': typeof AuthenticatedGGuildIdConquistasRoute
+  '/g/$guildId/economia': typeof AuthenticatedGGuildIdEconomiaRoute
+  '/g/$guildId/embeds': typeof AuthenticatedGGuildIdEmbedsRoute
+  '/g/$guildId/logs': typeof AuthenticatedGGuildIdLogsRoute
+  '/g/$guildId/moderacao': typeof AuthenticatedGGuildIdModeracaoRoute
+  '/g/$guildId/niveis': typeof AuthenticatedGGuildIdNiveisRoute
+  '/g/$guildId/permissoes': typeof AuthenticatedGGuildIdPermissoesRoute
+  '/g/$guildId/premium': typeof AuthenticatedGGuildIdPremiumRoute
+  '/g/$guildId/social': typeof AuthenticatedGGuildIdSocialRoute
+  '/g/$guildId/temporadas': typeof AuthenticatedGGuildIdTemporadasRoute
+  '/g/$guildId/tickets': typeof AuthenticatedGGuildIdTicketsRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
-  '/dashboard/$guildId/': typeof AuthenticatedDashboardGuildIdIndexRoute
+  '/g/$guildId/': typeof AuthenticatedGGuildIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/comandos': typeof ComandosRoute
-  '/login': typeof LoginRoute
+  '/entrar': typeof EntrarRoute
+  '/servidores': typeof AuthenticatedServidoresRoute
   '/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/public/bot-guild-presence': typeof ApiPublicBotGuildPresenceRoute
-  '/dashboard': typeof AuthenticatedDashboardIndexRoute
-  '/dashboard/$guildId/achievements': typeof AuthenticatedDashboardGuildIdAchievementsRoute
-  '/dashboard/$guildId/assets': typeof AuthenticatedDashboardGuildIdAssetsRoute
-  '/dashboard/$guildId/automod': typeof AuthenticatedDashboardGuildIdAutomodRoute
-  '/dashboard/$guildId/autorole': typeof AuthenticatedDashboardGuildIdAutoroleRoute
-  '/dashboard/$guildId/badges': typeof AuthenticatedDashboardGuildIdBadgesRoute
-  '/dashboard/$guildId/commands': typeof AuthenticatedDashboardGuildIdCommandsRoute
-  '/dashboard/$guildId/community': typeof AuthenticatedDashboardGuildIdCommunityRoute
-  '/dashboard/$guildId/economy': typeof AuthenticatedDashboardGuildIdEconomyRoute
-  '/dashboard/$guildId/embeds': typeof AuthenticatedDashboardGuildIdEmbedsRoute
-  '/dashboard/$guildId/leveling': typeof AuthenticatedDashboardGuildIdLevelingRoute
-  '/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
-  '/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
-  '/dashboard/$guildId/permissoes': typeof AuthenticatedDashboardGuildIdPermissoesRoute
-  '/dashboard/$guildId/premium': typeof AuthenticatedDashboardGuildIdPremiumRoute
-  '/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
-  '/dashboard/$guildId/seasons': typeof AuthenticatedDashboardGuildIdSeasonsRoute
-  '/dashboard/$guildId/social': typeof AuthenticatedDashboardGuildIdSocialRoute
-  '/dashboard/$guildId/tickets': typeof AuthenticatedDashboardGuildIdTicketsRoute
-  '/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
+  '/g/$guildId/assets': typeof AuthenticatedGGuildIdAssetsRoute
+  '/g/$guildId/automod': typeof AuthenticatedGGuildIdAutomodRoute
+  '/g/$guildId/badges': typeof AuthenticatedGGuildIdBadgesRoute
+  '/g/$guildId/boas-vindas': typeof AuthenticatedGGuildIdBoasVindasRoute
+  '/g/$guildId/cargo-automatico': typeof AuthenticatedGGuildIdCargoAutomaticoRoute
+  '/g/$guildId/cargos-reacao': typeof AuthenticatedGGuildIdCargosReacaoRoute
+  '/g/$guildId/comandos-bot': typeof AuthenticatedGGuildIdComandosBotRoute
+  '/g/$guildId/comunidade': typeof AuthenticatedGGuildIdComunidadeRoute
+  '/g/$guildId/conquistas': typeof AuthenticatedGGuildIdConquistasRoute
+  '/g/$guildId/economia': typeof AuthenticatedGGuildIdEconomiaRoute
+  '/g/$guildId/embeds': typeof AuthenticatedGGuildIdEmbedsRoute
+  '/g/$guildId/logs': typeof AuthenticatedGGuildIdLogsRoute
+  '/g/$guildId/moderacao': typeof AuthenticatedGGuildIdModeracaoRoute
+  '/g/$guildId/niveis': typeof AuthenticatedGGuildIdNiveisRoute
+  '/g/$guildId/permissoes': typeof AuthenticatedGGuildIdPermissoesRoute
+  '/g/$guildId/premium': typeof AuthenticatedGGuildIdPremiumRoute
+  '/g/$guildId/social': typeof AuthenticatedGGuildIdSocialRoute
+  '/g/$guildId/temporadas': typeof AuthenticatedGGuildIdTemporadasRoute
+  '/g/$guildId/tickets': typeof AuthenticatedGGuildIdTicketsRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
-  '/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdIndexRoute
+  '/g/$guildId': typeof AuthenticatedGGuildIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/comandos': typeof ComandosRoute
-  '/login': typeof LoginRoute
+  '/entrar': typeof EntrarRoute
+  '/_authenticated/servidores': typeof AuthenticatedServidoresRoute
   '/_authenticated/admin/premium': typeof AuthenticatedAdminPremiumRoute
-  '/_authenticated/dashboard/$guildId': typeof AuthenticatedDashboardGuildIdRouteWithChildren
+  '/_authenticated/g/$guildId': typeof AuthenticatedGGuildIdRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/public/bot-guild-presence': typeof ApiPublicBotGuildPresenceRoute
-  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
-  '/_authenticated/dashboard/$guildId/achievements': typeof AuthenticatedDashboardGuildIdAchievementsRoute
-  '/_authenticated/dashboard/$guildId/assets': typeof AuthenticatedDashboardGuildIdAssetsRoute
-  '/_authenticated/dashboard/$guildId/automod': typeof AuthenticatedDashboardGuildIdAutomodRoute
-  '/_authenticated/dashboard/$guildId/autorole': typeof AuthenticatedDashboardGuildIdAutoroleRoute
-  '/_authenticated/dashboard/$guildId/badges': typeof AuthenticatedDashboardGuildIdBadgesRoute
-  '/_authenticated/dashboard/$guildId/commands': typeof AuthenticatedDashboardGuildIdCommandsRoute
-  '/_authenticated/dashboard/$guildId/community': typeof AuthenticatedDashboardGuildIdCommunityRoute
-  '/_authenticated/dashboard/$guildId/economy': typeof AuthenticatedDashboardGuildIdEconomyRoute
-  '/_authenticated/dashboard/$guildId/embeds': typeof AuthenticatedDashboardGuildIdEmbedsRoute
-  '/_authenticated/dashboard/$guildId/leveling': typeof AuthenticatedDashboardGuildIdLevelingRoute
-  '/_authenticated/dashboard/$guildId/logs': typeof AuthenticatedDashboardGuildIdLogsRoute
-  '/_authenticated/dashboard/$guildId/moderation': typeof AuthenticatedDashboardGuildIdModerationRoute
-  '/_authenticated/dashboard/$guildId/permissoes': typeof AuthenticatedDashboardGuildIdPermissoesRoute
-  '/_authenticated/dashboard/$guildId/premium': typeof AuthenticatedDashboardGuildIdPremiumRoute
-  '/_authenticated/dashboard/$guildId/reaction-roles': typeof AuthenticatedDashboardGuildIdReactionRolesRoute
-  '/_authenticated/dashboard/$guildId/seasons': typeof AuthenticatedDashboardGuildIdSeasonsRoute
-  '/_authenticated/dashboard/$guildId/social': typeof AuthenticatedDashboardGuildIdSocialRoute
-  '/_authenticated/dashboard/$guildId/tickets': typeof AuthenticatedDashboardGuildIdTicketsRoute
-  '/_authenticated/dashboard/$guildId/welcome': typeof AuthenticatedDashboardGuildIdWelcomeRoute
+  '/_authenticated/g/$guildId/assets': typeof AuthenticatedGGuildIdAssetsRoute
+  '/_authenticated/g/$guildId/automod': typeof AuthenticatedGGuildIdAutomodRoute
+  '/_authenticated/g/$guildId/badges': typeof AuthenticatedGGuildIdBadgesRoute
+  '/_authenticated/g/$guildId/boas-vindas': typeof AuthenticatedGGuildIdBoasVindasRoute
+  '/_authenticated/g/$guildId/cargo-automatico': typeof AuthenticatedGGuildIdCargoAutomaticoRoute
+  '/_authenticated/g/$guildId/cargos-reacao': typeof AuthenticatedGGuildIdCargosReacaoRoute
+  '/_authenticated/g/$guildId/comandos-bot': typeof AuthenticatedGGuildIdComandosBotRoute
+  '/_authenticated/g/$guildId/comunidade': typeof AuthenticatedGGuildIdComunidadeRoute
+  '/_authenticated/g/$guildId/conquistas': typeof AuthenticatedGGuildIdConquistasRoute
+  '/_authenticated/g/$guildId/economia': typeof AuthenticatedGGuildIdEconomiaRoute
+  '/_authenticated/g/$guildId/embeds': typeof AuthenticatedGGuildIdEmbedsRoute
+  '/_authenticated/g/$guildId/logs': typeof AuthenticatedGGuildIdLogsRoute
+  '/_authenticated/g/$guildId/moderacao': typeof AuthenticatedGGuildIdModeracaoRoute
+  '/_authenticated/g/$guildId/niveis': typeof AuthenticatedGGuildIdNiveisRoute
+  '/_authenticated/g/$guildId/permissoes': typeof AuthenticatedGGuildIdPermissoesRoute
+  '/_authenticated/g/$guildId/premium': typeof AuthenticatedGGuildIdPremiumRoute
+  '/_authenticated/g/$guildId/social': typeof AuthenticatedGGuildIdSocialRoute
+  '/_authenticated/g/$guildId/temporadas': typeof AuthenticatedGGuildIdTemporadasRoute
+  '/_authenticated/g/$guildId/tickets': typeof AuthenticatedGGuildIdTicketsRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
-  '/_authenticated/dashboard/$guildId/': typeof AuthenticatedDashboardGuildIdIndexRoute
+  '/_authenticated/g/$guildId/': typeof AuthenticatedGGuildIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/comandos'
-    | '/login'
+    | '/entrar'
+    | '/servidores'
     | '/admin/premium'
-    | '/dashboard/$guildId'
+    | '/g/$guildId'
     | '/api/auth/logout'
     | '/api/public/bot-guild-presence'
-    | '/dashboard/'
-    | '/dashboard/$guildId/achievements'
-    | '/dashboard/$guildId/assets'
-    | '/dashboard/$guildId/automod'
-    | '/dashboard/$guildId/autorole'
-    | '/dashboard/$guildId/badges'
-    | '/dashboard/$guildId/commands'
-    | '/dashboard/$guildId/community'
-    | '/dashboard/$guildId/economy'
-    | '/dashboard/$guildId/embeds'
-    | '/dashboard/$guildId/leveling'
-    | '/dashboard/$guildId/logs'
-    | '/dashboard/$guildId/moderation'
-    | '/dashboard/$guildId/permissoes'
-    | '/dashboard/$guildId/premium'
-    | '/dashboard/$guildId/reaction-roles'
-    | '/dashboard/$guildId/seasons'
-    | '/dashboard/$guildId/social'
-    | '/dashboard/$guildId/tickets'
-    | '/dashboard/$guildId/welcome'
+    | '/g/$guildId/assets'
+    | '/g/$guildId/automod'
+    | '/g/$guildId/badges'
+    | '/g/$guildId/boas-vindas'
+    | '/g/$guildId/cargo-automatico'
+    | '/g/$guildId/cargos-reacao'
+    | '/g/$guildId/comandos-bot'
+    | '/g/$guildId/comunidade'
+    | '/g/$guildId/conquistas'
+    | '/g/$guildId/economia'
+    | '/g/$guildId/embeds'
+    | '/g/$guildId/logs'
+    | '/g/$guildId/moderacao'
+    | '/g/$guildId/niveis'
+    | '/g/$guildId/permissoes'
+    | '/g/$guildId/premium'
+    | '/g/$guildId/social'
+    | '/g/$guildId/temporadas'
+    | '/g/$guildId/tickets'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
-    | '/dashboard/$guildId/'
+    | '/g/$guildId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/comandos'
-    | '/login'
+    | '/entrar'
+    | '/servidores'
     | '/admin/premium'
     | '/api/auth/logout'
     | '/api/public/bot-guild-presence'
-    | '/dashboard'
-    | '/dashboard/$guildId/achievements'
-    | '/dashboard/$guildId/assets'
-    | '/dashboard/$guildId/automod'
-    | '/dashboard/$guildId/autorole'
-    | '/dashboard/$guildId/badges'
-    | '/dashboard/$guildId/commands'
-    | '/dashboard/$guildId/community'
-    | '/dashboard/$guildId/economy'
-    | '/dashboard/$guildId/embeds'
-    | '/dashboard/$guildId/leveling'
-    | '/dashboard/$guildId/logs'
-    | '/dashboard/$guildId/moderation'
-    | '/dashboard/$guildId/permissoes'
-    | '/dashboard/$guildId/premium'
-    | '/dashboard/$guildId/reaction-roles'
-    | '/dashboard/$guildId/seasons'
-    | '/dashboard/$guildId/social'
-    | '/dashboard/$guildId/tickets'
-    | '/dashboard/$guildId/welcome'
+    | '/g/$guildId/assets'
+    | '/g/$guildId/automod'
+    | '/g/$guildId/badges'
+    | '/g/$guildId/boas-vindas'
+    | '/g/$guildId/cargo-automatico'
+    | '/g/$guildId/cargos-reacao'
+    | '/g/$guildId/comandos-bot'
+    | '/g/$guildId/comunidade'
+    | '/g/$guildId/conquistas'
+    | '/g/$guildId/economia'
+    | '/g/$guildId/embeds'
+    | '/g/$guildId/logs'
+    | '/g/$guildId/moderacao'
+    | '/g/$guildId/niveis'
+    | '/g/$guildId/permissoes'
+    | '/g/$guildId/premium'
+    | '/g/$guildId/social'
+    | '/g/$guildId/temporadas'
+    | '/g/$guildId/tickets'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
-    | '/dashboard/$guildId'
+    | '/g/$guildId'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/comandos'
-    | '/login'
+    | '/entrar'
+    | '/_authenticated/servidores'
     | '/_authenticated/admin/premium'
-    | '/_authenticated/dashboard/$guildId'
+    | '/_authenticated/g/$guildId'
     | '/api/auth/logout'
     | '/api/public/bot-guild-presence'
-    | '/_authenticated/dashboard/'
-    | '/_authenticated/dashboard/$guildId/achievements'
-    | '/_authenticated/dashboard/$guildId/assets'
-    | '/_authenticated/dashboard/$guildId/automod'
-    | '/_authenticated/dashboard/$guildId/autorole'
-    | '/_authenticated/dashboard/$guildId/badges'
-    | '/_authenticated/dashboard/$guildId/commands'
-    | '/_authenticated/dashboard/$guildId/community'
-    | '/_authenticated/dashboard/$guildId/economy'
-    | '/_authenticated/dashboard/$guildId/embeds'
-    | '/_authenticated/dashboard/$guildId/leveling'
-    | '/_authenticated/dashboard/$guildId/logs'
-    | '/_authenticated/dashboard/$guildId/moderation'
-    | '/_authenticated/dashboard/$guildId/permissoes'
-    | '/_authenticated/dashboard/$guildId/premium'
-    | '/_authenticated/dashboard/$guildId/reaction-roles'
-    | '/_authenticated/dashboard/$guildId/seasons'
-    | '/_authenticated/dashboard/$guildId/social'
-    | '/_authenticated/dashboard/$guildId/tickets'
-    | '/_authenticated/dashboard/$guildId/welcome'
+    | '/_authenticated/g/$guildId/assets'
+    | '/_authenticated/g/$guildId/automod'
+    | '/_authenticated/g/$guildId/badges'
+    | '/_authenticated/g/$guildId/boas-vindas'
+    | '/_authenticated/g/$guildId/cargo-automatico'
+    | '/_authenticated/g/$guildId/cargos-reacao'
+    | '/_authenticated/g/$guildId/comandos-bot'
+    | '/_authenticated/g/$guildId/comunidade'
+    | '/_authenticated/g/$guildId/conquistas'
+    | '/_authenticated/g/$guildId/economia'
+    | '/_authenticated/g/$guildId/embeds'
+    | '/_authenticated/g/$guildId/logs'
+    | '/_authenticated/g/$guildId/moderacao'
+    | '/_authenticated/g/$guildId/niveis'
+    | '/_authenticated/g/$guildId/permissoes'
+    | '/_authenticated/g/$guildId/premium'
+    | '/_authenticated/g/$guildId/social'
+    | '/_authenticated/g/$guildId/temporadas'
+    | '/_authenticated/g/$guildId/tickets'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
-    | '/_authenticated/dashboard/$guildId/'
+    | '/_authenticated/g/$guildId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   ComandosRoute: typeof ComandosRoute
-  LoginRoute: typeof LoginRoute
+  EntrarRoute: typeof EntrarRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
   ApiPublicBotGuildPresenceRoute: typeof ApiPublicBotGuildPresenceRoute
   ApiAuthDiscordCallbackRoute: typeof ApiAuthDiscordCallbackRoute
@@ -429,11 +427,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
+    '/entrar': {
+      id: '/entrar'
+      path: '/entrar'
+      fullPath: '/entrar'
+      preLoaderRoute: typeof EntrarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/comandos': {
@@ -457,11 +455,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/dashboard/': {
-      id: '/_authenticated/dashboard/'
-      path: '/dashboard'
-      fullPath: '/dashboard/'
-      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
+    '/_authenticated/servidores': {
+      id: '/_authenticated/servidores'
+      path: '/servidores'
+      fullPath: '/servidores'
+      preLoaderRoute: typeof AuthenticatedServidoresRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/api/public/bot-guild-presence': {
@@ -478,11 +476,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthLogoutRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/dashboard/$guildId': {
-      id: '/_authenticated/dashboard/$guildId'
-      path: '/dashboard/$guildId'
-      fullPath: '/dashboard/$guildId'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdRouteImport
+    '/_authenticated/g/$guildId': {
+      id: '/_authenticated/g/$guildId'
+      path: '/g/$guildId'
+      fullPath: '/g/$guildId'
+      preLoaderRoute: typeof AuthenticatedGGuildIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/admin/premium': {
@@ -492,12 +490,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPremiumRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/dashboard/$guildId/': {
-      id: '/_authenticated/dashboard/$guildId/'
+    '/_authenticated/g/$guildId/': {
+      id: '/_authenticated/g/$guildId/'
       path: '/'
-      fullPath: '/dashboard/$guildId/'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdIndexRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+      fullPath: '/g/$guildId/'
+      preLoaderRoute: typeof AuthenticatedGGuildIdIndexRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
     }
     '/api/auth/discord/login': {
       id: '/api/auth/discord/login'
@@ -513,225 +511,205 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthDiscordCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/dashboard/$guildId/welcome': {
-      id: '/_authenticated/dashboard/$guildId/welcome'
-      path: '/welcome'
-      fullPath: '/dashboard/$guildId/welcome'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdWelcomeRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
-    }
-    '/_authenticated/dashboard/$guildId/tickets': {
-      id: '/_authenticated/dashboard/$guildId/tickets'
+    '/_authenticated/g/$guildId/tickets': {
+      id: '/_authenticated/g/$guildId/tickets'
       path: '/tickets'
-      fullPath: '/dashboard/$guildId/tickets'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdTicketsRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+      fullPath: '/g/$guildId/tickets'
+      preLoaderRoute: typeof AuthenticatedGGuildIdTicketsRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
     }
-    '/_authenticated/dashboard/$guildId/social': {
-      id: '/_authenticated/dashboard/$guildId/social'
+    '/_authenticated/g/$guildId/temporadas': {
+      id: '/_authenticated/g/$guildId/temporadas'
+      path: '/temporadas'
+      fullPath: '/g/$guildId/temporadas'
+      preLoaderRoute: typeof AuthenticatedGGuildIdTemporadasRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
+    }
+    '/_authenticated/g/$guildId/social': {
+      id: '/_authenticated/g/$guildId/social'
       path: '/social'
-      fullPath: '/dashboard/$guildId/social'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdSocialRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+      fullPath: '/g/$guildId/social'
+      preLoaderRoute: typeof AuthenticatedGGuildIdSocialRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
     }
-    '/_authenticated/dashboard/$guildId/seasons': {
-      id: '/_authenticated/dashboard/$guildId/seasons'
-      path: '/seasons'
-      fullPath: '/dashboard/$guildId/seasons'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdSeasonsRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
-    }
-    '/_authenticated/dashboard/$guildId/reaction-roles': {
-      id: '/_authenticated/dashboard/$guildId/reaction-roles'
-      path: '/reaction-roles'
-      fullPath: '/dashboard/$guildId/reaction-roles'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdReactionRolesRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
-    }
-    '/_authenticated/dashboard/$guildId/premium': {
-      id: '/_authenticated/dashboard/$guildId/premium'
+    '/_authenticated/g/$guildId/premium': {
+      id: '/_authenticated/g/$guildId/premium'
       path: '/premium'
-      fullPath: '/dashboard/$guildId/premium'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdPremiumRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+      fullPath: '/g/$guildId/premium'
+      preLoaderRoute: typeof AuthenticatedGGuildIdPremiumRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
     }
-    '/_authenticated/dashboard/$guildId/permissoes': {
-      id: '/_authenticated/dashboard/$guildId/permissoes'
+    '/_authenticated/g/$guildId/permissoes': {
+      id: '/_authenticated/g/$guildId/permissoes'
       path: '/permissoes'
-      fullPath: '/dashboard/$guildId/permissoes'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdPermissoesRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+      fullPath: '/g/$guildId/permissoes'
+      preLoaderRoute: typeof AuthenticatedGGuildIdPermissoesRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
     }
-    '/_authenticated/dashboard/$guildId/moderation': {
-      id: '/_authenticated/dashboard/$guildId/moderation'
-      path: '/moderation'
-      fullPath: '/dashboard/$guildId/moderation'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdModerationRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+    '/_authenticated/g/$guildId/niveis': {
+      id: '/_authenticated/g/$guildId/niveis'
+      path: '/niveis'
+      fullPath: '/g/$guildId/niveis'
+      preLoaderRoute: typeof AuthenticatedGGuildIdNiveisRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
     }
-    '/_authenticated/dashboard/$guildId/logs': {
-      id: '/_authenticated/dashboard/$guildId/logs'
+    '/_authenticated/g/$guildId/moderacao': {
+      id: '/_authenticated/g/$guildId/moderacao'
+      path: '/moderacao'
+      fullPath: '/g/$guildId/moderacao'
+      preLoaderRoute: typeof AuthenticatedGGuildIdModeracaoRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
+    }
+    '/_authenticated/g/$guildId/logs': {
+      id: '/_authenticated/g/$guildId/logs'
       path: '/logs'
-      fullPath: '/dashboard/$guildId/logs'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdLogsRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+      fullPath: '/g/$guildId/logs'
+      preLoaderRoute: typeof AuthenticatedGGuildIdLogsRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
     }
-    '/_authenticated/dashboard/$guildId/leveling': {
-      id: '/_authenticated/dashboard/$guildId/leveling'
-      path: '/leveling'
-      fullPath: '/dashboard/$guildId/leveling'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdLevelingRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
-    }
-    '/_authenticated/dashboard/$guildId/embeds': {
-      id: '/_authenticated/dashboard/$guildId/embeds'
+    '/_authenticated/g/$guildId/embeds': {
+      id: '/_authenticated/g/$guildId/embeds'
       path: '/embeds'
-      fullPath: '/dashboard/$guildId/embeds'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdEmbedsRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+      fullPath: '/g/$guildId/embeds'
+      preLoaderRoute: typeof AuthenticatedGGuildIdEmbedsRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
     }
-    '/_authenticated/dashboard/$guildId/economy': {
-      id: '/_authenticated/dashboard/$guildId/economy'
-      path: '/economy'
-      fullPath: '/dashboard/$guildId/economy'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdEconomyRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+    '/_authenticated/g/$guildId/economia': {
+      id: '/_authenticated/g/$guildId/economia'
+      path: '/economia'
+      fullPath: '/g/$guildId/economia'
+      preLoaderRoute: typeof AuthenticatedGGuildIdEconomiaRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
     }
-    '/_authenticated/dashboard/$guildId/community': {
-      id: '/_authenticated/dashboard/$guildId/community'
-      path: '/community'
-      fullPath: '/dashboard/$guildId/community'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdCommunityRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+    '/_authenticated/g/$guildId/conquistas': {
+      id: '/_authenticated/g/$guildId/conquistas'
+      path: '/conquistas'
+      fullPath: '/g/$guildId/conquistas'
+      preLoaderRoute: typeof AuthenticatedGGuildIdConquistasRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
     }
-    '/_authenticated/dashboard/$guildId/commands': {
-      id: '/_authenticated/dashboard/$guildId/commands'
-      path: '/commands'
-      fullPath: '/dashboard/$guildId/commands'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdCommandsRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+    '/_authenticated/g/$guildId/comunidade': {
+      id: '/_authenticated/g/$guildId/comunidade'
+      path: '/comunidade'
+      fullPath: '/g/$guildId/comunidade'
+      preLoaderRoute: typeof AuthenticatedGGuildIdComunidadeRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
     }
-    '/_authenticated/dashboard/$guildId/badges': {
-      id: '/_authenticated/dashboard/$guildId/badges'
+    '/_authenticated/g/$guildId/comandos-bot': {
+      id: '/_authenticated/g/$guildId/comandos-bot'
+      path: '/comandos-bot'
+      fullPath: '/g/$guildId/comandos-bot'
+      preLoaderRoute: typeof AuthenticatedGGuildIdComandosBotRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
+    }
+    '/_authenticated/g/$guildId/cargos-reacao': {
+      id: '/_authenticated/g/$guildId/cargos-reacao'
+      path: '/cargos-reacao'
+      fullPath: '/g/$guildId/cargos-reacao'
+      preLoaderRoute: typeof AuthenticatedGGuildIdCargosReacaoRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
+    }
+    '/_authenticated/g/$guildId/cargo-automatico': {
+      id: '/_authenticated/g/$guildId/cargo-automatico'
+      path: '/cargo-automatico'
+      fullPath: '/g/$guildId/cargo-automatico'
+      preLoaderRoute: typeof AuthenticatedGGuildIdCargoAutomaticoRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
+    }
+    '/_authenticated/g/$guildId/boas-vindas': {
+      id: '/_authenticated/g/$guildId/boas-vindas'
+      path: '/boas-vindas'
+      fullPath: '/g/$guildId/boas-vindas'
+      preLoaderRoute: typeof AuthenticatedGGuildIdBoasVindasRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
+    }
+    '/_authenticated/g/$guildId/badges': {
+      id: '/_authenticated/g/$guildId/badges'
       path: '/badges'
-      fullPath: '/dashboard/$guildId/badges'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdBadgesRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+      fullPath: '/g/$guildId/badges'
+      preLoaderRoute: typeof AuthenticatedGGuildIdBadgesRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
     }
-    '/_authenticated/dashboard/$guildId/autorole': {
-      id: '/_authenticated/dashboard/$guildId/autorole'
-      path: '/autorole'
-      fullPath: '/dashboard/$guildId/autorole'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdAutoroleRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
-    }
-    '/_authenticated/dashboard/$guildId/automod': {
-      id: '/_authenticated/dashboard/$guildId/automod'
+    '/_authenticated/g/$guildId/automod': {
+      id: '/_authenticated/g/$guildId/automod'
       path: '/automod'
-      fullPath: '/dashboard/$guildId/automod'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdAutomodRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+      fullPath: '/g/$guildId/automod'
+      preLoaderRoute: typeof AuthenticatedGGuildIdAutomodRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
     }
-    '/_authenticated/dashboard/$guildId/assets': {
-      id: '/_authenticated/dashboard/$guildId/assets'
+    '/_authenticated/g/$guildId/assets': {
+      id: '/_authenticated/g/$guildId/assets'
       path: '/assets'
-      fullPath: '/dashboard/$guildId/assets'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdAssetsRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
-    }
-    '/_authenticated/dashboard/$guildId/achievements': {
-      id: '/_authenticated/dashboard/$guildId/achievements'
-      path: '/achievements'
-      fullPath: '/dashboard/$guildId/achievements'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdAchievementsRouteImport
-      parentRoute: typeof AuthenticatedDashboardGuildIdRoute
+      fullPath: '/g/$guildId/assets'
+      preLoaderRoute: typeof AuthenticatedGGuildIdAssetsRouteImport
+      parentRoute: typeof AuthenticatedGGuildIdRoute
     }
   }
 }
 
-interface AuthenticatedDashboardGuildIdRouteChildren {
-  AuthenticatedDashboardGuildIdAchievementsRoute: typeof AuthenticatedDashboardGuildIdAchievementsRoute
-  AuthenticatedDashboardGuildIdAssetsRoute: typeof AuthenticatedDashboardGuildIdAssetsRoute
-  AuthenticatedDashboardGuildIdAutomodRoute: typeof AuthenticatedDashboardGuildIdAutomodRoute
-  AuthenticatedDashboardGuildIdAutoroleRoute: typeof AuthenticatedDashboardGuildIdAutoroleRoute
-  AuthenticatedDashboardGuildIdBadgesRoute: typeof AuthenticatedDashboardGuildIdBadgesRoute
-  AuthenticatedDashboardGuildIdCommandsRoute: typeof AuthenticatedDashboardGuildIdCommandsRoute
-  AuthenticatedDashboardGuildIdCommunityRoute: typeof AuthenticatedDashboardGuildIdCommunityRoute
-  AuthenticatedDashboardGuildIdEconomyRoute: typeof AuthenticatedDashboardGuildIdEconomyRoute
-  AuthenticatedDashboardGuildIdEmbedsRoute: typeof AuthenticatedDashboardGuildIdEmbedsRoute
-  AuthenticatedDashboardGuildIdLevelingRoute: typeof AuthenticatedDashboardGuildIdLevelingRoute
-  AuthenticatedDashboardGuildIdLogsRoute: typeof AuthenticatedDashboardGuildIdLogsRoute
-  AuthenticatedDashboardGuildIdModerationRoute: typeof AuthenticatedDashboardGuildIdModerationRoute
-  AuthenticatedDashboardGuildIdPermissoesRoute: typeof AuthenticatedDashboardGuildIdPermissoesRoute
-  AuthenticatedDashboardGuildIdPremiumRoute: typeof AuthenticatedDashboardGuildIdPremiumRoute
-  AuthenticatedDashboardGuildIdReactionRolesRoute: typeof AuthenticatedDashboardGuildIdReactionRolesRoute
-  AuthenticatedDashboardGuildIdSeasonsRoute: typeof AuthenticatedDashboardGuildIdSeasonsRoute
-  AuthenticatedDashboardGuildIdSocialRoute: typeof AuthenticatedDashboardGuildIdSocialRoute
-  AuthenticatedDashboardGuildIdTicketsRoute: typeof AuthenticatedDashboardGuildIdTicketsRoute
-  AuthenticatedDashboardGuildIdWelcomeRoute: typeof AuthenticatedDashboardGuildIdWelcomeRoute
-  AuthenticatedDashboardGuildIdIndexRoute: typeof AuthenticatedDashboardGuildIdIndexRoute
+interface AuthenticatedGGuildIdRouteChildren {
+  AuthenticatedGGuildIdAssetsRoute: typeof AuthenticatedGGuildIdAssetsRoute
+  AuthenticatedGGuildIdAutomodRoute: typeof AuthenticatedGGuildIdAutomodRoute
+  AuthenticatedGGuildIdBadgesRoute: typeof AuthenticatedGGuildIdBadgesRoute
+  AuthenticatedGGuildIdBoasVindasRoute: typeof AuthenticatedGGuildIdBoasVindasRoute
+  AuthenticatedGGuildIdCargoAutomaticoRoute: typeof AuthenticatedGGuildIdCargoAutomaticoRoute
+  AuthenticatedGGuildIdCargosReacaoRoute: typeof AuthenticatedGGuildIdCargosReacaoRoute
+  AuthenticatedGGuildIdComandosBotRoute: typeof AuthenticatedGGuildIdComandosBotRoute
+  AuthenticatedGGuildIdComunidadeRoute: typeof AuthenticatedGGuildIdComunidadeRoute
+  AuthenticatedGGuildIdConquistasRoute: typeof AuthenticatedGGuildIdConquistasRoute
+  AuthenticatedGGuildIdEconomiaRoute: typeof AuthenticatedGGuildIdEconomiaRoute
+  AuthenticatedGGuildIdEmbedsRoute: typeof AuthenticatedGGuildIdEmbedsRoute
+  AuthenticatedGGuildIdLogsRoute: typeof AuthenticatedGGuildIdLogsRoute
+  AuthenticatedGGuildIdModeracaoRoute: typeof AuthenticatedGGuildIdModeracaoRoute
+  AuthenticatedGGuildIdNiveisRoute: typeof AuthenticatedGGuildIdNiveisRoute
+  AuthenticatedGGuildIdPermissoesRoute: typeof AuthenticatedGGuildIdPermissoesRoute
+  AuthenticatedGGuildIdPremiumRoute: typeof AuthenticatedGGuildIdPremiumRoute
+  AuthenticatedGGuildIdSocialRoute: typeof AuthenticatedGGuildIdSocialRoute
+  AuthenticatedGGuildIdTemporadasRoute: typeof AuthenticatedGGuildIdTemporadasRoute
+  AuthenticatedGGuildIdTicketsRoute: typeof AuthenticatedGGuildIdTicketsRoute
+  AuthenticatedGGuildIdIndexRoute: typeof AuthenticatedGGuildIdIndexRoute
 }
 
-const AuthenticatedDashboardGuildIdRouteChildren: AuthenticatedDashboardGuildIdRouteChildren =
-  {
-    AuthenticatedDashboardGuildIdAchievementsRoute:
-      AuthenticatedDashboardGuildIdAchievementsRoute,
-    AuthenticatedDashboardGuildIdAssetsRoute:
-      AuthenticatedDashboardGuildIdAssetsRoute,
-    AuthenticatedDashboardGuildIdAutomodRoute:
-      AuthenticatedDashboardGuildIdAutomodRoute,
-    AuthenticatedDashboardGuildIdAutoroleRoute:
-      AuthenticatedDashboardGuildIdAutoroleRoute,
-    AuthenticatedDashboardGuildIdBadgesRoute:
-      AuthenticatedDashboardGuildIdBadgesRoute,
-    AuthenticatedDashboardGuildIdCommandsRoute:
-      AuthenticatedDashboardGuildIdCommandsRoute,
-    AuthenticatedDashboardGuildIdCommunityRoute:
-      AuthenticatedDashboardGuildIdCommunityRoute,
-    AuthenticatedDashboardGuildIdEconomyRoute:
-      AuthenticatedDashboardGuildIdEconomyRoute,
-    AuthenticatedDashboardGuildIdEmbedsRoute:
-      AuthenticatedDashboardGuildIdEmbedsRoute,
-    AuthenticatedDashboardGuildIdLevelingRoute:
-      AuthenticatedDashboardGuildIdLevelingRoute,
-    AuthenticatedDashboardGuildIdLogsRoute:
-      AuthenticatedDashboardGuildIdLogsRoute,
-    AuthenticatedDashboardGuildIdModerationRoute:
-      AuthenticatedDashboardGuildIdModerationRoute,
-    AuthenticatedDashboardGuildIdPermissoesRoute:
-      AuthenticatedDashboardGuildIdPermissoesRoute,
-    AuthenticatedDashboardGuildIdPremiumRoute:
-      AuthenticatedDashboardGuildIdPremiumRoute,
-    AuthenticatedDashboardGuildIdReactionRolesRoute:
-      AuthenticatedDashboardGuildIdReactionRolesRoute,
-    AuthenticatedDashboardGuildIdSeasonsRoute:
-      AuthenticatedDashboardGuildIdSeasonsRoute,
-    AuthenticatedDashboardGuildIdSocialRoute:
-      AuthenticatedDashboardGuildIdSocialRoute,
-    AuthenticatedDashboardGuildIdTicketsRoute:
-      AuthenticatedDashboardGuildIdTicketsRoute,
-    AuthenticatedDashboardGuildIdWelcomeRoute:
-      AuthenticatedDashboardGuildIdWelcomeRoute,
-    AuthenticatedDashboardGuildIdIndexRoute:
-      AuthenticatedDashboardGuildIdIndexRoute,
-  }
+const AuthenticatedGGuildIdRouteChildren: AuthenticatedGGuildIdRouteChildren = {
+  AuthenticatedGGuildIdAssetsRoute: AuthenticatedGGuildIdAssetsRoute,
+  AuthenticatedGGuildIdAutomodRoute: AuthenticatedGGuildIdAutomodRoute,
+  AuthenticatedGGuildIdBadgesRoute: AuthenticatedGGuildIdBadgesRoute,
+  AuthenticatedGGuildIdBoasVindasRoute: AuthenticatedGGuildIdBoasVindasRoute,
+  AuthenticatedGGuildIdCargoAutomaticoRoute:
+    AuthenticatedGGuildIdCargoAutomaticoRoute,
+  AuthenticatedGGuildIdCargosReacaoRoute:
+    AuthenticatedGGuildIdCargosReacaoRoute,
+  AuthenticatedGGuildIdComandosBotRoute: AuthenticatedGGuildIdComandosBotRoute,
+  AuthenticatedGGuildIdComunidadeRoute: AuthenticatedGGuildIdComunidadeRoute,
+  AuthenticatedGGuildIdConquistasRoute: AuthenticatedGGuildIdConquistasRoute,
+  AuthenticatedGGuildIdEconomiaRoute: AuthenticatedGGuildIdEconomiaRoute,
+  AuthenticatedGGuildIdEmbedsRoute: AuthenticatedGGuildIdEmbedsRoute,
+  AuthenticatedGGuildIdLogsRoute: AuthenticatedGGuildIdLogsRoute,
+  AuthenticatedGGuildIdModeracaoRoute: AuthenticatedGGuildIdModeracaoRoute,
+  AuthenticatedGGuildIdNiveisRoute: AuthenticatedGGuildIdNiveisRoute,
+  AuthenticatedGGuildIdPermissoesRoute: AuthenticatedGGuildIdPermissoesRoute,
+  AuthenticatedGGuildIdPremiumRoute: AuthenticatedGGuildIdPremiumRoute,
+  AuthenticatedGGuildIdSocialRoute: AuthenticatedGGuildIdSocialRoute,
+  AuthenticatedGGuildIdTemporadasRoute: AuthenticatedGGuildIdTemporadasRoute,
+  AuthenticatedGGuildIdTicketsRoute: AuthenticatedGGuildIdTicketsRoute,
+  AuthenticatedGGuildIdIndexRoute: AuthenticatedGGuildIdIndexRoute,
+}
 
-const AuthenticatedDashboardGuildIdRouteWithChildren =
-  AuthenticatedDashboardGuildIdRoute._addFileChildren(
-    AuthenticatedDashboardGuildIdRouteChildren,
+const AuthenticatedGGuildIdRouteWithChildren =
+  AuthenticatedGGuildIdRoute._addFileChildren(
+    AuthenticatedGGuildIdRouteChildren,
   )
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedServidoresRoute: typeof AuthenticatedServidoresRoute
   AuthenticatedAdminPremiumRoute: typeof AuthenticatedAdminPremiumRoute
-  AuthenticatedDashboardGuildIdRoute: typeof AuthenticatedDashboardGuildIdRouteWithChildren
-  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+  AuthenticatedGGuildIdRoute: typeof AuthenticatedGGuildIdRouteWithChildren
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedServidoresRoute: AuthenticatedServidoresRoute,
   AuthenticatedAdminPremiumRoute: AuthenticatedAdminPremiumRoute,
-  AuthenticatedDashboardGuildIdRoute:
-    AuthenticatedDashboardGuildIdRouteWithChildren,
-  AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+  AuthenticatedGGuildIdRoute: AuthenticatedGGuildIdRouteWithChildren,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -742,7 +720,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   ComandosRoute: ComandosRoute,
-  LoginRoute: LoginRoute,
+  EntrarRoute: EntrarRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
   ApiPublicBotGuildPresenceRoute: ApiPublicBotGuildPresenceRoute,
   ApiAuthDiscordCallbackRoute: ApiAuthDiscordCallbackRoute,
@@ -751,3 +729,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

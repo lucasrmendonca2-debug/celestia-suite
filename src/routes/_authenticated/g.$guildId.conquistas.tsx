@@ -33,7 +33,7 @@ const TRIGGER_LABELS: Record<string, string> = {
   badges_collected: "Badges coletadas",
 };
 
-export const Route = createFileRoute("/_authenticated/dashboard/$guildId/achievements")({
+export const Route = createFileRoute("/_authenticated/g/$guildId/conquistas")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

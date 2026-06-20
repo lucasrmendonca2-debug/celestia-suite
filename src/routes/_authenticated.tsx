@@ -5,12 +5,12 @@ export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async () => {
     try {
       const user = await getCurrentUser();
-      if (!user) throw redirect({ to: "/login" });
+      if (!user) throw redirect({ to: "/entrar" });
       return { user };
     } catch (error) {
       if (isRedirect(error)) throw error;
       console.error(error);
-      throw redirect({ to: "/login" });
+      throw redirect({ to: "/entrar" });
     }
   },
   component: () => <Outlet />,
@@ -22,7 +22,7 @@ export const Route = createFileRoute("/_authenticated")({
           Entre novamente para abrir o dashboard.
         </p>
         <Link
-          to="/login"
+          to="/entrar"
           className="mt-6 inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
         >
           Ir para login

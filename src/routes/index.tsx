@@ -79,7 +79,7 @@ function Landing() {
             <Link to="/comandos" className="hidden text-muted-foreground hover:text-foreground sm:inline">
               Comandos
             </Link>
-            <Link to="/dashboard" className="hidden text-muted-foreground hover:text-foreground sm:inline">
+            <Link to="/servidores" className="hidden text-muted-foreground hover:text-foreground sm:inline">
               Dashboard
             </Link>
             <ThemeToggle />
@@ -120,7 +120,7 @@ function Landing() {
               <ArrowUpRight className="size-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
             </a>
             <Link
-              to="/dashboard"
+              to="/servidores"
               className="inline-flex items-center gap-2 px-2 py-2.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
             >
               Ver dashboard →
@@ -208,7 +208,7 @@ function Landing() {
           <span>© {new Date().getFullYear()} Zenox. Todos os direitos reservados.</span>
           <div className="flex items-center gap-4">
             <Link to="/comandos" className="hover:text-foreground">Comandos</Link>
-            <Link to="/dashboard" className="hover:text-foreground">Dashboard</Link>
+            <Link to="/servidores" className="hover:text-foreground">Dashboard</Link>
             <a href="#modulos" className="hover:text-foreground">Módulos</a>
           </div>
         </footer>

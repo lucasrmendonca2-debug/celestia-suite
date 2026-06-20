@@ -2,10 +2,10 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import type { MouseEvent } from "react";
 import { getCurrentUser } from "@/lib/auth/auth.functions";
 
-export const Route = createFileRoute("/login")({
+export const Route = createFileRoute("/entrar")({
   beforeLoad: async () => {
     const user = await getCurrentUser();
-    if (user) throw redirect({ to: "/dashboard" });
+    if (user) throw redirect({ to: "/servidores" });
   },
   head: () => ({
     meta: [

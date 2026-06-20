@@ -22,7 +22,7 @@ import {
   cancelPoll,
 } from "@/lib/guild/community.functions";
 
-export const Route = createFileRoute("/_authenticated/dashboard/$guildId/community")({
+export const Route = createFileRoute("/_authenticated/g/$guildId/comunidade")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

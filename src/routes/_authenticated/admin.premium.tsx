@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_authenticated/admin/premium")({
   loader: async ({ context }) => {
     const user = await requireUser();
     const owner = await isPremiumOwner();
-    if (!owner) throw redirect({ to: "/dashboard" });
+    if (!owner) throw redirect({ to: "/servidores" });
     await context.queryClient.ensureQueryData({
       queryKey: ["admin-premium-overview"],
       queryFn: () => adminPremiumOverview(),

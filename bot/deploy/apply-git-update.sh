@@ -111,6 +111,9 @@ fi
 echo "==> Instalando dependências..."
 npm install --include=dev
 
+echo "==> Sincronizando slash commands no Discord..."
+REGISTER_SCOPE=global NODE_ENV=production npx tsx src/scripts/registerCommands.ts
+
 echo "==> Reiniciando bot..."
 pm2 delete zenox-bot 2>/dev/null || true
 pm2 flush zenox-bot 2>/dev/null || true

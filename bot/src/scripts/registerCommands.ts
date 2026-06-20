@@ -4,7 +4,7 @@
  *   bun run register          → registra no DEV_GUILD (instantâneo)
  *   sem DEV_GUILD definido    → registra globalmente (pode levar ~1h)
  */
-import { REST, Routes, Collection } from "discord.js";
+import { REST, Routes, Collection, Client, GatewayIntentBits } from "discord.js";
 import { env } from "../config/env.js";
 import { loadCommands } from "../bot/handlers/commands.js";
 import { logger } from "../bot/utils/logger.js";
@@ -32,22 +32,55 @@ async function main() {
    *   Isso garante que após um deploy global não restem duplicatas de uma
    *   execução antiga em modo DEV.
    */
+  async function discoverGuildIdsViaGateway(): Promise<string[]> {
+    const probe = new Client({ intents: [GatewayIntentBits.Guilds] });
+
+    try {
+      await new Promise<void>((resolve, reject) => {
+        const timeout = setTimeout(() => reject(new Error("Timeout ao detectar guilds via gateway")), 20_000);
+
+        probe.once("ready", () => {
+          clearTimeout(timeout);
+          resolve();
+        });
+        probe.once("error", (err) => {
+          clearTimeout(timeout);
+          reject(err);
+        });
+
+        void probe.login(env.DISCORD_TOKEN).catch((err) => {
+          clearTimeout(timeout);
+          reject(err);
+        });
+      });
+
+      return [...probe.guilds.cache.keys()];
+    } finally {
+      probe.destroy();
+    }
+  }
+
   async function clearGuildResiduals() {
     const explicit = (process.env.CLEAR_GUILD_IDS ?? "")
       .split(",")
       .map((s) => s.trim())
       .filter(Boolean);
 
-    let guildIds: string[] = explicit;
-    if (guildIds.length === 0) {
+    const guildIds = new Set(explicit);
+    if (guildIds.size === 0) {
       try {
         const guilds = (await rest.get(Routes.userGuilds())) as Array<{ id: string; name: string }>;
-        guildIds = guilds.map((g) => g.id);
-        logger.info(`🔍 Detectadas ${guildIds.length} guilds para limpeza de comandos residuais`);
+        for (const guild of guilds) guildIds.add(guild.id);
       } catch (err) {
-        logger.warn({ err }, "Não foi possível listar guilds — pulando limpeza automática");
-        return;
+        logger.warn({ err }, "REST não listou guilds; tentando detectar via gateway do bot");
       }
+
+      if (guildIds.size === 0) {
+        const gatewayGuilds = await discoverGuildIdsViaGateway();
+        for (const id of gatewayGuilds) guildIds.add(id);
+      }
+
+      logger.info(`🔍 Detectadas ${guildIds.size} guilds para limpeza de comandos residuais`);
     }
 
     for (const gid of guildIds) {
@@ -58,7 +91,9 @@ async function main() {
     }
   }
 
-  if (env.DISCORD_DEV_GUILD_ID) {
+  const useDevGuild = Boolean(env.DISCORD_DEV_GUILD_ID) && env.NODE_ENV !== "production" && process.env.REGISTER_SCOPE !== "global";
+
+  if (useDevGuild) {
     // Em DEV: limpa globais (que demoram ~1h pra propagar e causam duplicação visível).
     await rest
       .put(Routes.applicationCommands(env.DISCORD_CLIENT_ID), { body: [] })

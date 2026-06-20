@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Crown, Gift, Sparkles } from "lucide-react";
+import { Crown, Gift, Sparkles, Zap, CalendarClock, ShieldCheck } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getGuildPremiumStatus,
@@ -15,11 +15,16 @@ import {
   updatePremiumGuildConfig,
 } from "@/lib/guild/premium.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
+import {
+  AuroraSection,
+  AuroraStatCard,
+  AuroraField,
+} from "@/components/dashboard/aurora-ui";
+import { Mascot } from "@/components/Mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const REDEEM_REASONS: Record<string, string> = {
@@ -132,12 +137,10 @@ function PremiumPage() {
     }
   }, [config]);
 
-
   const active = status?.subscription as
     | (typeof status.subscription & { plan?: { name: string; description: string; features: Record<string, unknown> } })
     | null;
   const remaining = daysRemaining(active?.expires_at);
-
   const guildPlans = plans.filter((p) => p.type === "GUILD_PREMIUM");
 
   return (
@@ -146,115 +149,139 @@ function PremiumPage() {
       user={user}
       icon={Crown}
       title="Premium do Servidor"
-      description="Gerencie a assinatura premium, benefícios e códigos deste servidor."
+      description="Gerencie a assinatura premium, benefícios mágicos e códigos deste servidor."
     >
-      <Tabs defaultValue="status" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="status">Status</TabsTrigger>
+      <div
+        className="aurora-panel relative mb-5 overflow-hidden p-5 sm:p-6"
+        style={{
+          background: active
+            ? "linear-gradient(135deg, color-mix(in oklab, var(--aurora-peach) 22%, var(--card)), color-mix(in oklab, var(--aurora-pink) 16%, var(--card)))"
+            : "linear-gradient(135deg, color-mix(in oklab, var(--aurora-lavender) 18%, var(--card)), color-mix(in oklab, var(--aurora-cyan) 12%, var(--card)))",
+        }}
+      >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -right-12 -top-12 size-44 rounded-full blur-3xl opacity-70"
+          style={{
+            background: active
+              ? "radial-gradient(circle, color-mix(in oklab, var(--aurora-peach) 70%, transparent), transparent 70%)"
+              : "radial-gradient(circle, color-mix(in oklab, var(--aurora-lavender) 70%, transparent), transparent 70%)",
+          }}
+        />
+        <div className="relative flex items-center gap-4">
+          <Mascot variant={active ? "celebrate" : "hero"} size={84} glow />
+          <div className="min-w-0 flex-1">
+            <h2 className="font-display flex flex-wrap items-center gap-2 text-lg font-bold tracking-tight sm:text-xl">
+              {active ? (
+                <>
+                  <Crown className="size-5 text-[color:var(--aurora-peach)]" />
+                  {active.plan?.name ?? "Plano Premium"}
+                </>
+              ) : (
+                "Servidor sem premium"
+              )}
+              {active && <Badge variant="default">{active.status}</Badge>}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {active
+                ? active.plan?.description ?? "Aproveite todos os benefícios mágicos."
+                : "Ative um plano premium para desbloquear recursos avançados."}
+            </p>
+            {remaining !== null && remaining <= 7 && (
+              <p className="mt-1 text-sm font-medium text-[color:var(--aurora-peach)]">
+                ⚠️ Sua assinatura expira em {remaining} dia{remaining === 1 ? "" : "s"}.
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {active && (
+        <div className="mb-5 grid gap-3 sm:grid-cols-3">
+          <AuroraStatCard label="Início" value={fmtDate(active.starts_at)} icon={CalendarClock} tone="lavender" />
+          <AuroraStatCard label="Expira" value={fmtDate(active.expires_at)} icon={CalendarClock} tone="pink" />
+          <AuroraStatCard label="Dias restantes" value={remaining ?? "∞"} icon={Sparkles} tone="peach" />
+        </div>
+      )}
+
+      <Tabs defaultValue="benefits" className="space-y-5">
+        <TabsList className="flex w-full flex-wrap justify-start gap-1">
           <TabsTrigger value="benefits">Benefícios</TabsTrigger>
           <TabsTrigger value="plans">Planos</TabsTrigger>
-          <TabsTrigger value="codes">Códigos</TabsTrigger>
+          <TabsTrigger value="codes">Resgatar código</TabsTrigger>
           <TabsTrigger value="usage">Meu uso</TabsTrigger>
           <TabsTrigger value="config">Configuração</TabsTrigger>
           <TabsTrigger value="logs">Logs</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="status" className="space-y-4">
-          <Card className="p-6">
-            {active ? (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-xl font-semibold flex items-center gap-2">
-                      <Sparkles className="h-5 w-5 text-amber-400" />
-                      {active.plan?.name ?? "Plano Premium"}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">{active.plan?.description}</p>
-                  </div>
-                  <Badge variant="default">{active.status}</Badge>
-                </div>
-                <div className="grid gap-3 sm:grid-cols-3 text-sm">
-                  <div>
-                    <p className="text-muted-foreground">Início</p>
-                    <p className="font-medium">{fmtDate(active.starts_at)}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Expira</p>
-                    <p className="font-medium">{fmtDate(active.expires_at)}</p>
-                  </div>
-                  <div>
-                    <p className="text-muted-foreground">Dias restantes</p>
-                    <p className="font-medium">{remaining ?? "—"}</p>
-                  </div>
-                </div>
-                {remaining !== null && remaining <= 7 && (
-                  <p className="text-sm text-amber-500">⚠️ Sua assinatura expira em breve.</p>
-                )}
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <h3 className="text-xl font-semibold">Servidor sem premium</h3>
-                <p className="text-sm text-muted-foreground">
-                  Ative um plano premium para desbloquear recursos avançados.
-                </p>
-              </div>
-            )}
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="benefits" className="space-y-4">
-          <Card className="p-6">
+        <TabsContent value="benefits">
+          <AuroraSection title="Benefícios ativos" icon={Sparkles} tone="peach">
             {active?.plan?.features && Object.keys(active.plan.features).length > 0 ? (
-              <ul className="grid gap-2 sm:grid-cols-2 text-sm">
+              <ul className="grid gap-2 sm:grid-cols-2">
                 {Object.entries(active.plan.features).map(([key, value]) => (
-                  <li key={key} className="flex items-center justify-between rounded-md border border-border px-3 py-2">
+                  <li
+                    key={key}
+                    className="flex items-center justify-between rounded-xl border border-border/60 bg-background/40 px-3 py-2 text-sm"
+                  >
                     <span className="font-mono text-xs">{key}</span>
                     <Badge variant="secondary">{String(value)}</Badge>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-muted-foreground">
-                Nenhum benefício ativo. Ative um plano para ver os benefícios.
-              </p>
+              <div className="rounded-2xl border border-dashed border-border/60 bg-card/40 p-8 text-center">
+                <Mascot variant="sleeping" size={72} />
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Nenhum benefício ativo. Ative um plano para ver os benefícios.
+                </p>
+              </div>
             )}
-          </Card>
+          </AuroraSection>
         </TabsContent>
 
-        <TabsContent value="plans" className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {guildPlans.map((plan) => (
-              <Card key={plan.id} className="p-5 flex flex-col gap-3">
-                <div>
-                  <h4 className="font-semibold text-lg">{plan.name}</h4>
-                  <p className="text-sm text-muted-foreground">{plan.description}</p>
-                </div>
-                <div className="text-sm">
-                  <p>
-                    <span className="text-2xl font-bold">R$ {Number(plan.price).toFixed(2)}</span>
-                    <span className="text-muted-foreground"> / {plan.duration_days}d</span>
-                  </p>
-                </div>
-                <Button disabled variant="outline" size="sm">
-                  Em breve
-                </Button>
-              </Card>
-            ))}
-          </div>
+        <TabsContent value="plans">
+          <AuroraSection title="Planos disponíveis" icon={Crown} tone="lavender">
+            {guildPlans.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nenhum plano disponível no momento.</p>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {guildPlans.map((plan) => (
+                  <div
+                    key={plan.id}
+                    className="aurora-card-hover flex flex-col gap-3 rounded-2xl border border-border/60 p-5"
+                    style={{
+                      background:
+                        "linear-gradient(160deg, color-mix(in oklab, var(--aurora-peach) 14%, var(--card)), color-mix(in oklab, var(--aurora-pink) 8%, var(--card)))",
+                    }}
+                  >
+                    <div>
+                      <h4 className="font-display text-lg font-semibold">{plan.name}</h4>
+                      <p className="text-sm text-muted-foreground">{plan.description}</p>
+                    </div>
+                    <div className="text-sm">
+                      <p>
+                        <span className="font-display text-2xl font-bold">R$ {Number(plan.price).toFixed(2)}</span>
+                        <span className="text-muted-foreground"> / {plan.duration_days}d</span>
+                      </p>
+                    </div>
+                    <Button disabled variant="outline" size="sm">
+                      Em breve
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </AuroraSection>
         </TabsContent>
 
-        <TabsContent value="codes" className="space-y-4">
-          <Card className="p-6 space-y-4">
-            <div>
-              <h3 className="font-semibold flex items-center gap-2">
-                <Gift className="h-4 w-4" />
-                Resgatar código
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Tem um código premium? Cole abaixo para ativar neste servidor.
-              </p>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-2">
+        <TabsContent value="codes">
+          <AuroraSection
+            title="Resgatar código"
+            description="Tem um código premium? Cole abaixo para ativar neste servidor."
+            icon={Gift}
+            tone="pink"
+          >
+            <div className="flex flex-col gap-2 sm:flex-row">
               <div className="flex-1">
                 <Label htmlFor="code" className="sr-only">Código</Label>
                 <Input
@@ -272,20 +299,17 @@ function PremiumPage() {
                 {redeem.isPending ? "Ativando..." : "Resgatar"}
               </Button>
             </div>
-          </Card>
+          </AuroraSection>
         </TabsContent>
 
         <TabsContent value="usage" className="space-y-4">
           {usage ? (
-            <div className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <Card className="p-5 space-y-2">
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <Crown className="h-4 w-4 text-amber-400" /> Servidor
-                  </h3>
+            <>
+              <div className="grid gap-3 sm:grid-cols-2">
+                <AuroraSection title="Servidor" icon={Crown} tone="peach">
                   {usage.guild ? (
                     <>
-                      <p className="text-lg font-bold">{usage.guild.plan_name}</p>
+                      <p className="font-display text-lg font-bold">{usage.guild.plan_name}</p>
                       <p className="text-xs text-muted-foreground">
                         Expira: {fmtDate(usage.guild.expires_at)}
                       </p>
@@ -293,14 +317,11 @@ function PremiumPage() {
                   ) : (
                     <p className="text-sm text-muted-foreground">Plano FREE — sem premium ativo.</p>
                   )}
-                </Card>
-                <Card className="p-5 space-y-2">
-                  <h3 className="font-semibold flex items-center gap-2">
-                    <Sparkles className="h-4 w-4 text-fuchsia-400" /> Seu VIP
-                  </h3>
+                </AuroraSection>
+                <AuroraSection title="Seu VIP" icon={Sparkles} tone="pink">
                   {usage.user ? (
                     <>
-                      <p className="text-lg font-bold">{usage.user.plan_name}</p>
+                      <p className="font-display text-lg font-bold">{usage.user.plan_name}</p>
                       <p className="text-xs text-muted-foreground">
                         Expira: {fmtDate(usage.user.expires_at)}
                       </p>
@@ -310,31 +331,32 @@ function PremiumPage() {
                       Você não tem VIP. Use <code>/vip ativar</code> com um código.
                     </p>
                   )}
-                </Card>
+                </AuroraSection>
               </div>
 
-              <Card className="p-5 space-y-3">
-                <h3 className="font-semibold">Multiplicadores efetivos (seu VIP)</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+              <AuroraSection title="Multiplicadores efetivos (seu VIP)" icon={Zap} tone="cyan">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                   {[
-                    { label: "XP", v: usage.multipliers.xp },
-                    { label: "Daily", v: usage.multipliers.daily },
-                    { label: "Work", v: usage.multipliers.work },
-                    { label: "Crime", v: usage.multipliers.crime },
+                    { label: "XP", v: usage.multipliers.xp, tone: "lavender" as const },
+                    { label: "Daily", v: usage.multipliers.daily, tone: "mint" as const },
+                    { label: "Work", v: usage.multipliers.work, tone: "cyan" as const },
+                    { label: "Crime", v: usage.multipliers.crime, tone: "pink" as const },
                   ].map((m) => (
-                    <div key={m.label} className="rounded-md border border-border p-3 text-center">
-                      <p className="text-xs text-muted-foreground">{m.label}</p>
-                      <p className="text-xl font-bold">{m.v.toFixed(2)}x</p>
-                    </div>
+                    <AuroraStatCard
+                      key={m.label}
+                      label={m.label}
+                      value={`${m.v.toFixed(2)}x`}
+                      icon={Zap}
+                      tone={m.tone}
+                    />
                   ))}
                 </div>
                 <p className="text-xs text-muted-foreground">
                   1.00x = sem boost. Boosts vêm do plano VIP/Premium ativo.
                 </p>
-              </Card>
+              </AuroraSection>
 
-              <Card className="p-5 space-y-3">
-                <h3 className="font-semibold">Limites do servidor</h3>
+              <AuroraSection title="Limites do servidor" icon={ShieldCheck} tone="lavender">
                 <ul className="space-y-3 text-sm">
                   {usage.usage.map((u) => (
                     <li key={u.key} className="space-y-1">
@@ -347,10 +369,18 @@ function PremiumPage() {
                           </span>
                         </span>
                       </div>
-                      <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
                         <div
-                          className={`h-full transition-all ${u.pct >= 90 ? "bg-red-500" : u.pct >= 70 ? "bg-amber-500" : "bg-primary"}`}
-                          style={{ width: `${u.pct}%` }}
+                          className="h-full transition-all"
+                          style={{
+                            width: `${u.pct}%`,
+                            background:
+                              u.pct >= 90
+                                ? "linear-gradient(90deg, var(--aurora-pink), #ff5d7a)"
+                                : u.pct >= 70
+                                ? "linear-gradient(90deg, var(--aurora-peach), var(--aurora-pink))"
+                                : "linear-gradient(90deg, var(--aurora-cyan), var(--aurora-lavender))",
+                          }}
                         />
                       </div>
                     </li>
@@ -359,58 +389,57 @@ function PremiumPage() {
                 <p className="text-xs text-muted-foreground">
                   Ative um plano premium para aumentar esses limites.
                 </p>
-              </Card>
-            </div>
+              </AuroraSection>
+            </>
           ) : (
-            <Card className="p-6">
+            <AuroraSection title="Meu uso" icon={Sparkles} tone="cyan">
               <p className="text-sm text-muted-foreground">Carregando...</p>
-            </Card>
+            </AuroraSection>
           )}
         </TabsContent>
 
-        <TabsContent value="config" className="space-y-4">
-          <Card className="p-6 space-y-4">
-            <div>
-              <h3 className="font-semibold">Cargos automáticos</h3>
-              <p className="text-sm text-muted-foreground">
-                IDs dos cargos atribuídos automaticamente a membros VIP e quando o servidor é premium.
-                O bot precisa ter permissão de gerenciar cargos e o cargo dele deve estar acima.
-              </p>
-            </div>
+        <TabsContent value="config">
+          <AuroraSection
+            title="Cargos automáticos"
+            description="IDs dos cargos atribuídos automaticamente a membros VIP e ao servidor premium. O bot precisa de permissão de gerenciar cargos e estar acima."
+            icon={ShieldCheck}
+            tone="mint"
+          >
             <div className="grid gap-3 sm:grid-cols-2">
-              <div>
-                <Label htmlFor="vipRole">Cargo VIP (usuário)</Label>
+              <AuroraField label="Cargo VIP (usuário)" htmlFor="vipRole">
                 <Input
                   id="vipRole"
                   placeholder="123456789012345678"
                   value={vipRoleId}
                   onChange={(e) => setVipRoleId(e.target.value)}
                 />
-              </div>
-              <div>
-                <Label htmlFor="premiumRole">Cargo Premium (servidor)</Label>
+              </AuroraField>
+              <AuroraField label="Cargo Premium (servidor)" htmlFor="premiumRole">
                 <Input
                   id="premiumRole"
                   placeholder="123456789012345678"
                   value={premiumRoleId}
                   onChange={(e) => setPremiumRoleId(e.target.value)}
                 />
-              </div>
+              </AuroraField>
             </div>
-            <div className="flex justify-end">
+            <div className="flex justify-end pt-2">
               <Button onClick={() => saveConfig.mutate()} disabled={saveConfig.isPending}>
                 {saveConfig.isPending ? "Salvando..." : "Salvar configuração"}
               </Button>
             </div>
-          </Card>
+          </AuroraSection>
         </TabsContent>
 
-        <TabsContent value="logs" className="space-y-2">
-          <Card className="p-6">
+        <TabsContent value="logs">
+          <AuroraSection title="Histórico premium" icon={CalendarClock} tone="lavender">
             {logs && logs.length > 0 ? (
-              <ul className="space-y-2 text-sm">
+              <ul className="divide-y divide-border/60 rounded-xl border border-border/60 bg-card/40">
                 {logs.map((l) => (
-                  <li key={l.id} className="flex items-center justify-between border-b border-border/40 pb-2">
+                  <li
+                    key={l.id}
+                    className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm"
+                  >
                     <div>
                       <p className="font-medium">{l.action}</p>
                       <p className="text-xs text-muted-foreground">{fmtDate(l.created_at)}</p>
@@ -421,7 +450,7 @@ function PremiumPage() {
             ) : (
               <p className="text-sm text-muted-foreground">Nenhum log ainda.</p>
             )}
-          </Card>
+          </AuroraSection>
         </TabsContent>
       </Tabs>
     </ModuleLayout>

@@ -29,7 +29,7 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
           return htmlError("Faltam parâmetros <code>code</code>/<code>state</code> na URL.", 400);
         }
 
-        const { exchangeCode, fetchDiscordUser, makeDiscordCallbackUri, verifyOAuthState } = await import("@/lib/auth/discord.server");
+        const { exchangeCode, fetchDiscordUser, makeDiscordCallbackUri, shouldIncludeDiscordRedirectUri, verifyOAuthState } = await import("@/lib/auth/discord.server");
         const { createSessionSetCookie, getSession } = await import("@/lib/auth/session.server");
 
         const session = await getSession();
@@ -38,7 +38,8 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
         }
 
         try {
-          const redirectUri = session.data.oauthRedirectUri || makeDiscordCallbackUri(request);
+          const callbackUri = session.data.oauthRedirectUri || makeDiscordCallbackUri(request);
+          const redirectUri = shouldIncludeDiscordRedirectUri(callbackUri) ? callbackUri : undefined;
           const token = await exchangeCode(code, redirectUri);
           const user = await fetchDiscordUser(token.access_token);
           const nextSession = {

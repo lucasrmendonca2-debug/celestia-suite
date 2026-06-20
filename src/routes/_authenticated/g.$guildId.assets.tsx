@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 
-export const Route = createFileRoute("/_authenticated/dashboard/$guildId/assets")({
+export const Route = createFileRoute("/_authenticated/g/$guildId/assets")({
   component: AssetsPage,
 });
 

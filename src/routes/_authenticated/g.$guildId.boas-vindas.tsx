@@ -20,7 +20,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
 
-export const Route = createFileRoute("/_authenticated/dashboard/$guildId/welcome")({
+export const Route = createFileRoute("/_authenticated/g/$guildId/boas-vindas")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({
@@ -82,7 +82,7 @@ function WelcomePage() {
 
         <main className="mx-auto max-w-3xl px-6 py-8">
           <Link
-            to="/dashboard/$guildId"
+            to="/g/$guildId"
             params={{ guildId: guild.id }}
             className="mb-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
           >

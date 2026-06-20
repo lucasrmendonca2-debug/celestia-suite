@@ -1,9 +1,9 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/_authenticated/dashboard/$guildId/automod")({
+export const Route = createFileRoute("/_authenticated/g/$guildId/automod")({
   beforeLoad: ({ params }) => {
     throw redirect({
-      to: "/dashboard/$guildId/moderation",
+      to: "/g/$guildId/moderacao",
       params: { guildId: params.guildId },
     });
   },

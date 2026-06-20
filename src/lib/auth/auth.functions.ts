@@ -40,7 +40,7 @@ export const requireUser = createServerFn({ method: "GET" }).handler(
     const { getSession } = await import("./session.server");
     const session = await getSession();
     if (!session.data.userId) {
-      throw redirect({ to: "/login" });
+      throw redirect({ to: "/entrar" });
     }
     return {
       id: session.data.userId,
@@ -58,7 +58,7 @@ export const listMyGuilds = createServerFn({ method: "GET" }).handler(
       "./discord.server"
     );
     const session = await getSession();
-    if (!session.data.accessToken) throw redirect({ to: "/login" });
+    if (!session.data.accessToken) throw redirect({ to: "/entrar" });
 
     const guilds = await fetchUserGuilds(session.data.accessToken);
     const manageable = filterManageableGuilds(guilds);

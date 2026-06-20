@@ -21,7 +21,7 @@ import { getGuildOverview } from "@/lib/guild/overview.functions";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
 
-export const Route = createFileRoute("/_authenticated/dashboard/$guildId/")({
+export const Route = createFileRoute("/_authenticated/g/$guildId/")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({
@@ -80,35 +80,35 @@ function GuildOverviewPage() {
       key: "logs",
       ok: overview.config.logsChannelSet,
       label: "Canal de logs configurado",
-      to: `/dashboard/${guild.id}/logs`,
+      to: `/g/${guild.id}/logs`,
       cta: "Configurar logs",
     },
     {
       key: "welcome",
       ok: overview.config.welcomeEnabled && overview.config.welcomeChannelSet,
       label: "Boas-vindas configuradas",
-      to: `/dashboard/${guild.id}/welcome`,
+      to: `/g/${guild.id}/boas-vindas`,
       cta: "Configurar boas-vindas",
     },
     {
       key: "tickets",
       ok: overview.config.ticketsEnabled && overview.config.ticketsConfigured,
       label: "Tickets configurados",
-      to: `/dashboard/${guild.id}/tickets`,
+      to: `/g/${guild.id}/tickets`,
       cta: "Configurar tickets",
     },
     {
       key: "moderation",
       ok: overview.config.moderationConfigured,
       label: "Moderação ativada",
-      to: `/dashboard/${guild.id}/moderation`,
+      to: `/g/${guild.id}/moderacao`,
       cta: "Configurar moderação",
     },
     {
       key: "economy",
       ok: overview.config.economyEnabled,
       label: "Economia ativada",
-      to: `/dashboard/${guild.id}/economy`,
+      to: `/g/${guild.id}/economia`,
       cta: "Configurar economia",
     },
     {
@@ -317,37 +317,37 @@ function GuildOverviewPage() {
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <QuickAction
-                to={`/dashboard/${guild.id}/welcome`}
+                to={`/g/${guild.id}/boas-vindas`}
                 icon={<Sparkles className="size-4" />}
                 title="Boas-vindas"
                 desc="Mensagem e embed para novos membros."
               />
               <QuickAction
-                to={`/dashboard/${guild.id}/logs`}
+                to={`/g/${guild.id}/logs`}
                 icon={<ScrollText className="size-4" />}
                 title="Logs"
                 desc="Acompanhe tudo que acontece no servidor."
               />
               <QuickAction
-                to={`/dashboard/${guild.id}/tickets`}
+                to={`/g/${guild.id}/tickets`}
                 icon={<Ticket className="size-4" />}
                 title="Tickets"
                 desc="Painel de atendimento profissional."
               />
               <QuickAction
-                to={`/dashboard/${guild.id}/moderation`}
+                to={`/g/${guild.id}/moderacao`}
                 icon={<Shield className="size-4" />}
                 title="Moderação"
                 desc="Warns, mutes, kicks e bans com histórico."
               />
               <QuickAction
-                to={`/dashboard/${guild.id}/economy`}
+                to={`/g/${guild.id}/economia`}
                 icon={<Coins className="size-4" />}
                 title="Economia"
                 desc="Moeda, daily, work e loja de cargos."
               />
               <QuickAction
-                to={`/dashboard/${guild.id}/social`}
+                to={`/g/${guild.id}/social`}
                 icon={<TrendingUp className="size-4" />}
                 title="Social & Level"
                 desc="XP, ranking e recompensas por nível."

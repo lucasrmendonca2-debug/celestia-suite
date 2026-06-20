@@ -11,7 +11,7 @@ function htmlError(message: string, status: number) {
     .card{max-width:480px;border:1px solid #2a2a35;background:#15151c;border-radius:12px;padding:24px}
     a{color:#8aa9ff}</style>
     <div class="card"><h1 style="margin-top:0">Não foi possível entrar</h1>
-    <p>${message}</p><p><a href="/login">Tentar de novo</a></p></div>`;
+    <p>${message}</p><p><a href="/entrar">Tentar de novo</a></p></div>`;
   return new Response(html, {
     status,
     headers: { "Content-Type": "text/html; charset=utf-8" },

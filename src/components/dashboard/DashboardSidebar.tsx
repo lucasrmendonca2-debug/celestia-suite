@@ -29,7 +29,7 @@ export function DashboardSidebar({ guildId }: { guildId: string }) {
 
       <div className="border-t border-border/60 px-3 py-3">
         <Link
-          to="/dashboard"
+          to="/servidores"
           className="flex items-center gap-2 rounded-md px-3 py-2 text-xs text-muted-foreground transition hover:bg-primary/10 hover:text-foreground"
         >
           ← Trocar servidor

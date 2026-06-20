@@ -483,7 +483,7 @@ function CommandsPage() {
           </Link>
           <nav className="flex items-center gap-1 text-sm sm:gap-4">
             <Link to="/" className="hidden text-muted-foreground hover:text-foreground sm:inline">Início</Link>
-            <Link to="/dashboard" className="hidden text-muted-foreground hover:text-foreground sm:inline">Dashboard</Link>
+            <Link to="/servidores" className="hidden text-muted-foreground hover:text-foreground sm:inline">Dashboard</Link>
             <ThemeToggle />
             <a
               href="/api/auth/discord/login"
@@ -592,7 +592,7 @@ function CommandsPage() {
           <span>© {new Date().getFullYear()} Zenox. Todos os direitos reservados.</span>
           <div className="flex items-center gap-4">
             <Link to="/" className="hover:text-foreground">Início</Link>
-            <Link to="/dashboard" className="hover:text-foreground">Dashboard</Link>
+            <Link to="/servidores" className="hover:text-foreground">Dashboard</Link>
           </div>
         </footer>
       </div>

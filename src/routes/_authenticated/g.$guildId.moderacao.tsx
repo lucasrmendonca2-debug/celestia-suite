@@ -40,7 +40,7 @@ import {
   MultiRolePicker,
 } from "@/components/dashboard/tickets/DiscordPickers";
 
-export const Route = createFileRoute("/_authenticated/dashboard/$guildId/moderation")({
+export const Route = createFileRoute("/_authenticated/g/$guildId/moderacao")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

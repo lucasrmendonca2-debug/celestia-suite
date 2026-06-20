@@ -52,26 +52,26 @@ const SECTIONS: Section[] = [
   {
     title: "Comunidade",
     items: [
-      { to: "welcome", label: "Boas-vindas", icon: Sparkles, activeKey: "welcome_enabled" },
-      { to: "autorole", label: "Autorole", icon: UserPlus },
-      { to: "reaction-roles", label: "Cargos por reação", icon: Smile },
-      { to: "community", label: "Comunidade", icon: Users },
+      { to: "boas-vindas", label: "Boas-vindas", icon: Sparkles, activeKey: "welcome_enabled" },
+      { to: "cargo-automatico", label: "Autorole", icon: UserPlus },
+      { to: "cargos-reacao", label: "Cargos por reação", icon: Smile },
+      { to: "comunidade", label: "Comunidade", icon: Users },
     ],
   },
   {
     title: "Segurança",
     items: [
-      { to: "moderation", label: "Moderação", icon: Shield },
+      { to: "moderacao", label: "Moderação", icon: Shield },
     ],
   },
   {
     title: "Engajamento",
     items: [
-      { to: "economy", label: "Economia", icon: Coins },
+      { to: "economia", label: "Economia", icon: Coins },
       { to: "social", label: "Social & Level", icon: TrendingUp },
       { to: "badges", label: "Badges", icon: Award },
-      { to: "achievements", label: "Conquistas", icon: Trophy },
-      { to: "seasons", label: "Temporadas", icon: Trophy },
+      { to: "conquistas", label: "Conquistas", icon: Trophy },
+      { to: "temporadas", label: "Temporadas", icon: Trophy },
     ],
   },
   {
@@ -81,7 +81,7 @@ const SECTIONS: Section[] = [
   {
     title: "Personalização",
     items: [
-      { to: "commands", label: "Comandos custom", icon: Terminal },
+      { to: "comandos-bot", label: "Comandos custom", icon: Terminal },
       { to: "embeds", label: "Embeds", icon: FileCode2 },
     ],
   },
@@ -104,7 +104,7 @@ export function SidebarNav({
   onNavigate?: () => void;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const base = `/dashboard/${guildId}`;
+  const base = `/g/${guildId}`;
 
   const { data: premium } = useQuery({
     queryKey: ["premium-status", guildId],

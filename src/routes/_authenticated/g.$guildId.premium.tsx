@@ -30,7 +30,7 @@ const REDEEM_REASONS: Record<string, string> = {
   plan_mismatch: "Esse código não é de servidor.",
 };
 
-export const Route = createFileRoute("/_authenticated/dashboard/$guildId/premium")({
+export const Route = createFileRoute("/_authenticated/g/$guildId/premium")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

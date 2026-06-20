@@ -44,12 +44,12 @@ export function ModuleLayout({
         />
         <main className="relative mx-auto max-w-6xl px-6 py-8">
           <nav className="font-display mb-4 flex items-center gap-1.5 text-xs text-muted-foreground">
-            <Link to="/dashboard" className="hover:text-foreground">
+            <Link to="/servidores" className="hover:text-foreground">
               Servidores
             </Link>
             <ChevronRight className="size-3" />
             <Link
-              to="/dashboard/$guildId"
+              to="/g/$guildId"
               params={{ guildId }}
               className="hover:text-foreground"
             >

@@ -35,7 +35,7 @@ const RARITY_BADGE: Record<string, string> = {
   mythic: "bg-rose-500/20 text-rose-300 border-rose-500/40",
 };
 
-export const Route = createFileRoute("/_authenticated/dashboard/$guildId/badges")({
+export const Route = createFileRoute("/_authenticated/g/$guildId/badges")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

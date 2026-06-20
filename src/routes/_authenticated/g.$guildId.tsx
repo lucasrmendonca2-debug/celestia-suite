@@ -3,7 +3,7 @@ import { ExternalLink, Bot, ArrowLeft } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import { checkBotInGuild } from "@/lib/guild/bot-presence.functions";
 
-export const Route = createFileRoute("/_authenticated/dashboard/$guildId")({
+export const Route = createFileRoute("/_authenticated/g/$guildId")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({
@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/$guildId")({
           Você não tem permissão de gerenciar esse servidor.
         </p>
         <Link
-          to="/dashboard"
+          to="/servidores"
           className="mt-4 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
         >
           Voltar pra lista
@@ -53,7 +53,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/$guildId")({
             Tentar de novo
           </button>
           <Link
-            to="/dashboard"
+            to="/servidores"
             className="rounded-md border border-input bg-card px-4 py-2 text-sm font-medium"
           >
             Voltar
@@ -90,7 +90,7 @@ function GuildLayout() {
               Adicionar ao servidor
             </a>
             <Link
-              to="/dashboard"
+              to="/servidores"
               className="inline-flex items-center justify-center gap-2 rounded-md border border-input bg-card px-4 py-2.5 text-sm font-medium transition hover:bg-accent"
             >
               <ArrowLeft className="size-4" />

@@ -447,15 +447,9 @@ function PeekButton({
       <span
         aria-hidden
         className="peek-mascot pointer-events-none absolute left-1/2 top-0 z-0"
-        style={{ width: 70, height: 70 }}
+        style={{ width: 72, height: 72, marginLeft: -36, marginTop: -10 }}
       >
-        <img
-          src="/mascot-peek.png"
-          alt=""
-          onError={(e) => ((e.currentTarget.style.display = "none"))}
-          className="size-full object-contain"
-        />
-        <Mascot variant="original" size={70} className="absolute inset-0" />
+        <Mascot variant="original" size={72} />
       </span>
       <a
         href={href}

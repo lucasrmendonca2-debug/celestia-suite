@@ -9,9 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SuporteRouteImport } from './routes/suporte'
+import { Route as StatusRouteImport } from './routes/status'
+import { Route as RecursosRouteImport } from './routes/recursos'
+import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as EntrarRouteImport } from './routes/entrar'
+import { Route as DocsRouteImport } from './routes/docs'
 import { Route as ComandosRouteImport } from './routes/comandos'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedServidoresRouteImport } from './routes/_authenticated/servidores'
@@ -44,6 +50,26 @@ import { Route as AuthenticatedGGuildIdAutomodRouteImport } from './routes/_auth
 import { Route as AuthenticatedGGuildIdAssetsRouteImport } from './routes/_authenticated/g.$guildId.assets'
 import { Route as AuthenticatedDashboardGuildIdSplatRouteImport } from './routes/_authenticated/dashboard.$guildId.$'
 
+const SuporteRoute = SuporteRouteImport.update({
+  id: '/suporte',
+  path: '/suporte',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatusRoute = StatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecursosRoute = RecursosRouteImport.update({
+  id: '/recursos',
+  path: '/recursos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PremiumRoute = PremiumRouteImport.update({
+  id: '/premium',
+  path: '/premium',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -54,9 +80,19 @@ const EntrarRoute = EntrarRouteImport.update({
   path: '/entrar',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ComandosRoute = ComandosRouteImport.update({
   id: '/comandos',
   path: '/comandos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRoute = AuthenticatedRouteImport.update({
@@ -240,9 +276,15 @@ const AuthenticatedDashboardGuildIdSplatRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/blog': typeof BlogRoute
   '/comandos': typeof ComandosRoute
+  '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
+  '/premium': typeof PremiumRoute
+  '/recursos': typeof RecursosRoute
+  '/status': typeof StatusRoute
+  '/suporte': typeof SuporteRoute
   '/servidores': typeof AuthenticatedServidoresRoute
   '/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/g/$guildId': typeof AuthenticatedGGuildIdRouteWithChildren
@@ -275,9 +317,15 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/blog': typeof BlogRoute
   '/comandos': typeof ComandosRoute
+  '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
+  '/premium': typeof PremiumRoute
+  '/recursos': typeof RecursosRoute
+  '/status': typeof StatusRoute
+  '/suporte': typeof SuporteRoute
   '/servidores': typeof AuthenticatedServidoresRoute
   '/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
@@ -311,9 +359,15 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/blog': typeof BlogRoute
   '/comandos': typeof ComandosRoute
+  '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
+  '/premium': typeof PremiumRoute
+  '/recursos': typeof RecursosRoute
+  '/status': typeof StatusRoute
+  '/suporte': typeof SuporteRoute
   '/_authenticated/servidores': typeof AuthenticatedServidoresRoute
   '/_authenticated/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/_authenticated/g/$guildId': typeof AuthenticatedGGuildIdRouteWithChildren
@@ -348,9 +402,15 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/blog'
     | '/comandos'
+    | '/docs'
     | '/entrar'
     | '/login'
+    | '/premium'
+    | '/recursos'
+    | '/status'
+    | '/suporte'
     | '/servidores'
     | '/admin/premium'
     | '/g/$guildId'
@@ -383,9 +443,15 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/blog'
     | '/comandos'
+    | '/docs'
     | '/entrar'
     | '/login'
+    | '/premium'
+    | '/recursos'
+    | '/status'
+    | '/suporte'
     | '/servidores'
     | '/admin/premium'
     | '/api/auth/logout'
@@ -418,9 +484,15 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/blog'
     | '/comandos'
+    | '/docs'
     | '/entrar'
     | '/login'
+    | '/premium'
+    | '/recursos'
+    | '/status'
+    | '/suporte'
     | '/_authenticated/servidores'
     | '/_authenticated/admin/premium'
     | '/_authenticated/g/$guildId'
@@ -455,9 +527,15 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  BlogRoute: typeof BlogRoute
   ComandosRoute: typeof ComandosRoute
+  DocsRoute: typeof DocsRoute
   EntrarRoute: typeof EntrarRoute
   LoginRoute: typeof LoginRoute
+  PremiumRoute: typeof PremiumRoute
+  RecursosRoute: typeof RecursosRoute
+  StatusRoute: typeof StatusRoute
+  SuporteRoute: typeof SuporteRoute
   ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
   ApiPublicBotGuildPresenceRoute: typeof ApiPublicBotGuildPresenceRoute
   ApiAuthDiscordCallbackRoute: typeof ApiAuthDiscordCallbackRoute
@@ -466,6 +544,34 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/suporte': {
+      id: '/suporte'
+      path: '/suporte'
+      fullPath: '/suporte'
+      preLoaderRoute: typeof SuporteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/status': {
+      id: '/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof StatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recursos': {
+      id: '/recursos'
+      path: '/recursos'
+      fullPath: '/recursos'
+      preLoaderRoute: typeof RecursosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/premium': {
+      id: '/premium'
+      path: '/premium'
+      fullPath: '/premium'
+      preLoaderRoute: typeof PremiumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -480,11 +586,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EntrarRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/comandos': {
       id: '/comandos'
       path: '/comandos'
       fullPath: '/comandos'
       preLoaderRoute: typeof ComandosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -784,9 +904,15 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  BlogRoute: BlogRoute,
   ComandosRoute: ComandosRoute,
+  DocsRoute: DocsRoute,
   EntrarRoute: EntrarRoute,
   LoginRoute: LoginRoute,
+  PremiumRoute: PremiumRoute,
+  RecursosRoute: RecursosRoute,
+  StatusRoute: StatusRoute,
+  SuporteRoute: SuporteRoute,
   ApiAuthLogoutRoute: ApiAuthLogoutRoute,
   ApiPublicBotGuildPresenceRoute: ApiPublicBotGuildPresenceRoute,
   ApiAuthDiscordCallbackRoute: ApiAuthDiscordCallbackRoute,

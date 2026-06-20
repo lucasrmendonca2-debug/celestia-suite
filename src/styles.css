@@ -346,12 +346,57 @@
 .cyber-scanline::after { content: none; }
 
 
+/* ===== Bonus animations ===== */
+@keyframes aurora-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-6px) rotate(2deg); }
+}
+.aurora-float { animation: aurora-float 4s ease-in-out infinite; }
+
+@keyframes aurora-sparkle {
+  0%, 100% { opacity: 0; transform: scale(0.6) rotate(0deg); }
+  50%      { opacity: 1; transform: scale(1)  rotate(180deg); }
+}
+.aurora-sparkle { animation: aurora-sparkle 2.4s ease-in-out infinite; }
+
+@keyframes aurora-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.aurora-shimmer {
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    color-mix(in oklab, var(--aurora-pink) 50%, transparent) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: aurora-shimmer 2.6s linear infinite;
+}
+
+.aurora-rank-1 {
+  background: linear-gradient(135deg, color-mix(in oklab, var(--aurora-peach) 70%, white), color-mix(in oklab, var(--aurora-pink) 50%, white));
+  color: #4a2a00;
+}
+.aurora-rank-2 {
+  background: linear-gradient(135deg, color-mix(in oklab, var(--aurora-cyan) 60%, white), color-mix(in oklab, var(--aurora-lavender) 40%, white));
+  color: #1d2940;
+}
+.aurora-rank-3 {
+  background: linear-gradient(135deg, color-mix(in oklab, var(--aurora-mint) 65%, white), color-mix(in oklab, var(--aurora-cyan) 35%, white));
+  color: #143a2a;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .aurora-shell::before,
   .aurora-glow-dot,
-  .aurora-card-hover {
+  .aurora-card-hover,
+  .aurora-float,
+  .aurora-sparkle,
+  .aurora-shimmer {
     animation: none;
     transition: none;
   }
 }
+
 

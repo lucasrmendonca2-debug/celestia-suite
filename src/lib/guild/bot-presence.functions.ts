@@ -4,7 +4,6 @@
  * com token de BOT; 200 = instalado, 404/403 = fora/sem acesso, 401 = token errado.
  */
 import { createServerFn } from "@tanstack/react-start";
-import { getDiscordBotToken } from "@/lib/discord/bot-token.server";
 
 export interface BotPresence {
   present: boolean;
@@ -25,6 +24,7 @@ export const checkBotInGuild = createServerFn({ method: "GET" })
     return data;
   })
   .handler(async ({ data }): Promise<BotPresence> => {
+    const { getDiscordBotToken } = await import("@/lib/discord/bot-token.server");
     const token = getDiscordBotToken();
     const inviteUrl = buildInviteUrl(data.guildId);
     if (!token) {

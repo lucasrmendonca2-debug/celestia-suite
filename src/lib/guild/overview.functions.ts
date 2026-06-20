@@ -5,7 +5,6 @@
  */
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
-import { getDiscordBotToken } from "@/lib/discord/bot-token.server";
 
 // Bitflags Discord (BigInt)
 const P = {
@@ -81,6 +80,7 @@ export const getGuildOverview = createServerFn({ method: "GET" })
   )
   .handler(async ({ data }): Promise<GuildOverview> => {
     const { assertCanManageGuild } = await import("./permissions.server");
+    const { getDiscordBotToken } = await import("@/lib/discord/bot-token.server");
     await assertCanManageGuild(data.guildId);
 
     const token = getDiscordBotToken();

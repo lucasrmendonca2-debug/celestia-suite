@@ -164,22 +164,50 @@ function Landing() {
             </div>
           </div>
 
-          {/* Mascot card */}
+          {/* MS Paint window — mascote quebrando a 4ª parede */}
           <div className="relative mx-auto w-full max-w-md">
-            <div className="absolute inset-0 -z-10 translate-x-4 translate-y-4 rounded-[2.5rem] bg-[#1B0E3B]" />
-            <div className="relative aspect-square rounded-[2.5rem] border-2 border-[#1B0E3B] bg-gradient-to-br from-[#F1E9FF] via-[#FFE4F1] to-[#FFF3D1] p-6">
-              <Mascot variant="hero" size={420} className="mx-auto size-full animate-[float_5s_ease-in-out_infinite]" />
+            <div className="absolute inset-0 -z-10 translate-x-4 translate-y-4 rounded-md bg-[#1B0E3B]" />
+            <div className="paint-window relative overflow-hidden rounded-md border-2 border-[#1B0E3B] bg-white shadow-[6px_6px_0_0_#1B0E3B]">
+              {/* Title bar */}
+              <div className="flex items-center justify-between gap-2 border-b-2 border-[#1B0E3B] bg-gradient-to-r from-[#000080] to-[#1084d0] px-2 py-1 font-mono text-xs font-bold text-white">
+                <div className="flex items-center gap-1.5">
+                  <span className="inline-block size-3 border border-white/40 bg-[#FBBF24]" />
+                  zenox.exe — Paint
+                </div>
+                <div className="flex items-center gap-1">
+                  <button className="flex size-4 items-center justify-center border border-white/40 bg-[#c3c7cb] text-[10px] text-black">_</button>
+                  <button className="flex size-4 items-center justify-center border border-white/40 bg-[#c3c7cb] text-[10px] text-black">▢</button>
+                  <button className="flex size-4 items-center justify-center border border-white/40 bg-[#c3c7cb] text-[10px] text-black">×</button>
+                </div>
+              </div>
+              {/* Toolbar */}
+              <div className="flex items-center gap-1 border-b border-[#1B0E3B]/30 bg-[#dfe3ea] px-2 py-1">
+                {["#000000", "#7C3AED", "#EC4899", "#FBBF24", "#10D9A0", "#38BDF8"].map((c) => (
+                  <span key={c} className="size-3 border border-black/50" style={{ background: c }} />
+                ))}
+                <span className="ml-2 font-mono text-[10px] text-[#1B0E3B]">untitled.bmp</span>
+              </div>
+              {/* Canvas */}
+              <div className="paint-canvas relative aspect-square bg-white">
+                <img
+                  src={paintEscape}
+                  alt="Zenox tentando sair da tela"
+                  className="absolute inset-0 size-full object-contain p-4"
+                />
+                {/* Crack lines suggesting glass */}
+                <span aria-hidden className="paint-crack pointer-events-none absolute inset-0" />
+              </div>
 
-              <FloatingBadge className="-left-4 top-4 -rotate-6" tone="sun">
+              <FloatingBadge className="-left-4 top-12 -rotate-6" tone="sun">
                 <Gamepad2 className="size-3.5" /> Mini games
               </FloatingBadge>
-              <FloatingBadge className="-right-3 top-20 rotate-6" tone="pink">
+              <FloatingBadge className="-right-3 top-24 rotate-6" tone="pink">
                 <Heart className="size-3.5" /> Comunidade
               </FloatingBadge>
-              <FloatingBadge className="-left-6 bottom-16 -rotate-3" tone="mint">
+              <FloatingBadge className="-left-6 bottom-20 -rotate-3" tone="mint">
                 <Zap className="size-3.5" /> 99.9% uptime
               </FloatingBadge>
-              <FloatingBadge className="-right-4 bottom-6 rotate-3" tone="sky">
+              <FloatingBadge className="-right-4 bottom-8 rotate-3" tone="sky">
                 <Bot className="size-3.5" /> +90 comandos
               </FloatingBadge>
             </div>

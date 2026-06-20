@@ -164,22 +164,50 @@ function Landing() {
             </div>
           </div>
 
-          {/* Mascot card */}
+          {/* MS Paint window — mascote quebrando a 4ª parede */}
           <div className="relative mx-auto w-full max-w-md">
-            <div className="absolute inset-0 -z-10 translate-x-4 translate-y-4 rounded-[2.5rem] bg-[#1B0E3B]" />
-            <div className="relative aspect-square rounded-[2.5rem] border-2 border-[#1B0E3B] bg-gradient-to-br from-[#F1E9FF] via-[#FFE4F1] to-[#FFF3D1] p-6">
-              <Mascot variant="hero" size={420} className="mx-auto size-full animate-[float_5s_ease-in-out_infinite]" />
+            <div className="absolute inset-0 -z-10 translate-x-4 translate-y-4 rounded-md bg-[#1B0E3B]" />
+            <div className="paint-window relative overflow-hidden rounded-md border-2 border-[#1B0E3B] bg-white shadow-[6px_6px_0_0_#1B0E3B]">
+              {/* Title bar */}
+              <div className="flex items-center justify-between gap-2 border-b-2 border-[#1B0E3B] bg-gradient-to-r from-[#000080] to-[#1084d0] px-2 py-1 font-mono text-xs font-bold text-white">
+                <div className="flex items-center gap-1.5">
+                  <span className="inline-block size-3 border border-white/40 bg-[#FBBF24]" />
+                  zenox.exe — Paint
+                </div>
+                <div className="flex items-center gap-1">
+                  <button className="flex size-4 items-center justify-center border border-white/40 bg-[#c3c7cb] text-[10px] text-black">_</button>
+                  <button className="flex size-4 items-center justify-center border border-white/40 bg-[#c3c7cb] text-[10px] text-black">▢</button>
+                  <button className="flex size-4 items-center justify-center border border-white/40 bg-[#c3c7cb] text-[10px] text-black">×</button>
+                </div>
+              </div>
+              {/* Toolbar */}
+              <div className="flex items-center gap-1 border-b border-[#1B0E3B]/30 bg-[#dfe3ea] px-2 py-1">
+                {["#000000", "#7C3AED", "#EC4899", "#FBBF24", "#10D9A0", "#38BDF8"].map((c) => (
+                  <span key={c} className="size-3 border border-black/50" style={{ background: c }} />
+                ))}
+                <span className="ml-2 font-mono text-[10px] text-[#1B0E3B]">untitled.bmp</span>
+              </div>
+              {/* Canvas */}
+              <div className="paint-canvas relative aspect-square bg-white">
+                <img
+                  src={paintEscape}
+                  alt="Zenox tentando sair da tela"
+                  className="absolute inset-0 size-full object-contain p-4"
+                />
+                {/* Crack lines suggesting glass */}
+                <span aria-hidden className="paint-crack pointer-events-none absolute inset-0" />
+              </div>
 
-              <FloatingBadge className="-left-4 top-4 -rotate-6" tone="sun">
+              <FloatingBadge className="-left-4 top-12 -rotate-6" tone="sun">
                 <Gamepad2 className="size-3.5" /> Mini games
               </FloatingBadge>
-              <FloatingBadge className="-right-3 top-20 rotate-6" tone="pink">
+              <FloatingBadge className="-right-3 top-24 rotate-6" tone="pink">
                 <Heart className="size-3.5" /> Comunidade
               </FloatingBadge>
-              <FloatingBadge className="-left-6 bottom-16 -rotate-3" tone="mint">
+              <FloatingBadge className="-left-6 bottom-20 -rotate-3" tone="mint">
                 <Zap className="size-3.5" /> 99.9% uptime
               </FloatingBadge>
-              <FloatingBadge className="-right-4 bottom-6 rotate-3" tone="sky">
+              <FloatingBadge className="-right-4 bottom-8 rotate-3" tone="sky">
                 <Bot className="size-3.5" /> +90 comandos
               </FloatingBadge>
             </div>
@@ -414,11 +442,51 @@ function Landing() {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-12px); }
         }
-        @keyframes peek {
-          0%, 100% { transform: translate(-50%, 30%) rotate(-6deg); }
-          50% { transform: translate(-50%, 8%) rotate(2deg); }
+        @keyframes peek-up {
+          0%   { transform: translate(-50%, 100%) rotate(-12deg); opacity: 0; }
+          40%  { transform: translate(-50%, -55%) rotate(-8deg);  opacity: 1; }
+          55%  { transform: translate(-50%, -50%) rotate(6deg);   opacity: 1; }
+          70%  { transform: translate(-50%, -58%) rotate(-4deg);  opacity: 1; }
+          100% { transform: translate(-50%, -55%) rotate(0deg);   opacity: 1; }
         }
-        .peek-mascot { animation: peek 2.6s ease-in-out infinite; }
+        @keyframes wiggle {
+          0%, 100% { transform: translate(-50%, -55%) rotate(0deg); }
+          25%      { transform: translate(-50%, -58%) rotate(-5deg); }
+          75%      { transform: translate(-50%, -52%) rotate(5deg); }
+        }
+        @keyframes glass-shake {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          20% { transform: translate(-2px, 1px) rotate(-0.4deg); }
+          40% { transform: translate(2px, -1px) rotate(0.4deg); }
+          60% { transform: translate(-1px, 2px) rotate(-0.2deg); }
+          80% { transform: translate(1px, -2px) rotate(0.2deg); }
+        }
+        @keyframes press-pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.02); }
+        }
+        .paint-window { animation: glass-shake 0.6s ease-in-out infinite; }
+        .paint-canvas img { animation: press-pulse 2.4s ease-in-out infinite; }
+        .paint-crack {
+          background-image:
+            linear-gradient(135deg, transparent 49.6%, rgba(27,14,59,0.18) 50%, transparent 50.4%),
+            linear-gradient(45deg,  transparent 49.6%, rgba(27,14,59,0.12) 50%, transparent 50.4%);
+          background-size: 60% 60%, 40% 40%;
+          background-position: 30% 40%, 60% 60%;
+          background-repeat: no-repeat;
+          mix-blend-mode: multiply;
+        }
+        .peek-trigger .peek-chibi {
+          opacity: 0;
+          transform: translate(-50%, 100%) rotate(-12deg);
+          transition: opacity 0.15s ease-out;
+        }
+        .peek-trigger:hover .peek-chibi,
+        .peek-trigger:focus-visible .peek-chibi {
+          opacity: 1;
+          animation: peek-up 0.55s cubic-bezier(.34,1.56,.64,1) forwards,
+                     wiggle 1.6s ease-in-out 0.55s infinite;
+        }
       `}</style>
     </div>
   );
@@ -443,15 +511,20 @@ function PeekButton({
     ? "bg-white text-[#1B0E3B] border-[#1B0E3B] shadow-[0_6px_0_0_#1B0E3B]"
     : "bg-[#7C3AED] text-white border-[#1B0E3B] shadow-[0_6px_0_0_#1B0E3B]";
   const size = large ? "px-8 py-4 text-lg" : "px-6 py-3.5 text-base";
+  const chibiSize = large ? 110 : 88;
   return (
-    <span className="relative inline-block">
-      {/* Peeking mascot */}
+    <span className="peek-trigger relative inline-block">
+      {/* Chibi peeking from behind — só aparece no hover */}
       <span
         aria-hidden
-        className="peek-mascot pointer-events-none absolute left-1/2 top-0 z-0"
-        style={{ width: 72, height: 72, marginLeft: -36, marginTop: -10 }}
+        className="peek-chibi pointer-events-none absolute left-1/2 top-0 z-0"
+        style={{ width: chibiSize, height: chibiSize }}
       >
-        <Mascot variant="original" size={72} />
+        <img
+          src={chibiPeek}
+          alt=""
+          className="size-full object-contain drop-shadow-[0_6px_8px_rgba(27,14,59,0.25)]"
+        />
       </span>
       <a
         href={href}

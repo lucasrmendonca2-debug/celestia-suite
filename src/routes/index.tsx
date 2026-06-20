@@ -2,37 +2,32 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import type { MouseEvent } from "react";
 import {
   Shield,
+  Ticket,
+  ScrollText,
   Coins,
   TrendingUp,
-  Ticket,
   MessageSquare,
-  ScrollText,
-  ArrowUpRight,
   Sparkles,
   Vote,
   Lightbulb,
-  Heart,
-  Wand2,
-  Stars,
   type LucideIcon,
 } from "lucide-react";
-import { ThemeToggle } from "@/components/ThemeProvider";
 import { Mascot } from "@/components/Mascot";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Zenox — Bot fofo e poderoso para Discord" },
+      { title: "Zenox — Bot premium para Discord" },
       {
         name: "description",
         content:
-          "Moderação, economia, level, tickets, sorteios e dashboard completo — tudo em um único bot, com um toque mágico.",
+          "Moderação, economia, level, tickets, sorteios e dashboard completo — o bot mais completo do Brasil.",
       },
       { property: "og:title", content: "Zenox — Bot premium para Discord" },
       {
         property: "og:description",
         content:
-          "Painel web encantador, economia interna, AutoMod, enquetes e sugestões. Um bot, todos os módulos.",
+          "Painel web, economia interna, AutoMod, enquetes e sugestões. Um bot, todos os módulos.",
       },
     ],
   }),
@@ -46,274 +41,223 @@ function startDiscordLogin(event: MouseEvent<HTMLAnchorElement>) {
   )}`;
 }
 
-type Tone = "lavender" | "pink" | "cyan" | "mint" | "peach";
+type Tone = "pink" | "cyan" | "purple" | "yellow";
+const TONES: Record<Tone, { hex: string; bgSoft: string; text: string; border: string }> = {
+  pink:   { hex: "#FF5FB4", bgSoft: "bg-[#FF5FB4]/20", text: "text-[#FF5FB4]", border: "hover:border-[#FF5FB4]/50" },
+  cyan:   { hex: "#3FE0FF", bgSoft: "bg-[#3FE0FF]/20", text: "text-[#3FE0FF]", border: "hover:border-[#3FE0FF]/50" },
+  purple: { hex: "#9D5BFF", bgSoft: "bg-[#9D5BFF]/20", text: "text-[#9D5BFF]", border: "hover:border-[#9D5BFF]/50" },
+  yellow: { hex: "#FFE25F", bgSoft: "bg-[#FFE25F]/20", text: "text-[#FFE25F]", border: "hover:border-[#FFE25F]/50" },
+};
 
-const features: { icon: LucideIcon; title: string; desc: string; tone: Tone }[] = [
-  { icon: Shield, title: "Moderação", desc: "Warns, mutes, bans temporários, AutoMod e histórico auditável.", tone: "pink" },
-  { icon: Ticket, title: "Tickets v2", desc: "Claim, SLA, auto-close, tags, prioridades e transcripts.", tone: "cyan" },
-  { icon: ScrollText, title: "Logs detalhados", desc: "Mensagens, membros, cargos, canais, voz e convites — tudo categorizado.", tone: "lavender" },
-  { icon: Coins, title: "Economia", desc: "Moeda interna, loja, daily, work, rob, ranking. Tudo anti-abuso.", tone: "peach" },
-  { icon: TrendingUp, title: "Leveling", desc: "XP por mensagem e voz, multiplicadores, cards e leaderboard.", tone: "mint" },
-  { icon: MessageSquare, title: "Embeds & boas-vindas", desc: "Editor visual, autorole e welcome com placeholders.", tone: "pink" },
-  { icon: Sparkles, title: "Sorteios", desc: "Giveaways com requisitos, reroll automático e histórico.", tone: "cyan" },
-  { icon: Vote, title: "Enquetes", desc: "Votações com botões, prazo e resultados em tempo real.", tone: "lavender" },
-  { icon: Lightbulb, title: "Sugestões", desc: "Canal dedicado, votos da comunidade e fluxo de aprovação.", tone: "mint" },
+const modules: { n: string; title: string; desc: string; tone: Tone; icon: LucideIcon; offset: string }[] = [
+  { n: "01", title: "Moderação", desc: "AutoMod, warns, mutes e bans temporários automáticos com histórico detalhado.", tone: "pink", icon: Shield, offset: "" },
+  { n: "02", title: "Tickets v2", desc: "Suporte profissional com múltiplos painéis, departamentos e transcrições HTML.", tone: "cyan", icon: Ticket, offset: "lg:translate-y-8" },
+  { n: "03", title: "Logs", desc: "Monitore tudo: mensagens editadas, cargos alterados e entradas no servidor.", tone: "purple", icon: ScrollText, offset: "" },
+  { n: "04", title: "Economia", desc: "Sistema de coins, banco, loja de cargos e jogos para engajar seus membros.", tone: "yellow", icon: Coins, offset: "lg:-translate-y-2" },
+  { n: "05", title: "Leveling", desc: "XP por chat e voz, rank cards customizados e cargos por conquista de nível.", tone: "pink", icon: TrendingUp, offset: "lg:translate-y-12" },
+  { n: "06", title: "Embeds & Boas-vindas", desc: "Editor visual para mensagens de boas-vindas e comunicados elegantes.", tone: "cyan", icon: MessageSquare, offset: "" },
+  { n: "07", title: "Sorteios", desc: "Crie sorteios com requisitos de cargos ou tempo de servidor facilmente.", tone: "purple", icon: Sparkles, offset: "lg:translate-y-4" },
+  { n: "08", title: "Enquetes", desc: "Vote com reações ou botões para ouvir a opinião da sua comunidade.", tone: "yellow", icon: Vote, offset: "lg:-translate-y-5" },
+  { n: "09", title: "Sugestões", desc: "Canal de feedback organizado com status de aprovado ou negado.", tone: "pink", icon: Lightbulb, offset: "lg:translate-y-10" },
 ];
 
 function Landing() {
   return (
-    <main className="aurora-shell relative min-h-screen overflow-hidden text-foreground">
-      {/* floating sparkles */}
-      <FloatingSparkles />
-
-      <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col px-5 py-6 sm:px-8 sm:py-8">
-        {/* Header */}
-        <header className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <Mascot variant="hero" size={42} className="drop-shadow-[0_4px_18px_color-mix(in_oklab,var(--aurora-pink)_60%,transparent)]" />
-            <div className="flex flex-col leading-tight">
-              <span className="font-display text-base font-bold tracking-tight">Zenox</span>
-              <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-muted-foreground">
-                magia para Discord
-              </span>
-            </div>
+    <div className="min-h-screen bg-[#10121F] font-['Inter'] text-white selection:bg-[#FF5FB4] selection:text-white">
+      {/* Navigation */}
+      <nav className="fixed left-0 right-0 top-0 z-50 flex items-center justify-between border-b border-white/5 bg-[#10121F]/80 px-6 py-4 backdrop-blur-md">
+        <Link to="/" className="flex items-center gap-2">
+          <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-to-tr from-[#FF5FB4] to-[#9D5BFF] font-['Plus_Jakarta_Sans'] text-xl font-extrabold shadow-[0_0_20px_rgba(255,95,180,0.3)]">
+            Z
           </div>
-          <nav className="flex items-center gap-1 text-sm sm:gap-3">
-            <a href="#modulos" className="hidden rounded-full px-3 py-1.5 text-muted-foreground transition hover:bg-[color:color-mix(in_oklab,var(--aurora-lavender)_15%,transparent)] hover:text-foreground sm:inline">
-              Módulos
-            </a>
-            <Link to="/comandos" className="hidden rounded-full px-3 py-1.5 text-muted-foreground transition hover:bg-[color:color-mix(in_oklab,var(--aurora-pink)_15%,transparent)] hover:text-foreground sm:inline">
-              Comandos
-            </Link>
-            <Link to="/servidores" className="hidden rounded-full px-3 py-1.5 text-muted-foreground transition hover:bg-[color:color-mix(in_oklab,var(--aurora-cyan)_15%,transparent)] hover:text-foreground sm:inline">
-              Dashboard
-            </Link>
-            <ThemeToggle />
-            <a
-              href="/api/auth/discord/login"
-              onClick={startDiscordLogin}
-              className="aurora-cta inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold text-background shadow-[0_8px_24px_-8px_color-mix(in_oklab,var(--aurora-pink)_70%,transparent)] transition hover:scale-[1.02]"
-              style={{ background: "var(--gradient-aurora)" }}
-            >
-              Entrar
-              <ArrowUpRight className="size-3.5" />
-            </a>
-          </nav>
-        </header>
+          <span className="font-['Plus_Jakarta_Sans'] text-xl font-bold tracking-tight">Zenox</span>
+        </Link>
+        <div className="hidden items-center gap-8 text-sm font-medium text-gray-400 md:flex">
+          <a href="#modulos" className="transition-colors hover:text-[#3FE0FF]">Módulos</a>
+          <Link to="/comandos" className="transition-colors hover:text-[#3FE0FF]">Comandos</Link>
+          <Link to="/servidores" className="transition-colors hover:text-[#3FE0FF]">Dashboard</Link>
+        </div>
+        <a
+          href="/api/auth/discord/login"
+          onClick={startDiscordLogin}
+          className="cursor-pointer rounded-full bg-white px-6 py-2.5 text-sm font-bold text-black transition-all hover:bg-[#3FE0FF]"
+        >
+          Entrar
+        </a>
+      </nav>
 
-        {/* Hero */}
-        <section className="relative mt-16 grid items-center gap-10 sm:mt-24 lg:grid-cols-[1fr_auto]">
-          <div className="relative">
-            <span className="aurora-pill mb-6 inline-flex items-center gap-1.5">
-              <Stars className="size-3 text-[var(--aurora-pink)]" />
-              bot premium · feito com carinho
-            </span>
-            <h1 className="font-display max-w-3xl text-[44px] font-bold leading-[1.02] tracking-tight sm:text-[68px]">
-              Seu servidor{" "}
-              <span className="aurora-gradient-text italic">no mais alto nível</span>
-              <span className="ml-2 inline-block animate-[wiggle_2.4s_ease-in-out_infinite] text-[var(--aurora-pink)]">✦</span>
+      {/* Hero */}
+      <section className="relative mx-auto max-w-7xl overflow-hidden px-6 pb-20 pt-32">
+        <div className="absolute right-[-10%] top-20 -z-10 size-[500px] rounded-full bg-[#9D5BFF]/15 blur-[120px]" />
+        <div className="absolute bottom-0 left-[-5%] -z-10 size-[400px] rounded-full bg-[#FF5FB4]/10 blur-[100px]" />
+
+        <div className="flex flex-col gap-12 lg:flex-row lg:items-center">
+          <div className="space-y-8 lg:w-[60%]">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#3FE0FF]">
+              <span className="size-1.5 animate-pulse rounded-full bg-[#3FE0FF]" />
+              Bot Premium para Discord
+            </div>
+            <h1 className="font-['Plus_Jakarta_Sans'] text-6xl font-extrabold leading-[0.9] tracking-tighter md:text-8xl">
+              Seu servidor no{" "}
+              <span className="bg-gradient-to-r from-[#FF5FB4] via-[#9D5BFF] to-[#3FE0FF] bg-clip-text text-transparent">
+                mais alto nível.
+              </span>
             </h1>
-            <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground sm:text-[17px]">
-              Moderação, economia, level, tickets, sorteios, enquetes — e um painel
-              web tão fofo que dá vontade de configurar. Sem digitar comandos.
+            <p className="max-w-xl text-lg leading-relaxed text-gray-400 md:text-xl">
+              Gerencie sua comunidade com o bot mais completo do Brasil. Diversão, segurança e
+              automação em um só lugar.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap gap-4">
               <a
                 href="/api/auth/discord/login"
                 onClick={startDiscordLogin}
-                className="aurora-cta group inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-background shadow-[0_14px_40px_-12px_color-mix(in_oklab,var(--aurora-pink)_70%,transparent)] transition hover:scale-[1.03]"
-                style={{ background: "var(--gradient-aurora)" }}
+                className="rounded-2xl bg-[#FF5FB4] px-8 py-4 text-lg font-bold text-white shadow-[0_10px_40px_-10px_rgba(255,95,180,0.5)] transition-all hover:scale-105"
               >
-                <Wand2 className="size-4" />
                 Começar agora
-                <ArrowUpRight className="size-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
               </a>
               <Link
                 to="/servidores"
-                className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/50 px-5 py-3 text-sm font-medium backdrop-blur transition hover:bg-accent/40"
+                className="rounded-2xl border border-white/10 bg-white/5 px-8 py-4 text-lg font-bold transition-all hover:bg-white/10"
               >
                 Ver dashboard
-                <ArrowUpRight className="size-3.5" />
               </Link>
             </div>
-
-            {/* Stats inline */}
-            <div className="mt-12 grid w-full max-w-xl grid-cols-2 gap-3 sm:grid-cols-4">
-              {[
-                ["80+", "comandos", "lavender"],
-                ["13", "módulos", "pink"],
-                ["99.9%", "uptime", "cyan"],
-                ["<80ms", "latência", "mint"],
-              ].map(([v, l, t]) => (
-                <div
-                  key={l}
-                  className="aurora-panel aurora-card-hover px-4 py-3"
-                  style={{
-                    background: `linear-gradient(160deg, color-mix(in oklab, var(--aurora-${t}) 18%, var(--card)), color-mix(in oklab, var(--card) 70%, transparent))`,
-                  }}
-                >
-                  <div className="font-display text-2xl font-bold tabular-nums tracking-tight">{v}</div>
-                  <div className="font-mono mt-0.5 text-[10px] uppercase tracking-widest text-muted-foreground">
-                    {l}
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
 
-          {/* Mascot hero */}
-          <div className="relative mx-auto hidden shrink-0 lg:block">
-            <div
-              aria-hidden
-              className="absolute inset-0 -z-10 animate-pulse rounded-full blur-3xl"
-              style={{
-                background:
-                  "radial-gradient(circle, color-mix(in oklab, var(--aurora-pink) 55%, transparent), transparent 70%)",
-              }}
-            />
-            <Mascot variant="hero" size={340} glow className="animate-[float_5s_ease-in-out_infinite]" />
-          </div>
-        </section>
-
-        {/* Features */}
-        <section id="modulos" className="mt-28 sm:mt-40">
-          <div className="mb-10 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-end">
-            <div>
-              <span className="aurora-pill mb-3 inline-flex items-center gap-1.5">
-                <Sparkles className="size-3 text-[var(--aurora-cyan)]" />
-                tudo num bot só
-              </span>
-              <h2 className="font-display text-3xl font-bold tracking-tight sm:text-4xl">
-                Pare de instalar <span className="aurora-gradient-text">seis bots</span>.
-              </h2>
-            </div>
-            <p className="max-w-sm text-sm text-muted-foreground">
-              O Zenox cobre o stack inteiro do seu servidor — e fica bonito enquanto faz isso.
-            </p>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((f) => {
-              const Icon = f.icon;
-              return (
-                <article
-                  key={f.title}
-                  className="aurora-panel aurora-card-hover group relative overflow-hidden p-6"
-                  style={{
-                    background: `linear-gradient(160deg, color-mix(in oklab, var(--aurora-${f.tone}) 14%, var(--card)), color-mix(in oklab, var(--card) 70%, transparent))`,
-                  }}
-                >
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute -right-10 -top-10 size-32 rounded-full opacity-50 blur-3xl transition-transform duration-500 group-hover:scale-125"
-                    style={{
-                      background: `radial-gradient(circle, color-mix(in oklab, var(--aurora-${f.tone}) 75%, transparent), transparent 70%)`,
-                    }}
-                  />
-                  <div className="relative">
-                    <div
-                      className="mb-5 flex size-11 items-center justify-center rounded-2xl text-foreground/90"
-                      style={{
-                        background: `linear-gradient(135deg, color-mix(in oklab, var(--aurora-${f.tone}) 45%, transparent), color-mix(in oklab, var(--aurora-pink) 22%, transparent))`,
-                        boxShadow: "inset 0 1px 0 color-mix(in oklab, white 30%, transparent)",
-                      }}
-                    >
-                      <Icon className="size-5" />
-                    </div>
-                    <h3 className="font-display text-lg font-bold">{f.title}</h3>
-                    <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{f.desc}</p>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="mt-28 sm:mt-36">
-          <div className="aurora-panel relative overflow-hidden p-8 sm:p-12">
-            <span
-              aria-hidden
-              className="pointer-events-none absolute -right-20 -top-24 size-80 rounded-full opacity-60 blur-3xl"
-              style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--aurora-pink) 70%, transparent), transparent 70%)" }}
-            />
-            <span
-              aria-hidden
-              className="pointer-events-none absolute -left-20 bottom-[-100px] size-80 rounded-full opacity-50 blur-3xl"
-              style={{ background: "radial-gradient(circle, color-mix(in oklab, var(--aurora-cyan) 70%, transparent), transparent 70%)" }}
-            />
-            <div className="relative flex flex-col items-center gap-6 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-center gap-5">
-                <Mascot variant="celebrate" size={110} glow className="shrink-0 animate-[float_4s_ease-in-out_infinite]" />
-                <div>
-                  <h3 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
-                    Pronto pra subir o nível?
-                  </h3>
-                  <p className="mt-1.5 max-w-md text-sm text-muted-foreground">
-                    Login com Discord. Configuração em minutos. Sem cartão de crédito.
-                  </p>
-                </div>
+          <div className="relative flex justify-center lg:w-[40%]">
+            <div className="relative aspect-square w-full max-w-md">
+              <div className="absolute inset-0 animate-pulse rounded-full bg-gradient-to-tr from-[#FF5FB4]/20 to-[#3FE0FF]/20 blur-3xl" />
+              <div className="relative z-10 flex size-full rotate-3 items-center justify-center">
+                <Mascot variant="hero" size={420} glow />
               </div>
+              <div className="absolute -right-4 -top-4 rotate-12 rounded-2xl border-2 border-[#10121F] bg-[#FFE25F] p-4 font-['Plus_Jakarta_Sans'] font-bold text-[#10121F] shadow-xl">
+                Premium ✨
+              </div>
+              <div className="absolute -left-6 bottom-10 -rotate-6 rounded-2xl border-2 border-[#10121F] bg-[#3FE0FF] p-4 font-['Plus_Jakarta_Sans'] font-bold text-[#10121F] shadow-xl">
+                Vibe Neon
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats */}
+      <section className="px-6 py-12">
+        <div className="mx-auto flex max-w-7xl flex-wrap justify-between gap-6 border-y border-white/5 py-12">
+          {[
+            ["80+", "comandos slash", "#3FE0FF"],
+            ["13", "módulos", "#FF5FB4"],
+            ["99.9%", "uptime", "#9D5BFF"],
+            ["<80ms", "latência", "#FFE25F"],
+          ].map(([v, l, c]) => (
+            <div key={l} className="flex flex-col">
+              <span className="font-['Plus_Jakarta_Sans'] text-4xl font-extrabold" style={{ color: c }}>{v}</span>
+              <span className="mt-1 text-xs font-bold uppercase tracking-widest text-gray-500">{l}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Modules */}
+      <section id="modulos" className="mx-auto max-w-7xl px-6 py-24">
+        <div className="mb-20">
+          <h2 className="mb-4 font-['Plus_Jakarta_Sans'] text-4xl font-extrabold tracking-tight md:text-5xl">
+            Tudo num <span className="text-[#9D5BFF]">bot só.</span>
+          </h2>
+          <p className="text-gray-400">
+            Pare de instalar seis bots. O Zenox cobre o stack inteiro do seu servidor.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2 lg:grid-cols-3">
+          {modules.map((m) => {
+            const t = TONES[m.tone];
+            const Icon = m.icon;
+            return (
+              <article
+                key={m.n}
+                className={`rounded-[2.5rem] border border-white/10 bg-white/5 p-8 transition-all duration-300 ${t.border} ${m.offset} hover:-translate-y-1`}
+              >
+                <div className={`mb-6 flex size-12 items-center justify-center rounded-2xl ${t.bgSoft} ${t.text} font-bold`}>
+                  <Icon className="size-5" />
+                </div>
+                <h3 className="mb-3 font-['Plus_Jakarta_Sans'] text-xl font-bold">{m.title}</h3>
+                <p className="text-sm leading-relaxed text-gray-400">{m.desc}</p>
+                <span className="mt-4 inline-block font-mono text-[10px] font-bold uppercase tracking-widest text-gray-600">
+                  módulo {m.n}
+                </span>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="px-6 py-32">
+        <div className="mx-auto max-w-6xl items-center rounded-[3rem] bg-gradient-to-br from-[#9D5BFF] via-[#FF5FB4] to-[#3FE0FF] p-1">
+          <div className="relative flex flex-col items-center gap-12 overflow-hidden rounded-[2.9rem] bg-[#10121F] p-12 md:flex-row md:p-20">
+            <div className="absolute right-0 top-0 size-64 bg-[#3FE0FF]/10 blur-3xl" />
+            <div className="relative z-10 flex-1 space-y-8">
+              <h2 className="font-['Plus_Jakarta_Sans'] text-4xl font-extrabold tracking-tight md:text-6xl">
+                Pronto para levar seu server ao topo?
+              </h2>
               <a
                 href="/api/auth/discord/login"
                 onClick={startDiscordLogin}
-                className="aurora-cta inline-flex items-center gap-2 rounded-full px-7 py-3.5 text-sm font-semibold text-background shadow-[0_14px_40px_-12px_color-mix(in_oklab,var(--aurora-pink)_70%,transparent)] transition hover:scale-[1.03]"
-                style={{ background: "var(--gradient-aurora)" }}
+                className="inline-block rounded-2xl bg-[#FF5FB4] px-10 py-5 text-xl font-bold text-white shadow-[0_15px_45px_-10px_rgba(255,95,180,0.6)] transition-all hover:scale-105"
               >
-                <Wand2 className="size-4" />
-                Adicionar Zenox
-                <ArrowUpRight className="size-4" />
+                Adicionar o Zenox agora
               </a>
             </div>
+            <div className="relative size-48 flex-shrink-0 md:size-64">
+              <Mascot variant="celebrate" size={260} glow className="transition-transform hover:scale-110" />
+            </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Footer */}
-        <footer className="mt-20 flex flex-col items-start justify-between gap-4 border-t border-border/40 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
-          <span className="inline-flex items-center gap-1.5">
-            Feito com <Heart className="size-3 text-[var(--aurora-pink)]" /> · © {new Date().getFullYear()} Zenox
-          </span>
-          <div className="flex items-center gap-4">
-            <Link to="/comandos" className="hover:text-foreground">Comandos</Link>
-            <Link to="/servidores" className="hover:text-foreground">Dashboard</Link>
-            <a href="#modulos" className="hover:text-foreground">Módulos</a>
+      {/* Footer */}
+      <footer className="border-t border-white/5 px-6 py-20">
+        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-12 md:flex-row">
+          <div className="space-y-6">
+            <div className="flex items-center gap-2">
+              <div className="size-8 rounded-lg bg-gradient-to-tr from-[#FF5FB4] to-[#9D5BFF]" />
+              <span className="font-['Plus_Jakarta_Sans'] text-xl font-bold">Zenox</span>
+            </div>
+            <p className="max-w-xs text-sm text-gray-500">
+              O bot que redefine a experiência do seu servidor Discord com estilo e potência.
+            </p>
           </div>
-        </footer>
-      </div>
-    </main>
-  );
-}
-
-function FloatingSparkles() {
-  const sparkles = [
-    { left: "8%", top: "18%", size: 14, delay: "0s", tone: "pink" },
-    { left: "22%", top: "62%", size: 10, delay: "1.2s", tone: "cyan" },
-    { left: "78%", top: "12%", size: 16, delay: "0.6s", tone: "lavender" },
-    { left: "88%", top: "48%", size: 12, delay: "2s", tone: "mint" },
-    { left: "55%", top: "82%", size: 14, delay: "1.6s", tone: "peach" },
-    { left: "38%", top: "8%", size: 9, delay: "2.4s", tone: "pink" },
-  ];
-  return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-      {sparkles.map((s, i) => (
-        <span
-          key={i}
-          className="absolute animate-[twinkle_3.5s_ease-in-out_infinite]"
-          style={{
-            left: s.left,
-            top: s.top,
-            width: s.size,
-            height: s.size,
-            animationDelay: s.delay,
-            color: `var(--aurora-${s.tone})`,
-            filter: `drop-shadow(0 0 8px color-mix(in oklab, var(--aurora-${s.tone}) 80%, transparent))`,
-          }}
-        >
-          <svg viewBox="0 0 24 24" fill="currentColor" className="size-full">
-            <path d="M12 0l2.4 9.6L24 12l-9.6 2.4L12 24l-2.4-9.6L0 12l9.6-2.4z" />
-          </svg>
-        </span>
-      ))}
+          <div className="grid grid-cols-2 gap-12 md:grid-cols-3">
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400">Links</h4>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li><Link to="/servidores" className="hover:text-[#3FE0FF]">Dashboard</Link></li>
+                <li><Link to="/comandos" className="hover:text-[#3FE0FF]">Comandos</Link></li>
+                <li><a href="#modulos" className="hover:text-[#3FE0FF]">Módulos</a></li>
+              </ul>
+            </div>
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400">Suporte</h4>
+              <ul className="space-y-2 text-sm text-gray-500">
+                <li><a href="#" className="hover:text-[#FF5FB4]">Servidor de suporte</a></li>
+                <li><a href="#" className="hover:text-[#FF5FB4]">Termos</a></li>
+                <li><a href="#" className="hover:text-[#FF5FB4]">Privacidade</a></li>
+              </ul>
+            </div>
+            <div className="space-y-4">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-gray-400">Social</h4>
+              <div className="flex gap-4">
+                <a href="#" className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/5 transition-colors hover:bg-white/10" aria-label="Twitter" />
+                <a href="#" className="flex size-8 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-white/5 transition-colors hover:bg-white/10" aria-label="Discord" />
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="mx-auto mt-20 max-w-7xl border-t border-white/5 pt-8 text-center text-xs font-bold uppercase tracking-widest text-gray-600">
+          © {new Date().getFullYear()} Zenox Bot • Feito com ❤ no Brasil
+        </div>
+      </footer>
     </div>
   );
 }

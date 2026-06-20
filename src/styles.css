@@ -152,13 +152,40 @@
   --premium-gold: oklch(0.82 0.16 85);
   --premium-amber: oklch(0.75 0.18 60);
   --premium-deep: oklch(0.55 0.18 45);
-  --cyber-cyan: oklch(0.86 0.18 195);
-  --cyber-magenta: oklch(0.7 0.28 340);
-  --cyber-violet: oklch(0.66 0.24 285);
-  --cyber-lime: oklch(0.82 0.21 145);
-  --cyber-surface: color-mix(in oklab, var(--card) 74%, transparent);
-  --cyber-line: color-mix(in oklab, var(--cyber-cyan) 30%, var(--border));
-  --shadow-cyber: 0 18px 60px -34px var(--cyber-cyan), 0 0 32px -22px var(--cyber-magenta);
+
+  /* ===== Aurora pastel mágico ===== */
+  --aurora-lavender: oklch(0.78 0.13 295);
+  --aurora-cyan: oklch(0.86 0.10 210);
+  --aurora-pink: oklch(0.86 0.09 350);
+  --aurora-mint: oklch(0.88 0.10 165);
+  --aurora-peach: oklch(0.88 0.08 60);
+  --aurora-deep: oklch(0.32 0.12 285);
+
+  /* legacy cyber tokens still referenced by older components */
+  --cyber-cyan: var(--aurora-cyan);
+  --cyber-magenta: var(--aurora-pink);
+  --cyber-violet: var(--aurora-lavender);
+  --cyber-lime: var(--aurora-mint);
+  --cyber-surface: color-mix(in oklab, var(--card) 72%, transparent);
+  --cyber-line: color-mix(in oklab, var(--aurora-lavender) 28%, var(--border));
+
+  --gradient-aurora: linear-gradient(
+    120deg,
+    color-mix(in oklab, var(--aurora-lavender) 70%, white 0%) 0%,
+    color-mix(in oklab, var(--aurora-cyan) 70%, white 0%) 35%,
+    color-mix(in oklab, var(--aurora-pink) 70%, white 0%) 70%,
+    color-mix(in oklab, var(--aurora-peach) 70%, white 0%) 100%
+  );
+  --gradient-aurora-soft: linear-gradient(
+    135deg,
+    color-mix(in oklab, var(--aurora-lavender) 18%, transparent),
+    color-mix(in oklab, var(--aurora-cyan) 14%, transparent) 45%,
+    color-mix(in oklab, var(--aurora-pink) 16%, transparent)
+  );
+  --shadow-aurora: 0 30px 80px -40px color-mix(in oklab, var(--aurora-lavender) 70%, transparent),
+                   0 10px 40px -24px color-mix(in oklab, var(--aurora-pink) 60%, transparent);
+  --shadow-cyber: var(--shadow-aurora);
+
   --gradient-premium: linear-gradient(
     135deg,
     var(--premium-amber) 0%,
@@ -190,84 +217,141 @@
   filter: drop-shadow(0 0 6px color-mix(in oklab, var(--premium-gold) 60%, transparent));
 }
 
-/* ===== Cyber dashboard system ===== */
+/* ===== Aurora shell ===== */
 .font-display {
-  font-family: ui-monospace, "SFMono-Regular", "Cascadia Code", "Roboto Mono", monospace;
-  letter-spacing: 0;
+  font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: -0.01em;
 }
 
-.cyber-shell {
+.aurora-shell {
   position: relative;
   overflow: hidden;
   background:
-    linear-gradient(180deg, color-mix(in oklab, var(--background) 86%, var(--cyber-violet) 14%), var(--background) 46%),
-    radial-gradient(circle at 12% 8%, color-mix(in oklab, var(--cyber-cyan) 18%, transparent), transparent 30%),
-    radial-gradient(circle at 88% 22%, color-mix(in oklab, var(--cyber-magenta) 14%, transparent), transparent 34%);
+    radial-gradient(ellipse 80% 60% at 18% 8%, color-mix(in oklab, var(--aurora-lavender) 30%, transparent), transparent 60%),
+    radial-gradient(ellipse 70% 55% at 86% 18%, color-mix(in oklab, var(--aurora-cyan) 26%, transparent), transparent 60%),
+    radial-gradient(ellipse 65% 60% at 50% 100%, color-mix(in oklab, var(--aurora-pink) 24%, transparent), transparent 60%),
+    var(--background);
 }
 
-.cyber-grid-bg::before {
+.aurora-shell::before {
   content: "";
   position: fixed;
   inset: 0;
   pointer-events: none;
-  opacity: 0.28;
-  background-image:
-    linear-gradient(color-mix(in oklab, var(--cyber-cyan) 16%, transparent) 1px, transparent 1px),
-    linear-gradient(90deg, color-mix(in oklab, var(--cyber-cyan) 16%, transparent) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: linear-gradient(to bottom, black, transparent 76%);
-}
-
-.cyber-panel {
-  border: 1px solid var(--cyber-line);
-  background: linear-gradient(145deg, var(--cyber-surface), color-mix(in oklab, var(--card) 42%, transparent));
-  box-shadow: var(--shadow-cyber);
-  backdrop-filter: blur(18px);
-}
-
-.cyber-card-hover {
-  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
-}
-
-.cyber-card-hover:hover {
-  transform: translateY(-2px);
-  border-color: color-mix(in oklab, var(--cyber-cyan) 62%, var(--border));
-  box-shadow: 0 18px 48px -34px var(--cyber-cyan), 0 0 28px -20px var(--cyber-magenta);
-}
-
-.cyber-scanline {
-  position: relative;
-}
-
-.cyber-scanline::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0,
-    transparent 6px,
-    color-mix(in oklab, var(--foreground) 4%, transparent) 7px
+  z-index: 0;
+  background: conic-gradient(
+    from 200deg at 70% 30%,
+    color-mix(in oklab, var(--aurora-lavender) 22%, transparent),
+    color-mix(in oklab, var(--aurora-pink) 18%, transparent),
+    color-mix(in oklab, var(--aurora-cyan) 22%, transparent),
+    color-mix(in oklab, var(--aurora-lavender) 22%, transparent)
   );
-  opacity: 0.45;
+  filter: blur(120px);
+  opacity: 0.55;
+  animation: aurora-drift 24s ease-in-out infinite alternate;
 }
 
+@keyframes aurora-drift {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50%  { transform: translate3d(-4%, 2%, 0) rotate(8deg); }
+  100% { transform: translate3d(3%, -3%, 0) rotate(-6deg); }
+}
+
+.aurora-panel {
+  position: relative;
+  border: 1px solid color-mix(in oklab, var(--aurora-lavender) 32%, var(--border));
+  background:
+    linear-gradient(160deg,
+      color-mix(in oklab, var(--card) 78%, transparent),
+      color-mix(in oklab, var(--card) 55%, transparent));
+  box-shadow: var(--shadow-aurora);
+  backdrop-filter: blur(22px) saturate(140%);
+  border-radius: 1.25rem;
+}
+
+.aurora-card-hover {
+  transition: transform 220ms cubic-bezier(.22,.61,.36,1),
+              border-color 220ms ease,
+              box-shadow 220ms ease;
+}
+.aurora-card-hover:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in oklab, var(--aurora-pink) 50%, var(--border));
+  box-shadow: 0 36px 80px -40px color-mix(in oklab, var(--aurora-pink) 60%, transparent),
+              0 12px 40px -22px color-mix(in oklab, var(--aurora-lavender) 55%, transparent);
+}
+
+.aurora-text {
+  background: var(--gradient-aurora);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.aurora-glow-dot {
+  background: var(--aurora-mint);
+  box-shadow: 0 0 14px color-mix(in oklab, var(--aurora-mint) 80%, transparent);
+  animation: aurora-pulse 2s ease-in-out infinite;
+}
+
+@keyframes aurora-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(0.92); }
+  50%      { opacity: 1;   transform: scale(1.1); }
+}
+
+/* mascote peek (sai de trás ao hover) */
+.mascot-peek {
+  transform: translateX(-65%) rotate(-8deg);
+  transition: transform 320ms cubic-bezier(.34,1.56,.64,1);
+}
+.mascot-peek-trigger:hover .mascot-peek,
+.mascot-peek-trigger:focus-visible .mascot-peek {
+  transform: translateX(-10%) rotate(0deg);
+}
+
+/* Legacy cyber-* aliases for components not yet migrated */
+/* Legacy cyber-* class aliases (duplicate selectors keep older components working) */
+.cyber-shell { position: relative; overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 18% 8%, color-mix(in oklab, var(--aurora-lavender) 30%, transparent), transparent 60%),
+    radial-gradient(ellipse 70% 55% at 86% 18%, color-mix(in oklab, var(--aurora-cyan) 26%, transparent), transparent 60%),
+    radial-gradient(ellipse 65% 60% at 50% 100%, color-mix(in oklab, var(--aurora-pink) 24%, transparent), transparent 60%),
+    var(--background);
+}
+.cyber-panel {
+  border: 1px solid color-mix(in oklab, var(--aurora-lavender) 32%, var(--border));
+  background:
+    linear-gradient(160deg,
+      color-mix(in oklab, var(--card) 78%, transparent),
+      color-mix(in oklab, var(--card) 55%, transparent));
+  box-shadow: var(--shadow-aurora);
+  backdrop-filter: blur(22px) saturate(140%);
+  border-radius: 1.25rem;
+}
+.cyber-card-hover {
+  transition: transform 220ms cubic-bezier(.22,.61,.36,1), border-color 220ms ease, box-shadow 220ms ease;
+}
+.cyber-card-hover:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in oklab, var(--aurora-pink) 50%, var(--border));
+  box-shadow: 0 36px 80px -40px color-mix(in oklab, var(--aurora-pink) 60%, transparent),
+              0 12px 40px -22px color-mix(in oklab, var(--aurora-lavender) 55%, transparent);
+}
 .cyber-pulse-dot {
-  background: var(--cyber-lime);
-  box-shadow: 0 0 14px var(--cyber-lime);
-  animation: cyber-pulse 1.9s ease-in-out infinite;
+  background: var(--aurora-mint);
+  box-shadow: 0 0 14px color-mix(in oklab, var(--aurora-mint) 80%, transparent);
+  animation: aurora-pulse 2s ease-in-out infinite;
 }
+.cyber-grid-bg::before { content: none; }
+.cyber-scanline::after { content: none; }
 
-@keyframes cyber-pulse {
-  0%, 100% { opacity: 0.55; transform: scale(0.92); }
-  50% { opacity: 1; transform: scale(1.08); }
-}
 
 @media (prefers-reduced-motion: reduce) {
-  .cyber-pulse-dot,
-  .cyber-card-hover {
+  .aurora-shell::before,
+  .aurora-glow-dot,
+  .aurora-card-hover {
     animation: none;
     transition: none;
   }
 }
+

@@ -15,6 +15,7 @@ import { Route as ComandosRouteImport } from './routes/comandos'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedServidoresRouteImport } from './routes/_authenticated/servidores'
+import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as ApiPublicBotGuildPresenceRouteImport } from './routes/api/public/bot-guild-presence'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
 import { Route as AuthenticatedGGuildIdRouteImport } from './routes/_authenticated/g.$guildId'
@@ -72,6 +73,12 @@ const AuthenticatedServidoresRoute = AuthenticatedServidoresRouteImport.update({
   path: '/servidores',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedDashboardIndexRoute =
+  AuthenticatedDashboardIndexRouteImport.update({
+    id: '/dashboard/',
+    path: '/dashboard/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const ApiPublicBotGuildPresenceRoute =
   ApiPublicBotGuildPresenceRouteImport.update({
     id: '/api/public/bot-guild-presence',
@@ -241,6 +248,7 @@ export interface FileRoutesByFullPath {
   '/g/$guildId': typeof AuthenticatedGGuildIdRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/public/bot-guild-presence': typeof ApiPublicBotGuildPresenceRoute
+  '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/$guildId/$': typeof AuthenticatedDashboardGuildIdSplatRoute
   '/g/$guildId/assets': typeof AuthenticatedGGuildIdAssetsRoute
   '/g/$guildId/automod': typeof AuthenticatedGGuildIdAutomodRoute
@@ -274,6 +282,7 @@ export interface FileRoutesByTo {
   '/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/public/bot-guild-presence': typeof ApiPublicBotGuildPresenceRoute
+  '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/$guildId/$': typeof AuthenticatedDashboardGuildIdSplatRoute
   '/g/$guildId/assets': typeof AuthenticatedGGuildIdAssetsRoute
   '/g/$guildId/automod': typeof AuthenticatedGGuildIdAutomodRoute
@@ -310,6 +319,7 @@ export interface FileRoutesById {
   '/_authenticated/g/$guildId': typeof AuthenticatedGGuildIdRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/public/bot-guild-presence': typeof ApiPublicBotGuildPresenceRoute
+  '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/dashboard/$guildId/$': typeof AuthenticatedDashboardGuildIdSplatRoute
   '/_authenticated/g/$guildId/assets': typeof AuthenticatedGGuildIdAssetsRoute
   '/_authenticated/g/$guildId/automod': typeof AuthenticatedGGuildIdAutomodRoute
@@ -346,6 +356,7 @@ export interface FileRouteTypes {
     | '/g/$guildId'
     | '/api/auth/logout'
     | '/api/public/bot-guild-presence'
+    | '/dashboard/'
     | '/dashboard/$guildId/$'
     | '/g/$guildId/assets'
     | '/g/$guildId/automod'
@@ -379,6 +390,7 @@ export interface FileRouteTypes {
     | '/admin/premium'
     | '/api/auth/logout'
     | '/api/public/bot-guild-presence'
+    | '/dashboard'
     | '/dashboard/$guildId/$'
     | '/g/$guildId/assets'
     | '/g/$guildId/automod'
@@ -414,6 +426,7 @@ export interface FileRouteTypes {
     | '/_authenticated/g/$guildId'
     | '/api/auth/logout'
     | '/api/public/bot-guild-presence'
+    | '/_authenticated/dashboard/'
     | '/_authenticated/dashboard/$guildId/$'
     | '/_authenticated/g/$guildId/assets'
     | '/_authenticated/g/$guildId/automod'
@@ -493,6 +506,13 @@ declare module '@tanstack/react-router' {
       path: '/servidores'
       fullPath: '/servidores'
       preLoaderRoute: typeof AuthenticatedServidoresRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dashboard/': {
+      id: '/_authenticated/dashboard/'
+      path: '/dashboard'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof AuthenticatedDashboardIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/api/public/bot-guild-presence': {
@@ -744,6 +764,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedServidoresRoute: typeof AuthenticatedServidoresRoute
   AuthenticatedAdminPremiumRoute: typeof AuthenticatedAdminPremiumRoute
   AuthenticatedGGuildIdRoute: typeof AuthenticatedGGuildIdRouteWithChildren
+  AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
   AuthenticatedDashboardGuildIdSplatRoute: typeof AuthenticatedDashboardGuildIdSplatRoute
 }
 
@@ -751,6 +772,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedServidoresRoute: AuthenticatedServidoresRoute,
   AuthenticatedAdminPremiumRoute: AuthenticatedAdminPremiumRoute,
   AuthenticatedGGuildIdRoute: AuthenticatedGGuildIdRouteWithChildren,
+  AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
   AuthenticatedDashboardGuildIdSplatRoute:
     AuthenticatedDashboardGuildIdSplatRoute,
 }

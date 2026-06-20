@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Smile, Trash2 } from "lucide-react";
+import { Plus, Smile, Trash2, Sparkles } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   addReactionRole,
@@ -11,9 +11,14 @@ import {
   removeReactionRole,
 } from "@/lib/guild/modules.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
+import {
+  AuroraSection,
+  AuroraStatCard,
+  AuroraField,
+} from "@/components/dashboard/aurora-ui";
+import { Mascot } from "@/components/Mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -40,6 +45,13 @@ export const Route = createFileRoute(
   },
   component: ReactionRolesPage,
 });
+
+const MODE_LABEL: Record<string, string> = {
+  toggle: "Toggle",
+  add: "Apenas adicionar",
+  remove: "Apenas remover",
+  unique: "Único",
+};
 
 function ReactionRolesPage() {
   const { user } = Route.useLoaderData();
@@ -75,43 +87,83 @@ function ReactionRolesPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["rr", guildId] }),
   });
 
+  const uniqueMessages = new Set((rows as any[]).map((r) => r.message_id)).size;
+
   return (
     <ModuleLayout
       guildId={guildId}
       user={user}
       icon={Smile}
       title="Cargos por reação"
-      description="Vincule emojis a cargos numa mensagem específica."
+      description="Vincule emojis a cargos em mensagens específicas. Pura magia."
     >
+      <div
+        className="aurora-panel relative mb-5 overflow-hidden p-5 sm:p-6"
+        style={{
+          background:
+            "linear-gradient(135deg, color-mix(in oklab, var(--aurora-peach) 18%, var(--card)), color-mix(in oklab, var(--aurora-pink) 14%, var(--card)))",
+        }}
+      >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -right-12 -top-12 size-44 rounded-full blur-3xl opacity-60"
+          style={{
+            background:
+              "radial-gradient(circle, color-mix(in oklab, var(--aurora-peach) 70%, transparent), transparent 70%)",
+          }}
+        />
+        <div className="relative flex items-center gap-4">
+          <Mascot variant={rows.length > 0 ? "celebrate" : "hero"} size={84} glow />
+          <div className="min-w-0">
+            <h2 className="font-display text-lg font-bold tracking-tight sm:text-xl">
+              Reaja, receba, encante
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {rows.length === 0
+                ? "Crie sua primeira vinculação emoji → cargo."
+                : `${rows.length} vinculaç${rows.length === 1 ? "ão" : "ões"} ativa${rows.length === 1 ? "" : "s"}.`}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-5 grid gap-3 sm:grid-cols-2">
+        <AuroraStatCard label="Reaction roles" value={rows.length} icon={Smile} tone="peach" />
+        <AuroraStatCard label="Mensagens" value={uniqueMessages} icon={Sparkles} tone="pink" />
+      </div>
+
       <div className="space-y-4">
-        <div className="rounded-2xl border border-border bg-card p-5">
-          <h3 className="mb-4 text-sm font-semibold">Adicionar</h3>
+        <AuroraSection title="Adicionar nova" icon={Plus} tone="peach">
           <div className="grid gap-3 sm:grid-cols-2">
-            <Field label="ID do canal">
+            <AuroraField label="ID do canal">
               <Input
                 value={form.channel_id}
                 onChange={(e) => setForm({ ...form, channel_id: e.target.value.trim() })}
+                placeholder="123456789012345678"
               />
-            </Field>
-            <Field label="ID da mensagem">
+            </AuroraField>
+            <AuroraField label="ID da mensagem">
               <Input
                 value={form.message_id}
                 onChange={(e) => setForm({ ...form, message_id: e.target.value.trim() })}
+                placeholder="123456789012345678"
               />
-            </Field>
-            <Field label="Emoji (unicode ou <:nome:id>)">
+            </AuroraField>
+            <AuroraField label="Emoji" hint="Unicode (🎉) ou customizado <:nome:id>">
               <Input
                 value={form.emoji}
                 onChange={(e) => setForm({ ...form, emoji: e.target.value })}
+                placeholder="🎉"
               />
-            </Field>
-            <Field label="ID do cargo">
+            </AuroraField>
+            <AuroraField label="ID do cargo">
               <Input
                 value={form.role_id}
                 onChange={(e) => setForm({ ...form, role_id: e.target.value.trim() })}
+                placeholder="123456789012345678"
               />
-            </Field>
-            <Field label="Modo">
+            </AuroraField>
+            <AuroraField label="Modo">
               <Select
                 value={form.mode}
                 onValueChange={(v) => setForm({ ...form, mode: v as typeof form.mode })}
@@ -126,9 +178,9 @@ function ReactionRolesPage() {
                   <SelectItem value="unique">Único (só um da mensagem)</SelectItem>
                 </SelectContent>
               </Select>
-            </Field>
+            </AuroraField>
           </div>
-          <div className="mt-4 flex justify-end">
+          <div className="flex justify-end">
             <Button
               onClick={() => add.mutate()}
               disabled={
@@ -140,26 +192,41 @@ function ReactionRolesPage() {
               }
             >
               <Plus className="mr-1.5 size-4" />
-              Criar
+              Criar vinculação
             </Button>
           </div>
-        </div>
+        </AuroraSection>
 
-        <div className="rounded-2xl border border-border bg-card">
+        <AuroraSection title="Vinculações ativas" icon={Smile} tone="pink">
           {rows.length === 0 ? (
-            <p className="p-6 text-center text-sm text-muted-foreground">
-              Nenhuma reaction role configurada.
-            </p>
+            <div className="flex flex-col items-center gap-2 py-6 text-center">
+              <Mascot variant="sleeping" size={72} />
+              <p className="text-sm text-muted-foreground">
+                Nada por aqui ainda. Crie a primeira acima.
+              </p>
+            </div>
           ) : (
-            <ul className="divide-y divide-border">
-              {rows.map((r: any) => (
-                <li key={r.id} className="flex items-center justify-between px-5 py-3">
+            <ul className="space-y-2">
+              {(rows as any[]).map((r) => (
+                <li
+                  key={r.id}
+                  className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card/40 px-4 py-3 transition hover:border-[color:color-mix(in_oklab,var(--aurora-peach)_45%,var(--border))]"
+                >
                   <div className="flex items-center gap-3">
-                    <span className="text-xl">{r.emoji}</span>
-                    <div>
-                      <p className="font-mono text-sm">{r.role_id}</p>
+                    <span
+                      className="flex size-10 items-center justify-center rounded-xl text-xl"
+                      style={{
+                        background:
+                          "linear-gradient(135deg, color-mix(in oklab, var(--aurora-peach) 30%, transparent), color-mix(in oklab, var(--aurora-pink) 20%, transparent))",
+                      }}
+                    >
+                      {r.emoji}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="font-mono text-sm">@{r.role_id}</p>
                       <p className="text-xs text-muted-foreground">
-                        msg {r.message_id} · modo {r.mode}
+                        msg <span className="font-mono">{r.message_id}</span> ·{" "}
+                        <span className="text-foreground/80">{MODE_LABEL[r.mode] ?? r.mode}</span>
                       </p>
                     </div>
                   </div>
@@ -170,17 +237,8 @@ function ReactionRolesPage() {
               ))}
             </ul>
           )}
-        </div>
+        </AuroraSection>
       </div>
     </ModuleLayout>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <Label className="text-xs">{label}</Label>
-      {children}
-    </div>
   );
 }

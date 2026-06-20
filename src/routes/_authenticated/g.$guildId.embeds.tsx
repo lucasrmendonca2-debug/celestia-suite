@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { FileCode2, Plus, Save, Trash2 } from "lucide-react";
+import { FileCode2, Plus, Save, Trash2, Palette } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   listEmbedTemplates,
@@ -12,9 +12,14 @@ import {
 } from "@/lib/guild/modules.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
 import { EmbedEditor, type EmbedData } from "@/components/dashboard/EmbedEditor";
+import {
+  AuroraSection,
+  AuroraStatCard,
+  AuroraField,
+} from "@/components/dashboard/aurora-ui";
+import { Mascot } from "@/components/Mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/_authenticated/g/$guildId/embeds")({
   loader: async ({ context, params }) => {
@@ -82,7 +87,7 @@ function EmbedsPage() {
       user={user}
       icon={FileCode2}
       title="Embeds"
-      description="Templates de embeds reutilizáveis com editor visual e preview."
+      description="Templates de embeds reutilizáveis com editor visual e preview ao vivo."
       actions={
         <>
           <Button variant="outline" onClick={() => setSel(EMPTY)}>
@@ -95,45 +100,96 @@ function EmbedsPage() {
         </>
       }
     >
-      <div className="grid gap-4 lg:grid-cols-[260px_1fr]">
-        <aside className="rounded-2xl border border-border bg-card p-2">
-          {rows.length === 0 ? (
-            <p className="p-4 text-center text-xs text-muted-foreground">
-              Sem templates.
+      <div
+        className="aurora-panel relative mb-5 overflow-hidden p-5 sm:p-6"
+        style={{
+          background:
+            "linear-gradient(135deg, color-mix(in oklab, var(--aurora-pink) 18%, var(--card)), color-mix(in oklab, var(--aurora-peach) 14%, var(--card)))",
+        }}
+      >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -right-12 -top-12 size-44 rounded-full blur-3xl opacity-60"
+          style={{
+            background:
+              "radial-gradient(circle, color-mix(in oklab, var(--aurora-pink) 70%, transparent), transparent 70%)",
+          }}
+        />
+        <div className="relative flex items-center gap-4">
+          <Mascot variant="hero" size={84} glow />
+          <div className="min-w-0">
+            <h2 className="font-display text-lg font-bold tracking-tight sm:text-xl">
+              Designer de mensagens encantadas
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {rows.length === 0
+                ? "Crie seu primeiro embed e use-o em qualquer módulo."
+                : `${rows.length} template${rows.length === 1 ? "" : "s"} pront${rows.length === 1 ? "o" : "os"} para reaproveitar.`}
             </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-5 grid gap-3 sm:grid-cols-2">
+        <AuroraStatCard label="Templates" value={rows.length} icon={FileCode2} tone="pink" />
+        <AuroraStatCard
+          label="Em edição"
+          value={sel.id ? sel.name || "Sem nome" : "Novo"}
+          icon={Palette}
+          tone="peach"
+        />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
+        <AuroraSection title="Seus templates" icon={FileCode2} tone="pink">
+          {rows.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 py-4 text-center">
+              <Mascot variant="sleeping" size={64} />
+              <p className="text-xs text-muted-foreground">Nenhum template ainda.</p>
+            </div>
           ) : (
-            <ul className="space-y-0.5">
+            <ul className="space-y-1">
               {(rows as any[]).map((r) => (
                 <li key={r.id}>
                   <button
                     onClick={() => setSel({ id: r.id, name: r.name, embed: r.embed })}
-                    className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm ${
-                      sel.id === r.id ? "bg-primary/15" : "hover:bg-accent"
+                    className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition ${
+                      sel.id === r.id
+                        ? "bg-[color:color-mix(in_oklab,var(--aurora-pink)_22%,transparent)] text-foreground"
+                        : "hover:bg-[color:color-mix(in_oklab,var(--aurora-pink)_10%,transparent)]"
                     }`}
                   >
+                    <span
+                      className="size-3 shrink-0 rounded-full"
+                      style={{ background: r.embed?.color ?? "#5865F2" }}
+                    />
                     <span className="truncate">{r.name}</span>
                   </button>
                 </li>
               ))}
             </ul>
           )}
-        </aside>
+        </AuroraSection>
 
-        <section className="space-y-4">
-          <div className="rounded-2xl border border-border bg-card p-5">
-            <Label className="text-xs">Nome do template</Label>
-            <Input
-              className="mt-2"
-              value={sel.name}
-              maxLength={64}
-              onChange={(e) => setSel({ ...sel, name: e.target.value })}
-              placeholder="ex: aviso-staff"
+        <div className="space-y-4">
+          <AuroraSection title="Identificação" icon={Palette} tone="peach">
+            <AuroraField label="Nome do template" hint="Use kebab-case, ex: aviso-staff">
+              <Input
+                value={sel.name}
+                maxLength={64}
+                onChange={(e) => setSel({ ...sel, name: e.target.value })}
+                placeholder="ex: aviso-staff"
+              />
+            </AuroraField>
+          </AuroraSection>
+
+          <AuroraSection title="Editor visual" icon={FileCode2} tone="lavender">
+            <EmbedEditor
+              value={sel.embed}
+              onChange={(v) => setSel({ ...sel, embed: v })}
             />
-          </div>
-          <EmbedEditor
-            value={sel.embed}
-            onChange={(v) => setSel({ ...sel, embed: v })}
-          />
+          </AuroraSection>
+
           {sel.id && (
             <div className="flex justify-end">
               <Button variant="ghost" size="sm" onClick={() => del.mutate(sel.id!)}>
@@ -141,7 +197,7 @@ function EmbedsPage() {
               </Button>
             </div>
           )}
-        </section>
+        </div>
       </div>
     </ModuleLayout>
   );

@@ -9,7 +9,7 @@ const guildIdSchema = z.string().regex(/^\d{5,32}$/, "guild id inválido");
 const channelIdSchema = z.string().regex(/^\d{5,32}$/).nullable();
 
 async function admin() {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
   return supabaseAdmin;
 }
 

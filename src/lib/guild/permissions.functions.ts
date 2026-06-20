@@ -86,7 +86,7 @@ export const listDashboardPermissions = createServerFn({ method: "GET" })
   .handler(async ({ data }): Promise<DashboardPermissionRow[]> => {
     const { getActorAndAssertManager } = await import("./permissions-audit.server");
     await getActorAndAssertManager(data.guildId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
     const { data: rows, error } = await supabaseAdmin
       .from("dashboard_permissions")
       .select("id, guild_id, role_id, areas, updated_at")
@@ -106,7 +106,7 @@ export const upsertDashboardPermission = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { assertCanAccessArea, writeAudit } = await import("./permissions-audit.server");
     const actor = await assertCanAccessArea(data.guildId, "permissions");
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
     const { data: prev } = await supabaseAdmin
       .from("dashboard_permissions")
       .select("areas")
@@ -148,7 +148,7 @@ export const removeDashboardPermission = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { assertCanAccessArea, writeAudit } = await import("./permissions-audit.server");
     const actor = await assertCanAccessArea(data.guildId, "permissions");
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
     const { data: prev } = await supabaseAdmin
       .from("dashboard_permissions")
       .select("areas")
@@ -184,7 +184,7 @@ export const listAuditLog = createServerFn({ method: "GET" })
   .handler(async ({ data }): Promise<AuditEntry[]> => {
     const { getActorAndAssertManager } = await import("./permissions-audit.server");
     await getActorAndAssertManager(data.guildId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
     const { data: rows, error } = await supabaseAdmin
       .from("server_audit_logs")
       .select("id, guild_id, event, actor_id, actor_tag, target_id, before, after, metadata, created_at")

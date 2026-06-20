@@ -9,7 +9,7 @@ const snowflake = z.string().regex(/^\d{5,32}$/, "id inválido");
 const hexColor = z.string().regex(/^#[0-9a-fA-F]{6}$/, "cor inválida");
 
 async function admin() {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
   return supabaseAdmin;
 }
 async function perm(guildId: string) {

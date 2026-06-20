@@ -48,7 +48,7 @@ export const getGuildConfig = createServerFn({ method: "GET" })
   )
   .handler(async ({ data }): Promise<WelcomeConfig> => {
     await assertCanManage(data.guildId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
     const { data: row, error } = await supabaseAdmin
       .from("guild_configs")
       .select("*")
@@ -84,7 +84,7 @@ export const updateWelcomeConfig = createServerFn({ method: "POST" })
       "./permissions-audit.server"
     );
     const actor = await assertCanAccessArea(data.guildId, "welcome");
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
     const { data: prev } = await supabaseAdmin
       .from("guild_configs")
       .select("welcome_enabled, welcome_channel_id, welcome_message, welcome_embed_enabled, welcome_embed_color")

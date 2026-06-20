@@ -1,4 +1,4 @@
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { supabaseAdmin } from "@/lib/supabase-admin.server";
 import { getDiscordBotToken } from "@/lib/discord/bot-token.server";
 
 const DISCORD_API = "https://discord.com/api/v10";

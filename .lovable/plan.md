@@ -1,90 +1,71 @@
-# Plano — Pente-fino completo + Redesign Cyber
 
-Help bug já consertado neste turno (causa: `default: true` no select + `deferUpdate+editReply` ephemeral → trocado por `interaction.update()` atômico).
+# Reestruturação completa do Zenox
 
-## Parte A — Auditoria do bot (5–6 turnos)
+Tema: **Aurora Pastel Mágico** — fundo noturno `#1a1a2e`, lavanda `#a78bfa`, ciano `#67e8f9`, rosa `#fbcfe8`. Mascote (raposa mágica do bot) aparece em quase todas as telas.
 
-### A1. Varredura automática (1 turno)
-- Rodar `tsc --noEmit` no `bot/` e capturar TODOS erros TS.
-- Rodar `rg` em padrões problemáticos conhecidos:
-  - `interaction.reply` sem `ephemeral` em respostas de erro
-  - `deferReply` sem `editReply` correspondente
-  - `await interaction.reply` depois de `deferReply` (bug clássico)
-  - `findOne/findMany` sem `await`
-  - `process.env.X!` sem fallback
-  - `client.commands.get(...)` sem check de null
-- Gerar relatório em `bot/AUDIT.md`.
+## 1. Sistema visual global (`src/styles.css`)
 
-### A2. Categoria por categoria (4–5 turnos, ~2 categorias/turno)
-Ordem por criticidade:
-1. **moderation** (ban, kick, mute, warn, clear, lockdown) — perms, hierarquia de cargos, casos no DB
-2. **tickets** (open, close, claim, transcript) — race conditions, perms de canal
-3. **economy** (saldo, daily, work, shop, transfer, rank) — overflow, transações atômicas
-4. **level** (rank, leaderboard, setxp, rewards) — cálculo de XP, cargo por nível
-5. **fun + interaction** (memes, dados, hug, ship) — APIs externas (rate limit, timeout)
-6. **utility + events + config** (ping, help, giveaway, automod, welcome) — edge cases
+Substituir tokens atuais por paleta Aurora:
+- `--background: oklch(0.18 0.04 280)` (noite arroxeada)
+- `--primary: oklch(0.75 0.16 295)` (lavanda)
+- `--accent: oklch(0.85 0.12 200)` (ciano)
+- `--secondary: oklch(0.88 0.06 350)` (rosa)
+- Gradientes: `--gradient-aurora`, `--gradient-magic`
+- Sombras com glow lavanda/ciano: `--shadow-glow`, `--shadow-magic`
+- Fontes: **Outfit** (display) + **Figtree** (body), instaladas via `@fontsource`
+- Animações novas: `float`, `sparkle`, `aurora-shift`, `wiggle`, `glow-pulse`
 
-Para cada comando: typecheck → testar lógica → padronizar embeds (cor, footer, emoji) → garantir cooldown/perms → tratar erro de API externa → fallback de mensagem.
+## 2. Mascote (5 variações geradas)
 
-### A3. Sistemas compartilhados (1 turno)
-- `embed.ts` — padronizar `brandEmbed` com nova identidade cyber (cores hex `#00F5FF`, `#FF006E`, `#8338EC`)
-- `messages.ts` — tom Lorritta (carinhoso, divertido, brasileiro)
-- `registry/command.registry.ts` — garantir que metadata bate com comandos reais
-- `interactionCreate.ts` — guard global de erro (já tem, revisar)
+Gerar com `imagegen` em estilo coeso (raposa mágica pastel, olhos brilhantes):
+1. `mascot-hero.png` — acenando, pose principal landing
+2. `mascot-loading.png` — girando varinha
+3. `mascot-error.png` — confuso/triste com placa "ops"
+4. `mascot-404.png` — perdido com mapa
+5. `mascot-sleeping.png` — dormindo (easter egg)
+6. `mascot-celebrate.png` — com troféu/confete
 
-## Parte B — Redesign cyber/futurista do site (4–5 turnos)
+## 3. Landing page (`src/routes/index.tsx`)
 
-### B1. Design tokens + fontes (1 turno)
-- Atualizar `src/styles.css` com paleta cyber:
-  - `--background: oklch(0.08 0.02 270)` (preto azulado)
-  - `--primary: oklch(0.78 0.22 200)` (cyan #00F5FF)
-  - `--accent: oklch(0.65 0.30 350)` (rosa #FF006E)
-  - `--secondary: oklch(0.55 0.28 290)` (roxo #8338EC)
-  - Gradientes neon, glows, shadow-glow
-- Fontes: Orbitron (display) + Inter (body) via `<link>` no `__root.tsx`
+- Hero com mascote flutuando (`animate-float`), aurora gradiente animada de fundo, partículas mágicas, título com `bg-clip-text` gradiente
+- Seção features em bento grid com cards glassmorphism + glow no hover
+- Seção "como funciona" com mascote em cada passo
+- CTA final com mascote celebrando
+- Footer divertido
 
-### B2. Componentes animados (1 turno)
-Instalar `motion` (Framer Motion) + componentes MagicUI:
-- `Particles` (fundo)
-- `BorderBeam` (cards)
-- `ShimmerButton` (CTAs)
-- `MeteorShower` (hero)
-- `AuroraText` (títulos)
-- Scanlines CSS custom (efeito CRT)
+## 4. Dashboard (área logada)
 
-### B3. Redesign do dashboard (2 turnos)
-- `_authenticated.tsx` — sidebar com glow neon, transições suaves
-- `dashboard.index.tsx` — hero com partículas, cards de servidores com `BorderBeam`
-- `dashboard.$guildId.*.tsx` — refazer tabs com underline animado, micro-interações em hover
-- Loading states com skeleton glowy
-- Toasts neon
+- Sidebar redesenhada: mascote pequeno no topo, glow nos itens ativos, gradiente aurora sutil
+- Cards com glassmorphism (`backdrop-blur`, borda gradiente)
+- Loading states usam `mascot-loading` girando
+- Header com saudação dinâmica ("Boa noite, fulano ✨")
 
-### B4. Login + landing (1 turno)
-- `/login` — fundo animado, botão Discord com shimmer
-- `/` (landing) — hero impactante, features em bento grid neon
+## 5. Páginas de erro/loading
 
-## Parte C — Validação final (1 turno)
-- `tsc --noEmit` no projeto + bot (zero erros)
-- Smoke test do dashboard via Playwright (login → escolher servidor → trocar tab)
-- Conferir publish
+- `src/lib/error-page.ts` (página HTML estática SSR): redesenhar com mascote confuso, gradiente aurora, animações CSS inline, botão "voltar" estilizado
+- Componente `<MagicLoader />` reutilizável com mascote girando
+- 404 route com mascote perdido
+
+## 6. Easter eggs (bônus leve)
+
+- Konami code → mascote dormindo aparece no canto
+- Clicar 5x no logo → confete + som
+- Console.log com ASCII art do mascote
+
+## 7. Correção de navegação
+
+Manter o fix do `supabase-admin.server.ts` (já feito). Adicionar `errorComponent` consistente nas rotas `_authenticated/*` que ainda usam o erro genérico.
 
 ## Detalhes técnicos
 
-```text
-Turnos estimados: 11-13
-├─ A1 varredura       → 1
-├─ A2 categorias      → 4-5
-├─ A3 sistemas        → 1
-├─ B1 tokens          → 1
-├─ B2 componentes     → 1
-├─ B3 dashboard       → 2
-├─ B4 login/landing   → 1
-└─ C validação        → 1
-```
+- `bun add @fontsource-variable/outfit @fontsource-variable/figtree`
+- Imports em `src/main.tsx` (ou equivalente) e família no `@theme`
+- Mascote subido via `lovable-assets` (binários grandes) ou direto em `src/assets/` se pequeno
+- Todas as cores via tokens semânticos — zero `text-white`/`bg-black` hardcoded
+- Manter funcionalidade existente intacta (apenas camada visual + assets)
 
-**Stack adicional**: `motion` (já pode ter), `@fontsource/orbitron`, `@fontsource/inter`, instalação manual de MagicUI components (copiar fonte direto, não tem CLI universal).
+## Fora de escopo
 
-**Risco**: Custo de créditos alto. Posso pausar entre Parte A e Parte B se quiser revisar antes de continuar.
-
-## Próximo passo
-Se aprovar, começo pela **Parte A1** (varredura automática + relatório). Você revisa o `AUDIT.md` e eu prossigo com as correções.
+- Mudança de lógica de negócio / queries
+- Novas features do bot
+- Refatoração das server functions

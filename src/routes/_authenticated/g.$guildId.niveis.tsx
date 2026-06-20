@@ -355,7 +355,7 @@ function LevelingPage() {
             ) : (
               <ol className="divide-y divide-border/60">
                 {(lb as any[]).map((u, i) => {
-                  const rankIcon =
+                  const RankIcon =
                     i === 0 ? Crown : i === 1 ? Medal : i === 2 ? Award : null;
                   const rankClass =
                     i === 0
@@ -373,8 +373,9 @@ function LevelingPage() {
                       <span
                         className={`font-display flex size-9 items-center justify-center rounded-full text-xs font-bold ${rankClass || "bg-muted text-muted-foreground"}`}
                       >
-                        {rankIcon ? <rankIcon className="size-4" /> : `#${i + 1}`}
+                        {RankIcon ? <RankIcon className="size-4" /> : `#${i + 1}`}
                       </span>
+
 
                       <span className="flex-1 font-mono text-xs truncate">
                         {u.user_id}

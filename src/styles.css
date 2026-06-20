@@ -400,3 +400,61 @@
 }
 
 
+
+/* ============== Landing helpers ============== */
+.aurora-pill {
+  font-family: var(--font-display, inherit);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: color-mix(in oklab, var(--foreground) 70%, transparent);
+  border-radius: 9999px;
+  padding: 6px 12px;
+  border: 1px solid color-mix(in oklab, var(--aurora-lavender) 30%, var(--border));
+  background: color-mix(in oklab, var(--card) 60%, transparent);
+  backdrop-filter: blur(10px);
+}
+
+.aurora-gradient-text {
+  background: var(--gradient-aurora);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.aurora-cta {
+  position: relative;
+  isolation: isolate;
+  color: var(--background);
+}
+.aurora-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--gradient-aurora);
+  background-size: 200% 100%;
+  animation: aurora-shimmer 4s linear infinite;
+  z-index: -1;
+}
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-6deg); }
+  50% { transform: rotate(10deg) scale(1.08); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.8) rotate(0deg); }
+  50% { opacity: 1; transform: scale(1.15) rotate(180deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aurora-cta::before { animation: none; }
+}

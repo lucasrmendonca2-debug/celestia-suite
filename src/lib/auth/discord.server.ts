@@ -6,6 +6,7 @@ import { createHmac, timingSafeEqual } from "crypto";
 
 export const DISCORD_API = "https://discord.com/api/v10";
 const DEFAULT_DISCORD_ORIGIN = "https://id-preview--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app";
+const DISCORD_CALLBACK_PATH = "/api/auth/discord/callback";
 
 export interface DiscordUser {
   id: string;
@@ -114,11 +115,11 @@ export function makeDiscordCallbackUri(request: Request, browserOrigin?: string 
   const explicitRedirectUri = process.env.DISCORD_REDIRECT_URI?.trim();
   if (explicitRedirectUri) return explicitRedirectUri;
 
-  const origin = safeBrowserOrigin(process.env.DISCORD_APP_URL?.trim() ?? null)
+  const origin = safeBrowserOrigin(browserOrigin ?? null)
+    || safeBrowserOrigin(process.env.DISCORD_APP_URL?.trim() ?? null)
     || safeBrowserOrigin(process.env.APP_URL?.trim() ?? null)
-    || safeBrowserOrigin(browserOrigin ?? null)
     || safeBrowserOrigin(DEFAULT_DISCORD_ORIGIN);
-  if (origin) return `${origin}/api/auth/discord/callback`;
+  if (origin) return `${origin}${DISCORD_CALLBACK_PATH}`;
 
   const requestUrl = new URL(request.url);
   const forwarded = request.headers.get("forwarded") ?? "";
@@ -138,7 +139,7 @@ export function makeDiscordCallbackUri(request: Request, browserOrigin?: string 
     ? "http"
     : request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() || forwardedProto || refererUrl?.protocol.replace(":", "") || "https";
 
-  return `${protocol}://${host}/api/auth/discord/callback`;
+  return `${protocol}://${host}${DISCORD_CALLBACK_PATH}`;
 }
 
 export function buildAuthorizeUrl(state: string, redirectUri: string): string {

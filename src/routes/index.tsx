@@ -21,6 +21,8 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { Mascot } from "@/components/Mascot";
+import chibiPeek from "@/assets/mascot-chibi-peek.png";
+import paintEscape from "@/assets/mascot-paint-escape.png";
 import { SiteHeader, SiteFooter } from "@/components/site/SiteHeader";
 
 export const Route = createFileRoute("/")({

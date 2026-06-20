@@ -111,14 +111,24 @@ function safeBrowserOrigin(origin: string | null): string | null {
   return null;
 }
 
+function isLocalOrigin(origin: string | null): boolean {
+  if (!origin) return false;
+  try {
+    const url = new URL(origin);
+    return url.protocol === "http:" && (url.hostname === "localhost" || url.hostname === "127.0.0.1");
+  } catch {
+    return false;
+  }
+}
+
 export function makeDiscordCallbackUri(request: Request, browserOrigin?: string | null): string {
   const explicitRedirectUri = process.env.DISCORD_REDIRECT_URI?.trim();
   if (explicitRedirectUri) return explicitRedirectUri;
 
-  const origin = safeBrowserOrigin(browserOrigin ?? null)
-    || safeBrowserOrigin(process.env.DISCORD_APP_URL?.trim() ?? null)
-    || safeBrowserOrigin(process.env.APP_URL?.trim() ?? null)
-    || safeBrowserOrigin(DEFAULT_DISCORD_ORIGIN);
+  const browserSafeOrigin = safeBrowserOrigin(browserOrigin ?? null);
+  const origin = isLocalOrigin(browserSafeOrigin)
+    ? browserSafeOrigin
+    : safeBrowserOrigin(DEFAULT_DISCORD_ORIGIN);
   if (origin) return `${origin}${DISCORD_CALLBACK_PATH}`;
 
   const requestUrl = new URL(request.url);

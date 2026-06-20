@@ -408,30 +408,7 @@ function LevelingPage() {
 }
 
 
-function Card({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-2xl border border-border bg-card p-5">{children}</div>;
-}
-function Row({
-  label,
-  hint,
-  checked,
-  onChange,
-}: {
-  label: string;
-  hint?: string;
-  checked: boolean;
-  onChange: (v: boolean) => void;
-}) {
-  return (
-    <div className="flex items-center justify-between gap-4">
-      <div>
-        <Label className="text-sm font-medium">{label}</Label>
-        {hint && <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p>}
-      </div>
-      <Switch checked={checked} onCheckedChange={onChange} />
-    </div>
-  );
-}
+
 function Num({
   label,
   value,

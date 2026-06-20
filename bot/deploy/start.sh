@@ -14,7 +14,7 @@ echo "==> Instalando dependencias (incluindo tsx)..."
 npm install --include=dev
 
 echo "==> Registrando slash commands no Discord..."
-npx tsx src/scripts/registerCommands.ts || echo "(register falhou — ignore se ja registrado)"
+REGISTER_SCOPE=global NODE_ENV=production npx tsx src/scripts/registerCommands.ts
 
 echo "==> (Re)iniciando via pm2..."
 pm2 delete zenox-bot 2>/dev/null || true

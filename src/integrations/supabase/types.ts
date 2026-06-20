@@ -313,6 +313,48 @@ export type Database = {
         }
         Relationships: []
       }
+      bot_guild_presence: {
+        Row: {
+          created_at: string
+          guild_id: string
+          icon: string | null
+          joined_at: string | null
+          last_seen_at: string
+          left_at: string | null
+          member_count: number | null
+          name: string | null
+          owner_id: string | null
+          present: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          guild_id: string
+          icon?: string | null
+          joined_at?: string | null
+          last_seen_at?: string
+          left_at?: string | null
+          member_count?: number | null
+          name?: string | null
+          owner_id?: string | null
+          present?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          guild_id?: string
+          icon?: string | null
+          joined_at?: string | null
+          last_seen_at?: string
+          left_at?: string | null
+          member_count?: number | null
+          name?: string | null
+          owner_id?: string | null
+          present?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       command_permissions: {
         Row: {
           allowed_channels: string[]

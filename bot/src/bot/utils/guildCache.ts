@@ -1,6 +1,7 @@
 import type { Guild as DiscordGuild } from "discord.js";
 import { Guild, GuildConfig, User } from "../../database/models.js";
 import { canWriteSupabase, supabase } from "../../database/supabase.js";
+import { env } from "../../config/env.js";
 import { logger } from "./logger.js";
 
 /**
@@ -31,6 +32,58 @@ export function ensureGuild(guild: DiscordGuild) {
     .then(({ error }) => {
       if (error) logger.warn({ err: error, guildId: guild.id }, "supabase guild_configs upsert falhou");
     });
+}
+
+function dashboardPresenceEndpoint(): string | null {
+  const base = env.APP_URL?.trim().replace(/\/$/, "");
+  if (!base) return null;
+  return `${base}/api/public/bot-guild-presence`;
+}
+
+function guildPayload(guild: DiscordGuild) {
+  return {
+    id: guild.id,
+    name: guild.name,
+    icon: guild.icon,
+    ownerId: guild.ownerId ?? null,
+    memberCount: guild.memberCount ?? null,
+  };
+}
+
+async function postPresence(body: unknown) {
+  const endpoint = dashboardPresenceEndpoint();
+  if (!endpoint) return;
+  const res = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      Authorization: `Bot ${env.DISCORD_TOKEN}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`dashboard presence ${res.status}: ${text.slice(0, 180)}`);
+  }
+}
+
+export function recordGuildJoined(guild: DiscordGuild) {
+  void postPresence({ event: "join", guild: guildPayload(guild) }).catch((err) =>
+    logger.warn({ err, guildId: guild.id }, "falha ao marcar presença do bot no dashboard"),
+  );
+}
+
+export function recordGuildLeft(guildId: string) {
+  void postPresence({ event: "leave", guildId }).catch((err) =>
+    logger.warn({ err, guildId }, "falha ao marcar saída do bot no dashboard"),
+  );
+}
+
+export function syncBotGuildPresence(guilds: Iterable<DiscordGuild>) {
+  const payload = [...guilds].map(guildPayload);
+  void postPresence({ event: "sync", guilds: payload })
+    .then(() => logger.info({ count: payload.length }, "presença do bot sincronizada com dashboard"))
+    .catch((err) => logger.warn({ err }, "falha ao sincronizar presença do bot com dashboard"));
 }
 
 const CACHE_TTL_MS = 30_000;

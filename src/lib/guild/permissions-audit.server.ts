@@ -8,6 +8,7 @@ import {
   filterManageableGuilds,
 } from "@/lib/auth/discord.server";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { getDiscordBotToken } from "@/lib/discord/bot-token.server";
 import type { DashboardArea } from "./permissions.functions";
 
 export interface Actor {
@@ -49,7 +50,7 @@ async function fetchMemberRoles(
   guildId: string,
   userId: string,
 ): Promise<string[]> {
-  const token = process.env.DISCORD_BOT_TOKEN;
+  const token = getDiscordBotToken();
   if (!token) return [];
   const res = await fetch(
     `https://discord.com/api/v10/guilds/${guildId}/members/${userId}`,

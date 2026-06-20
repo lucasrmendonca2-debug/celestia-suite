@@ -16,7 +16,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/$guildId")({
     const presence = await context.queryClient.ensureQueryData({
       queryKey: ["bot-presence", params.guildId],
       queryFn: () => checkBotInGuild({ data: { guildId: params.guildId } }),
-      staleTime: 30_000,
+      staleTime: 0,
     });
 
     return { user, guild, presence };

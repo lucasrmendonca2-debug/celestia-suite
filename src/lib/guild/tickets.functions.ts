@@ -18,6 +18,12 @@ async function admin() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
   return supabaseAdmin;
 }
+async function botToken() {
+  const { getDiscordBotToken } = await import("@/lib/discord/bot-token.server");
+  const token = getDiscordBotToken();
+  if (!token) throw new Error("Token do bot não configurado no servidor.");
+  return token;
+}
 async function perm(guildId: string) {
   const { assertCanManageGuild } = await import("./permissions.server");
   return assertCanManageGuild(guildId);
@@ -255,8 +261,7 @@ export const sendTicketPanel = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     await perm(data.guildId);
-    const token = process.env.DISCORD_BOT_TOKEN;
-    if (!token) throw new Error("DISCORD_BOT_TOKEN não configurado no servidor.");
+    const token = await botToken();
 
     const sb = await admin();
     const { data: cfg, error: cfgErr } = await sb
@@ -396,8 +401,7 @@ export const deleteTicketPanel = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     await perm(data.guildId);
-    const token = process.env.DISCORD_BOT_TOKEN;
-    if (!token) throw new Error("DISCORD_BOT_TOKEN não configurado no servidor.");
+    const token = await botToken();
     const sb = await admin();
     const { data: cfg } = await sb
       .from("ticket_configs")
@@ -459,8 +463,7 @@ export const deleteActiveTicket = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     await perm(data.guildId);
-    const token = process.env.DISCORD_BOT_TOKEN;
-    if (!token) throw new Error("DISCORD_BOT_TOKEN não configurado no servidor.");
+    const token = await botToken();
     const sb = await admin();
     const { data: ticket, error } = await sb
       .from("tickets")
@@ -509,8 +512,7 @@ export const createPanelWebhook = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     await perm(data.guildId);
-    const token = process.env.DISCORD_BOT_TOKEN;
-    if (!token) throw new Error("DISCORD_BOT_TOKEN não configurado no servidor.");
+    const token = await botToken();
     const sb = await admin();
 
     // se já existir, atualiza ao invés de duplicar
@@ -899,8 +901,7 @@ export const listGuildEmojis = createServerFn({ method: "GET" })
   )
   .handler(async ({ data }): Promise<GuildEmoji[]> => {
     await perm(data.guildId);
-    const token = process.env.DISCORD_BOT_TOKEN;
-    if (!token) throw new Error("DISCORD_BOT_TOKEN não configurado no servidor.");
+    const token = await botToken();
     const res = await fetch(`${DISCORD}/guilds/${data.guildId}/emojis`, {
       headers: { Authorization: `Bot ${token}` },
     });
@@ -947,8 +948,7 @@ export const listGuildChannels = createServerFn({ method: "GET" })
   )
   .handler(async ({ data }): Promise<GuildChannel[]> => {
     await perm(data.guildId);
-    const token = process.env.DISCORD_BOT_TOKEN;
-    if (!token) throw new Error("DISCORD_BOT_TOKEN não configurado no servidor.");
+    const token = await botToken();
     const res = await fetch(`${DISCORD}/guilds/${data.guildId}/channels`, {
       headers: { Authorization: `Bot ${token}` },
     });
@@ -975,8 +975,7 @@ export const listGuildRoles = createServerFn({ method: "GET" })
   )
   .handler(async ({ data }): Promise<GuildRole[]> => {
     await perm(data.guildId);
-    const token = process.env.DISCORD_BOT_TOKEN;
-    if (!token) throw new Error("DISCORD_BOT_TOKEN não configurado no servidor.");
+    const token = await botToken();
     const res = await fetch(`${DISCORD}/guilds/${data.guildId}/roles`, {
       headers: { Authorization: `Bot ${token}` },
     });

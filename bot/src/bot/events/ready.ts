@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import type { BotEvent } from "../handlers/events.js";
 import { logger } from "../utils/logger.js";
-import { ensureGuild } from "../utils/guildCache.js";
+import { ensureGuild, syncBotGuildPresence } from "../utils/guildCache.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ASSETS = path.resolve(__dirname, "../../../assets");
@@ -64,6 +64,7 @@ const event: BotEvent<"ready"> = {
         logger.error({ err, guildId: guild.id }, "ensureGuild");
       }
     }
+    syncBotGuildPresence(client.guilds.cache.values());
   },
 };
 

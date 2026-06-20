@@ -80,9 +80,14 @@ export const getGuildOverview = createServerFn({ method: "GET" })
   )
   .handler(async ({ data }): Promise<GuildOverview> => {
     const { assertCanManageGuild } = await import("./permissions.server");
+    const {
+      getBotPresenceForGuild,
+      guildIconUrlFromHash,
+    } = await import("./bot-presence.server");
+    const { getDiscordBotToken } = await import("@/lib/discord/bot-token.server");
     await assertCanManageGuild(data.guildId);
 
-    const token = process.env.DISCORD_BOT_TOKEN;
+    const token = getDiscordBotToken();
     const clientId = process.env.DISCORD_CLIENT_ID;
 
     let name = "Servidor";
@@ -93,58 +98,44 @@ export const getGuildOverview = createServerFn({ method: "GET" })
     let permBits = 0n;
     let highestRolePosition = 0;
 
-    if (token && clientId) {
+    const snapshot = await getBotPresenceForGuild(data.guildId, { withCounts: true });
+    present = snapshot.present;
+    if (snapshot.guild) {
+      name = snapshot.guild.name ?? name;
+      iconUrl = guildIconUrlFromHash(data.guildId, snapshot.guild.icon);
+      memberCount = snapshot.guild.approximate_member_count ?? null;
+      presenceCount = snapshot.guild.approximate_presence_count ?? null;
+    }
+
+    if (present && token && clientId) {
       try {
         const headers = { Authorization: `Bot ${token}` };
-
-        const gRes = await fetch(
-          `https://discord.com/api/v10/guilds/${data.guildId}?with_counts=true`,
-          { headers },
-        );
-        if (gRes.ok) {
-          present = true;
-          const g = (await gRes.json()) as {
-            name: string;
-            icon: string | null;
-            approximate_member_count?: number;
-            approximate_presence_count?: number;
-          };
-          name = g.name ?? name;
-          iconUrl = g.icon
-            ? `https://cdn.discordapp.com/icons/${data.guildId}/${g.icon}.${g.icon.startsWith("a_") ? "gif" : "png"}?size=128`
-            : null;
-          memberCount = g.approximate_member_count ?? null;
-          presenceCount = g.approximate_presence_count ?? null;
-        }
-
-        if (present) {
-          const [memberRes, rolesRes] = await Promise.all([
-            fetch(
-              `https://discord.com/api/v10/guilds/${data.guildId}/members/${clientId}`,
-              { headers },
-            ),
-            fetch(
-              `https://discord.com/api/v10/guilds/${data.guildId}/roles`,
-              { headers },
-            ),
-          ]);
-          if (memberRes.ok && rolesRes.ok) {
-            const member = (await memberRes.json()) as { roles: string[] };
-            const roles = (await rolesRes.json()) as {
-              id: string;
-              permissions: string;
-              position: number;
-            }[];
-            const byId = new Map(roles.map((r) => [r.id, r]));
-            // @everyone tem o mesmo id da guild
-            const everyone = byId.get(data.guildId);
-            if (everyone) permBits |= BigInt(everyone.permissions);
-            for (const rid of member.roles) {
-              const r = byId.get(rid);
-              if (!r) continue;
-              permBits |= BigInt(r.permissions);
-              if (r.position > highestRolePosition) highestRolePosition = r.position;
-            }
+        const [memberRes, rolesRes] = await Promise.all([
+          fetch(
+            `https://discord.com/api/v10/guilds/${data.guildId}/members/${clientId}`,
+            { headers },
+          ),
+          fetch(
+            `https://discord.com/api/v10/guilds/${data.guildId}/roles`,
+            { headers },
+          ),
+        ]);
+        if (memberRes.ok && rolesRes.ok) {
+          const member = (await memberRes.json()) as { roles: string[] };
+          const roles = (await rolesRes.json()) as {
+            id: string;
+            permissions: string;
+            position: number;
+          }[];
+          const byId = new Map(roles.map((r) => [r.id, r]));
+          // @everyone tem o mesmo id da guild
+          const everyone = byId.get(data.guildId);
+          if (everyone) permBits |= BigInt(everyone.permissions);
+          for (const rid of member.roles) {
+            const r = byId.get(rid);
+            if (!r) continue;
+            permBits |= BigInt(r.permissions);
+            if (r.position > highestRolePosition) highestRolePosition = r.position;
           }
         }
       } catch {

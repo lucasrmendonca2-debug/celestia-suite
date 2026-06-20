@@ -1,7 +1,9 @@
 import { createFileRoute, Outlet, Link, notFound } from "@tanstack/react-router";
-import { ExternalLink, Bot, ArrowLeft } from "lucide-react";
+import { ExternalLink, ArrowLeft } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import { checkBotInGuild } from "@/lib/guild/bot-presence.functions";
+import { Mascot } from "@/components/Mascot";
+import { MagicLoader } from "@/components/MagicLoader";
 
 export const Route = createFileRoute("/_authenticated/g/$guildId")({
   loader: async ({ context, params }) => {
@@ -21,40 +23,44 @@ export const Route = createFileRoute("/_authenticated/g/$guildId")({
 
     return { user, guild, presence };
   },
+  pendingComponent: () => <MagicLoader label="Convocando o Zenox…" />,
   component: GuildLayout,
   notFoundComponent: () => (
-    <div className="flex min-h-screen items-center justify-center bg-background text-center">
-      <div>
-        <p className="text-lg font-semibold">Servidor não encontrado</p>
+    <div className="aurora-shell flex min-h-screen items-center justify-center px-6">
+      <div className="relative z-10 flex max-w-md flex-col items-center text-center">
+        <Mascot variant="404" size={160} glow />
+        <p className="mt-4 font-display text-xl font-bold">Servidor não encontrado</p>
         <p className="mt-1 text-sm text-muted-foreground">
           Você não tem permissão de gerenciar esse servidor.
         </p>
         <Link
           to="/servidores"
-          className="mt-4 inline-block rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition hover:opacity-90"
         >
+          <ArrowLeft className="size-4" />
           Voltar pra lista
         </Link>
       </div>
     </div>
   ),
   errorComponent: ({ error, reset }) => (
-    <div className="flex min-h-screen items-center justify-center bg-background px-6 text-center">
-      <div className="max-w-md">
-        <p className="text-lg font-semibold">Não consegui carregar esse servidor</p>
+    <div className="aurora-shell flex min-h-screen items-center justify-center px-6">
+      <div className="relative z-10 flex max-w-md flex-col items-center text-center">
+        <Mascot variant="error" size={160} glow />
+        <p className="mt-4 font-display text-xl font-bold">Algo deu errado</p>
         <p className="mt-1 text-sm text-muted-foreground break-words">
           {error instanceof Error ? error.message : "Erro desconhecido."}
         </p>
-        <div className="mt-4 flex justify-center gap-2">
+        <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => reset()}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground"
+            className="inline-flex items-center gap-2 rounded-xl bg-foreground px-5 py-2.5 text-sm font-semibold text-background transition hover:opacity-90"
           >
             Tentar de novo
           </button>
           <Link
             to="/servidores"
-            className="rounded-md border border-input bg-card px-4 py-2 text-sm font-medium"
+            className="inline-flex items-center gap-2 rounded-xl border border-border/60 bg-card/60 px-5 py-2.5 text-sm font-medium backdrop-blur transition hover:bg-accent/50"
           >
             Voltar
           </Link>
@@ -69,29 +75,31 @@ function GuildLayout() {
 
   if (!presence.present) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background px-6 text-center">
-        <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8">
-          <div className="mx-auto mb-4 inline-flex size-12 items-center justify-center rounded-xl bg-primary/15 text-primary ring-1 ring-primary/30">
-            <Bot className="size-6" />
+      <div className="aurora-shell flex min-h-screen items-center justify-center px-6">
+        <div className="aurora-panel relative z-10 w-full max-w-md p-8 text-center">
+          <div className="mx-auto mb-2 flex justify-center">
+            <Mascot variant="sleeping" size={128} glow />
           </div>
-          <h1 className="text-lg font-semibold">Zenox ainda não está nesse servidor</h1>
+          <h1 className="font-display text-lg font-bold">
+            Zenox ainda não está nesse servidor
+          </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Para configurar <strong>{guild.name}</strong>, adicione o Zenox primeiro. Depois é só
-            voltar aqui — vai destravar sozinho.
+            Para configurar <strong>{guild.name}</strong>, adicione o Zenox primeiro. Depois é
+            só voltar aqui — vai destravar sozinho.
           </p>
           <div className="mt-6 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <a
               href={presence.inviteUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground transition hover:bg-primary/90"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-foreground px-4 py-2.5 text-sm font-semibold text-background transition hover:opacity-90"
             >
               <ExternalLink className="size-4" />
               Adicionar ao servidor
             </a>
             <Link
               to="/servidores"
-              className="inline-flex items-center justify-center gap-2 rounded-md border border-input bg-card px-4 py-2.5 text-sm font-medium transition hover:bg-accent"
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border/60 bg-card/60 px-4 py-2.5 text-sm font-medium backdrop-blur transition hover:bg-accent/50"
             >
               <ArrowLeft className="size-4" />
               Voltar

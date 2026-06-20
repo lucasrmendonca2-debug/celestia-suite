@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import type { MouseEvent } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import {
   Shield,
   Ticket,
@@ -22,6 +22,12 @@ import {
 } from "lucide-react";
 import { Mascot } from "@/components/Mascot";
 import chibiPeek from "@/assets/mascot-chibi-peek.png";
+import chibiClimb1 from "@/assets/chibi-climb-1.png";
+import chibiClimb2 from "@/assets/chibi-climb-2.png";
+import chibiClimb3 from "@/assets/chibi-climb-3.png";
+import chibiClimb4 from "@/assets/chibi-climb-4.png";
+import chibiClimb5 from "@/assets/chibi-climb-5.png";
+import chibiClimb6 from "@/assets/chibi-climb-6.png";
 import paintEscape from "@/assets/mascot-paint-escape.png";
 import { SiteHeader, SiteFooter } from "@/components/site/SiteHeader";
 
@@ -481,51 +487,7 @@ function Landing() {
           background-repeat: no-repeat;
           mix-blend-mode: multiply;
         }
-        /* Escalada fluida: começa fora-direita-embaixo, escala pela borda,
-           senta pendurado em cima do botão e fica balançando curioso. */
-        @keyframes chibi-climb {
-          0%   { opacity: 0; transform: translate(40%, 120%) rotate(35deg); }
-          12%  { opacity: 1; transform: translate(38%, 90%)  rotate(28deg); }
-          25%  { opacity: 1; transform: translate(28%, 55%)  rotate(18deg); }
-          40%  { opacity: 1; transform: translate(10%, 20%)  rotate(8deg); }
-          55%  { opacity: 1; transform: translate(-20%, -5%) rotate(-4deg); }
-          70%  { opacity: 1; transform: translate(-45%, 5%)  rotate(-10deg); }
-          85%  { opacity: 1; transform: translate(-50%, 18%) rotate(2deg); }
-          100% { opacity: 1; transform: translate(-50%, 12%) rotate(0deg); }
-        }
-        @keyframes chibi-hang {
-          0%, 100% { transform: translate(-50%, 12%) rotate(0deg); }
-          25%      { transform: translate(-50%, 9%)  rotate(-3deg); }
-          50%      { transform: translate(-50%, 14%) rotate(2deg); }
-          75%      { transform: translate(-50%, 10%) rotate(-1deg); }
-        }
-        @keyframes chibi-punch {
-          0%, 80%, 100% { filter: drop-shadow(0 8px 10px rgba(27,14,59,0.3)); }
-          85%           { transform: translate(-50%, 8%)  rotate(-6deg) scale(1.04); }
-          90%           { transform: translate(-50%, 14%) rotate(4deg)  scale(0.98); }
-        }
-        .peek-trigger .peek-chibi {
-          opacity: 0;
-          transform: translate(40%, 120%) rotate(35deg);
-          transition: opacity 0.2s ease-out;
-          transform-origin: 50% 80%;
-          will-change: transform;
-        }
-        .peek-trigger:hover .peek-chibi,
-        .peek-trigger:focus-visible .peek-chibi {
-          animation:
-            chibi-climb 1.4s cubic-bezier(.45,.05,.35,1) forwards,
-            chibi-hang  2.6s ease-in-out 1.4s infinite,
-            chibi-punch 5s   ease-in-out 2.6s infinite;
-        }
-        @media (prefers-reduced-motion: reduce) {
-          .peek-trigger:hover .peek-chibi,
-          .peek-trigger:focus-visible .peek-chibi {
-            animation: none;
-            opacity: 1;
-            transform: translate(-50%, 12%) rotate(0deg);
-          }
-        }
+        /* Hover apenas dispara a animação via JS — sem CSS movendo a imagem */
 
       `}</style>
     </div>
@@ -533,6 +495,17 @@ function Landing() {
 }
 
 /* ---------- Pieces ---------- */
+
+const CLIMB_FRAMES = [
+  chibiClimb1, // mão + cabeça surgindo
+  chibiClimb2, // duas mãos no topo
+  chibiClimb3, // se puxando, suando
+  chibiClimb4, // tronco fora, apoiado
+  chibiClimb5, // sentado peeking
+  chibiClimb6, // sentado relaxado acenando
+];
+const FRAME_MS = 110; // ~9fps, ~660ms a escalada toda
+const IDLE_FRAMES = [5, 4, 5, 4]; // balança entre poses sentadas depois
 
 function PeekButton({
   href,
@@ -551,19 +524,60 @@ function PeekButton({
     ? "bg-white text-[#1B0E3B] border-[#1B0E3B] shadow-[0_6px_0_0_#1B0E3B]"
     : "bg-[#7C3AED] text-white border-[#1B0E3B] shadow-[0_6px_0_0_#1B0E3B]";
   const size = large ? "px-8 py-4 text-lg" : "px-6 py-3.5 text-base";
-  const chibiSize = large ? 110 : 88;
+  const chibiSize = large ? 130 : 104;
+
+  const [active, setActive] = useState(false);
+  const [frame, setFrame] = useState(0);
+  const idleIdx = useRef(0);
+
+  useEffect(() => {
+    if (!active) {
+      setFrame(0);
+      idleIdx.current = 0;
+      return;
+    }
+    let i = 0;
+    setFrame(0);
+    const tick = () => {
+      i += 1;
+      if (i < CLIMB_FRAMES.length) {
+        setFrame(i);
+      } else {
+        // loop idle entre poses sentadas
+        setFrame(IDLE_FRAMES[idleIdx.current % IDLE_FRAMES.length]);
+        idleIdx.current += 1;
+      }
+    };
+    const id = window.setInterval(tick, FRAME_MS);
+    return () => window.clearInterval(id);
+  }, [active]);
+
   return (
-    <span className="peek-trigger relative inline-block">
-      {/* Chibi pendurado em cima do botão, espiando curioso e socando o vidro */}
+    <span
+      className="relative inline-block"
+      onMouseEnter={() => setActive(true)}
+      onMouseLeave={() => setActive(false)}
+      onFocus={() => setActive(true)}
+      onBlur={() => setActive(false)}
+    >
+      {/* Chibi escalando por trás do botão */}
       <span
         aria-hidden
-        className="peek-chibi pointer-events-none absolute left-1/2 bottom-full z-20"
-        style={{ width: chibiSize, height: chibiSize }}
+        className="pointer-events-none absolute left-1/2 -translate-x-1/2 z-0"
+        style={{
+          width: chibiSize,
+          height: chibiSize,
+          // posiciona ele subindo: começa atrás/embaixo do botão, sobe pra cima
+          bottom: active ? "55%" : "-20%",
+          opacity: active ? 1 : 0,
+          transition: "bottom 0s, opacity 120ms ease-out",
+        }}
       >
         <img
-          src={chibiPeek}
+          src={active ? CLIMB_FRAMES[frame] : chibiPeek}
           alt=""
-          className="size-full object-contain drop-shadow-[0_8px_10px_rgba(27,14,59,0.3)]"
+          className="size-full object-contain drop-shadow-[0_8px_10px_rgba(27,14,59,0.35)]"
+          draggable={false}
         />
       </span>
 

@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Award, Plus, Trash2 } from "lucide-react";
+import { Award, Plus, Trash2, Sparkles, Gift, EyeOff } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   deleteBadge,
@@ -13,11 +13,16 @@ import {
   upsertBadge,
 } from "@/lib/guild/badges.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
+import {
+  AuroraSection,
+  AuroraStatCard,
+  AuroraField,
+  AuroraSwitchRow,
+} from "@/components/dashboard/aurora-ui";
+import { Mascot } from "@/components/Mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -26,13 +31,37 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const RARITY_BADGE: Record<string, string> = {
-  common: "bg-zinc-500/20 text-zinc-300 border-zinc-500/40",
-  uncommon: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
-  rare: "bg-sky-500/20 text-sky-300 border-sky-500/40",
-  epic: "bg-fuchsia-500/20 text-fuchsia-300 border-fuchsia-500/40",
-  legendary: "bg-amber-500/20 text-amber-300 border-amber-500/40",
-  mythic: "bg-rose-500/20 text-rose-300 border-rose-500/40",
+const RARITY_STYLE: Record<string, { label: string; ring: string; bg: string }> = {
+  common: {
+    label: "Comum",
+    ring: "ring-zinc-400/50",
+    bg: "linear-gradient(135deg, color-mix(in oklab, var(--muted) 60%, transparent), transparent)",
+  },
+  uncommon: {
+    label: "Incomum",
+    ring: "ring-[color:var(--aurora-mint)]/60",
+    bg: "linear-gradient(135deg, color-mix(in oklab, var(--aurora-mint) 32%, transparent), transparent)",
+  },
+  rare: {
+    label: "Raro",
+    ring: "ring-[color:var(--aurora-cyan)]/60",
+    bg: "linear-gradient(135deg, color-mix(in oklab, var(--aurora-cyan) 32%, transparent), transparent)",
+  },
+  epic: {
+    label: "Épico",
+    ring: "ring-[color:var(--aurora-lavender)]/70",
+    bg: "linear-gradient(135deg, color-mix(in oklab, var(--aurora-lavender) 35%, transparent), color-mix(in oklab, var(--aurora-pink) 20%, transparent))",
+  },
+  legendary: {
+    label: "Lendário",
+    ring: "ring-[color:var(--aurora-peach)]/70",
+    bg: "linear-gradient(135deg, color-mix(in oklab, var(--aurora-peach) 38%, transparent), color-mix(in oklab, var(--aurora-pink) 22%, transparent))",
+  },
+  mythic: {
+    label: "Mítico",
+    ring: "ring-[color:var(--aurora-pink)]/80",
+    bg: "linear-gradient(135deg, color-mix(in oklab, var(--aurora-pink) 40%, transparent), color-mix(in oklab, var(--aurora-lavender) 28%, transparent))",
+  },
 };
 
 export const Route = createFileRoute("/_authenticated/g/$guildId/badges")({
@@ -93,6 +122,10 @@ function BadgesPage() {
     queryFn: () => listBadges({ data: { guildId } }),
   });
 
+  const list = (badges.data ?? []) as any[];
+  const total = list.length;
+  const hidden = list.filter((b) => b.hidden).length;
+
   const saveM = useMutation({
     mutationFn: () =>
       save({
@@ -152,145 +185,253 @@ function BadgesPage() {
       user={user}
       icon={Award}
       title="Badges"
-      description="Crie emblemas exclusivos pro seu servidor. Use raridades, cores e ícones pra dar identidade visual."
+      description="Crie emblemas únicos pro seu servidor — com raridades, cores e brilho mágico."
     >
-      <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-        {/* Lista */}
-        <section className="space-y-3">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            Badges configuradas ({badges.data?.length ?? 0})
-          </h3>
-          {badges.data && badges.data.length > 0 ? (
-            <ul className="grid gap-3 sm:grid-cols-2">
-              {badges.data.map((b: any) => (
-                <li key={b.id} className="space-y-2 rounded-xl border border-border bg-card p-4">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2 text-base font-semibold">
-                      <span className="text-2xl">{b.emoji}</span>
-                      <span>{b.name}</span>
-                    </div>
-                    <span
-                      className={`rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wider ${RARITY_BADGE[b.rarity] ?? RARITY_BADGE.common}`}
-                    >
-                      {b.rarity}
-                    </span>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    <code className="rounded bg-muted px-1">{b.code}</code> · cor{" "}
-                    <span style={{ color: b.color }}>{b.color}</span>
-                    {b.hidden && " · oculta"}
-                  </p>
-                  {b.description && <p className="text-sm">{b.description}</p>}
-                  <div className="flex gap-2 pt-1">
-                    <Button size="sm" variant="outline" onClick={() => setForm({ ...b, icon_url: b.icon_url ?? "" })}>
-                      Editar
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => delM.mutate(b.id)}>
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="rounded-md border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-              Nenhuma badge ainda. Crie a primeira ao lado!
+      <div
+        className="aurora-panel relative mb-5 overflow-hidden p-5 sm:p-6"
+        style={{
+          background:
+            "linear-gradient(135deg, color-mix(in oklab, var(--aurora-peach) 18%, var(--card)), color-mix(in oklab, var(--aurora-pink) 14%, var(--card)))",
+        }}
+      >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -right-12 -top-12 size-44 rounded-full blur-3xl opacity-60"
+          style={{
+            background:
+              "radial-gradient(circle, color-mix(in oklab, var(--aurora-peach) 70%, transparent), transparent 70%)",
+          }}
+        />
+        <div className="relative flex items-center gap-4">
+          <Mascot variant={total > 0 ? "celebrate" : "hero"} size={84} glow />
+          <div className="min-w-0">
+            <h2 className="font-display text-lg font-bold tracking-tight sm:text-xl">
+              Coleção de emblemas
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {total === 0
+                ? "Crie a primeira badge e comece a recompensar seus membros."
+                : `${total} badge${total === 1 ? "" : "s"} pront${total === 1 ? "a" : "as"} para distribuir.`}
             </p>
-          )}
+          </div>
+        </div>
+      </div>
 
-          {/* Conceder/Revogar */}
-          <div className="space-y-3 rounded-xl border border-border bg-card p-5">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Conceder / Revogar manual
-            </h3>
-            <div className="grid gap-3 md:grid-cols-2">
-              <div>
-                <Label>ID do usuário</Label>
-                <Input value={grantState.userId} onChange={(e) => setGrantState({ ...grantState, userId: e.target.value })} />
+      <div className="mb-5 grid gap-3 sm:grid-cols-3">
+        <AuroraStatCard label="Total" value={total} icon={Award} tone="peach" />
+        <AuroraStatCard label="Visíveis" value={total - hidden} icon={Sparkles} tone="mint" />
+        <AuroraStatCard label="Ocultas" value={hidden} icon={EyeOff} tone="lavender" />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+        <div className="space-y-4">
+          <AuroraSection title={`Configuradas (${total})`} icon={Award} tone="peach">
+            {list.length > 0 ? (
+              <ul className="grid gap-3 sm:grid-cols-2">
+                {list.map((b: any) => {
+                  const r = RARITY_STYLE[b.rarity] ?? RARITY_STYLE.common;
+                  return (
+                    <li
+                      key={b.id}
+                      className={`aurora-card-hover space-y-2 rounded-2xl border border-border/60 p-4 ring-1 ${r.ring}`}
+                      style={{ background: r.bg }}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2 text-base font-semibold">
+                          <span
+                            className="flex size-10 items-center justify-center rounded-xl text-2xl"
+                            style={{
+                              background: `color-mix(in oklab, ${b.color} 25%, transparent)`,
+                              boxShadow:
+                                "inset 0 1px 0 color-mix(in oklab, white 30%, transparent)",
+                            }}
+                          >
+                            {b.emoji}
+                          </span>
+                          <span className="font-display">{b.name}</span>
+                        </div>
+                        <span className="rounded-full border border-border/60 bg-background/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider">
+                          {r.label}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        <code className="rounded bg-muted px-1">{b.code}</code>
+                        {b.hidden && " · oculta"}
+                      </p>
+                      {b.description && <p className="text-sm">{b.description}</p>}
+                      <div className="flex gap-2 pt-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => setForm({ ...b, icon_url: b.icon_url ?? "" })}
+                        >
+                          Editar
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => delM.mutate(b.id)}>
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            ) : (
+              <div className="flex flex-col items-center gap-2 py-6 text-center">
+                <Mascot variant="sleeping" size={72} />
+                <p className="text-sm text-muted-foreground">
+                  Nenhuma badge ainda. Crie a primeira ao lado!
+                </p>
               </div>
-              <div>
-                <Label>Badge</Label>
-                <Select value={grantState.badgeId} onValueChange={(v) => setGrantState({ ...grantState, badgeId: v })}>
-                  <SelectTrigger><SelectValue placeholder="Escolher..." /></SelectTrigger>
+            )}
+          </AuroraSection>
+
+          <AuroraSection title="Conceder / Revogar manual" icon={Gift} tone="pink">
+            <div className="grid gap-3 md:grid-cols-2">
+              <AuroraField label="ID do usuário">
+                <Input
+                  value={grantState.userId}
+                  onChange={(e) => setGrantState({ ...grantState, userId: e.target.value })}
+                />
+              </AuroraField>
+              <AuroraField label="Badge">
+                <Select
+                  value={grantState.badgeId}
+                  onValueChange={(v) => setGrantState({ ...grantState, badgeId: v })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Escolher..." />
+                  </SelectTrigger>
                   <SelectContent>
-                    {(badges.data ?? []).map((b: any) => (
-                      <SelectItem key={b.id} value={b.id}>{b.emoji} {b.name}</SelectItem>
+                    {list.map((b: any) => (
+                      <SelectItem key={b.id} value={b.id}>
+                        {b.emoji} {b.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </AuroraField>
               <div className="md:col-span-2">
-                <Label>Motivo (opcional)</Label>
-                <Input value={grantState.reason} onChange={(e) => setGrantState({ ...grantState, reason: e.target.value })} />
+                <AuroraField label="Motivo (opcional)">
+                  <Input
+                    value={grantState.reason}
+                    onChange={(e) => setGrantState({ ...grantState, reason: e.target.value })}
+                  />
+                </AuroraField>
               </div>
             </div>
             <div className="flex gap-2">
-              <Button onClick={() => grantM.mutate()} disabled={!grantState.userId || !grantState.badgeId || grantM.isPending}>
+              <Button
+                onClick={() => grantM.mutate()}
+                disabled={!grantState.userId || !grantState.badgeId || grantM.isPending}
+              >
                 Conceder
               </Button>
-              <Button variant="outline" onClick={() => revokeM.mutate()} disabled={!grantState.userId || !grantState.badgeId || revokeM.isPending}>
+              <Button
+                variant="outline"
+                onClick={() => revokeM.mutate()}
+                disabled={!grantState.userId || !grantState.badgeId || revokeM.isPending}
+              >
                 Revogar
               </Button>
             </div>
-          </div>
-        </section>
+          </AuroraSection>
+        </div>
 
-        {/* Form */}
-        <aside className="space-y-3 rounded-xl border border-border bg-card p-5">
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-            {form.id ? "Editar badge" : "Nova badge"}
-          </h3>
-          <div className="space-y-3">
-            <Field label="Código (slug)">
-              <Input value={form.code} onChange={(e) => setForm({ ...form, code: e.target.value })} placeholder="welcome_member" />
-            </Field>
-            <Field label="Nome">
-              <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-            </Field>
-            <Field label="Descrição">
-              <Textarea rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
-            </Field>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Emoji"><Input value={form.emoji} onChange={(e) => setForm({ ...form, emoji: e.target.value })} /></Field>
-              <Field label="Cor"><Input value={form.color} onChange={(e) => setForm({ ...form, color: e.target.value })} placeholder="#5865F2" /></Field>
-            </div>
-            <Field label="URL do ícone (opcional)">
-              <Input value={form.icon_url} onChange={(e) => setForm({ ...form, icon_url: e.target.value })} placeholder="https://..." />
-            </Field>
-            <Field label="Raridade">
-              <Select value={form.rarity} onValueChange={(v: any) => setForm({ ...form, rarity: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {["common", "uncommon", "rare", "epic", "legendary", "mythic"].map((r) => (
-                    <SelectItem key={r} value={r}>{r}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-            <div className="flex items-center justify-between rounded-md border border-border/40 bg-background/30 px-3 py-2">
-              <span className="text-sm">Oculta (só aparece pra quem tem)</span>
-              <Switch checked={form.hidden} onCheckedChange={(v) => setForm({ ...form, hidden: v })} />
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={() => saveM.mutate()} disabled={!form.code || !form.name || saveM.isPending} className="flex-1">
-                <Plus className="mr-2 size-4" /> {form.id ? "Salvar alterações" : "Criar badge"}
-              </Button>
-              {form.id && (
-                <Button variant="outline" onClick={() => setForm(EMPTY)}>Cancelar</Button>
-              )}
-            </div>
+        <AuroraSection
+          title={form.id ? "Editar badge" : "Nova badge"}
+          icon={Plus}
+          tone="lavender"
+        >
+          <AuroraField label="Código (slug)">
+            <Input
+              value={form.code}
+              onChange={(e) => setForm({ ...form, code: e.target.value })}
+              placeholder="welcome_member"
+            />
+          </AuroraField>
+          <AuroraField label="Nome">
+            <Input
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+            />
+          </AuroraField>
+          <AuroraField label="Descrição">
+            <Textarea
+              rows={2}
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+            />
+          </AuroraField>
+          <div className="grid grid-cols-2 gap-3">
+            <AuroraField label="Emoji">
+              <Input
+                value={form.emoji}
+                onChange={(e) => setForm({ ...form, emoji: e.target.value })}
+              />
+            </AuroraField>
+            <AuroraField label="Cor">
+              <div className="flex gap-2">
+                <Input
+                  type="color"
+                  value={form.color}
+                  onChange={(e) => setForm({ ...form, color: e.target.value })}
+                  className="h-10 w-14 p-1"
+                />
+                <Input
+                  value={form.color}
+                  onChange={(e) => setForm({ ...form, color: e.target.value })}
+                  className="font-mono"
+                />
+              </div>
+            </AuroraField>
           </div>
-        </aside>
+          <AuroraField label="URL do ícone (opcional)">
+            <Input
+              value={form.icon_url}
+              onChange={(e) => setForm({ ...form, icon_url: e.target.value })}
+              placeholder="https://..."
+            />
+          </AuroraField>
+          <AuroraField label="Raridade">
+            <Select
+              value={form.rarity}
+              onValueChange={(v: any) => setForm({ ...form, rarity: v })}
+            >
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.entries(RARITY_STYLE).map(([k, v]) => (
+                  <SelectItem key={k} value={k}>
+                    {v.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </AuroraField>
+          <AuroraSwitchRow
+            label="Oculta"
+            hint="Só aparece para quem já recebeu."
+            checked={form.hidden}
+            onChange={(v) => setForm({ ...form, hidden: v })}
+          />
+          <div className="flex gap-2">
+            <Button
+              onClick={() => saveM.mutate()}
+              disabled={!form.code || !form.name || saveM.isPending}
+              className="flex-1"
+            >
+              <Plus className="mr-2 size-4" />
+              {form.id ? "Salvar alterações" : "Criar badge"}
+            </Button>
+            {form.id && (
+              <Button variant="outline" onClick={() => setForm(EMPTY)}>
+                Cancelar
+              </Button>
+            )}
+          </div>
+        </AuroraSection>
       </div>
     </ModuleLayout>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <Label className="text-xs uppercase tracking-wider text-muted-foreground">{label}</Label>
-      {children}
-    </div>
   );
 }

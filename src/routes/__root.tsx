@@ -19,12 +19,8 @@ function NotFoundComponent() {
   return (
     <div className="aurora-shell flex min-h-screen items-center justify-center px-4">
       <div className="relative z-10 max-w-md text-center">
-        <div className="flex justify-center">
-          <img
-            src="/__l5e/assets-v1/placeholder/mascot.png"
-            alt=""
-            className="hidden"
-          />
+        <div className="mb-2 flex justify-center">
+          <Mascot variant="404" size={140} glow />
         </div>
         <h1 className="font-display text-8xl font-black aurora-text">404</h1>
         <h2 className="mt-2 font-display text-2xl font-bold text-foreground">

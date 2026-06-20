@@ -3,7 +3,16 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Coins, Plus, Save, Trash2 } from "lucide-react";
+import {
+  Coins,
+  Plus,
+  Save,
+  Trash2,
+  Sparkles,
+  ShoppingBag,
+  Target,
+  Briefcase,
+} from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getEconomyConfig,
@@ -18,10 +27,16 @@ import {
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AuroraSection,
+  AuroraStatCard,
+  AuroraSwitchRow,
+  AuroraField,
+} from "@/components/dashboard/aurora-ui";
+import { Mascot } from "@/components/Mascot";
 
 export const Route = createFileRoute("/_authenticated/g/$guildId/economia")({
   loader: async ({ context, params }) => {
@@ -51,7 +66,9 @@ export const Route = createFileRoute("/_authenticated/g/$guildId/economia")({
       Falha ao carregar economia: {error instanceof Error ? error.message : String(error)}
     </div>
   ),
-  notFoundComponent: () => <div className="p-6 text-sm text-muted-foreground">Servidor não encontrado.</div>,
+  notFoundComponent: () => (
+    <div className="p-6 text-sm text-muted-foreground">Servidor não encontrado.</div>
+  ),
 });
 
 function EconomyPage() {
@@ -108,7 +125,7 @@ function EconomyPage() {
     onSuccess: (saved) => {
       setForm(saved);
       qc.setQueryData(["economy", guildId], saved);
-      toast.success("Salvo.");
+      toast.success("Salvo. 💰");
     },
     onError: (e) => toast.error((e as Error).message),
   });
@@ -172,7 +189,7 @@ function EconomyPage() {
       user={user}
       icon={Coins}
       title="Economia"
-      description="Moeda própria do servidor, daily, work e loja de cargos."
+      description="Moeda própria do servidor, daily, work, loja de cargos e missões."
       actions={
         <Button onClick={() => save.mutate()} disabled={save.isPending}>
           <Save className="mr-1.5 size-4" />
@@ -180,49 +197,74 @@ function EconomyPage() {
         </Button>
       }
     >
+      <div className="aurora-panel relative mb-6 flex items-center gap-4 overflow-hidden p-5">
+        <div className="aurora-float">
+          <Mascot variant="celebrate" size={80} glow />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h2 className="font-display text-lg font-bold tracking-tight">
+            {form.currency_emoji} {form.currency_name || "Moedas"} pra todo lado!
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Crie sua própria economia. Daily, work, loja e missões — tudo configurável.
+          </p>
+        </div>
+      </div>
+
+      <div className="mb-6 grid gap-3 sm:grid-cols-3">
+        <AuroraStatCard label="Itens na loja" value={shop.length} icon={ShoppingBag} tone="peach" />
+        <AuroraStatCard label="Missões ativas" value={missions.length} icon={Target} tone="lavender" />
+        <AuroraStatCard
+          label="Daily"
+          value={`${form.currency_emoji} ${Number(form.daily_amount).toLocaleString("pt-BR")}`}
+          icon={Sparkles}
+          tone="mint"
+        />
+      </div>
+
       <Tabs defaultValue="config">
-        <TabsList>
+        <TabsList className="aurora-panel">
           <TabsTrigger value="config">Configuração</TabsTrigger>
           <TabsTrigger value="shop">Loja ({shop.length})</TabsTrigger>
           <TabsTrigger value="missions">Missões ({missions.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="config" className="mt-4 space-y-4">
-          <Card>
-            <div className="flex items-center justify-between gap-4">
-              <Label>Ativar economia</Label>
-              <Switch
-                checked={form.enabled}
-                onCheckedChange={(v) => setForm({ ...form, enabled: v })}
-              />
-            </div>
-          </Card>
-          <Card>
+          <AuroraSection title="Status" icon={Coins} tone="mint">
+            <AuroraSwitchRow
+              label="Ativar economia"
+              checked={form.enabled}
+              onChange={(v) => setForm({ ...form, enabled: v })}
+            />
+          </AuroraSection>
+
+          <AuroraSection title="Moeda" icon={Sparkles} tone="peach">
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Nome da moeda">
+              <AuroraField label="Nome da moeda">
                 <Input
                   value={form.currency_name}
                   onChange={(e) => setForm({ ...form, currency_name: e.target.value })}
                 />
-              </Field>
-              <Field label="Emoji da moeda">
+              </AuroraField>
+              <AuroraField label="Emoji da moeda">
                 <Input
                   value={form.currency_emoji}
                   onChange={(e) => setForm({ ...form, currency_emoji: e.target.value })}
                 />
-              </Field>
+              </AuroraField>
             </div>
-          </Card>
-          <Card>
+          </AuroraSection>
+
+          <AuroraSection title="Daily & Work" icon={Briefcase} tone="lavender">
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Valor do /daily">
+              <AuroraField label="Valor do /daily">
                 <Input
                   type="number"
                   value={form.daily_amount}
                   onChange={(e) => setForm({ ...form, daily_amount: e.target.value })}
                 />
-              </Field>
-              <Field label="Cooldown /work (s)">
+              </AuroraField>
+              <AuroraField label="Cooldown /work (s)">
                 <Input
                   type="number"
                   value={form.work_cooldown_seconds}
@@ -230,57 +272,56 @@ function EconomyPage() {
                     setForm({ ...form, work_cooldown_seconds: e.target.value })
                   }
                 />
-              </Field>
-              <Field label="/work mínimo">
+              </AuroraField>
+              <AuroraField label="/work mínimo">
                 <Input
                   type="number"
                   value={form.work_min}
                   onChange={(e) => setForm({ ...form, work_min: e.target.value })}
                 />
-              </Field>
-              <Field label="/work máximo">
+              </AuroraField>
+              <AuroraField label="/work máximo">
                 <Input
                   type="number"
                   value={form.work_max}
                   onChange={(e) => setForm({ ...form, work_max: e.target.value })}
                 />
-              </Field>
+              </AuroraField>
             </div>
-          </Card>
+          </AuroraSection>
         </TabsContent>
 
         <TabsContent value="shop" className="mt-4 space-y-4">
-          <Card>
-            <h3 className="mb-3 text-sm font-semibold">Novo item</h3>
+          <AuroraSection title="Novo item" icon={Plus} tone="peach">
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Nome">
+              <AuroraField label="Nome">
                 <Input
                   value={item.name}
                   onChange={(e) => setItem({ ...item, name: e.target.value })}
                 />
-              </Field>
-              <Field label="Preço">
+              </AuroraField>
+              <AuroraField label="Preço">
                 <Input
                   type="number"
                   value={item.price}
                   onChange={(e) => setItem({ ...item, price: Number(e.target.value) })}
                 />
-              </Field>
-              <Field label="ID do cargo entregue">
+              </AuroraField>
+              <AuroraField label="ID do cargo entregue">
                 <Input
                   value={item.role_id}
                   onChange={(e) => setItem({ ...item, role_id: e.target.value.trim() })}
                 />
-              </Field>
-              <Field label="Descrição">
+              </AuroraField>
+              <AuroraField label="Descrição">
                 <Textarea
                   rows={2}
                   value={item.description}
                   onChange={(e) => setItem({ ...item, description: e.target.value })}
                 />
-              </Field>
+              </AuroraField>
             </div>
-            <div className="mt-3 flex justify-end">
+            <div className="flex justify-end">
               <Button
                 onClick={() => addItem.mutate()}
                 disabled={!item.name || !item.role_id || addItem.isPending}
@@ -288,32 +329,44 @@ function EconomyPage() {
                 <Plus className="mr-1.5 size-4" /> Adicionar
               </Button>
             </div>
-          </Card>
+          </AuroraSection>
 
-          <div className="rounded-2xl border border-border bg-card">
+          <div className="aurora-panel overflow-hidden">
             {shop.length === 0 ? (
-              <p className="p-6 text-center text-sm text-muted-foreground">
-                Loja vazia.
-              </p>
+              <div className="flex flex-col items-center gap-3 p-10 text-center">
+                <Mascot variant="sleeping" size={72} />
+                <p className="text-sm text-muted-foreground">Loja vazia. Adicione o primeiro item!</p>
+              </div>
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-y divide-border/60">
                 {(shop as any[]).map((s) => (
                   <li
                     key={s.id}
-                    className="flex items-center justify-between gap-4 px-5 py-3"
+                    className="flex items-center justify-between gap-4 px-5 py-3 transition hover:bg-[color:color-mix(in_oklab,var(--aurora-peach)_6%,transparent)]"
                   >
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium">{s.name}</p>
-                      {s.description && (
-                        <p className="truncate text-xs text-muted-foreground">
-                          {s.description}
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <span
+                        className="flex size-10 items-center justify-center rounded-xl"
+                        style={{
+                          background:
+                            "color-mix(in oklab, var(--aurora-peach) 25%, transparent)",
+                        }}
+                      >
+                        <ShoppingBag className="size-4" />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium">{s.name}</p>
+                        {s.description && (
+                          <p className="truncate text-xs text-muted-foreground">
+                            {s.description}
+                          </p>
+                        )}
+                        <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
+                          cargo: {s.role_id ?? "—"}
                         </p>
-                      )}
-                      <p className="mt-0.5 font-mono text-xs text-muted-foreground">
-                        cargo: {s.role_id ?? "—"}
-                      </p>
+                      </div>
                     </div>
-                    <span className="text-sm font-semibold">
+                    <span className="font-display rounded-lg bg-[color:color-mix(in_oklab,var(--aurora-peach)_25%,transparent)] px-3 py-1.5 text-sm font-bold">
                       {form.currency_emoji} {s.price.toLocaleString("pt-BR")}
                     </span>
                     <Button
@@ -331,16 +384,21 @@ function EconomyPage() {
         </TabsContent>
 
         <TabsContent value="missions" className="mt-4 space-y-4">
-          <Card>
-            <h3 className="mb-3 text-sm font-semibold">Nova missão</h3>
+          <AuroraSection title="Nova missão" icon={Target} tone="lavender">
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Slug">
-                <Input value={mission.slug} onChange={(e) => setMission({ ...mission, slug: e.target.value })} />
-              </Field>
-              <Field label="Título">
-                <Input value={mission.title} onChange={(e) => setMission({ ...mission, title: e.target.value })} />
-              </Field>
-              <Field label="Tipo">
+              <AuroraField label="Slug">
+                <Input
+                  value={mission.slug}
+                  onChange={(e) => setMission({ ...mission, slug: e.target.value })}
+                />
+              </AuroraField>
+              <AuroraField label="Título">
+                <Input
+                  value={mission.title}
+                  onChange={(e) => setMission({ ...mission, title: e.target.value })}
+                />
+              </AuroraField>
+              <AuroraField label="Tipo">
                 <select
                   value={mission.kind}
                   onChange={(e) => setMission({ ...mission, kind: e.target.value })}
@@ -353,43 +411,94 @@ function EconomyPage() {
                   <option value="rob">Roubo</option>
                   <option value="messages">Mensagens</option>
                 </select>
-              </Field>
-              <Field label="Meta">
-                <Input type="number" value={mission.goal} onChange={(e) => setMission({ ...mission, goal: Number(e.target.value) })} />
-              </Field>
-              <Field label="Recompensa">
-                <Input type="number" value={mission.reward} onChange={(e) => setMission({ ...mission, reward: Number(e.target.value) })} />
-              </Field>
-              <Field label="Ordem">
-                <Input type="number" value={mission.sort_order} onChange={(e) => setMission({ ...mission, sort_order: Number(e.target.value) })} />
-              </Field>
-              <Field label="Descrição">
-                <Textarea rows={2} value={mission.description} onChange={(e) => setMission({ ...mission, description: e.target.value })} />
-              </Field>
-              <div className="flex items-end justify-between gap-3 rounded-lg border border-border px-3 py-2">
-                <Label>Ativa</Label>
-                <Switch checked={mission.active} onCheckedChange={(v) => setMission({ ...mission, active: v })} />
+              </AuroraField>
+              <AuroraField label="Meta">
+                <Input
+                  type="number"
+                  value={mission.goal}
+                  onChange={(e) => setMission({ ...mission, goal: Number(e.target.value) })}
+                />
+              </AuroraField>
+              <AuroraField label="Recompensa">
+                <Input
+                  type="number"
+                  value={mission.reward}
+                  onChange={(e) => setMission({ ...mission, reward: Number(e.target.value) })}
+                />
+              </AuroraField>
+              <AuroraField label="Ordem">
+                <Input
+                  type="number"
+                  value={mission.sort_order}
+                  onChange={(e) => setMission({ ...mission, sort_order: Number(e.target.value) })}
+                />
+              </AuroraField>
+              <AuroraField label="Descrição">
+                <Textarea
+                  rows={2}
+                  value={mission.description}
+                  onChange={(e) => setMission({ ...mission, description: e.target.value })}
+                />
+              </AuroraField>
+              <div className="flex items-end">
+                <div className="w-full">
+                  <AuroraSwitchRow
+                    label="Ativa"
+                    checked={mission.active}
+                    onChange={(v) => setMission({ ...mission, active: v })}
+                  />
+                </div>
               </div>
             </div>
-            <div className="mt-3 flex justify-end">
-              <Button onClick={() => addMission.mutate()} disabled={!mission.slug || !mission.title || addMission.isPending}>
+            <div className="flex justify-end">
+              <Button
+                onClick={() => addMission.mutate()}
+                disabled={!mission.slug || !mission.title || addMission.isPending}
+              >
                 <Plus className="mr-1.5 size-4" /> Salvar missão
               </Button>
             </div>
-          </Card>
+          </AuroraSection>
 
-          <div className="rounded-2xl border border-border bg-card">
+          <div className="aurora-panel overflow-hidden">
             {missions.length === 0 ? (
-              <p className="p-6 text-center text-sm text-muted-foreground">Nenhuma missão configurada.</p>
+              <div className="flex flex-col items-center gap-3 p-10 text-center">
+                <Mascot variant="sleeping" size={72} />
+                <p className="text-sm text-muted-foreground">Nenhuma missão configurada.</p>
+              </div>
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-y divide-border/60">
                 {(missions as any[]).map((m) => (
-                  <li key={m.id} className="flex items-center justify-between gap-4 px-5 py-3">
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-medium">{m.title} <span className="text-xs text-muted-foreground">/{m.slug}</span></p>
-                      <p className="text-xs text-muted-foreground">{m.kind} · meta {m.goal} · recompensa {form.currency_emoji} {Number(m.reward).toLocaleString("pt-BR")}</p>
+                  <li
+                    key={m.id}
+                    className="flex items-center justify-between gap-4 px-5 py-3 transition hover:bg-[color:color-mix(in_oklab,var(--aurora-lavender)_6%,transparent)]"
+                  >
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <span
+                        className="flex size-10 items-center justify-center rounded-xl"
+                        style={{
+                          background:
+                            "color-mix(in oklab, var(--aurora-lavender) 25%, transparent)",
+                        }}
+                      >
+                        <Target className="size-4" />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium">
+                          {m.title}{" "}
+                          <span className="text-xs text-muted-foreground">/{m.slug}</span>
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {m.kind} · meta {m.goal} · {form.currency_emoji}{" "}
+                          {Number(m.reward).toLocaleString("pt-BR")}
+                        </p>
+                      </div>
                     </div>
-                    <Button variant="ghost" size="icon" onClick={() => deleteMission.mutate(m.id)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => deleteMission.mutate(m.id)}
+                    >
                       <Trash2 className="size-4" />
                     </Button>
                   </li>
@@ -400,17 +509,5 @@ function EconomyPage() {
         </TabsContent>
       </Tabs>
     </ModuleLayout>
-  );
-}
-
-function Card({ children }: { children: React.ReactNode }) {
-  return <div className="rounded-2xl border border-border bg-card p-5">{children}</div>;
-}
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <Label className="text-xs">{label}</Label>
-      {children}
-    </div>
   );
 }

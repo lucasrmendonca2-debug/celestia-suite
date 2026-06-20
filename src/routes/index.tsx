@@ -481,17 +481,50 @@ function Landing() {
           background-repeat: no-repeat;
           mix-blend-mode: multiply;
         }
+        /* Escalada fluida: começa fora-direita-embaixo, escala pela borda,
+           senta pendurado em cima do botão e fica balançando curioso. */
+        @keyframes chibi-climb {
+          0%   { opacity: 0; transform: translate(40%, 120%) rotate(35deg); }
+          12%  { opacity: 1; transform: translate(38%, 90%)  rotate(28deg); }
+          25%  { opacity: 1; transform: translate(28%, 55%)  rotate(18deg); }
+          40%  { opacity: 1; transform: translate(10%, 20%)  rotate(8deg); }
+          55%  { opacity: 1; transform: translate(-20%, -5%) rotate(-4deg); }
+          70%  { opacity: 1; transform: translate(-45%, 5%)  rotate(-10deg); }
+          85%  { opacity: 1; transform: translate(-50%, 18%) rotate(2deg); }
+          100% { opacity: 1; transform: translate(-50%, 12%) rotate(0deg); }
+        }
+        @keyframes chibi-hang {
+          0%, 100% { transform: translate(-50%, 12%) rotate(0deg); }
+          25%      { transform: translate(-50%, 9%)  rotate(-3deg); }
+          50%      { transform: translate(-50%, 14%) rotate(2deg); }
+          75%      { transform: translate(-50%, 10%) rotate(-1deg); }
+        }
+        @keyframes chibi-punch {
+          0%, 80%, 100% { filter: drop-shadow(0 8px 10px rgba(27,14,59,0.3)); }
+          85%           { transform: translate(-50%, 8%)  rotate(-6deg) scale(1.04); }
+          90%           { transform: translate(-50%, 14%) rotate(4deg)  scale(0.98); }
+        }
         .peek-trigger .peek-chibi {
           opacity: 0;
-          transform: translate(-50%, 40%) rotate(-8deg);
-          transition: opacity 0.15s ease-out;
+          transform: translate(40%, 120%) rotate(35deg);
+          transition: opacity 0.2s ease-out;
+          transform-origin: 50% 80%;
+          will-change: transform;
         }
         .peek-trigger:hover .peek-chibi,
         .peek-trigger:focus-visible .peek-chibi {
-          opacity: 1;
-          animation: peek-down 0.5s cubic-bezier(.34,1.56,.64,1) forwards,
-                     curious-tilt 2.4s ease-in-out 0.5s infinite,
-                     punch-glass 4s ease-in-out 1.2s infinite;
+          animation:
+            chibi-climb 1.4s cubic-bezier(.45,.05,.35,1) forwards,
+            chibi-hang  2.6s ease-in-out 1.4s infinite,
+            chibi-punch 5s   ease-in-out 2.6s infinite;
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .peek-trigger:hover .peek-chibi,
+          .peek-trigger:focus-visible .peek-chibi {
+            animation: none;
+            opacity: 1;
+            transform: translate(-50%, 12%) rotate(0deg);
+          }
         }
 
       `}</style>

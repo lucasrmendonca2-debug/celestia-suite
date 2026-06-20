@@ -602,29 +602,60 @@ function SocialPage() {
 
         {/* LEADERBOARD */}
         <TabsContent value="leaderboard" className="space-y-4">
-          <Card title="Top 50 — Mais XP no servidor">
+          <Card title="Top — Mais XP no servidor">
             {lb.data && lb.data.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="text-left text-xs uppercase text-muted-foreground">
-                    <tr><th className="p-2">#</th><th className="p-2">Usuário</th><th className="p-2">Nível</th><th className="p-2">XP total</th><th className="p-2">Mensagens</th></tr>
+                    <tr>
+                      <th className="p-2">#</th>
+                      <th className="p-2">Usuário</th>
+                      <th className="p-2">Nível</th>
+                      <th className="p-2">XP total</th>
+                      <th className="p-2">Mensagens</th>
+                    </tr>
                   </thead>
                   <tbody>
-                    {lb.data.map((r: any, i: number) => (
-                      <tr key={r.user_id} className="border-t border-border/40">
-                        <td className="p-2">{i + 1}</td>
-                        <td className="p-2 font-medium">{r.username ?? r.user_id}</td>
-                        <td className="p-2">{r.level}</td>
-                        <td className="p-2">{Number(r.total_xp).toLocaleString("pt-BR")}</td>
-                        <td className="p-2 text-muted-foreground">{r.messages_count}</td>
-                      </tr>
-                    ))}
+                    {lb.data.map((r: any, i: number) => {
+                      const podiumIcon =
+                        i === 0 ? Crown : i === 1 ? Medal : i === 2 ? Award : null;
+                      const tone =
+                        i === 0 ? "peach" : i === 1 ? "lavender" : i === 2 ? "pink" : null;
+                      return (
+                        <tr
+                          key={r.user_id}
+                          className="border-t border-border/40 transition hover:bg-[color:color-mix(in_oklab,var(--aurora-lavender)_8%,transparent)]"
+                        >
+                          <td className="p-2">
+                            {podiumIcon ? (
+                              <span
+                                className="inline-flex size-7 items-center justify-center rounded-lg"
+                                style={{
+                                  background: `linear-gradient(135deg, color-mix(in oklab, var(--aurora-${tone}) 40%, transparent), transparent)`,
+                                }}
+                              >
+                                {(() => {
+                                  const Ico = podiumIcon;
+                                  return <Ico className="size-4" />;
+                                })()}
+                              </span>
+                            ) : (
+                              <span className="text-muted-foreground">{i + 1}</span>
+                            )}
+                          </td>
+                          <td className="p-2 font-medium">{r.username ?? r.user_id}</td>
+                          <td className="p-2">{r.level}</td>
+                          <td className="p-2">{Number(r.total_xp).toLocaleString("pt-BR")}</td>
+                          <td className="p-2 text-muted-foreground">{r.messages_count}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
             ) : (
               <div className="flex flex-col items-center gap-2 py-8 text-center text-sm text-muted-foreground">
-                <Trophy className="size-10 opacity-40" />
+                <Mascot variant="sleeping" size={72} />
                 <p>Ninguém ganhou XP ainda. Mande seu pessoal conversar!</p>
               </div>
             )}
@@ -637,20 +668,53 @@ function SocialPage() {
             {logs.data && logs.data.length > 0 ? (
               <ul className="space-y-1.5 text-sm">
                 {logs.data.map((log: any) => (
-                  <li key={log.id} className="flex flex-wrap items-center gap-2 rounded-md border border-border/50 bg-background/40 px-3 py-2">
+                  <li
+                    key={log.id}
+                    className="flex flex-wrap items-center gap-2 rounded-md border border-border/50 bg-background/40 px-3 py-2"
+                  >
                     <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{log.action}</code>
                     <span>user <code>{log.user_id}</code></span>
                     {log.level != null && <span>· nível <b>{log.level}</b></span>}
-                    {log.amount != null && <span>· {log.amount > 0 ? "+" : ""}{log.amount} XP</span>}
-                    <span className="ml-auto text-xs text-muted-foreground">{new Date(log.created_at).toLocaleString("pt-BR")}</span>
+                    {log.amount != null && (
+                      <span>· {log.amount > 0 ? "+" : ""}{log.amount} XP</span>
+                    )}
+                    <span className="ml-auto text-xs text-muted-foreground">
+                      {new Date(log.created_at).toLocaleString("pt-BR")}
+                    </span>
                   </li>
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-muted-foreground">Sem registros ainda.</p>
+              <div className="flex flex-col items-center gap-2 py-6 text-center">
+                <Mascot variant="sleeping" size={64} />
+                <p className="text-sm text-muted-foreground">Sem registros ainda.</p>
+              </div>
             )}
           </Card>
         </TabsContent>
+      </Tabs>
+    </ModuleLayout>
+  );
+}
+
+function Card({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="aurora-panel aurora-card-hover relative overflow-hidden p-5">
+      <span
+        aria-hidden
+        className="pointer-events-none absolute -right-12 -top-12 size-32 rounded-full blur-3xl opacity-40"
+        style={{
+          background:
+            "radial-gradient(circle, color-mix(in oklab, var(--aurora-lavender) 60%, transparent), transparent 70%)",
+        }}
+      />
+      <h3 className="font-display relative mb-4 text-sm font-semibold tracking-tight">
+        {title}
+      </h3>
+      <div className="relative space-y-4">{children}</div>
+    </div>
+  );
+}
       </Tabs>
     </ModuleLayout>
   );

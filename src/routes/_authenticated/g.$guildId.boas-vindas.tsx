@@ -1,24 +1,26 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Sparkles } from "lucide-react";
+import { Sparkles, MessageSquareHeart, Palette, Hash, Eye } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getGuildConfig,
   updateWelcomeConfig,
   type WelcomeConfig,
 } from "@/lib/guild/guild.functions";
-import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
-import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
+import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
 import { ChannelSelect } from "@/components/dashboard/selectors/ChannelSelect";
 import { SaveBar } from "@/components/dashboard/SaveBar";
+import {
+  AuroraSection,
+  AuroraSwitchRow,
+  AuroraField,
+} from "@/components/dashboard/aurora-ui";
+import { Mascot } from "@/components/Mascot";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-
 
 export const Route = createFileRoute("/_authenticated/g/$guildId/boas-vindas")({
   loader: async ({ context, params }) => {
@@ -42,6 +44,13 @@ export const Route = createFileRoute("/_authenticated/g/$guildId/boas-vindas")({
     </div>
   ),
 });
+
+function renderPreview(message: string, guildName: string) {
+  return message
+    .replaceAll("{user}", "@VocêMesmo")
+    .replaceAll("{server}", guildName)
+    .replaceAll("{count}", "1.337");
+}
 
 function WelcomePage() {
   const { user, guild, config } = Route.useLoaderData();
@@ -69,148 +78,167 @@ function WelcomePage() {
     onSuccess: (saved) => {
       setForm(saved);
       setBaseline(saved);
-      toast.success("Configurações salvas. O bot já está usando.");
+      toast.success("Configurações salvas. O bot já está usando! ✨");
     },
     onError: (err) => toast.error((err as Error).message ?? "Falha ao salvar."),
   });
 
   return (
-    <div className="flex min-h-screen bg-background text-foreground">
-      <DashboardSidebar guildId={guild.id} />
-      <div className="flex-1">
-        <DashboardTopbar user={user} title={guild.name} subtitle="Módulo: Boas-vindas" guildId={guild.id} />
-
-        <main className="mx-auto max-w-3xl px-6 py-8">
-          <Link
-            to="/g/$guildId"
-            params={{ guildId: guild.id }}
-            className="mb-4 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
-          >
-            <ArrowLeft className="size-3.5" /> Voltar pra visão geral
-          </Link>
-
-          <header className="mb-6 flex items-center gap-3">
-            <div className="flex size-11 items-center justify-center rounded-xl bg-primary/15 text-primary ring-1 ring-primary/30">
-              <Sparkles className="size-5" />
-            </div>
-            <div>
-              <h1 className="text-xl font-semibold">Boas-vindas</h1>
-              <p className="text-xs text-muted-foreground">
-                Mensagem enviada quando alguém entra no servidor.
-              </p>
-            </div>
-          </header>
-
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (dirty) mutation.mutate(form);
-            }}
-            className="space-y-6 rounded-2xl border border-border bg-card p-6"
-          >
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <Label className="text-sm font-medium">Ativar módulo</Label>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Quando desligado, o bot ignora novos membros.
-                </p>
-              </div>
-              <Switch
-                checked={form.welcome_enabled}
-                onCheckedChange={(v) => setForm({ ...form, welcome_enabled: v })}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="channel" className="text-sm font-medium">
-                Canal de boas-vindas
-              </Label>
-              <ChannelSelect
-                guildId={guild.id}
-                value={form.welcome_channel_id}
-                onChange={(id) => setForm({ ...form, welcome_channel_id: id })}
-              />
-              <p className="text-xs text-muted-foreground">
-                Lista carregada direto do Discord via bot.
-              </p>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="msg" className="text-sm font-medium">
-                Mensagem
-              </Label>
-              <Textarea
-                id="msg"
-                rows={4}
-                value={form.welcome_message}
-                onChange={(e) => setForm({ ...form, welcome_message: e.target.value })}
-              />
-              <p className="text-xs text-muted-foreground">
-                Variáveis: <code className="rounded bg-muted px-1">{"{user}"}</code>{" "}
-                <code className="rounded bg-muted px-1">{"{server}"}</code>{" "}
-                <code className="rounded bg-muted px-1">{"{count}"}</code>
-              </p>
-            </div>
-
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <Label className="text-sm font-medium">Enviar como embed</Label>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Mensagem com barra colorida lateral em vez de texto puro.
-                </p>
-              </div>
-              <Switch
-                checked={form.welcome_embed_enabled}
-                onCheckedChange={(v) => setForm({ ...form, welcome_embed_enabled: v })}
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label htmlFor="color" className="text-sm font-medium">
-                Cor do embed
-              </Label>
-              <div className="flex items-center gap-3">
-                <input
-                  id="color"
-                  type="color"
-                  value={form.welcome_embed_color}
-                  onChange={(e) =>
-                    setForm({ ...form, welcome_embed_color: e.target.value })
-                  }
-                  className="size-10 cursor-pointer rounded-md border border-border bg-background"
-                />
-                <Input
-                  value={form.welcome_embed_color}
-                  onChange={(e) =>
-                    setForm({ ...form, welcome_embed_color: e.target.value })
-                  }
-                  className="max-w-[140px] font-mono"
-                />
-              </div>
-            </div>
-
-            <div className="border-t border-border pt-4">
-              <span className="text-xs text-muted-foreground">
-                Última atualização:{" "}
-                {new Date(form.updated_at).toLocaleString("pt-BR")}
-              </span>
-            </div>
-          </form>
-
-          <p className="mt-4 text-xs text-muted-foreground">
-            O bot lê essas configurações do banco em tempo real. Sem reiniciar.
+    <ModuleLayout
+      guildId={guild.id}
+      user={user}
+      icon={Sparkles}
+      title="Boas-vindas"
+      description="Receba novos membros com estilo. Mensagens automáticas, embed colorido e variáveis dinâmicas."
+    >
+      {/* Hero banner com mascote */}
+      <div className="aurora-panel relative mb-6 flex items-center gap-4 overflow-hidden p-5">
+        <div className="aurora-float">
+          <Mascot variant="celebrate" size={84} glow />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h2 className="font-display text-lg font-bold tracking-tight">
+            Cause uma boa primeira impressão 💜
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Cada novo membro recebe uma mensagem personalizada. Use variáveis para
+            deixar tudo único.
           </p>
-        </main>
-
-        <SaveBar
-          dirty={dirty}
-          isPending={mutation.isPending}
-          isSuccess={mutation.isSuccess}
-          errorMessage={mutation.isError ? (mutation.error as Error).message : null}
-          onSave={() => mutation.mutate(form)}
-          onReset={() => setForm(baseline)}
-        />
+        </div>
+        <div
+          className="hidden sm:flex items-center gap-2 rounded-full border border-[color:color-mix(in_oklab,var(--aurora-mint)_50%,var(--border))] bg-[color:color-mix(in_oklab,var(--aurora-mint)_15%,var(--card))] px-3 py-1.5 text-xs font-medium"
+        >
+          <span className="aurora-glow-dot size-2 rounded-full" />
+          {form.welcome_enabled ? "Ativo agora" : "Desligado"}
+        </div>
       </div>
-    </div>
+
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (dirty) mutation.mutate(form);
+        }}
+        className="space-y-5"
+      >
+        <AuroraSection
+          title="Status do módulo"
+          icon={Sparkles}
+          tone="lavender"
+        >
+          <AuroraSwitchRow
+            label="Ativar boas-vindas"
+            hint="Quando desligado, o bot ignora novos membros."
+            checked={form.welcome_enabled}
+            onChange={(v) => setForm({ ...form, welcome_enabled: v })}
+          />
+        </AuroraSection>
+
+        <AuroraSection title="Canal" icon={Hash} tone="cyan">
+          <AuroraField
+            label="Canal de boas-vindas"
+            hint="Lista carregada direto do Discord via bot."
+          >
+            <ChannelSelect
+              guildId={guild.id}
+              value={form.welcome_channel_id}
+              onChange={(id) => setForm({ ...form, welcome_channel_id: id })}
+            />
+          </AuroraField>
+        </AuroraSection>
+
+        <AuroraSection title="Mensagem" icon={MessageSquareHeart} tone="pink">
+          <AuroraField
+            label="Texto enviado"
+            htmlFor="msg"
+            hint="Variáveis disponíveis: {user}, {server}, {count}"
+          >
+            <Textarea
+              id="msg"
+              rows={4}
+              value={form.welcome_message}
+              onChange={(e) =>
+                setForm({ ...form, welcome_message: e.target.value })
+              }
+              className="font-mono text-sm"
+            />
+          </AuroraField>
+
+          {/* Live preview */}
+          <div
+            className="rounded-xl border border-[color:color-mix(in_oklab,var(--aurora-pink)_30%,var(--border))] bg-[color:color-mix(in_oklab,var(--aurora-pink)_6%,var(--card))] p-4"
+          >
+            <div className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+              <Eye className="size-3" /> Pré-visualização
+            </div>
+            {form.welcome_embed_enabled ? (
+              <div className="flex gap-3">
+                <div
+                  className="w-1 shrink-0 rounded-full"
+                  style={{ background: form.welcome_embed_color }}
+                />
+                <div className="text-sm leading-relaxed">
+                  {renderPreview(form.welcome_message, guild.name)}
+                </div>
+              </div>
+            ) : (
+              <div className="text-sm leading-relaxed">
+                {renderPreview(form.welcome_message, guild.name)}
+              </div>
+            )}
+          </div>
+        </AuroraSection>
+
+        <AuroraSection title="Estilo do embed" icon={Palette} tone="peach">
+          <AuroraSwitchRow
+            label="Enviar como embed"
+            hint="Mensagem com barra colorida lateral em vez de texto puro."
+            checked={form.welcome_embed_enabled}
+            onChange={(v) => setForm({ ...form, welcome_embed_enabled: v })}
+          />
+
+          <AuroraField label="Cor do embed" htmlFor="color">
+            <div className="flex items-center gap-3">
+              <input
+                id="color"
+                type="color"
+                value={form.welcome_embed_color}
+                onChange={(e) =>
+                  setForm({ ...form, welcome_embed_color: e.target.value })
+                }
+                className="size-11 cursor-pointer rounded-xl border border-border bg-background"
+              />
+              <Input
+                value={form.welcome_embed_color}
+                onChange={(e) =>
+                  setForm({ ...form, welcome_embed_color: e.target.value })
+                }
+                className="max-w-[160px] font-mono"
+              />
+              <div
+                className="hidden h-11 flex-1 rounded-xl sm:block"
+                style={{
+                  background: `linear-gradient(135deg, ${form.welcome_embed_color}, color-mix(in oklab, ${form.welcome_embed_color} 50%, white))`,
+                }}
+              />
+            </div>
+          </AuroraField>
+        </AuroraSection>
+
+        <p className="px-1 text-xs text-muted-foreground">
+          Última atualização:{" "}
+          {new Date(form.updated_at).toLocaleString("pt-BR")} · O bot lê estas
+          configurações em tempo real, sem reiniciar.
+        </p>
+      </form>
+
+      <SaveBar
+        dirty={dirty}
+        isPending={mutation.isPending}
+        isSuccess={mutation.isSuccess}
+        errorMessage={mutation.isError ? (mutation.error as Error).message : null}
+        onSave={() => mutation.mutate(form)}
+        onReset={() => setForm(baseline)}
+      />
+    </ModuleLayout>
   );
 }

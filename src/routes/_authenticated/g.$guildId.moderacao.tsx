@@ -39,6 +39,14 @@ import {
   RolePicker,
   MultiRolePicker,
 } from "@/components/dashboard/tickets/DiscordPickers";
+import {
+  AuroraSection,
+  AuroraStatCard,
+  AuroraSwitchRow,
+  AuroraField,
+} from "@/components/dashboard/aurora-ui";
+import { Mascot } from "@/components/Mascot";
+
 
 export const Route = createFileRoute("/_authenticated/g/$guildId/moderacao")({
   loader: async ({ context, params }) => {

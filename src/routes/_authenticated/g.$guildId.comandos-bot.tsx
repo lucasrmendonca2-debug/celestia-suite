@@ -3,7 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Save, Terminal, Trash2 } from "lucide-react";
+import { Plus, Save, Terminal, Trash2, Sparkles, Power, PowerOff } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   listCustomCommands,
@@ -12,10 +12,15 @@ import {
 } from "@/lib/guild/modules.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
 import { EmbedEditor, type EmbedData } from "@/components/dashboard/EmbedEditor";
+import {
+  AuroraSection,
+  AuroraStatCard,
+  AuroraField,
+  AuroraSwitchRow,
+} from "@/components/dashboard/aurora-ui";
+import { Mascot } from "@/components/Mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -67,6 +72,10 @@ function CommandsPage() {
   const remove = useServerFn(removeCustomCommand);
   const [selected, setSelected] = useState<CmdForm>(EMPTY);
 
+  const total = rows.length;
+  const enabled = (rows as any[]).filter((r) => r.enabled).length;
+  const disabled = total - enabled;
+
   const load = (r: any) =>
     setSelected({
       id: r.id,
@@ -113,7 +122,7 @@ function CommandsPage() {
       user={user}
       icon={Terminal}
       title="Comandos customizados"
-      description="Crie /comandos próprios que respondem com texto ou embed."
+      description="Crie /comandos próprios que respondem com texto ou embed mágico."
       actions={
         <>
           <Button variant="outline" onClick={() => setSelected(EMPTY)}>
@@ -129,42 +138,85 @@ function CommandsPage() {
         </>
       }
     >
-      <div className="grid gap-4 lg:grid-cols-[260px_1fr]">
-        <aside className="rounded-2xl border border-border bg-card p-2">
-          {rows.length === 0 ? (
-            <p className="p-4 text-center text-xs text-muted-foreground">
-              Sem comandos.
+      {/* Hero banner */}
+      <div
+        className="aurora-panel relative mb-5 overflow-hidden p-5 sm:p-6"
+        style={{
+          background:
+            "linear-gradient(135deg, color-mix(in oklab, var(--aurora-cyan) 18%, var(--card)), color-mix(in oklab, var(--aurora-lavender) 14%, var(--card)))",
+        }}
+      >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -right-12 -top-12 size-44 rounded-full blur-3xl opacity-60"
+          style={{
+            background:
+              "radial-gradient(circle, color-mix(in oklab, var(--aurora-cyan) 70%, transparent), transparent 70%)",
+          }}
+        />
+        <div className="relative flex items-center gap-4">
+          <Mascot variant={total > 0 ? "celebrate" : "hero"} size={84} glow />
+          <div className="min-w-0">
+            <h2 className="font-display text-lg font-bold tracking-tight sm:text-xl">
+              Sua própria coleção de feitiços
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {total === 0
+                ? "Nenhum comando criado ainda — comece com um /olá!"
+                : `Você tem ${total} comando${total === 1 ? "" : "s"} configurado${total === 1 ? "" : "s"}.`}
             </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-5 grid gap-3 sm:grid-cols-3">
+        <AuroraStatCard label="Total" value={total} icon={Sparkles} tone="lavender" />
+        <AuroraStatCard label="Ativos" value={enabled} icon={Power} tone="mint" />
+        <AuroraStatCard label="Desativados" value={disabled} icon={PowerOff} tone="peach" />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[280px_1fr]">
+        <AuroraSection title="Comandos" icon={Terminal} tone="lavender">
+          {rows.length === 0 ? (
+            <div className="flex flex-col items-center gap-2 py-4 text-center">
+              <Mascot variant="sleeping" size={64} />
+              <p className="text-xs text-muted-foreground">Nenhum ainda.</p>
+            </div>
           ) : (
-            <ul className="space-y-0.5">
+            <ul className="space-y-1">
               {(rows as any[]).map((r) => (
                 <li key={r.id}>
                   <button
                     onClick={() => load(r)}
-                    className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm ${
+                    className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-sm transition ${
                       selected.id === r.id
-                        ? "bg-primary/15 text-foreground"
-                        : "hover:bg-accent"
+                        ? "bg-[color:color-mix(in_oklab,var(--aurora-lavender)_22%,transparent)] text-foreground shadow-sm"
+                        : "hover:bg-[color:color-mix(in_oklab,var(--aurora-lavender)_10%,transparent)]"
                     }`}
                   >
-                    <span>/{r.name}</span>
-                    {!r.enabled && (
-                      <span className="text-[10px] text-muted-foreground">off</span>
-                    )}
+                    <span className="font-mono">/{r.name}</span>
+                    <span
+                      className={`text-[10px] font-semibold uppercase tracking-wider ${
+                        r.enabled ? "text-[color:var(--aurora-mint)]" : "text-muted-foreground"
+                      }`}
+                    >
+                      {r.enabled ? "on" : "off"}
+                    </span>
                   </button>
                 </li>
               ))}
             </ul>
           )}
-        </aside>
+        </AuroraSection>
 
-        <section className="space-y-4">
-          <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="space-y-4">
+          <AuroraSection title="Configuração" icon={Sparkles} tone="pink">
             <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="Nome (sem barra)">
+              <AuroraField label="Nome (sem barra)">
                 <Input
                   value={selected.name}
                   maxLength={32}
+                  placeholder="ola"
                   onChange={(e) =>
                     setSelected({
                       ...selected,
@@ -172,52 +224,54 @@ function CommandsPage() {
                     })
                   }
                 />
-              </Field>
-              <Field label="Descrição (na lista do Discord)">
+              </AuroraField>
+              <AuroraField label="Descrição">
                 <Input
                   value={selected.description}
+                  placeholder="O que esse comando faz?"
                   onChange={(e) =>
                     setSelected({ ...selected, description: e.target.value })
                   }
                 />
-              </Field>
+              </AuroraField>
             </div>
-            <div className="mt-4 flex items-center justify-between gap-4">
-              <Label className="text-sm">Ativo</Label>
-              <Switch
-                checked={selected.enabled}
-                onCheckedChange={(v) => setSelected({ ...selected, enabled: v })}
-              />
-            </div>
-          </div>
+            <AuroraSwitchRow
+              label="Comando ativo"
+              hint="Quando desligado, o /comando deixa de responder no Discord."
+              checked={selected.enabled}
+              onChange={(v) => setSelected({ ...selected, enabled: v })}
+            />
+          </AuroraSection>
 
-          <Tabs
-            value={selected.use_embed ? "embed" : "text"}
-            onValueChange={(v) =>
-              setSelected({ ...selected, use_embed: v === "embed" })
-            }
-          >
-            <TabsList>
-              <TabsTrigger value="text">Texto</TabsTrigger>
-              <TabsTrigger value="embed">Embed</TabsTrigger>
-            </TabsList>
-            <TabsContent value="text" className="mt-4">
-              <Textarea
-                rows={8}
-                placeholder="Resposta do comando…"
-                value={selected.response_text}
-                onChange={(e) =>
-                  setSelected({ ...selected, response_text: e.target.value })
-                }
-              />
-            </TabsContent>
-            <TabsContent value="embed" className="mt-4">
-              <EmbedEditor
-                value={selected.embed}
-                onChange={(v) => setSelected({ ...selected, embed: v })}
-              />
-            </TabsContent>
-          </Tabs>
+          <AuroraSection title="Resposta" icon={Terminal} tone="cyan">
+            <Tabs
+              value={selected.use_embed ? "embed" : "text"}
+              onValueChange={(v) =>
+                setSelected({ ...selected, use_embed: v === "embed" })
+              }
+            >
+              <TabsList>
+                <TabsTrigger value="text">Texto</TabsTrigger>
+                <TabsTrigger value="embed">Embed</TabsTrigger>
+              </TabsList>
+              <TabsContent value="text" className="mt-4">
+                <Textarea
+                  rows={8}
+                  placeholder="Resposta do comando…"
+                  value={selected.response_text}
+                  onChange={(e) =>
+                    setSelected({ ...selected, response_text: e.target.value })
+                  }
+                />
+              </TabsContent>
+              <TabsContent value="embed" className="mt-4">
+                <EmbedEditor
+                  value={selected.embed}
+                  onChange={(v) => setSelected({ ...selected, embed: v })}
+                />
+              </TabsContent>
+            </Tabs>
+          </AuroraSection>
 
           {selected.id && (
             <div className="flex justify-end">
@@ -231,17 +285,8 @@ function CommandsPage() {
               </Button>
             </div>
           )}
-        </section>
+        </div>
       </div>
     </ModuleLayout>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <Label className="text-xs">{label}</Label>
-      {children}
-    </div>
   );
 }

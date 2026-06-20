@@ -1,9 +1,24 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { toast } from "sonner";
-import { Save, ScrollText, History, RefreshCw } from "lucide-react";
+import {
+  Save,
+  ScrollText,
+  History,
+  RefreshCw,
+  Activity,
+  Hash,
+  ShieldOff,
+  MessageSquare,
+  Users,
+  Tag,
+  Volume2,
+  Server,
+  Link2,
+  ShieldAlert,
+} from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getLogsConfig,
@@ -11,10 +26,15 @@ import {
   listAuditLogs,
 } from "@/lib/guild/modules.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
+import {
+  AuroraSection,
+  AuroraStatCard,
+  AuroraField,
+  AuroraSwitchRow,
+} from "@/components/dashboard/aurora-ui";
+import { Mascot } from "@/components/Mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import {
   Tabs,
@@ -22,6 +42,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import type { LucideIcon } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/g/$guildId/logs")({
   loader: async ({ context, params }) => {
@@ -40,9 +61,13 @@ export const Route = createFileRoute("/_authenticated/g/$guildId/logs")({
   component: LogsPage,
 });
 
+type Tone = "lavender" | "pink" | "cyan" | "mint" | "peach";
+
 type Category = {
   key: string;
   label: string;
+  icon: LucideIcon;
+  tone: Tone;
   channelKey: string;
   toggles: { key: string; label: string }[];
 };
@@ -51,6 +76,8 @@ const CATEGORIES: Category[] = [
   {
     key: "message",
     label: "Mensagens",
+    icon: MessageSquare,
+    tone: "lavender",
     channelKey: "message_channel_id",
     toggles: [
       { key: "message_delete", label: "Mensagem deletada" },
@@ -61,6 +88,8 @@ const CATEGORIES: Category[] = [
   {
     key: "member",
     label: "Membros",
+    icon: Users,
+    tone: "pink",
     channelKey: "member_channel_id",
     toggles: [
       { key: "member_join", label: "Entrada" },
@@ -74,6 +103,8 @@ const CATEGORIES: Category[] = [
   {
     key: "role",
     label: "Cargos",
+    icon: Tag,
+    tone: "peach",
     channelKey: "role_channel_id",
     toggles: [
       { key: "role_create", label: "Cargo criado" },
@@ -84,6 +115,8 @@ const CATEGORIES: Category[] = [
   {
     key: "channel",
     label: "Canais",
+    icon: Hash,
+    tone: "cyan",
     channelKey: "channel_channel_id",
     toggles: [
       { key: "channel_create", label: "Canal criado" },
@@ -94,12 +127,16 @@ const CATEGORIES: Category[] = [
   {
     key: "voice",
     label: "Voz",
+    icon: Volume2,
+    tone: "mint",
     channelKey: "voice_channel_id",
     toggles: [{ key: "voice_state_update", label: "Join/leave/move" }],
   },
   {
     key: "server",
     label: "Servidor",
+    icon: Server,
+    tone: "lavender",
     channelKey: "server_channel_id",
     toggles: [
       { key: "server_update", label: "Servidor atualizado" },
@@ -109,6 +146,8 @@ const CATEGORIES: Category[] = [
   {
     key: "invite",
     label: "Convites",
+    icon: Link2,
+    tone: "pink",
     channelKey: "invite_channel_id",
     toggles: [
       { key: "invite_create", label: "Convite criado" },
@@ -118,6 +157,8 @@ const CATEGORIES: Category[] = [
   {
     key: "mod",
     label: "Moderação",
+    icon: ShieldAlert,
+    tone: "peach",
     channelKey: "mod_channel_id",
     toggles: [
       { key: "member_ban", label: "Ban" },
@@ -146,6 +187,17 @@ function LogsPage() {
 
   const set = (k: string, v: unknown) => setForm((f) => ({ ...f, [k]: v }));
 
+  const enabledCount = useMemo(
+    () =>
+      CATEGORIES.flatMap((c) => c.toggles).filter((t) => !!form[t.key]).length,
+    [form],
+  );
+  const channelsCount = useMemo(
+    () => CATEGORIES.filter((c) => !!form[c.channelKey]).length,
+    [form],
+  );
+  const hasGlobal = !!form.log_channel_id;
+
   return (
     <ModuleLayout
       guildId={guildId}
@@ -160,67 +212,137 @@ function LogsPage() {
         </Button>
       }
     >
+      <div
+        className="aurora-panel relative mb-5 overflow-hidden p-5 sm:p-6"
+        style={{
+          background:
+            "linear-gradient(135deg, color-mix(in oklab, var(--aurora-lavender) 18%, var(--card)), color-mix(in oklab, var(--aurora-cyan) 14%, var(--card)))",
+        }}
+      >
+        <span
+          aria-hidden
+          className="pointer-events-none absolute -right-12 -top-12 size-44 rounded-full blur-3xl opacity-60"
+          style={{
+            background:
+              "radial-gradient(circle, color-mix(in oklab, var(--aurora-lavender) 70%, transparent), transparent 70%)",
+          }}
+        />
+        <div className="relative flex items-center gap-4">
+          <Mascot variant={hasGlobal ? "celebrate" : "error"} size={84} glow />
+          <div className="min-w-0">
+            <h2 className="font-display text-lg font-bold tracking-tight sm:text-xl">
+              Tudo que acontece, registrado
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {hasGlobal
+                ? `Canal global configurado, ${enabledCount} evento${enabledCount === 1 ? "" : "s"} ativo${enabledCount === 1 ? "" : "s"}.`
+                : "Configure um canal global no fim para começar a auditar."}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-5 grid gap-3 sm:grid-cols-3">
+        <AuroraStatCard
+          label="Eventos ativos"
+          value={enabledCount}
+          icon={Activity}
+          tone="mint"
+        />
+        <AuroraStatCard
+          label="Canais dedicados"
+          value={channelsCount}
+          icon={Hash}
+          tone="cyan"
+        />
+        <AuroraStatCard
+          label="Canal global"
+          value={hasGlobal ? "Ok" : "—"}
+          icon={hasGlobal ? Server : ShieldOff}
+          tone={hasGlobal ? "lavender" : "peach"}
+        />
+      </div>
+
       <Tabs defaultValue="message" className="space-y-4">
         <TabsList className="flex w-full flex-wrap">
           {CATEGORIES.map((c) => (
             <TabsTrigger key={c.key} value={c.key}>
+              <c.icon className="mr-1.5 size-3.5" />
               {c.label}
             </TabsTrigger>
           ))}
           <TabsTrigger value="general">Geral & filtros</TabsTrigger>
           <TabsTrigger value="history">
-            <History className="mr-1 size-3" />
+            <History className="mr-1.5 size-3.5" />
             Histórico
           </TabsTrigger>
         </TabsList>
 
         {CATEGORIES.map((c) => (
           <TabsContent key={c.key} value={c.key} className="space-y-4">
-            <div className="rounded-2xl border border-border bg-card p-5">
-              <Label className="text-sm font-medium">Canal — {c.label}</Label>
-              <Input
-                className="mt-2"
-                placeholder="ID do canal (vazio = usa canal global)"
-                value={(form[c.channelKey] as string | null) ?? ""}
-                onChange={(e) => set(c.channelKey, e.target.value.trim() || null)}
-              />
-              <p className="mt-1.5 text-xs text-muted-foreground">
-                Deixe vazio para usar o canal global em <b>Geral</b>.
-              </p>
-            </div>
-            <div className="rounded-2xl border border-border bg-card p-5">
-              <h3 className="mb-3 text-sm font-semibold">Eventos</h3>
+            <AuroraSection
+              title={`Canal — ${c.label}`}
+              icon={c.icon}
+              tone={c.tone}
+              description="Deixe vazio para cair no canal global."
+            >
+              <AuroraField label="ID do canal">
+                <Input
+                  placeholder="ID do canal (vazio = canal global)"
+                  value={(form[c.channelKey] as string | null) ?? ""}
+                  onChange={(e) => set(c.channelKey, e.target.value.trim() || null)}
+                />
+              </AuroraField>
+            </AuroraSection>
+            <AuroraSection title="Eventos" icon={Activity} tone={c.tone}>
               <div className="grid gap-2 sm:grid-cols-2">
                 {c.toggles.map((t) => (
-                  <label
+                  <AuroraSwitchRow
                     key={t.key}
-                    className="flex items-center justify-between rounded-md border border-border/60 bg-background/40 px-3 py-2 text-sm"
-                  >
-                    <span>{t.label}</span>
-                    <Switch
-                      checked={!!form[t.key]}
-                      onCheckedChange={(v) => set(t.key, v)}
-                    />
-                  </label>
+                    label={t.label}
+                    checked={!!form[t.key]}
+                    onChange={(v) => set(t.key, v)}
+                  />
                 ))}
               </div>
-            </div>
+            </AuroraSection>
           </TabsContent>
         ))}
 
         <TabsContent value="general" className="space-y-4">
-          <div className="rounded-2xl border border-border bg-card p-5">
-            <Label className="text-sm font-medium">Canal global (fallback)</Label>
-            <Input
-              className="mt-2"
-              placeholder="ID do canal"
-              value={(form.log_channel_id as string | null) ?? ""}
-              onChange={(e) => set("log_channel_id", e.target.value.trim() || null)}
-            />
-          </div>
-          <IgnoreList label="Canais ignorados" k="ignored_channels" form={form} set={set} />
-          <IgnoreList label="Cargos ignorados" k="ignored_roles" form={form} set={set} />
-          <IgnoreList label="Usuários ignorados" k="ignored_users" form={form} set={set} />
+          <AuroraSection title="Canal global (fallback)" icon={Server} tone="lavender">
+            <AuroraField label="ID do canal">
+              <Input
+                placeholder="ID do canal"
+                value={(form.log_channel_id as string | null) ?? ""}
+                onChange={(e) => set("log_channel_id", e.target.value.trim() || null)}
+              />
+            </AuroraField>
+          </AuroraSection>
+          <IgnoreList
+            label="Canais ignorados"
+            tone="cyan"
+            icon={Hash}
+            k="ignored_channels"
+            form={form}
+            set={set}
+          />
+          <IgnoreList
+            label="Cargos ignorados"
+            tone="peach"
+            icon={Tag}
+            k="ignored_roles"
+            form={form}
+            set={set}
+          />
+          <IgnoreList
+            label="Usuários ignorados"
+            tone="pink"
+            icon={Users}
+            k="ignored_users"
+            form={form}
+            set={set}
+          />
         </TabsContent>
 
         <TabsContent value="history">
@@ -236,18 +358,21 @@ function IgnoreList({
   k,
   form,
   set,
+  icon,
+  tone,
 }: {
   label: string;
   k: string;
   form: Record<string, unknown>;
   set: (k: string, v: unknown) => void;
+  icon: LucideIcon;
+  tone: Tone;
 }) {
   const list = (form[k] as string[] | undefined) ?? [];
   const [draft, setDraft] = useState("");
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
-      <Label className="text-sm font-medium">{label}</Label>
-      <div className="mt-2 flex gap-2">
+    <AuroraSection title={label} icon={icon} tone={tone}>
+      <div className="flex gap-2">
         <Input
           placeholder="ID (snowflake)"
           value={draft}
@@ -265,7 +390,7 @@ function IgnoreList({
           Adicionar
         </Button>
       </div>
-      <div className="mt-3 flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-2">
         {list.length === 0 && (
           <span className="text-xs text-muted-foreground">Nenhum.</span>
         )}
@@ -273,14 +398,14 @@ function IgnoreList({
           <Badge
             key={id}
             variant="outline"
-            className="cursor-pointer"
+            className="cursor-pointer hover:bg-destructive/10"
             onClick={() => set(k, list.filter((x) => x !== id))}
           >
             {id} ✕
           </Badge>
         ))}
       </div>
-    </div>
+    </AuroraSection>
   );
 }
 
@@ -307,7 +432,7 @@ function HistoryView({ guildId }: { guildId: string }) {
   const rows = q.data ?? [];
 
   return (
-    <div className="space-y-3">
+    <AuroraSection title="Histórico de auditoria" icon={History} tone="lavender">
       <div className="grid gap-2 sm:grid-cols-4">
         <Input
           placeholder="Categoria"
@@ -329,9 +454,9 @@ function HistoryView({ guildId }: { guildId: string }) {
           Atualizar
         </Button>
       </div>
-      <div className="overflow-hidden rounded-xl border bg-card/40">
+      <div className="overflow-hidden rounded-xl border border-border bg-card/40">
         <table className="w-full text-sm">
-          <thead className="bg-muted/30 text-xs uppercase tracking-wide text-muted-foreground">
+          <thead className="bg-[color:color-mix(in_oklab,var(--aurora-lavender)_10%,transparent)] text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="px-3 py-2 text-left">Quando</th>
               <th className="px-3 py-2 text-left">Categoria</th>
@@ -344,13 +469,21 @@ function HistoryView({ guildId }: { guildId: string }) {
           <tbody>
             {rows.length === 0 && !q.isLoading && (
               <tr>
-                <td colSpan={6} className="px-3 py-6 text-center text-muted-foreground">
-                  Nenhum registro encontrado.
+                <td colSpan={6} className="px-3 py-8 text-center">
+                  <div className="flex flex-col items-center gap-2">
+                    <Mascot variant="sleeping" size={56} />
+                    <span className="text-sm text-muted-foreground">
+                      Nenhum registro encontrado.
+                    </span>
+                  </div>
                 </td>
               </tr>
             )}
             {rows.map((r) => (
-              <tr key={r.id} className="border-t">
+              <tr
+                key={r.id}
+                className="border-t border-border/60 transition hover:bg-[color:color-mix(in_oklab,var(--aurora-lavender)_8%,transparent)]"
+              >
                 <td className="px-3 py-2 text-xs text-muted-foreground">
                   {new Date(r.created_at).toLocaleString()}
                 </td>
@@ -372,6 +505,6 @@ function HistoryView({ guildId }: { guildId: string }) {
           </tbody>
         </table>
       </div>
-    </div>
+    </AuroraSection>
   );
 }

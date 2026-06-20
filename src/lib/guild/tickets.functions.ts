@@ -15,7 +15,7 @@ const snowflakeNullable = z
   .nullable();
 
 async function admin() {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
   return supabaseAdmin;
 }
 async function botToken() {

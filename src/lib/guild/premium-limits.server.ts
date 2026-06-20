@@ -2,7 +2,7 @@
  * Helpers server-only para checar limites por plano (FREE vs Premium).
  * Importar SOMENTE dentro de `.handler()` de server functions.
  */
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { supabaseAdmin } from "@/lib/supabase-admin.server";
 
 export const FREE_LIMITS: Record<string, number> = {
   "tickets.categories": 3,

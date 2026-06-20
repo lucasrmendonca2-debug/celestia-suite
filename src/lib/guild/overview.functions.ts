@@ -153,7 +153,7 @@ export const getGuildOverview = createServerFn({ method: "GET" })
     );
 
     // Banco
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
 
     const [

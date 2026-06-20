@@ -39,7 +39,7 @@ export const Route = createFileRoute("/api/public/bot-guild-presence")({
       POST: async ({ request }) => {
         const [{ getDiscordBotToken }, { supabaseAdmin }] = await Promise.all([
           import("@/lib/discord/bot-token.server"),
-          import("@/integrations/supabase/client.server"),
+          import("@/lib/supabase-admin.server"),
         ]);
         const expected = getDiscordBotToken();
         const provided = normalizeToken(request.headers.get("authorization"));

@@ -26,7 +26,7 @@ export const listGuildAssets = createServerFn({ method: "GET" })
   .handler(async ({ data }): Promise<BotAssetRow[]> => {
     const { getActorAndAssertManager } = await import("./permissions-audit.server");
     await getActorAndAssertManager(data.guildId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
     const { data: rows, error } = await supabaseAdmin
       .from("bot_assets")
       .select("*")
@@ -63,7 +63,7 @@ export const upsertGuildAsset = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { assertCanAccessArea, writeAudit } = await import("./permissions-audit.server");
     const actor = await assertCanAccessArea(data.guildId, "permissions");
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
 
     const { data: prev } = await supabaseAdmin
       .from("bot_assets")
@@ -112,7 +112,7 @@ export const removeGuildAsset = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { assertCanAccessArea, writeAudit } = await import("./permissions-audit.server");
     const actor = await assertCanAccessArea(data.guildId, "permissions");
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
     const { error } = await supabaseAdmin
       .from("bot_assets")
       .delete()

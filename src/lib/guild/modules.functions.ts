@@ -18,7 +18,7 @@ const snowflakeNullable = z
 const snowflake = z.string().regex(/^\d{5,32}$/, "id inválido");
 
 async function admin() {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
   return supabaseAdmin;
 }
 async function perm(guildId: string) {

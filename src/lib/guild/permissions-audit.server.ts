@@ -7,7 +7,7 @@ import {
   fetchUserGuilds,
   filterManageableGuilds,
 } from "@/lib/auth/discord.server";
-import { supabaseAdmin } from "@/integrations/supabase/client.server";
+import { supabaseAdmin } from "@/lib/supabase-admin.server";
 import { getDiscordBotToken } from "@/lib/discord/bot-token.server";
 import type { DashboardArea } from "./permissions.functions";
 

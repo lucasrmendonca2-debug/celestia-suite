@@ -152,7 +152,12 @@ export function makeDiscordCallbackUri(request: Request, browserOrigin?: string 
   return `${protocol}://${host}${DISCORD_CALLBACK_PATH}`;
 }
 
-export function buildAuthorizeUrl(state: string, redirectUri: string): string {
+export function shouldIncludeDiscordRedirectUri(redirectUri: string): boolean {
+  if (process.env.DISCORD_REDIRECT_URI?.trim()) return true;
+  return isLocalOrigin(redirectUri);
+}
+
+export function buildAuthorizeUrl(state: string, redirectUri?: string | null): string {
   const { clientId } = getOAuthConfig();
   const params = new URLSearchParams({
     client_id: clientId,
@@ -160,20 +165,20 @@ export function buildAuthorizeUrl(state: string, redirectUri: string): string {
     scope: "identify guilds",
     state,
     prompt: "consent",
-    redirect_uri: redirectUri,
   });
+  if (redirectUri) params.set("redirect_uri", redirectUri);
   return `https://discord.com/oauth2/authorize?${params.toString()}`;
 }
 
-export async function exchangeCode(code: string, redirectUri: string) {
+export async function exchangeCode(code: string, redirectUri?: string | null) {
   const { clientId, clientSecret } = getOAuthConfig();
   const body = new URLSearchParams({
     client_id: clientId,
     client_secret: clientSecret,
     grant_type: "authorization_code",
     code,
-    redirect_uri: redirectUri,
   });
+  if (redirectUri) body.set("redirect_uri", redirectUri);
   const res = await fetch(`${DISCORD_API}/oauth2/token`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -181,7 +186,7 @@ export async function exchangeCode(code: string, redirectUri: string) {
   });
   if (!res.ok) {
     const body = await res.text().catch(() => "");
-    throw new Error(`Discord token exchange falhou: ${res.status} ${body} (redirect_uri=${redirectUri})`);
+    throw new Error(`Discord token exchange falhou: ${res.status} ${body} (redirect_uri=${redirectUri ?? "não enviado"})`);
   }
   return (await res.json()) as {
     access_token: string;

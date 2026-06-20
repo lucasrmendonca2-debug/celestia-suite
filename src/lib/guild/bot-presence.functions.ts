@@ -23,18 +23,27 @@ export const checkBotInGuild = createServerFn({ method: "GET" })
   })
   .handler(async ({ data }): Promise<BotPresence> => {
     const token = process.env.DISCORD_BOT_TOKEN;
+    const inviteUrl = buildInviteUrl(data.guildId);
     if (!token) {
-      return { present: false, inviteUrl: buildInviteUrl(data.guildId) };
+      console.warn("[bot-presence] DISCORD_BOT_TOKEN ausente — assumindo bot fora do servidor");
+      return { present: false, inviteUrl };
     }
     try {
-      const res = await fetch(`https://discord.com/api/v10/guilds/${data.guildId}`, {
-        headers: { Authorization: `Bot ${token}` },
-      });
-      return {
-        present: res.ok,
-        inviteUrl: buildInviteUrl(data.guildId),
-      };
-    } catch {
-      return { present: false, inviteUrl: buildInviteUrl(data.guildId) };
+      // /guilds/{id}/members/@me só responde 200 quando o bot é membro.
+      // É mais preciso que /guilds/{id} (que pode 200 com permissões parciais/cache).
+      const res = await fetch(
+        `https://discord.com/api/v10/users/@me/guilds/${data.guildId}/member`,
+        { headers: { Authorization: `Bot ${token}` } },
+      );
+      if (!res.ok) {
+        const body = await res.text().catch(() => "");
+        console.warn(
+          `[bot-presence] guild=${data.guildId} status=${res.status} body=${body.slice(0, 200)}`,
+        );
+      }
+      return { present: res.ok, inviteUrl };
+    } catch (err) {
+      console.error("[bot-presence] fetch falhou", err);
+      return { present: false, inviteUrl };
     }
   });

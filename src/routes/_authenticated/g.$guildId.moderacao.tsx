@@ -97,25 +97,27 @@ function ModerationPage() {
       title="Sistema de Moderação"
       description="Painel completo. Permissões, punições, AutoMod e histórico — tudo lido em tempo real pelo bot."
     >
+      {/* Hero banner */}
+      <div className="aurora-panel relative mb-6 flex items-center gap-4 overflow-hidden p-5">
+        <div className="aurora-float">
+          <Mascot variant={stats.active > 0 ? "error" : "hero"} size={76} glow />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h2 className="font-display text-lg font-bold tracking-tight">
+            {stats.active > 0
+              ? `${stats.active} punição${stats.active > 1 ? "ões" : ""} em vigor agora 👀`
+              : "Tudo tranquilo por aqui ✨"}
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Painel completo. Permissões, punições, AutoMod e histórico — tudo lido em tempo real pelo bot.
+          </p>
+        </div>
+      </div>
+
       <div className="grid gap-3 sm:grid-cols-3">
-        <StatCard
-          label="Punições totais"
-          value={stats.total}
-          icon={Gavel}
-          accent="from-red-500/20 to-rose-500/10 text-rose-300"
-        />
-        <StatCard
-          label="Punições ativas"
-          value={stats.active}
-          icon={Activity}
-          accent="from-amber-500/20 to-orange-500/10 text-amber-300"
-        />
-        <StatCard
-          label="Warns ativos"
-          value={stats.activeWarnings}
-          icon={AlertTriangle}
-          accent="from-violet-500/20 to-fuchsia-500/10 text-violet-300"
-        />
+        <AuroraStatCard label="Punições totais" value={stats.total} icon={Gavel} tone="pink" />
+        <AuroraStatCard label="Punições ativas" value={stats.active} icon={Activity} tone="peach" />
+        <AuroraStatCard label="Warns ativos" value={stats.activeWarnings} icon={AlertTriangle} tone="lavender" />
       </div>
 
       <div className="mt-6 space-y-5">
@@ -127,41 +129,10 @@ function ModerationPage() {
   );
 }
 
-/* ---------------- helpers ---------------- */
-
-function StatCard({
-  label,
-  value,
-  icon: Icon,
-  accent,
-}: {
-  label: string;
-  value: number | string;
-  icon: typeof Activity;
-  accent: string;
-}) {
-  return (
-    <div className={`relative overflow-hidden rounded-xl border bg-gradient-to-br p-4 ${accent}`}>
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-xs uppercase tracking-wide text-muted-foreground">{label}</div>
-          <div className="mt-1 text-2xl font-semibold">{value}</div>
-        </div>
-        <Icon className="size-5 opacity-80" />
-      </div>
-    </div>
-  );
-}
+/* ---------------- helpers (wrap aurora primitives) ---------------- */
 
 function SectionCard({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-xl border bg-card/50 p-5">
-      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-        {title}
-      </h3>
-      <div className="space-y-4">{children}</div>
-    </section>
-  );
+  return <AuroraSection title={title}>{children}</AuroraSection>;
 }
 
 function PickerField({
@@ -174,11 +145,9 @@ function PickerField({
   children: React.ReactNode;
 }) {
   return (
-    <div>
-      <Label className="text-sm">{label}</Label>
-      <div className="mt-1">{children}</div>
-      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
-    </div>
+    <AuroraField label={label} hint={hint}>
+      {children}
+    </AuroraField>
   );
 }
 
@@ -194,15 +163,10 @@ function SwitchRow({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 rounded-lg border bg-background/40 p-3">
-      <div className="flex-1">
-        <div className="text-sm font-medium">{label}</div>
-        {hint && <div className="text-xs text-muted-foreground">{hint}</div>}
-      </div>
-      <Switch checked={checked} onCheckedChange={onChange} />
-    </div>
+    <AuroraSwitchRow label={label} hint={hint} checked={checked} onChange={onChange} />
   );
 }
+
 
 function emptyToNull(v: string | null | undefined) {
   if (!v) return null;

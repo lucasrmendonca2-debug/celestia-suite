@@ -15,11 +15,13 @@ import {
   ArrowRight,
   HeartPulse,
   Bot,
+  type LucideIcon,
 } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import { getGuildOverview } from "@/lib/guild/overview.functions";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
+import { Mascot } from "@/components/Mascot";
 
 export const Route = createFileRoute("/_authenticated/g/$guildId/")({
   loader: async ({ context, params }) => {
@@ -53,7 +55,6 @@ function GuildOverviewPage() {
   const displayIcon = overview.discord.iconUrl ?? guild.iconUrl ?? null;
   const displayName = overview.discord.name || guild.name;
 
-  // Permissões críticas pra Saúde do bot
   const criticalKeys = [
     "SEND_MESSAGES",
     "EMBED_LINKS",
@@ -67,57 +68,14 @@ function GuildOverviewPage() {
   );
   const missing = critical.filter((p) => !p.ok);
 
-  // Checklist de configuração
   const checklist = [
-    {
-      key: "bot",
-      ok: overview.bot.present,
-      label: "Bot presente no servidor",
-      to: null as string | null,
-      cta: "",
-    },
-    {
-      key: "logs",
-      ok: overview.config.logsChannelSet,
-      label: "Canal de logs configurado",
-      to: `/g/${guild.id}/logs`,
-      cta: "Configurar logs",
-    },
-    {
-      key: "welcome",
-      ok: overview.config.welcomeEnabled && overview.config.welcomeChannelSet,
-      label: "Boas-vindas configuradas",
-      to: `/g/${guild.id}/boas-vindas`,
-      cta: "Configurar boas-vindas",
-    },
-    {
-      key: "tickets",
-      ok: overview.config.ticketsEnabled && overview.config.ticketsConfigured,
-      label: "Tickets configurados",
-      to: `/g/${guild.id}/tickets`,
-      cta: "Configurar tickets",
-    },
-    {
-      key: "moderation",
-      ok: overview.config.moderationConfigured,
-      label: "Moderação ativada",
-      to: `/g/${guild.id}/moderacao`,
-      cta: "Configurar moderação",
-    },
-    {
-      key: "economy",
-      ok: overview.config.economyEnabled,
-      label: "Economia ativada",
-      to: `/g/${guild.id}/economia`,
-      cta: "Configurar economia",
-    },
-    {
-      key: "permissions",
-      ok: overview.bot.isAdmin || missing.length === 0,
-      label: "Permissões do bot revisadas",
-      to: null,
-      cta: "",
-    },
+    { key: "bot", ok: overview.bot.present, label: "Bot presente no servidor", to: null, cta: "" },
+    { key: "logs", ok: overview.config.logsChannelSet, label: "Canal de logs configurado", to: `/g/${guild.id}/logs`, cta: "Configurar" },
+    { key: "welcome", ok: overview.config.welcomeEnabled && overview.config.welcomeChannelSet, label: "Boas-vindas ativas", to: `/g/${guild.id}/boas-vindas`, cta: "Configurar" },
+    { key: "tickets", ok: overview.config.ticketsEnabled && overview.config.ticketsConfigured, label: "Tickets configurados", to: `/g/${guild.id}/tickets`, cta: "Configurar" },
+    { key: "moderation", ok: overview.config.moderationConfigured, label: "Moderação ativada", to: `/g/${guild.id}/moderacao`, cta: "Configurar" },
+    { key: "economy", ok: overview.config.economyEnabled, label: "Economia ativada", to: `/g/${guild.id}/economia`, cta: "Configurar" },
+    { key: "permissions", ok: overview.bot.isAdmin || missing.length === 0, label: "Permissões do bot ok", to: null, cta: "" },
   ];
 
   const done = checklist.filter((c) => c.ok).length;
@@ -125,37 +83,49 @@ function GuildOverviewPage() {
   const pct = Math.round((done / total) * 100);
 
   return (
-    <div className="cyber-shell cyber-grid-bg flex min-h-screen bg-background text-foreground">
+    <div className="aurora-shell flex min-h-screen text-foreground">
       <DashboardSidebar guildId={guild.id} />
-      <div className="flex-1">
+      <div className="relative z-10 flex-1">
         <DashboardTopbar
           user={user}
           title={displayName}
-          subtitle={guild.owner ? "Dono do servidor" : "Pode gerenciar configurações"}
+          subtitle={guild.owner ? "Dono do servidor" : "Permissão de gerenciar"}
           guildId={guild.id}
         />
 
-        <main className="relative mx-auto max-w-7xl space-y-6 px-4 py-6 sm:px-6 sm:py-8">
-          {/* Header do servidor */}
-          <section className="cyber-panel cyber-scanline rounded-xl p-5 sm:p-6">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex min-w-0 items-center gap-4">
+        <main className="relative mx-auto max-w-7xl space-y-8 px-4 py-8 sm:px-6">
+          {/* Hero do servidor */}
+          <section className="aurora-panel relative overflow-hidden p-6 sm:p-8">
+            <div
+              aria-hidden
+              className="absolute -right-10 -top-10 size-64 rounded-full opacity-40 blur-3xl"
+              style={{
+                background:
+                  "radial-gradient(circle, color-mix(in oklab, var(--aurora-pink) 70%, transparent), transparent 70%)",
+              }}
+            />
+            <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex min-w-0 items-center gap-5">
                 {displayIcon ? (
                   <img
                     src={displayIcon}
                     alt=""
-                    className="size-14 shrink-0 rounded-xl ring-1 ring-[var(--cyber-line)] sm:size-16"
+                    className="size-20 shrink-0 rounded-3xl ring-2 ring-[color-mix(in_oklab,var(--aurora-lavender)_55%,transparent)]"
                   />
                 ) : (
-                  <div className="flex size-14 shrink-0 items-center justify-center rounded-xl bg-primary/15 text-base font-semibold text-primary ring-1 ring-[var(--cyber-line)] sm:size-16">
+                  <div className="flex size-20 shrink-0 items-center justify-center rounded-3xl bg-[color-mix(in_oklab,var(--aurora-lavender)_25%,transparent)] font-display text-xl font-bold ring-2 ring-[color-mix(in_oklab,var(--aurora-lavender)_55%,transparent)]">
                     {displayName.slice(0, 2).toUpperCase()}
                   </div>
                 )}
                 <div className="min-w-0">
-                  <p className="font-display mb-1 text-[10px] uppercase text-muted-foreground">nexus do servidor</p>
-                  <h2 className="font-display truncate text-xl font-semibold sm:text-2xl">{displayName}</h2>
-                  <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                    <span>ID {guild.id}</span>
+                  <p className="font-display mb-1 inline-flex items-center gap-1.5 text-[10px] uppercase tracking-[0.2em] text-muted-foreground">
+                    <Sparkles className="size-3 text-[var(--aurora-pink)]" /> visão geral
+                  </p>
+                  <h2 className="font-display truncate text-2xl font-bold sm:text-3xl">
+                    {displayName}
+                  </h2>
+                  <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    <span className="font-mono">ID {guild.id}</span>
                     {overview.discord.memberCount != null && (
                       <span className="inline-flex items-center gap-1">
                         <Users className="size-3" />
@@ -164,7 +134,7 @@ function GuildOverviewPage() {
                     )}
                     {overview.discord.presenceCount != null && (
                       <span className="inline-flex items-center gap-1">
-                        <Activity className="size-3 text-emerald-500" />
+                        <span className="aurora-glow-dot size-1.5 rounded-full" />
                         {fmt.format(overview.discord.presenceCount)} online
                       </span>
                     )}
@@ -172,88 +142,92 @@ function GuildOverviewPage() {
                 </div>
               </div>
 
-              <div className="flex shrink-0 items-center gap-2">
-                <BotStatusBadge present={overview.bot.present} />
-              </div>
+              <BotStatusBadge present={overview.bot.present} />
             </div>
           </section>
 
-          {/* Métricas reais */}
+          {/* Métricas */}
           <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
-              icon={<Sparkles className="size-4" />}
+              icon={Sparkles}
+              tone="lavender"
               label="Módulos ativos"
               value={`${overview.counts.activeModules}/6`}
-              hint="Welcome, logs, tickets, moderação, economia e level"
+              hint="Welcome · logs · tickets · mod · economia · level"
             />
             <StatCard
-              icon={<Ticket className="size-4" />}
+              icon={Ticket}
+              tone="cyan"
               label="Tickets abertos"
               value={fmt.format(overview.counts.openTickets)}
-              hint="Atendimentos em andamento agora"
+              hint="Em atendimento agora"
             />
             <StatCard
-              icon={<Shield className="size-4" />}
-              label="Punições (7 dias)"
+              icon={Shield}
+              tone="pink"
+              label="Punições (7d)"
               value={fmt.format(overview.counts.modCases7d)}
-              hint="Warn, mute, kick e ban registrados"
+              hint="Warn · mute · kick · ban"
             />
             <StatCard
-              icon={<ScrollText className="size-4" />}
+              icon={ScrollText}
+              tone="mint"
               label="Comandos custom"
               value={fmt.format(overview.counts.customCommands)}
               hint="Criados no dashboard"
             />
           </section>
 
-          {/* Checklist + Saúde do bot */}
+          {/* Checklist + Saúde */}
           <section className="grid gap-4 lg:grid-cols-5">
-            {/* Checklist */}
-            <div className="cyber-panel rounded-xl p-5 lg:col-span-3">
-              <div className="mb-4 flex items-center justify-between">
+            <div className="aurora-panel p-6 lg:col-span-3">
+              <div className="mb-5 flex items-center justify-between">
                 <div>
-                  <h3 className="text-sm font-semibold">Configuração inicial</h3>
+                  <h3 className="font-display text-base font-bold">Configuração inicial</h3>
                   <p className="text-xs text-muted-foreground">
                     {done} de {total} prontos
                   </p>
                 </div>
-                <span className="font-display rounded-full border border-[var(--cyber-line)] bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                <span
+                  className="font-display rounded-full border border-border/50 bg-card/50 px-3 py-1 text-xs font-semibold backdrop-blur"
+                  style={{ color: "var(--aurora-deep)" }}
+                >
                   {pct}%
                 </span>
               </div>
-              <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+              <div className="mb-5 h-2 w-full overflow-hidden rounded-full bg-muted/50">
                 <div
-                  className="h-full rounded-full bg-primary shadow-[0_0_18px_var(--cyber-cyan)] transition-all"
-                  style={{ width: `${pct}%` }}
+                  className="h-full rounded-full transition-all"
+                  style={{
+                    width: `${pct}%`,
+                    background: "var(--gradient-aurora)",
+                    boxShadow: "0 0 16px color-mix(in oklab, var(--aurora-pink) 60%, transparent)",
+                  }}
                 />
               </div>
               <ul className="space-y-2">
                 {checklist.map((item) => (
                   <li
                     key={item.key}
-                    className="flex items-center justify-between gap-3 rounded-lg border border-border/60 bg-background/40 px-3 py-2.5 transition hover:border-[var(--cyber-line)] hover:bg-primary/5"
+                    className="group flex items-center justify-between gap-3 rounded-xl border border-border/40 bg-card/40 px-4 py-3 backdrop-blur transition hover:border-[color-mix(in_oklab,var(--aurora-lavender)_50%,transparent)] hover:bg-[color-mix(in_oklab,var(--aurora-lavender)_8%,transparent)]"
                   >
                     <div className="flex min-w-0 items-center gap-2.5">
                       {item.ok ? (
-                          <CheckCircle2 className="size-4 shrink-0 text-emerald-500" />
+                        <CheckCircle2 className="size-4 shrink-0 text-emerald-500" />
                       ) : (
                         <Circle className="size-4 shrink-0 text-muted-foreground" />
                       )}
-                      <span
-                        className={`truncate text-sm ${
-                          item.ok ? "text-foreground" : "text-muted-foreground"
-                        }`}
-                      >
+                      <span className={`truncate text-sm ${item.ok ? "text-foreground" : "text-muted-foreground"}`}>
                         {item.label}
                       </span>
                     </div>
                     {!item.ok && item.to && (
                       <Link
                         to={item.to}
-                          className="inline-flex shrink-0 items-center gap-1 rounded-md border border-[var(--cyber-line)] bg-card/80 px-2.5 py-1 text-xs font-medium transition hover:bg-primary/10"
+                        className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-border/60 bg-background/60 px-3 py-1 text-xs font-medium transition group-hover:border-[color-mix(in_oklab,var(--aurora-pink)_55%,transparent)] group-hover:bg-[color-mix(in_oklab,var(--aurora-pink)_15%,transparent)]"
                       >
                         {item.cta}
-                        <ArrowRight className="size-3" />
+                        <ArrowRight className="size-3 transition group-hover:translate-x-0.5" />
                       </Link>
                     )}
                   </li>
@@ -261,97 +235,61 @@ function GuildOverviewPage() {
               </ul>
             </div>
 
-            {/* Saúde do bot */}
-            <div className="cyber-panel rounded-xl p-5 lg:col-span-2">
-              <div className="mb-4 flex items-center gap-2">
-                <HeartPulse className="size-4 text-primary" />
-                <h3 className="text-sm font-semibold">Saúde do bot</h3>
+            <div className="aurora-panel p-6 lg:col-span-2">
+              <div className="mb-5 flex items-center gap-2">
+                <HeartPulse className="size-4 text-[var(--aurora-pink)]" />
+                <h3 className="font-display text-base font-bold">Saúde do bot</h3>
               </div>
 
               {!overview.bot.present ? (
-                <HealthRow tone="error" text="O bot não está no servidor." />
+                <div className="flex flex-col items-center gap-3 py-2 text-center">
+                  <Mascot variant="error" size={88} />
+                  <HealthRow tone="error" text="O bot não está no servidor." />
+                </div>
               ) : overview.bot.isAdmin ? (
-                <HealthRow
-                  tone="ok"
-                  text="Bot é administrador. Todas as ações estão liberadas."
-                />
+                <div className="flex flex-col items-center gap-3 py-2 text-center">
+                  <Mascot variant="celebrate" size={88} />
+                  <HealthRow tone="ok" text="Bot é administrador. Tudo liberado." />
+                </div>
               ) : (
                 <div className="space-y-1.5">
                   {critical.map((p) => (
                     <HealthRow
                       key={p.key}
                       tone={p.ok ? "ok" : "warn"}
-                      text={
-                        p.ok
-                          ? `OK — ${p.label.toLowerCase()}`
-                          : `Faltando: ${p.label.toLowerCase()}`
-                      }
+                      text={p.ok ? `OK — ${p.label.toLowerCase()}` : `Faltando: ${p.label.toLowerCase()}`}
                     />
                   ))}
                   {missing.length > 0 && (
                     <p className="mt-3 text-xs text-muted-foreground">
-                      Ajuste as permissões do cargo do bot no Discord para destravar todos os
-                      recursos.
+                      Ajuste as permissões do cargo do bot no Discord para destravar tudo.
                     </p>
                   )}
                 </div>
               )}
 
               {overview.bot.present && overview.bot.highestRolePosition > 0 && (
-                <p className="mt-4 border-t border-border pt-3 text-xs text-muted-foreground">
+                <p className="mt-4 border-t border-border/40 pt-3 text-xs text-muted-foreground">
                   <Bot className="mr-1 inline size-3" />
-                  Cargo mais alto do bot: posição {overview.bot.highestRolePosition}. Para
-                  entregar cargos VIP, o cargo do bot precisa estar acima deles.
+                  Cargo mais alto: posição {overview.bot.highestRolePosition}. Pra entregar VIP, o cargo do bot precisa estar acima.
                 </p>
               )}
             </div>
           </section>
 
-          {/* Atalhos rápidos */}
+          {/* Atalhos */}
           <section>
-            <div className="mb-3">
-              <h3 className="text-sm font-semibold">Atalhos rápidos</h3>
-              <p className="text-xs text-muted-foreground">
-                Tudo salvo aqui é lido em tempo real pelo bot.
-              </p>
+            <div className="mb-4">
+              <h3 className="font-display text-base font-bold">Atalhos rápidos</h3>
+              <p className="text-xs text-muted-foreground">Toda alteração é lida ao vivo pelo bot.</p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <QuickAction
-                to={`/g/${guild.id}/boas-vindas`}
-                icon={<Sparkles className="size-4" />}
-                title="Boas-vindas"
-                desc="Mensagem e embed para novos membros."
-              />
-              <QuickAction
-                to={`/g/${guild.id}/logs`}
-                icon={<ScrollText className="size-4" />}
-                title="Logs"
-                desc="Acompanhe tudo que acontece no servidor."
-              />
-              <QuickAction
-                to={`/g/${guild.id}/tickets`}
-                icon={<Ticket className="size-4" />}
-                title="Tickets"
-                desc="Painel de atendimento profissional."
-              />
-              <QuickAction
-                to={`/g/${guild.id}/moderacao`}
-                icon={<Shield className="size-4" />}
-                title="Moderação"
-                desc="Warns, mutes, kicks e bans com histórico."
-              />
-              <QuickAction
-                to={`/g/${guild.id}/economia`}
-                icon={<Coins className="size-4" />}
-                title="Economia"
-                desc="Moeda, daily, work e loja de cargos."
-              />
-              <QuickAction
-                to={`/g/${guild.id}/social`}
-                icon={<TrendingUp className="size-4" />}
-                title="Social & Level"
-                desc="XP, ranking e recompensas por nível."
-              />
+              <QuickAction to={`/g/${guild.id}/boas-vindas`} icon={Sparkles} tone="lavender" title="Boas-vindas" desc="Mensagem e embed para novos." />
+              <QuickAction to={`/g/${guild.id}/logs`} icon={ScrollText} tone="cyan" title="Logs" desc="Tudo que acontece no servidor." />
+              <QuickAction to={`/g/${guild.id}/tickets`} icon={Ticket} tone="pink" title="Tickets" desc="Painel de atendimento." />
+              <QuickAction to={`/g/${guild.id}/moderacao`} icon={Shield} tone="mint" title="Moderação" desc="Warns, mutes, kicks e bans." />
+              <QuickAction to={`/g/${guild.id}/economia`} icon={Coins} tone="peach" title="Economia" desc="Moeda, daily, work, loja." />
+              <QuickAction to={`/g/${guild.id}/social`} icon={TrendingUp} tone="lavender" title="Social & Level" desc="XP, ranking, recompensas." />
             </div>
           </section>
         </main>
@@ -360,25 +298,53 @@ function GuildOverviewPage() {
   );
 }
 
+type Tone = "lavender" | "cyan" | "pink" | "mint" | "peach";
+const TONE_BG: Record<Tone, string> = {
+  lavender: "var(--aurora-lavender)",
+  cyan: "var(--aurora-cyan)",
+  pink: "var(--aurora-pink)",
+  mint: "var(--aurora-mint)",
+  peach: "var(--aurora-peach)",
+};
+
 function StatCard({
-  icon,
+  icon: Icon,
+  tone,
   label,
   value,
   hint,
 }: {
-  icon?: React.ReactNode;
+  icon: LucideIcon;
+  tone: Tone;
   label: string;
   value: string;
   hint?: string;
 }) {
   return (
-    <div className="cyber-panel cyber-card-hover rounded-xl p-5">
-      <div className="font-display flex items-center gap-2 text-xs uppercase text-muted-foreground">
-        {icon}
-        {label}
+    <div className="aurora-panel aurora-card-hover relative overflow-hidden p-5">
+      <div
+        aria-hidden
+        className="absolute -right-6 -top-6 size-20 rounded-full opacity-40 blur-2xl"
+        style={{ background: `color-mix(in oklab, ${TONE_BG[tone]} 60%, transparent)` }}
+      />
+      <div className="relative">
+        <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
+          <div
+            className="flex size-7 items-center justify-center rounded-lg"
+            style={{
+              background: `color-mix(in oklab, ${TONE_BG[tone]} 22%, transparent)`,
+              color: "var(--foreground)",
+            }}
+          >
+            <Icon className="size-3.5" />
+          </div>
+          <span className="font-display">{label}</span>
+        </div>
+        <p className="font-display mt-3 text-3xl font-bold tabular-nums tracking-tight">
+          {value}
+        </p>
+        {hint && <p className="mt-1.5 text-xs text-muted-foreground">{hint}</p>}
       </div>
-      <p className="font-display mt-2 text-2xl font-semibold tabular-nums">{value}</p>
-      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
     </div>
   );
 }
@@ -386,14 +352,14 @@ function StatCard({
 function BotStatusBadge({ present }: { present: boolean }) {
   if (present) {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
-        <span className="cyber-pulse-dot size-1.5 rounded-full" />
+      <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+        <span className="aurora-glow-dot size-1.5 rounded-full" />
         Bot online
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-600 dark:text-amber-400">
+    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400">
       <AlertTriangle className="size-3" />
       Bot fora do servidor
     </span>
@@ -403,11 +369,11 @@ function BotStatusBadge({ present }: { present: boolean }) {
 function HealthRow({ tone, text }: { tone: "ok" | "warn" | "error"; text: string }) {
   const cfg =
     tone === "ok"
-      ? { icon: CheckCircle2, color: "text-emerald-500" }
+      ? { Icon: CheckCircle2, color: "text-emerald-500" }
       : tone === "warn"
-        ? { icon: AlertTriangle, color: "text-amber-500" }
-        : { icon: AlertTriangle, color: "text-destructive" };
-  const Icon = cfg.icon;
+        ? { Icon: AlertTriangle, color: "text-amber-500" }
+        : { Icon: AlertTriangle, color: "text-destructive" };
+  const Icon = cfg.Icon;
   return (
     <div className="flex items-center gap-2 text-sm">
       <Icon className={`size-4 shrink-0 ${cfg.color}`} />
@@ -418,28 +384,41 @@ function HealthRow({ tone, text }: { tone: "ok" | "warn" | "error"; text: string
 
 function QuickAction({
   to,
-  icon,
+  icon: Icon,
+  tone,
   title,
   desc,
 }: {
   to: string;
-  icon: React.ReactNode;
+  icon: LucideIcon;
+  tone: Tone;
   title: string;
   desc: string;
 }) {
   return (
     <Link
       to={to}
-      className="cyber-panel cyber-card-hover group flex items-start gap-3 rounded-xl p-4"
+      className="aurora-panel aurora-card-hover group relative flex items-start gap-3 overflow-hidden p-5"
     >
-      <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/15 text-primary ring-1 ring-[var(--cyber-line)]">
-        {icon}
+      <div
+        aria-hidden
+        className="absolute -right-4 -top-4 size-16 rounded-full opacity-0 blur-2xl transition group-hover:opacity-60"
+        style={{ background: `color-mix(in oklab, ${TONE_BG[tone]} 60%, transparent)` }}
+      />
+      <div
+        className="relative flex size-10 shrink-0 items-center justify-center rounded-xl"
+        style={{
+          background: `color-mix(in oklab, ${TONE_BG[tone]} 25%, transparent)`,
+          boxShadow: `inset 0 1px 0 color-mix(in oklab, white 25%, transparent)`,
+        }}
+      >
+        <Icon className="size-4" />
       </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium">{title}</p>
+      <div className="relative min-w-0 flex-1">
+        <p className="font-display text-sm font-semibold">{title}</p>
         <p className="mt-0.5 text-xs text-muted-foreground">{desc}</p>
       </div>
-      <ArrowRight className="size-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" />
+      <ArrowRight className="relative size-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" />
     </Link>
   );
 }

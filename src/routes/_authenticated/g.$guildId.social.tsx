@@ -715,19 +715,6 @@ function Card({ title, children }: { title: string; children: React.ReactNode })
     </div>
   );
 }
-      </Tabs>
-    </ModuleLayout>
-  );
-}
-
-function Card({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-4 rounded-xl border border-border bg-card p-5">
-      <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">{title}</h3>
-      <div className="space-y-4">{children}</div>
-    </div>
-  );
-}
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (

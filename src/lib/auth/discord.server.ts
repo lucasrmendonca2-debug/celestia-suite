@@ -153,7 +153,6 @@ export function makeDiscordCallbackUri(request: Request, browserOrigin?: string 
 }
 
 export function shouldIncludeDiscordRedirectUri(redirectUri: string): boolean {
-  if (process.env.DISCORD_REDIRECT_URI?.trim()) return true;
   return isLocalOrigin(redirectUri);
 }
 

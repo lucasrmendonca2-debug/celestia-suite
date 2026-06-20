@@ -373,15 +373,9 @@ function LevelingPage() {
                       <span
                         className={`font-display flex size-9 items-center justify-center rounded-full text-xs font-bold ${rankClass || "bg-muted text-muted-foreground"}`}
                       >
-                        {rankIcon ? (
-                          <rankIcon.type
-                            {...(rankIcon as any)}
-                            className="size-4"
-                          />
-                        ) : (
-                          `#${i + 1}`
-                        )}
+                        {rankIcon ? <rankIcon className="size-4" /> : `#${i + 1}`}
                       </span>
+
                       <span className="flex-1 font-mono text-xs truncate">
                         {u.user_id}
                       </span>

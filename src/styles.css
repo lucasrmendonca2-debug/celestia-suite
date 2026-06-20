@@ -310,12 +310,41 @@
 }
 
 /* Legacy cyber-* aliases for components not yet migrated */
-.cyber-shell { @apply aurora-shell; }
-.cyber-panel { @apply aurora-panel; }
-.cyber-card-hover { @apply aurora-card-hover; }
-.cyber-pulse-dot { @apply aurora-glow-dot; }
+/* Legacy cyber-* class aliases (duplicate selectors keep older components working) */
+.cyber-shell { position: relative; overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 18% 8%, color-mix(in oklab, var(--aurora-lavender) 30%, transparent), transparent 60%),
+    radial-gradient(ellipse 70% 55% at 86% 18%, color-mix(in oklab, var(--aurora-cyan) 26%, transparent), transparent 60%),
+    radial-gradient(ellipse 65% 60% at 50% 100%, color-mix(in oklab, var(--aurora-pink) 24%, transparent), transparent 60%),
+    var(--background);
+}
+.cyber-panel {
+  border: 1px solid color-mix(in oklab, var(--aurora-lavender) 32%, var(--border));
+  background:
+    linear-gradient(160deg,
+      color-mix(in oklab, var(--card) 78%, transparent),
+      color-mix(in oklab, var(--card) 55%, transparent));
+  box-shadow: var(--shadow-aurora);
+  backdrop-filter: blur(22px) saturate(140%);
+  border-radius: 1.25rem;
+}
+.cyber-card-hover {
+  transition: transform 220ms cubic-bezier(.22,.61,.36,1), border-color 220ms ease, box-shadow 220ms ease;
+}
+.cyber-card-hover:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in oklab, var(--aurora-pink) 50%, var(--border));
+  box-shadow: 0 36px 80px -40px color-mix(in oklab, var(--aurora-pink) 60%, transparent),
+              0 12px 40px -22px color-mix(in oklab, var(--aurora-lavender) 55%, transparent);
+}
+.cyber-pulse-dot {
+  background: var(--aurora-mint);
+  box-shadow: 0 0 14px color-mix(in oklab, var(--aurora-mint) 80%, transparent);
+  animation: aurora-pulse 2s ease-in-out infinite;
+}
 .cyber-grid-bg::before { content: none; }
 .cyber-scanline::after { content: none; }
+
 
 @media (prefers-reduced-motion: reduce) {
   .aurora-shell::before,

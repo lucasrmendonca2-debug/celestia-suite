@@ -20,6 +20,15 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AuroraSection,
+  AuroraStatCard,
+  AuroraSwitchRow,
+  AuroraField,
+} from "@/components/dashboard/aurora-ui";
+import { Mascot } from "@/components/Mascot";
+import { Trophy, Zap, Users, Crown, Medal, Award } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/g/$guildId/niveis")({
   loader: async ({ context, params }) => {
@@ -128,23 +137,60 @@ function LevelingPage() {
         </Button>
       }
     >
+      {/* Hero banner */}
+      <div className="aurora-panel relative mb-6 flex items-center gap-4 overflow-hidden p-5">
+        <div className="aurora-float">
+          <Mascot variant="celebrate" size={80} glow />
+        </div>
+        <div className="min-w-0 flex-1">
+          <h2 className="font-display text-lg font-bold tracking-tight">
+            Sistema de XP & Ranking ✨
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Membros sobem de nível conversando. Configure XP, recompensas e veja o ranking ao vivo.
+          </p>
+        </div>
+      </div>
+
+      <div className="mb-6 grid gap-3 sm:grid-cols-3">
+        <AuroraStatCard
+          label="Membros no ranking"
+          value={(lb as any[]).length}
+          icon={Users}
+          tone="lavender"
+        />
+        <AuroraStatCard
+          label="Recompensas ativas"
+          value={rewards.length}
+          icon={Trophy}
+          tone="peach"
+        />
+        <AuroraStatCard
+          label="XP por mensagem"
+          value={`${form.xp_per_message_min}–${form.xp_per_message_max}`}
+          icon={Zap}
+          tone="mint"
+        />
+      </div>
+
       <Tabs defaultValue="config">
-        <TabsList>
+        <TabsList className="aurora-panel">
           <TabsTrigger value="config">Configuração</TabsTrigger>
           <TabsTrigger value="rewards">Recompensas ({rewards.length})</TabsTrigger>
           <TabsTrigger value="leaderboard">Ranking</TabsTrigger>
         </TabsList>
 
         <TabsContent value="config" className="mt-4 space-y-4">
-          <Card>
-            <Row
+          <AuroraSection title="Status" icon={Zap} tone="mint">
+            <AuroraSwitchRow
               label="Ativar sistema de XP"
+              hint="Quando desligado, mensagens não geram XP."
               checked={form.enabled}
               onChange={(v) => setForm({ ...form, enabled: v })}
             />
-          </Card>
+          </AuroraSection>
 
-          <Card>
+          <AuroraSection title="Ganho de XP" icon={Zap} tone="peach">
             <div className="grid gap-3 sm:grid-cols-3">
               <Num
                 label="XP mínimo / msg"
@@ -162,76 +208,79 @@ function LevelingPage() {
                 onChange={(v) => setForm({ ...form, cooldown_seconds: v })}
               />
             </div>
-          </Card>
+          </AuroraSection>
 
-          <Card>
-            <Label className="text-sm font-medium">Canal de level up</Label>
-            <Input
-              className="mt-2"
-              placeholder="ID do canal (vazio = mesmo canal da msg)"
-              value={form.level_up_channel_id ?? ""}
-              onChange={(e) =>
-                setForm({ ...form, level_up_channel_id: e.target.value.trim() || null })
-              }
-            />
-            <Label className="mt-4 block text-sm font-medium">
-              Mensagem de level up
-            </Label>
-            <Textarea
-              rows={3}
-              className="mt-2"
-              value={form.level_up_message}
-              onChange={(e) => setForm({ ...form, level_up_message: e.target.value })}
-            />
-            <p className="mt-1 text-xs text-muted-foreground">
-              Variáveis: <code className="rounded bg-muted px-1">{"{user}"}</code>{" "}
-              <code className="rounded bg-muted px-1">{"{level}"}</code>{" "}
-              <code className="rounded bg-muted px-1">{"{xp}"}</code>
-            </p>
-            <div className="mt-4">
-              <Row
-                label="Enviar também por DM"
-                checked={form.level_up_dm}
-                onChange={(v) => setForm({ ...form, level_up_dm: v })}
+          <AuroraSection title="Mensagem de level up" icon={Trophy} tone="pink">
+            <AuroraField
+              label="Canal de level up"
+              hint="Vazio = envia no mesmo canal da mensagem que subiu de nível."
+            >
+              <Input
+                placeholder="ID do canal"
+                value={form.level_up_channel_id ?? ""}
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    level_up_channel_id: e.target.value.trim() || null,
+                  })
+                }
               />
-            </div>
-          </Card>
-
-          <Card>
-            <Label className="text-sm font-medium">Canais sem XP (IDs)</Label>
-            <Textarea
-              rows={2}
-              className="mt-2"
-              value={(form.no_xp_channels ?? []).join("\n")}
-              onChange={(e) =>
-                setForm({ ...form, no_xp_channels: parseList(e.target.value) })
-              }
+            </AuroraField>
+            <AuroraField
+              label="Texto enviado"
+              hint="Variáveis: {user}, {level}, {xp}"
+            >
+              <Textarea
+                rows={3}
+                className="font-mono text-sm"
+                value={form.level_up_message}
+                onChange={(e) =>
+                  setForm({ ...form, level_up_message: e.target.value })
+                }
+              />
+            </AuroraField>
+            <AuroraSwitchRow
+              label="Enviar também por DM"
+              checked={form.level_up_dm}
+              onChange={(v) => setForm({ ...form, level_up_dm: v })}
             />
-            <Label className="mt-4 block text-sm font-medium">
-              Cargos sem XP (IDs)
-            </Label>
-            <Textarea
-              rows={2}
-              className="mt-2"
-              value={(form.no_xp_roles ?? []).join("\n")}
-              onChange={(e) =>
-                setForm({ ...form, no_xp_roles: parseList(e.target.value) })
-              }
-            />
-          </Card>
+          </AuroraSection>
 
-          <Card>
-            <Row
+          <AuroraSection title="Exceções" icon={Users} tone="cyan">
+            <AuroraField label="Canais sem XP (IDs)">
+              <Textarea
+                rows={2}
+                className="font-mono text-xs"
+                value={(form.no_xp_channels ?? []).join("\n")}
+                onChange={(e) =>
+                  setForm({ ...form, no_xp_channels: parseList(e.target.value) })
+                }
+              />
+            </AuroraField>
+            <AuroraField label="Cargos sem XP (IDs)">
+              <Textarea
+                rows={2}
+                className="font-mono text-xs"
+                value={(form.no_xp_roles ?? []).join("\n")}
+                onChange={(e) =>
+                  setForm({ ...form, no_xp_roles: parseList(e.target.value) })
+                }
+              />
+            </AuroraField>
+          </AuroraSection>
+
+          <AuroraSection title="Recompensas" icon={Trophy} tone="lavender">
+            <AuroraSwitchRow
               label="Acumular cargos de nível"
-              hint="Quando ligado, membro mantém todos os cargos ganhos. Senão, só o mais alto."
+              hint="Quando ligado, o membro mantém todos os cargos ganhos. Senão, só o mais alto."
               checked={form.stack_rewards}
               onChange={(v) => setForm({ ...form, stack_rewards: v })}
             />
-          </Card>
+          </AuroraSection>
         </TabsContent>
 
         <TabsContent value="rewards" className="mt-4 space-y-4">
-          <Card>
+          <AuroraSection title="Adicionar recompensa" icon={Plus} tone="mint">
             <div className="grid gap-2 sm:grid-cols-[120px_1fr_auto]">
               <Input
                 type="number"
@@ -251,21 +300,31 @@ function LevelingPage() {
                 <Plus className="mr-1.5 size-4" /> Adicionar
               </Button>
             </div>
-          </Card>
-          <div className="rounded-2xl border border-border bg-card">
+          </AuroraSection>
+          <div className="aurora-panel overflow-hidden">
             {rewards.length === 0 ? (
-              <p className="p-6 text-center text-sm text-muted-foreground">
-                Nenhuma recompensa.
-              </p>
+              <div className="flex flex-col items-center gap-3 p-10 text-center">
+                <Mascot variant="sleeping" size={72} />
+                <p className="text-sm text-muted-foreground">
+                  Nenhuma recompensa ainda. Que tal recompensar quem conversa?
+                </p>
+              </div>
             ) : (
-              <ul className="divide-y divide-border">
+              <ul className="divide-y divide-border/60">
                 {(rewards as any[]).map((r) => (
                   <li
                     key={r.id}
-                    className="flex items-center justify-between px-5 py-3"
+                    className="flex items-center justify-between px-5 py-3 transition hover:bg-[color:color-mix(in_oklab,var(--aurora-lavender)_6%,transparent)]"
                   >
                     <div className="flex items-center gap-4">
-                      <span className="rounded-md bg-primary/15 px-2 py-0.5 text-xs font-semibold text-primary">
+                      <span
+                        className="font-display rounded-lg px-2.5 py-1 text-xs font-bold"
+                        style={{
+                          background:
+                            "linear-gradient(135deg, color-mix(in oklab, var(--aurora-peach) 50%, white), color-mix(in oklab, var(--aurora-pink) 40%, white))",
+                          color: "#4a2a00",
+                        }}
+                      >
                         Nv {r.level}
                       </span>
                       <span className="font-mono text-sm">{r.role_id}</span>
@@ -285,33 +344,65 @@ function LevelingPage() {
         </TabsContent>
 
         <TabsContent value="leaderboard" className="mt-4">
-          <div className="rounded-2xl border border-border bg-card">
+          <div className="aurora-panel overflow-hidden">
             {(lb as any[]).length === 0 ? (
-              <p className="p-6 text-center text-sm text-muted-foreground">
-                Sem dados ainda.
-              </p>
+              <div className="flex flex-col items-center gap-3 p-10 text-center">
+                <Mascot variant="sleeping" size={72} />
+                <p className="text-sm text-muted-foreground">
+                  Sem dados ainda. Quando alguém conversar, aparece aqui!
+                </p>
+              </div>
             ) : (
-              <ol className="divide-y divide-border">
-                {(lb as any[]).map((u, i) => (
-                  <li
-                    key={u.user_id}
-                    className="flex items-center gap-4 px-5 py-3 text-sm"
-                  >
-                    <span className="w-8 text-center font-semibold text-muted-foreground">
-                      #{i + 1}
-                    </span>
-                    <span className="flex-1 font-mono text-xs">{u.user_id}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {u.messages} msgs
-                    </span>
-                    <span className="rounded-md bg-primary/15 px-2 py-0.5 text-xs font-semibold text-primary">
-                      Nv {u.level}
-                    </span>
-                    <span className="w-20 text-right font-mono text-xs">
-                      {u.xp.toLocaleString("pt-BR")} XP
-                    </span>
-                  </li>
-                ))}
+              <ol className="divide-y divide-border/60">
+                {(lb as any[]).map((u, i) => {
+                  const rankIcon =
+                    i === 0 ? Crown : i === 1 ? Medal : i === 2 ? Award : null;
+                  const rankClass =
+                    i === 0
+                      ? "aurora-rank-1"
+                      : i === 1
+                        ? "aurora-rank-2"
+                        : i === 2
+                          ? "aurora-rank-3"
+                          : "";
+                  return (
+                    <li
+                      key={u.user_id}
+                      className="flex items-center gap-4 px-5 py-3 text-sm transition hover:bg-[color:color-mix(in_oklab,var(--aurora-lavender)_6%,transparent)]"
+                    >
+                      <span
+                        className={`font-display flex size-9 items-center justify-center rounded-full text-xs font-bold ${rankClass || "bg-muted text-muted-foreground"}`}
+                      >
+                        {rankIcon ? (
+                          <rankIcon.type
+                            {...(rankIcon as any)}
+                            className="size-4"
+                          />
+                        ) : (
+                          `#${i + 1}`
+                        )}
+                      </span>
+                      <span className="flex-1 font-mono text-xs truncate">
+                        {u.user_id}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {u.messages} msgs
+                      </span>
+                      <span
+                        className="font-display rounded-md px-2 py-0.5 text-xs font-bold"
+                        style={{
+                          background:
+                            "color-mix(in oklab, var(--aurora-lavender) 25%, transparent)",
+                        }}
+                      >
+                        Nv {u.level}
+                      </span>
+                      <span className="w-20 text-right font-mono text-xs">
+                        {u.xp.toLocaleString("pt-BR")} XP
+                      </span>
+                    </li>
+                  );
+                })}
               </ol>
             )}
           </div>
@@ -320,6 +411,7 @@ function LevelingPage() {
     </ModuleLayout>
   );
 }
+
 
 function Card({ children }: { children: React.ReactNode }) {
   return <div className="rounded-2xl border border-border bg-card p-5">{children}</div>;

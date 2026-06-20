@@ -15,7 +15,6 @@ import { Route as ComandosRouteImport } from './routes/comandos'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedServidoresRouteImport } from './routes/_authenticated/servidores'
-import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as ApiPublicBotGuildPresenceRouteImport } from './routes/api/public/bot-guild-presence'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
 import { Route as AuthenticatedGGuildIdRouteImport } from './routes/_authenticated/g.$guildId'
@@ -71,11 +70,6 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedServidoresRoute = AuthenticatedServidoresRouteImport.update({
   id: '/servidores',
   path: '/servidores',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const ApiPublicBotGuildPresenceRoute =
@@ -232,9 +226,9 @@ const AuthenticatedGGuildIdAssetsRoute =
   } as any)
 const AuthenticatedDashboardGuildIdSplatRoute =
   AuthenticatedDashboardGuildIdSplatRouteImport.update({
-    id: '/$guildId/$',
-    path: '/$guildId/$',
-    getParentRoute: () => AuthenticatedDashboardRoute,
+    id: '/dashboard/$guildId/$',
+    path: '/dashboard/$guildId/$',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -242,7 +236,6 @@ export interface FileRoutesByFullPath {
   '/comandos': typeof ComandosRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
-  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/servidores': typeof AuthenticatedServidoresRoute
   '/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/g/$guildId': typeof AuthenticatedGGuildIdRouteWithChildren
@@ -277,7 +270,6 @@ export interface FileRoutesByTo {
   '/comandos': typeof ComandosRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
-  '/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/servidores': typeof AuthenticatedServidoresRoute
   '/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/api/auth/logout': typeof ApiAuthLogoutRoute
@@ -313,7 +305,6 @@ export interface FileRoutesById {
   '/comandos': typeof ComandosRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
-  '/_authenticated/dashboard': typeof AuthenticatedDashboardRouteWithChildren
   '/_authenticated/servidores': typeof AuthenticatedServidoresRoute
   '/_authenticated/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/_authenticated/g/$guildId': typeof AuthenticatedGGuildIdRouteWithChildren
@@ -350,7 +341,6 @@ export interface FileRouteTypes {
     | '/comandos'
     | '/entrar'
     | '/login'
-    | '/dashboard'
     | '/servidores'
     | '/admin/premium'
     | '/g/$guildId'
@@ -385,7 +375,6 @@ export interface FileRouteTypes {
     | '/comandos'
     | '/entrar'
     | '/login'
-    | '/dashboard'
     | '/servidores'
     | '/admin/premium'
     | '/api/auth/logout'
@@ -420,7 +409,6 @@ export interface FileRouteTypes {
     | '/comandos'
     | '/entrar'
     | '/login'
-    | '/_authenticated/dashboard'
     | '/_authenticated/servidores'
     | '/_authenticated/admin/premium'
     | '/_authenticated/g/$guildId'
@@ -505,13 +493,6 @@ declare module '@tanstack/react-router' {
       path: '/servidores'
       fullPath: '/servidores'
       preLoaderRoute: typeof AuthenticatedServidoresRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/dashboard': {
-      id: '/_authenticated/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/api/public/bot-guild-presence': {
@@ -698,28 +679,13 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/dashboard/$guildId/$': {
       id: '/_authenticated/dashboard/$guildId/$'
-      path: '/$guildId/$'
+      path: '/dashboard/$guildId/$'
       fullPath: '/dashboard/$guildId/$'
       preLoaderRoute: typeof AuthenticatedDashboardGuildIdSplatRouteImport
-      parentRoute: typeof AuthenticatedDashboardRoute
+      parentRoute: typeof AuthenticatedRoute
     }
   }
 }
-
-interface AuthenticatedDashboardRouteChildren {
-  AuthenticatedDashboardGuildIdSplatRoute: typeof AuthenticatedDashboardGuildIdSplatRoute
-}
-
-const AuthenticatedDashboardRouteChildren: AuthenticatedDashboardRouteChildren =
-  {
-    AuthenticatedDashboardGuildIdSplatRoute:
-      AuthenticatedDashboardGuildIdSplatRoute,
-  }
-
-const AuthenticatedDashboardRouteWithChildren =
-  AuthenticatedDashboardRoute._addFileChildren(
-    AuthenticatedDashboardRouteChildren,
-  )
 
 interface AuthenticatedGGuildIdRouteChildren {
   AuthenticatedGGuildIdAssetsRoute: typeof AuthenticatedGGuildIdAssetsRoute
@@ -775,17 +741,18 @@ const AuthenticatedGGuildIdRouteWithChildren =
   )
 
 interface AuthenticatedRouteChildren {
-  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRouteWithChildren
   AuthenticatedServidoresRoute: typeof AuthenticatedServidoresRoute
   AuthenticatedAdminPremiumRoute: typeof AuthenticatedAdminPremiumRoute
   AuthenticatedGGuildIdRoute: typeof AuthenticatedGGuildIdRouteWithChildren
+  AuthenticatedDashboardGuildIdSplatRoute: typeof AuthenticatedDashboardGuildIdSplatRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedDashboardRoute: AuthenticatedDashboardRouteWithChildren,
   AuthenticatedServidoresRoute: AuthenticatedServidoresRoute,
   AuthenticatedAdminPremiumRoute: AuthenticatedAdminPremiumRoute,
   AuthenticatedGGuildIdRoute: AuthenticatedGGuildIdRouteWithChildren,
+  AuthenticatedDashboardGuildIdSplatRoute:
+    AuthenticatedDashboardGuildIdSplatRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

@@ -442,22 +442,29 @@ function Landing() {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-12px); }
         }
-        @keyframes peek-down {
-          0%   { transform: translate(-50%, 40%) rotate(-8deg); opacity: 0; }
-          60%  { transform: translate(-50%, 8%)  rotate(4deg);  opacity: 1; }
-          80%  { transform: translate(-50%, 14%) rotate(-2deg); opacity: 1; }
-          100% { transform: translate(-50%, 10%) rotate(0deg);  opacity: 1; }
+        /* Escalada: ele puxa o corpo pra cima em "tranquinhos" até apoiar as mãos na borda */
+        @keyframes climb-up {
+          0%   { transform: translate(-50%, 95%)  rotate(-10deg); opacity: 0; }
+          8%   { transform: translate(-50%, 90%)  rotate(-10deg); opacity: 1; }
+          18%  { transform: translate(-50%, 78%)  rotate(8deg);   opacity: 1; }
+          30%  { transform: translate(-50%, 65%)  rotate(-6deg);  opacity: 1; }
+          42%  { transform: translate(-50%, 50%)  rotate(7deg);   opacity: 1; }
+          55%  { transform: translate(-50%, 38%)  rotate(-5deg);  opacity: 1; }
+          68%  { transform: translate(-50%, 26%)  rotate(4deg);   opacity: 1; }
+          80%  { transform: translate(-50%, 18%)  rotate(-3deg);  opacity: 1; }
+          92%  { transform: translate(-50%, 12%)  rotate(2deg);   opacity: 1; }
+          100% { transform: translate(-50%, 14%)  rotate(0deg);   opacity: 1; }
         }
         @keyframes curious-tilt {
-          0%, 100% { transform: translate(-50%, 10%) rotate(-3deg); }
-          50%      { transform: translate(-50%, 8%)  rotate(3deg); }
+          0%, 100% { transform: translate(-50%, 14%) rotate(-3deg); }
+          50%      { transform: translate(-50%, 12%) rotate(3deg); }
         }
         @keyframes punch-glass {
-          0%, 70%, 100% { transform: translate(-50%, 10%) rotate(0deg); }
-          75% { transform: translate(-50%, 4%)  rotate(-4deg); }
-          80% { transform: translate(-52%, 14%) rotate(-2deg); }
-          85% { transform: translate(-48%, 14%) rotate(2deg); }
-          90% { transform: translate(-50%, 12%) rotate(0deg); }
+          0%, 70%, 100% { transform: translate(-50%, 14%) rotate(0deg); }
+          74% { transform: translate(-50%, 6%)  rotate(-4deg); }
+          78% { transform: translate(-53%, 18%) rotate(-3deg); }
+          82% { transform: translate(-47%, 18%) rotate(3deg); }
+          86% { transform: translate(-50%, 12%) rotate(0deg); }
         }
         @keyframes glass-shake {
           0%, 100% { transform: translate(0, 0) rotate(0deg); }
@@ -483,16 +490,17 @@ function Landing() {
         }
         .peek-trigger .peek-chibi {
           opacity: 0;
-          transform: translate(-50%, 40%) rotate(-8deg);
+          transform: translate(-50%, 95%) rotate(-10deg);
           transition: opacity 0.15s ease-out;
         }
         .peek-trigger:hover .peek-chibi,
         .peek-trigger:focus-visible .peek-chibi {
           opacity: 1;
-          animation: peek-down 0.5s cubic-bezier(.34,1.56,.64,1) forwards,
-                     curious-tilt 2.4s ease-in-out 0.5s infinite,
-                     punch-glass 4s ease-in-out 1.2s infinite;
+          animation: climb-up 1.5s cubic-bezier(.5,.05,.5,.95) forwards,
+                     curious-tilt 2.4s ease-in-out 1.6s infinite,
+                     punch-glass 4.8s ease-in-out 2.6s infinite;
         }
+
 
       `}</style>
     </div>

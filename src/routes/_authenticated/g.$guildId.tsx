@@ -3,7 +3,7 @@ import { ExternalLink, Bot, ArrowLeft } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import { checkBotInGuild } from "@/lib/guild/bot-presence.functions";
 
-export const Route = createFileRoute("/_authenticated/dashboard/$guildId")({
+export const Route = createFileRoute("/_authenticated/g/$guildId")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

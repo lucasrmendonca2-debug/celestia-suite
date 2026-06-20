@@ -21,7 +21,7 @@ import { getGuildOverview } from "@/lib/guild/overview.functions";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
 
-export const Route = createFileRoute("/_authenticated/dashboard/$guildId/")({
+export const Route = createFileRoute("/_authenticated/g/$guildId/")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

@@ -23,7 +23,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 
-export const Route = createFileRoute("/_authenticated/dashboard/$guildId/logs")({
+export const Route = createFileRoute("/_authenticated/g/$guildId/logs")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

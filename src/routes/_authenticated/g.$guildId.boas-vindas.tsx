@@ -20,7 +20,7 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
 
-export const Route = createFileRoute("/_authenticated/dashboard/$guildId/welcome")({
+export const Route = createFileRoute("/_authenticated/g/$guildId/boas-vindas")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

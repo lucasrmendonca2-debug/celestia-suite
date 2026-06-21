@@ -98,14 +98,15 @@ const modules: {
   { n: "09", title: "Sugestões", desc: "Canal de feedback com aprovação, rejeição e comentários.", tone: "coral", icon: Lightbulb },
 ];
 
-const stats: { v: string; l: string; tone: Tone }[] = [
-  { v: "+90", l: "comandos", tone: "purple" },
-  { v: "+12k", l: "servidores", tone: "pink" },
+const staticStats: { v: string; l: string; tone: Tone }[] = [
   { v: "99.9%", l: "uptime", tone: "mint" },
   { v: "<80ms", l: "latência", tone: "sky" },
 ];
 
 function Landing() {
+  const data = Route.useLoaderData();
+  const serversLabel = data.servers > 0 ? formatCount(data.servers) : "Novo";
+  const commandsLabel = `${data.commands}+`;
   return (
     <div className="min-h-screen overflow-hidden bg-[#FBF7FF] font-['Inter'] text-[#1B0E3B] selection:bg-[#7C3AED] selection:text-white">
       {/* Floating shapes */}

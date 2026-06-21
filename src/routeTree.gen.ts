@@ -24,6 +24,7 @@ import { Route as AuthenticatedServidoresRouteImport } from './routes/_authentic
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as ApiPublicBotGuildPresenceRouteImport } from './routes/api/public/bot-guild-presence'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
+import { Route as AuthenticatedGGuildIdRouteImport } from './routes/_authenticated/g.$guildId'
 import { Route as AuthenticatedDashboardSlugRouteImport } from './routes/_authenticated/dashboard.$slug'
 import { Route as AuthenticatedAdminPremiumRouteImport } from './routes/_authenticated/admin.premium'
 import { Route as AuthenticatedDashboardSlugIndexRouteImport } from './routes/_authenticated/dashboard.$slug.index'
@@ -126,6 +127,11 @@ const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
   path: '/api/auth/logout',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedGGuildIdRoute = AuthenticatedGGuildIdRouteImport.update({
+  id: '/g/$guildId',
+  path: '/g/$guildId',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedDashboardSlugRoute =
   AuthenticatedDashboardSlugRouteImport.update({
     id: '/dashboard/$slug',
@@ -156,9 +162,9 @@ const ApiAuthDiscordCallbackRoute = ApiAuthDiscordCallbackRouteImport.update({
 } as any)
 const AuthenticatedGGuildIdSplatRoute =
   AuthenticatedGGuildIdSplatRouteImport.update({
-    id: '/g/$guildId/$',
-    path: '/g/$guildId/$',
-    getParentRoute: () => AuthenticatedRoute,
+    id: '/$',
+    path: '/$',
+    getParentRoute: () => AuthenticatedGGuildIdRoute,
   } as any)
 const AuthenticatedDashboardSlugTicketsRoute =
   AuthenticatedDashboardSlugTicketsRouteImport.update({
@@ -289,6 +295,7 @@ export interface FileRoutesByFullPath {
   '/servidores': typeof AuthenticatedServidoresRoute
   '/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/dashboard/$slug': typeof AuthenticatedDashboardSlugRouteWithChildren
+  '/g/$guildId': typeof AuthenticatedGGuildIdRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/public/bot-guild-presence': typeof ApiPublicBotGuildPresenceRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
@@ -329,6 +336,7 @@ export interface FileRoutesByTo {
   '/suporte': typeof SuporteRoute
   '/servidores': typeof AuthenticatedServidoresRoute
   '/admin/premium': typeof AuthenticatedAdminPremiumRoute
+  '/g/$guildId': typeof AuthenticatedGGuildIdRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/public/bot-guild-presence': typeof ApiPublicBotGuildPresenceRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
@@ -372,6 +380,7 @@ export interface FileRoutesById {
   '/_authenticated/servidores': typeof AuthenticatedServidoresRoute
   '/_authenticated/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/_authenticated/dashboard/$slug': typeof AuthenticatedDashboardSlugRouteWithChildren
+  '/_authenticated/g/$guildId': typeof AuthenticatedGGuildIdRouteWithChildren
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/public/bot-guild-presence': typeof ApiPublicBotGuildPresenceRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
@@ -415,6 +424,7 @@ export interface FileRouteTypes {
     | '/servidores'
     | '/admin/premium'
     | '/dashboard/$slug'
+    | '/g/$guildId'
     | '/api/auth/logout'
     | '/api/public/bot-guild-presence'
     | '/dashboard/'
@@ -455,6 +465,7 @@ export interface FileRouteTypes {
     | '/suporte'
     | '/servidores'
     | '/admin/premium'
+    | '/g/$guildId'
     | '/api/auth/logout'
     | '/api/public/bot-guild-presence'
     | '/dashboard'
@@ -497,6 +508,7 @@ export interface FileRouteTypes {
     | '/_authenticated/servidores'
     | '/_authenticated/admin/premium'
     | '/_authenticated/dashboard/$slug'
+    | '/_authenticated/g/$guildId'
     | '/api/auth/logout'
     | '/api/public/bot-guild-presence'
     | '/_authenticated/dashboard/'
@@ -650,6 +662,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiAuthLogoutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/g/$guildId': {
+      id: '/_authenticated/g/$guildId'
+      path: '/g/$guildId'
+      fullPath: '/g/$guildId'
+      preLoaderRoute: typeof AuthenticatedGGuildIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/dashboard/$slug': {
       id: '/_authenticated/dashboard/$slug'
       path: '/dashboard/$slug'
@@ -687,10 +706,10 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/g/$guildId/$': {
       id: '/_authenticated/g/$guildId/$'
-      path: '/g/$guildId/$'
+      path: '/$'
       fullPath: '/g/$guildId/$'
       preLoaderRoute: typeof AuthenticatedGGuildIdSplatRouteImport
-      parentRoute: typeof AuthenticatedRoute
+      parentRoute: typeof AuthenticatedGGuildIdRoute
     }
     '/_authenticated/dashboard/$slug/tickets': {
       id: '/_authenticated/dashboard/$slug/tickets'
@@ -898,20 +917,33 @@ const AuthenticatedDashboardSlugRouteWithChildren =
     AuthenticatedDashboardSlugRouteChildren,
   )
 
+interface AuthenticatedGGuildIdRouteChildren {
+  AuthenticatedGGuildIdSplatRoute: typeof AuthenticatedGGuildIdSplatRoute
+}
+
+const AuthenticatedGGuildIdRouteChildren: AuthenticatedGGuildIdRouteChildren = {
+  AuthenticatedGGuildIdSplatRoute: AuthenticatedGGuildIdSplatRoute,
+}
+
+const AuthenticatedGGuildIdRouteWithChildren =
+  AuthenticatedGGuildIdRoute._addFileChildren(
+    AuthenticatedGGuildIdRouteChildren,
+  )
+
 interface AuthenticatedRouteChildren {
   AuthenticatedServidoresRoute: typeof AuthenticatedServidoresRoute
   AuthenticatedAdminPremiumRoute: typeof AuthenticatedAdminPremiumRoute
   AuthenticatedDashboardSlugRoute: typeof AuthenticatedDashboardSlugRouteWithChildren
+  AuthenticatedGGuildIdRoute: typeof AuthenticatedGGuildIdRouteWithChildren
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
-  AuthenticatedGGuildIdSplatRoute: typeof AuthenticatedGGuildIdSplatRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedServidoresRoute: AuthenticatedServidoresRoute,
   AuthenticatedAdminPremiumRoute: AuthenticatedAdminPremiumRoute,
   AuthenticatedDashboardSlugRoute: AuthenticatedDashboardSlugRouteWithChildren,
+  AuthenticatedGGuildIdRoute: AuthenticatedGGuildIdRouteWithChildren,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
-  AuthenticatedGGuildIdSplatRoute: AuthenticatedGGuildIdSplatRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

@@ -810,6 +810,10 @@ export const upsertMultiplier = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const userId = await perm(data.guildId);
     const sb = await admin();
+    if (!data.id) {
+      const { enforceGuildLimit } = await import("./premium-limits.server");
+      await enforceGuildLimit(data.guildId, "multipliers", "guild_multipliers");
+    }
     const payload: any = {
       guild_id: data.guildId,
       kind: data.kind,

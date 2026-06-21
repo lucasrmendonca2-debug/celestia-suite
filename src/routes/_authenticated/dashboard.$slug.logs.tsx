@@ -44,6 +44,9 @@ import {
 } from "@/components/ui/tabs";
 import type { LucideIcon } from "lucide-react";
 import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
+import { ChannelSelect } from "@/components/dashboard/selectors/ChannelSelect";
+import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
+import { ChannelBadge, RoleBadge } from "@/components/dashboard/DiscordBadges";
 
 export const Route = createFileRoute("/_authenticated/dashboard/$slug/logs")({
   loader: async ({ context, params }) => {
@@ -288,11 +291,12 @@ function LogsPage() {
               tone={c.tone}
               description="Deixe vazio para cair no canal global."
             >
-              <AuroraField label="ID do canal">
-                <Input
-                  placeholder="ID do canal (vazio = canal global)"
-                  value={(form[c.channelKey] as string | null) ?? ""}
-                  onChange={(e) => set(c.channelKey, e.target.value.trim() || null)}
+              <AuroraField label="Canal de destino">
+                <ChannelSelect
+                  guildId={guildId}
+                  value={(form[c.channelKey] as string | null) ?? null}
+                  onChange={(v) => set(c.channelKey, v)}
+                  placeholder="Usar canal global"
                 />
               </AuroraField>
             </AuroraSection>
@@ -313,11 +317,12 @@ function LogsPage() {
 
         <TabsContent value="general" className="space-y-4">
           <AuroraSection title="Canal global (fallback)" icon={Server} tone="lavender">
-            <AuroraField label="ID do canal">
-              <Input
-                placeholder="ID do canal"
-                value={(form.log_channel_id as string | null) ?? ""}
-                onChange={(e) => set("log_channel_id", e.target.value.trim() || null)}
+            <AuroraField label="Canal de destino">
+              <ChannelSelect
+                guildId={guildId}
+                value={(form.log_channel_id as string | null) ?? null}
+                onChange={(v) => set("log_channel_id", v)}
+                placeholder="Selecione um canal"
               />
             </AuroraField>
           </AuroraSection>
@@ -326,6 +331,8 @@ function LogsPage() {
             tone="cyan"
             icon={Hash}
             k="ignored_channels"
+            kind="channel"
+            guildId={guildId}
             form={form}
             set={set}
           />
@@ -334,6 +341,8 @@ function LogsPage() {
             tone="peach"
             icon={Tag}
             k="ignored_roles"
+            kind="role"
+            guildId={guildId}
             form={form}
             set={set}
           />
@@ -342,6 +351,8 @@ function LogsPage() {
             tone="pink"
             icon={Users}
             k="ignored_users"
+            kind="user"
+            guildId={guildId}
             form={form}
             set={set}
           />
@@ -358,6 +369,8 @@ function LogsPage() {
 function IgnoreList({
   label,
   k,
+  kind,
+  guildId,
   form,
   set,
   icon,
@@ -365,46 +378,81 @@ function IgnoreList({
 }: {
   label: string;
   k: string;
+  kind: "channel" | "role" | "user";
+  guildId: string;
   form: Record<string, unknown>;
   set: (k: string, v: unknown) => void;
   icon: LucideIcon;
   tone: Tone;
 }) {
   const list = (form[k] as string[] | undefined) ?? [];
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState<string>("");
+
+  const add = (id: string | null) => {
+    if (!id || !/^\d{5,32}$/.test(id)) return toast.error("ID inválido");
+    if (list.includes(id)) return;
+    set(k, [...list, id]);
+    setDraft("");
+  };
+  const remove = (id: string) => set(k, list.filter((x) => x !== id));
+
   return (
     <AuroraSection title={label} icon={icon} tone={tone}>
       <div className="flex gap-2">
-        <Input
-          placeholder="ID (snowflake)"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value.trim())}
-        />
-        <Button
-          variant="outline"
-          onClick={() => {
-            if (!/^\d{5,32}$/.test(draft)) return toast.error("ID inválido");
-            if (list.includes(draft)) return;
-            set(k, [...list, draft]);
-            setDraft("");
-          }}
-        >
-          Adicionar
-        </Button>
+        {kind === "channel" ? (
+          <div className="flex-1">
+            <ChannelSelect
+              guildId={guildId}
+              value={draft || null}
+              onChange={(v) => add(v)}
+              placeholder="Selecione um canal para ignorar"
+            />
+          </div>
+        ) : kind === "role" ? (
+          <div className="flex-1">
+            <RoleSelect
+              guildId={guildId}
+              value={draft || null}
+              onChange={(v) => add(v)}
+              placeholder="Selecione um cargo para ignorar"
+            />
+          </div>
+        ) : (
+          <>
+            <Input
+              placeholder="ID do usuário"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value.trim())}
+            />
+            <Button variant="outline" onClick={() => add(draft)}>
+              Adicionar
+            </Button>
+          </>
+        )}
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="mt-2 flex flex-wrap gap-2">
         {list.length === 0 && (
           <span className="text-xs text-muted-foreground">Nenhum.</span>
         )}
         {list.map((id) => (
-          <Badge
+          <button
             key={id}
-            variant="outline"
-            className="cursor-pointer hover:bg-destructive/10"
-            onClick={() => set(k, list.filter((x) => x !== id))}
+            type="button"
+            onClick={() => remove(id)}
+            className="group inline-flex items-center gap-1 rounded-md border border-border bg-background/40 px-1.5 py-0.5 transition hover:border-destructive/60 hover:bg-destructive/10"
+            title="Remover"
           >
-            {id} ✕
-          </Badge>
+            {kind === "channel" ? (
+              <ChannelBadge guildId={guildId} channelId={id} />
+            ) : kind === "role" ? (
+              <RoleBadge guildId={guildId} roleId={id} />
+            ) : (
+              <span className="font-mono text-xs">{id}</span>
+            )}
+            <span className="text-xs text-muted-foreground group-hover:text-destructive">
+              ✕
+            </span>
+          </button>
         ))}
       </div>
     </AuroraSection>
@@ -499,8 +547,12 @@ function HistoryView({ guildId }: { guildId: string }) {
                 <td className="px-3 py-2 font-mono text-xs">
                   {r.target_tag ?? r.target_id ?? "—"}
                 </td>
-                <td className="px-3 py-2 font-mono text-xs">
-                  {r.channel_id ? `#${r.channel_id}` : "—"}
+                <td className="px-3 py-2">
+                  {r.channel_id ? (
+                    <ChannelBadge guildId={guildId} channelId={r.channel_id} />
+                  ) : (
+                    <span className="text-xs text-muted-foreground">—</span>
+                  )}
                 </td>
               </tr>
             ))}

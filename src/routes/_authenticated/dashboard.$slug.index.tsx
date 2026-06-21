@@ -22,7 +22,7 @@ import { getGuildOverview } from "@/lib/guild/overview.functions";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
 import { Mascot } from "@/components/Mascot";
-import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
+import { resolveGuildIdFromSlug, buildGuildSlug } from "@/lib/guild/slug";
 
 export const Route = createFileRoute("/_authenticated/dashboard/$slug/")({
   loader: async ({ context, params }) => {

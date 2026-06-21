@@ -25,6 +25,13 @@ function normalizeToken(raw: string | null): string {
     .replace(/\s+/g, "");
 }
 
+function safeStrEqual(a: string, b: string): boolean {
+  if (!a || !b) return false;
+  const ab = Buffer.from(a);
+  const bb = Buffer.from(b);
+  return ab.length === bb.length && timingSafeEqual(ab, bb);
+}
+
 async function isValidZenoxBotToken(token: string, expectedClientId?: string): Promise<boolean> {
   if (!token || !expectedClientId) return false;
   const res = await fetch("https://discord.com/api/v10/users/@me", {
@@ -47,11 +54,12 @@ export const Route = createFileRoute("/api/public/bot-guild-presence")({
         const provided = normalizeToken(request.headers.get("authorization"));
         const expectedClientId = process.env.DISCORD_CLIENT_ID;
         const authorized =
-          (expected && provided === expected) ||
+          (expected && safeStrEqual(provided, expected)) ||
           (await isValidZenoxBotToken(provided, expectedClientId));
         if (!authorized) {
           return new Response("Unauthorized", { status: 401 });
         }
+
 
         const parsed = BodySchema.safeParse(await request.json().catch(() => null));
         if (!parsed.success) {

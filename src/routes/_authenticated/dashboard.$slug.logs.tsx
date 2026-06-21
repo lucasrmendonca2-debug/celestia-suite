@@ -291,11 +291,12 @@ function LogsPage() {
               tone={c.tone}
               description="Deixe vazio para cair no canal global."
             >
-              <AuroraField label="ID do canal">
-                <Input
-                  placeholder="ID do canal (vazio = canal global)"
-                  value={(form[c.channelKey] as string | null) ?? ""}
-                  onChange={(e) => set(c.channelKey, e.target.value.trim() || null)}
+              <AuroraField label="Canal de destino">
+                <ChannelSelect
+                  guildId={guildId}
+                  value={(form[c.channelKey] as string | null) ?? null}
+                  onChange={(v) => set(c.channelKey, v)}
+                  placeholder="Usar canal global"
                 />
               </AuroraField>
             </AuroraSection>

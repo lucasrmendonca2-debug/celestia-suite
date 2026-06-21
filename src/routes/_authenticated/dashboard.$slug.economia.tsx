@@ -221,6 +221,33 @@ function EconomyPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["economy-missions", guildId] }),
   });
 
+  const addMult = useMutation({
+    mutationFn: () =>
+      upsertMult({
+        data: {
+          guildId,
+          kind: mult.kind,
+          target_type: mult.target_type,
+          target_id: mult.target_id,
+          multiplier: Number(mult.multiplier),
+          label: mult.label || null,
+          active: true,
+        },
+      }),
+    onSuccess: () => {
+      setMult({ ...mult, target_id: "", label: "" });
+      qc.invalidateQueries({ queryKey: ["multipliers", guildId] });
+      toast.success("Multiplicador salvo. ⚡");
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+
+  const deleteMult = useMutation({
+    mutationFn: (id: string) => removeMult({ data: { guildId, id } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["multipliers", guildId] }),
+  });
+
+
   return (
     <ModuleLayout
       guildId={guildId}

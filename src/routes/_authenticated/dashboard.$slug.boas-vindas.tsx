@@ -12,6 +12,7 @@ import {
 } from "@/lib/guild/guild.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
 import { ChannelSelect } from "@/components/dashboard/selectors/ChannelSelect";
+import { DiscordMessagePreview } from "@/components/dashboard/DiscordMessagePreview";
 import { SaveBar } from "@/components/dashboard/SaveBar";
 import {
   AuroraSection,

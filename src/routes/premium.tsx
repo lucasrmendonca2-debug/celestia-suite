@@ -42,9 +42,9 @@ function planSubtitle(plan: PremiumPlanDTO): string {
 }
 
 function Premium() {
-  const plans = Route.useLoaderData();
-  const userPlans = plans.filter((p) => p.type === "USER_VIP");
-  const guildPlans = plans.filter((p) => p.type === "GUILD_PREMIUM");
+  const plans = Route.useLoaderData() as PremiumPlanDTO[];
+  const userPlans = plans.filter((p: PremiumPlanDTO) => p.type === "USER_VIP");
+  const guildPlans = plans.filter((p: PremiumPlanDTO) => p.type === "GUILD_PREMIUM");
 
   return (
     <PublicPage

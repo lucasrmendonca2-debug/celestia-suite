@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated")({
   },
   component: () => <Outlet />,
   errorComponent: () => (
-    <main className="flex min-h-screen items-center justify-center bg-background px-6 text-foreground">
+    <main className="flex min-h-dvh items-center justify-center bg-background px-6 text-foreground">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold">Sessão expirada</h1>
         <p className="mt-2 text-sm text-muted-foreground">

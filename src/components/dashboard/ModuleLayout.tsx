@@ -34,7 +34,7 @@ export function ModuleLayout({
   const slug = guild ? buildGuildSlug(guild) : guildId;
 
   return (
-    <div className="aurora-shell flex min-h-screen text-foreground">
+    <div className="aurora-shell flex min-h-dvh text-foreground">
       <DashboardSidebar guildId={guildId} />
       <div className="relative z-10 flex-1">
         <DashboardTopbar

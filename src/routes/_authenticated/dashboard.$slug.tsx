@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug")({
   pendingComponent: () => <MagicLoader label="Convocando o Zenox…" />,
   component: GuildLayout,
   notFoundComponent: () => (
-    <div className="aurora-shell flex min-h-screen items-center justify-center px-6">
+    <div className="aurora-shell flex min-h-dvh items-center justify-center px-6">
       <div className="relative z-10 flex max-w-md flex-col items-center text-center">
         <Mascot variant="404" size={160} glow />
         <p className="mt-4 font-display text-xl font-bold">Servidor não encontrado</p>
@@ -47,7 +47,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug")({
     </div>
   ),
   errorComponent: ({ error, reset }) => (
-    <div className="aurora-shell flex min-h-screen items-center justify-center px-6">
+    <div className="aurora-shell flex min-h-dvh items-center justify-center px-6">
       <div className="relative z-10 flex max-w-md flex-col items-center text-center">
         <Mascot variant="error" size={160} glow />
         <p className="mt-4 font-display text-xl font-bold">Algo deu errado</p>
@@ -78,7 +78,7 @@ function GuildLayout() {
 
   if (!presence.present) {
     return (
-      <div className="aurora-shell flex min-h-screen items-center justify-center px-6">
+      <div className="aurora-shell flex min-h-dvh items-center justify-center px-6">
         <div className="aurora-panel relative z-10 w-full max-w-md p-8 text-center">
           <div className="mx-auto mb-2 flex justify-center">
             <Mascot variant="sleeping" size={128} glow />

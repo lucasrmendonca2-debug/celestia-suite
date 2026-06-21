@@ -23,7 +23,7 @@ function LoginPage() {
   }
 
   return (
-    <main className="cyber-shell cyber-grid-bg relative flex min-h-screen items-center justify-center bg-background px-6 py-10">
+    <main className="cyber-shell cyber-grid-bg relative flex min-h-dvh items-center justify-center bg-background px-6 py-10">
       <div className="cyber-panel cyber-scanline relative w-full max-w-md rounded-xl p-8">
         <div className="mb-6 flex items-center gap-3">
           <div className="grid size-10 place-items-center rounded-lg border border-[var(--cyber-line)] bg-primary/15 shadow-[0_0_24px_-10px_var(--cyber-cyan)]">

@@ -17,7 +17,7 @@ export function PublicPage({
   children: ReactNode;
 }) {
   return (
-    <div className="min-h-screen overflow-hidden bg-[#FBF7FF] font-['Inter'] text-[#1B0E3B] selection:bg-[#7C3AED] selection:text-white">
+    <div className="min-h-dvh overflow-hidden bg-[#FBF7FF] font-['Inter'] text-[#1B0E3B] selection:bg-[#7C3AED] selection:text-white">
       <div className="pointer-events-none absolute right-[-10%] top-20 -z-10 size-[500px] rounded-full bg-[#EC4899]/20 blur-[120px]" />
       <div className="pointer-events-none absolute left-[-10%] top-[40%] -z-10 size-[500px] rounded-full bg-[#7C3AED]/20 blur-[120px]" />
 

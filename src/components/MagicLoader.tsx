@@ -11,7 +11,7 @@ export function MagicLoader({
     <div
       className={
         fullscreen
-          ? "aurora-shell flex min-h-screen items-center justify-center px-6"
+          ? "aurora-shell flex min-h-dvh items-center justify-center px-6"
           : "flex items-center justify-center py-16"
       }
     >

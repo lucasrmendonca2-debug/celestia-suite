@@ -87,7 +87,7 @@ function GuildOverviewPage() {
   const pct = Math.round((done / total) * 100);
 
   return (
-    <div className="aurora-shell flex min-h-screen text-foreground">
+    <div className="aurora-shell flex min-h-dvh text-foreground">
       <DashboardSidebar guildId={guild.id} />
       <div className="relative z-10 flex-1">
         <DashboardTopbar

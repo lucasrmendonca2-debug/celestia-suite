@@ -292,6 +292,7 @@ function EconomyPage() {
           <TabsTrigger value="config">Configuração</TabsTrigger>
           <TabsTrigger value="shop">Loja ({shop.length})</TabsTrigger>
           <TabsTrigger value="missions">Missões ({missions.length})</TabsTrigger>
+          <TabsTrigger value="multipliers">Multiplicadores ({multipliers.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="config" className="mt-4 space-y-4">

@@ -49,6 +49,7 @@ const fmt = new Intl.NumberFormat("pt-BR");
 
 function GuildOverviewPage() {
   const { user, guild } = Route.useLoaderData();
+  const slug = buildGuildSlug(guild);
   const { data: overview } = useSuspenseQuery({
     queryKey: ["guild-overview", guild.id],
     queryFn: () => getGuildOverview({ data: { guildId: guild.id } }),

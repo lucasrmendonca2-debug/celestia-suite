@@ -307,7 +307,21 @@ function SeasonLeaderboard({ guildId, seasonId }: { guildId: string; seasonId: s
             <span className="flex w-8 items-center justify-center font-mono text-xs text-muted-foreground">
               {Icon ? <Icon className="size-4" style={{ color: podium!.tone }} /> : `#${i + 1}`}
             </span>
-            <span className="flex-1 truncate font-mono text-xs">{u.user_id}</span>
+            {(u as any).avatar_url ? (
+              <img
+                src={(u as any).avatar_url}
+                alt=""
+                width={24}
+                height={24}
+                className="size-6 rounded-full ring-1 ring-border/40"
+                loading="lazy"
+              />
+            ) : (
+              <span className="size-6 rounded-full bg-muted" />
+            )}
+            <span className="flex-1 truncate text-sm font-medium">
+              {(u as any).display_name ?? u.user_id}
+            </span>
             <span className="font-display font-semibold">{u.xp.toLocaleString("pt-BR")} XP</span>
             <span className="ml-2 text-xs text-muted-foreground">Nv. {u.level}</span>
           </div>

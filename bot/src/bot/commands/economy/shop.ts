@@ -191,7 +191,7 @@ const command: SlashCommand = {
       return;
     }
 
-    if (sub === "buy") {
+    if (sub === "comprar") {
       const name = interaction.options.getString("nome", true);
       const qty = interaction.options.getInteger("quantidade") ?? 1;
       const item = await ShopItem.findOne({ guildId, name, enabled: true });

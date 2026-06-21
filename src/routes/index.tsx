@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { Mascot } from "@/components/Mascot";
 import chibiPeek from "@/assets/mascot-chibi-peek.png";
-import chibiClimb1 from "@/assets/chibi-climb-1.png";
+// chibi-climb-1 (3 braços) removido propositalmente
 import chibiClimb2 from "@/assets/chibi-climb-2.png";
 import chibiClimb3 from "@/assets/chibi-climb-3.png";
 import chibiClimb4 from "@/assets/chibi-climb-4.png";
@@ -510,15 +510,14 @@ function Landing() {
 /* ---------- Pieces ---------- */
 
 const CLIMB_FRAMES = [
-  chibiClimb1, // mão + cabeça surgindo
   chibiClimb2, // duas mãos no topo
   chibiClimb3, // se puxando, suando
   chibiClimb4, // tronco fora, apoiado
   chibiClimb5, // sentado peeking
   chibiClimb6, // sentado relaxado acenando
 ];
-const FRAME_MS = 110; // ~9fps, ~660ms a escalada toda
-const IDLE_FRAMES = [5, 4, 5, 4]; // balança entre poses sentadas depois
+const FRAME_MS = 110; // ~9fps
+const IDLE_FRAMES = [4, 3, 4, 3]; // idle entre poses sentadas (indices em CLIMB_FRAMES)
 
 function PeekButton({
   href,

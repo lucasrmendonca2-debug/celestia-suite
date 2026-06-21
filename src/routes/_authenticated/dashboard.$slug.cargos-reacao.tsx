@@ -18,6 +18,9 @@ import {
   AuroraStatCard,
   AuroraField,
 } from "@/components/dashboard/aurora-ui";
+import { ChannelSelect } from "@/components/dashboard/selectors/ChannelSelect";
+import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
+import { RoleBadge, ChannelBadge } from "@/components/dashboard/DiscordBadges";
 import { Mascot } from "@/components/Mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -138,18 +141,19 @@ function ReactionRolesPage() {
       <div className="space-y-4">
         <AuroraSection title="Adicionar nova" icon={Plus} tone="peach">
           <div className="grid gap-3 sm:grid-cols-2">
-            <AuroraField label="ID do canal">
-              <Input
-                value={form.channel_id}
-                onChange={(e) => setForm({ ...form, channel_id: e.target.value.trim() })}
-                placeholder="123456789012345678"
+            <AuroraField label="Canal" hint="Onde está a mensagem-alvo.">
+              <ChannelSelect
+                guildId={guildId}
+                value={form.channel_id || null}
+                onChange={(id) => setForm({ ...form, channel_id: id ?? "" })}
               />
             </AuroraField>
-            <AuroraField label="ID da mensagem">
+            <AuroraField label="ID da mensagem" hint="Clique direito → Copiar ID da mensagem">
               <Input
                 value={form.message_id}
                 onChange={(e) => setForm({ ...form, message_id: e.target.value.trim() })}
                 placeholder="123456789012345678"
+                className="font-mono"
               />
             </AuroraField>
             <AuroraField label="Emoji" hint="Unicode (🎉) ou customizado <:nome:id>">
@@ -159,11 +163,12 @@ function ReactionRolesPage() {
                 placeholder="🎉"
               />
             </AuroraField>
-            <AuroraField label="ID do cargo">
-              <Input
-                value={form.role_id}
-                onChange={(e) => setForm({ ...form, role_id: e.target.value.trim() })}
-                placeholder="123456789012345678"
+            <AuroraField label="Cargo" hint="O cargo que será atribuído na reação.">
+              <RoleSelect
+                guildId={guildId}
+                value={form.role_id || null}
+                onChange={(id) => setForm({ ...form, role_id: id ?? "" })}
+                excludeManaged
               />
             </AuroraField>
             <AuroraField label="Modo">
@@ -215,9 +220,9 @@ function ReactionRolesPage() {
                   key={r.id}
                   className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card/40 px-4 py-3 transition hover:border-[color:color-mix(in_oklab,var(--aurora-peach)_45%,var(--border))]"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
                     <span
-                      className="flex size-10 items-center justify-center rounded-xl text-xl"
+                      className="flex size-10 shrink-0 items-center justify-center rounded-xl text-xl"
                       style={{
                         background:
                           "linear-gradient(135deg, color-mix(in oklab, var(--aurora-peach) 30%, transparent), color-mix(in oklab, var(--aurora-pink) 20%, transparent))",
@@ -225,12 +230,17 @@ function ReactionRolesPage() {
                     >
                       {r.emoji}
                     </span>
-                    <div className="min-w-0">
-                      <p className="font-mono text-sm">@{r.role_id}</p>
-                      <p className="text-xs text-muted-foreground">
-                        msg <span className="font-mono">{r.message_id}</span> ·{" "}
-                        <span className="text-foreground/80">{MODE_LABEL[r.mode] ?? r.mode}</span>
-                      </p>
+                    <div className="min-w-0 space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <RoleBadge guildId={guildId} roleId={r.role_id} />
+                        <span className="rounded-full border border-border/60 bg-card/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          {MODE_LABEL[r.mode] ?? r.mode}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                        em <ChannelBadge guildId={guildId} channelId={r.channel_id} />
+                        <span>· msg <span className="font-mono">{String(r.message_id).slice(-6)}</span></span>
+                      </div>
                     </div>
                   </div>
                   <ConfirmDeleteButton

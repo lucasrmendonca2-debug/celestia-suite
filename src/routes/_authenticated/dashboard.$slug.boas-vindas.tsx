@@ -1,9 +1,9 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Sparkles, MessageSquareHeart, Palette, Hash, Eye } from "lucide-react";
+import { Sparkles, MessageSquareHeart, Palette, Hash, Eye, Plus } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getGuildConfig,
@@ -48,6 +48,12 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/boas-vinda
   ),
 });
 
+const VARIABLES = [
+  { token: "{user}", label: "Menção", example: "@VocêMesmo" },
+  { token: "{server}", label: "Nome do servidor", example: "" },
+  { token: "{count}", label: "Nº de membros", example: "1.337" },
+] as const;
+
 function renderPreview(message: string, guildName: string) {
   return message
     .replaceAll("{user}", "@VocêMesmo")
@@ -61,10 +67,29 @@ function WelcomePage() {
 
   const [form, setForm] = useState<WelcomeConfig>(config);
   const [baseline, setBaseline] = useState<WelcomeConfig>(config);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const dirty = useMemo(
     () => JSON.stringify(form) !== JSON.stringify(baseline),
     [form, baseline],
   );
+
+  const insertVariable = (token: string) => {
+    const el = textareaRef.current;
+    const current = form.welcome_message ?? "";
+    if (!el) {
+      setForm({ ...form, welcome_message: current + token });
+      return;
+    }
+    const start = el.selectionStart ?? current.length;
+    const end = el.selectionEnd ?? current.length;
+    const next = current.slice(0, start) + token + current.slice(end);
+    setForm({ ...form, welcome_message: next });
+    requestAnimationFrame(() => {
+      el.focus();
+      const pos = start + token.length;
+      el.setSelectionRange(pos, pos);
+    });
+  };
 
   const mutation = useMutation({
     mutationFn: (next: WelcomeConfig) =>
@@ -153,10 +178,26 @@ function WelcomePage() {
           <AuroraField
             label="Texto enviado"
             htmlFor="msg"
-            hint="Variáveis disponíveis: {user}, {server}, {count}"
+            hint="Clique nas etiquetas pra inserir variáveis dinâmicas no cursor."
           >
+            <div className="mb-2 flex flex-wrap gap-1.5">
+              {VARIABLES.map((v) => (
+                <button
+                  key={v.token}
+                  type="button"
+                  onClick={() => insertVariable(v.token)}
+                  className="group inline-flex items-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--aurora-pink)_35%,var(--border))] bg-[color:color-mix(in_oklab,var(--aurora-pink)_8%,var(--card))] px-2.5 py-1 text-xs font-medium transition hover:scale-[1.03] hover:border-[color:var(--aurora-pink)] hover:bg-[color:color-mix(in_oklab,var(--aurora-pink)_18%,var(--card))]"
+                  title={`Inserir ${v.token}`}
+                >
+                  <Plus className="size-3 text-[color:var(--aurora-pink)] transition group-hover:rotate-90" />
+                  <span className="font-mono">{v.token}</span>
+                  <span className="text-[10px] text-muted-foreground">{v.label}</span>
+                </button>
+              ))}
+            </div>
             <Textarea
               id="msg"
+              ref={textareaRef}
               rows={4}
               value={form.welcome_message}
               onChange={(e) =>

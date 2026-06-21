@@ -14,6 +14,8 @@ import {
   dmPunishedUser,
   postModerationLog,
 } from "../../systems/moderation/moderation.logger.js";
+import { createCase } from "../../systems/moderation/cases.service.js";
+import { logger } from "../../utils/logger.js";
 
 const command: SlashCommand = {
   category: "moderation",
@@ -96,6 +98,16 @@ const command: SlashCommand = {
       type: "KICK",
       reason,
     });
+    await createCase({
+      guildId: guild.id,
+      userId: user.id,
+      userTag: user.tag,
+      moderatorId: interaction.user.id,
+      moderatorTag: interaction.user.tag,
+      action: "KICK",
+      reason,
+      source: "BOT",
+    }).catch((err) => logger.warn({ err }, "createCase KICK falhou"));
     await logModerationEvent({
       guildId: guild.id,
       userId: user.id,

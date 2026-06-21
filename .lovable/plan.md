@@ -1,62 +1,100 @@
-# Plano — consertar erros e plugar dados reais
+## Objetivo
 
-Quatro frentes, em ordem de impacto. Posso fazer tudo numa sequência de mensagens; cada bloco abaixo é uma etapa entregável.
+1. Mover o resgate do `/daily` para uma página dedicada do site (estilo Loritta).
+2. Melhorar UX, funcionalidades e robustez de **todos** os comandos do bot.
+3. Expandir o dashboard com Economia, Moderação, Níveis e Analytics.
 
-## 1. Erro "Missing Supabase environment variable(s)"
+Vou entregar em **3 fases** para não estourar contexto. Esta plan cobre a Fase 1 em detalhe; 2 e 3 ficam como roadmap.
 
-**Sintoma:** tela "Algo deu errado" no preview e no publicado ao abrir `/g/<guildId>`. A mensagem cita `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY`.
+---
 
-**Causa:** o loader server-side de `g.$guildId.tsx` puxa `requireUser`/`listMyGuilds`/`checkBotInGuild`, que em algum ponto importam o browser client (`src/integrations/supabase/client.ts`). Esse client lança o erro acima quando `import.meta.env.VITE_*` e `process.env.SUPABASE_*` não são alcançados pelo worker (caso típico no build publicado / SSR onde só os bare `SUPABASE_URL` estão garantidos).
+## FASE 1 — Daily no site + base de UX dos comandos (esta entrega)
 
-**Correção:**
-- Garantir que toda leitura server-side use o cliente server (`requireSupabaseAuth` ou um client publishable server-local), nunca o browser client.
-- Caçar imports indevidos do `@/integrations/supabase/client` dentro de `*.functions.ts` / `*.server.ts` e trocar.
-- Acrescentar fallback no `client.ts` para também aceitar `SUPABASE_URL`/`SUPABASE_PUBLISHABLE_KEY` sem prefixo `VITE_` durante SSR, de forma defensiva.
+### 1.1 Página `/daily` dedicada (fora do dashboard)
 
-## 2. URL do dashboard por slug
+Nova rota pública `src/routes/daily.tsx`:
+- Layout próprio (não usa shell do dashboard), tema escuro com o gradiente do site.
+- Aceita `?token=<jwt>` vindo do bot.
+- Se não logado: botão "Entrar com Discord" preservando o token.
+- Se logado e token válido: mostra card com streak atual (🔥 X dias), recompensa do dia, multiplicador premium, calendário visual da semana, botão grande "Resgatar agora".
+- Pós-resgate: confetti + mostra próximo resgate disponível (countdown em tempo real).
+- Se já resgatou: estado bloqueado com countdown.
 
-**Hoje:** `/g/722253176283070506` (snowflake do Discord).
-**Quero:** `/dashboard/<slug>` derivado do nome do servidor (ex: `meu-servidor-legal`), e o resto do dashboard sob esse slug (`/dashboard/<slug>/moderacao`, `/economia`, etc).
+### 1.2 Backend do daily
 
-**Como:**
-- Criar `slug` derivado de `guild.name` (kebab-case + sufixo curto do guildId pra evitar colisão, ex: `meu-servidor-legal-3070506`).
-- Mover/renomear os arquivos `src/routes/_authenticated/g.$guildId.*` para `dashboard.$slug.*`.
-- Resolver `slug → guildId` no loader do layout consultando a lista de guilds do usuário; redirecionar para `/servidores` em slug inválido.
-- Atualizar todos os `<Link>` (sidebar, topbar, página de servidores) para a nova rota.
-- Manter um redirect de `/g/$guildId` → novo formato pra não quebrar links antigos.
+Server functions em `src/lib/daily.functions.ts`:
+- `createDailyToken({ guildId, userId })` — gera JWT curto (10 min) assinado com `SESSION_SECRET`, contém `userId` + `guildId`.
+- `getDailyStatus({ token })` — valida token, retorna `{ streak, nextAmount, canClaim, nextClaimAt, premiumMultiplier }`.
+- `claimDaily({ token })` — atômico via `findOneAndUpdate` com cutoff (já refatorado no AUDIT). Aplica streak, salva, retorna recompensa final.
 
-## 3. Botão "Entrar" do header
+Reaproveita a lógica atômica já existente no `bot/src/bot/commands/economy/daily.ts` — extrai para `bot/src/shared/daily.ts` e o site importa via wrapper Node compatível (chamada HTTP interna do bot, ou conexão Mongo direta do site via `MONGO_URI`).
 
-**Hoje:** o `Link` do header só leva para `/entrar`, que exibe outra tela com o botão real. O usuário descreve isso como "não funciona".
+**Decisão técnica:** o site conecta direto no MongoDB (mesmo padrão que outras telas do dashboard já usam), evitando dependência do bot estar online.
 
-**Correção:** transformar o "Entrar" do header (desktop + menu mobile) num `<a>` que dispara o OAuth do Discord direto, igual ao botão da landing (`/api/auth/discord/login?origin=...`). Mantém `/entrar` como página de fallback.
+### 1.3 Comando `/daily` reescrito
 
-## 4. Dados reais na landing pública
+`bot/src/bot/commands/economy/daily.ts`:
+- Não credita mais direto. Gera token via helper compartilhado.
+- Responde com embed estilizado: avatar do bot, descrição "Resgate sua recompensa diária no site!", mostra streak atual e próximo bônus.
+- Botão `ButtonBuilder` link → `https://zenoxbot.lovable.app/daily?token=...`.
+- Botão secundário "Ver minha economia" → `/saldo`.
+- Se já resgatou hoje: embed vermelho com countdown.
 
-**Páginas:** `/` (home), `/recursos`, `/comandos`, `/premium`, `/status`, `/docs`, `/blog`, `/suporte`.
+### 1.4 Padronização visual de embeds (base reutilizável)
 
-**Plano:**
-- **Home (`/`):** trocar números chumbados (`+12k servidores`, `+90 comandos`, etc.) por dados reais lidos via server function:
-  - servidores: `count` de `bot_guild_presence` onde `present = true`.
-  - comandos: contar arquivos em `bot/src/bot/commands/**/*.ts` em build time (geramos um JSON), ou hardcode revisado com o número real (~XX comandos).
-  - uptime / latência: ler de `bot_guild_presence` (heartbeat mais recente) ou da tabela de presence; se não houver dado, esconder o card em vez de mostrar fake.
-- **`/comandos`:** gerar a lista a partir do diretório `bot/src/bot/commands/**` (script Node em build, gera `src/data/commands.json`) e renderizar agrupado por categoria. Some o mesmo número usado na home.
-- **`/recursos`:** revisar copy pra refletir só os módulos que existem mesmo no bot (cruzar com `bot/src/bot/systems/` e tabelas do Supabase). Remover funções inexistentes.
-- **`/premium`:** ler planos de `premium_plans` (tabela já existe) via server fn pública; mostrar nome, preço, features. Esconder a página/CTA se a tabela vier vazia.
-- **`/status`:** trocar mock por dados de `bot_guild_presence` (último heartbeat, guilds online).
-- **`/docs`, `/blog`, `/suporte`:** confirmar com você o que deve aparecer — hoje são mocks. Sugiro deixar `/docs` com índice estático real (links pros recursos), `/blog` escondido até ter post real, `/suporte` com link de convite real do servidor de suporte.
+Novo `bot/src/bot/lib/embeds.ts`:
+- `successEmbed(title, desc)` — verde `#22c55e`
+- `errorEmbed(title, desc)` — vermelho `#ef4444`
+- `warnEmbed`, `infoEmbed`, `economyEmbed`, `modEmbed`, `levelEmbed`, `funEmbed` — cada categoria com cor própria
+- Footer padrão com nome do bot + timestamp
+- Helper `confirmButtons(idYes, idNo)` para confirmações inline
 
-## Ordem de execução proposta
+Migra os 4 comandos mais usados (`/daily`, `/saldo`, `/work`, `/rank`) para usar esses helpers como prova de conceito. Demais comandos migrados na Fase 2.
 
-1. Etapa 1 (env error) — destrava o dashboard.
-2. Etapa 3 (botão Entrar) — fix rápido.
-3. Etapa 2 (slug nas URLs) — refactor médio.
-4. Etapa 4 (dados reais) — quebrada por página, posso fazer home + comandos + premium + status numa rodada e o resto depois.
+### 1.5 MessageFlags.Ephemeral migration
 
-## Perguntas que preciso travar antes da etapa 4
+Substituir todos os `ephemeral: true` (deprecated no discord.js v14.16+) por `flags: MessageFlags.Ephemeral` em todos os comandos — fix linear, ~50 lugares.
 
-- `/blog`: tem posts reais em algum lugar (Notion, Markdown no repo, CMS)? Se não, posso esconder do header até ter conteúdo?
-- `/suporte`: qual o link de convite do servidor de suporte oficial?
-- Slug: tudo bem usar `nome-do-servidor-<sufixo>` ou prefere outro padrão?
+### 1.6 Race conditions restantes do AUDIT
 
-Aprova esse plano? Se sim, começo pela etapa 1.
+- `/rob`: atomic `updateOne` no alvo com filtro de saldo
+- `/shop` compra: atomic decrement de `stock` com filtro `{ stock: { $gte: qty } }`
+- `/kick`: passa a gerar `mod_case` igual `/ban` e `/mute`
+
+---
+
+## FASE 2 — Melhoria sistêmica dos comandos (roadmap)
+
+- Aplicar embed helpers a **todos** os comandos restantes (categorizados)
+- Adicionar autocomplete em comandos com itens dinâmicos (shop, missions, badges)
+- Rate-limit por usuário (cooldown maps com TTL) em comandos custosos
+- Comandos novos: `/work` (com mini-jobs), `/crime` (risco/recompensa), `/leaderboard` interativo com paginação por botões, `/perfil` redesenhado com card canvas
+- Error wrapper global: try/catch em todo handler, log estruturado + resposta amigável
+
+## FASE 3 — Expansão do dashboard (roadmap)
+
+- **Economia**: editor de loja (CRUD com upload de imagem), missões com cron preview, config do daily (valor base, streak bonus, premium 2x), tabela de transações com filtros
+- **Moderação**: timeline de casos com filtros, botão revogar/editar punição, editor de automod (slider de severidade, regex tester), blacklist com import CSV
+- **Níveis**: editor de fórmula XP com preview gráfico, recompensas por nível drag-and-drop, multiplicadores por canal/role
+- **Analytics**: dashboard com Recharts — comandos mais usados (7d/30d), membros ativos, economia circulante, novos casos de moderação
+
+---
+
+## Arquivos da Fase 1
+
+Criar:
+- `src/routes/daily.tsx`
+- `src/lib/daily.functions.ts`
+- `src/components/daily/DailyCard.tsx`
+- `src/components/daily/StreakCalendar.tsx`
+- `bot/src/bot/lib/embeds.ts`
+- `bot/src/shared/daily-token.ts` (assinar/verificar JWT compartilhado com site)
+
+Editar:
+- `bot/src/bot/commands/economy/daily.ts` (vira "link to site")
+- `bot/src/bot/commands/economy/saldo.ts`, `work.ts`, `rob.ts`, `shop.ts`
+- `bot/src/bot/commands/level/rank.ts`
+- `bot/src/bot/commands/moderation/kick.ts` (gerar mod_case)
+- Todos os comandos com `ephemeral: true` → `flags: MessageFlags.Ephemeral`
+
+Posso começar pela Fase 1 agora?

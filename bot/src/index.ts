@@ -8,6 +8,7 @@ import { startModerationScheduler } from "./bot/systems/moderation/temporary.sch
 import { startTicketSlaScheduler } from "./bot/systems/tickets/sla.scheduler.js";
 import { startTicketAutocloseScheduler } from "./bot/systems/tickets/autoclose.scheduler.js";
 import { connectDatabase, disconnectDatabase } from "./database/connection.js";
+import { startHttpServer } from "./http/server.js";
 import type { ZenoxClient } from "./types/command.js";
 
 async function bootstrap() {
@@ -49,6 +50,7 @@ async function bootstrap() {
   startModerationScheduler(client);
   startTicketSlaScheduler(client);
   startTicketAutocloseScheduler(client);
+  startHttpServer();
 
 
   const shutdown = async (sig: string) => {

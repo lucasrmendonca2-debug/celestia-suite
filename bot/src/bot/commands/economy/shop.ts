@@ -196,24 +196,38 @@ const command: SlashCommand = {
         await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Item não encontrado" })], ephemeral: true });
         return;
       }
-      if (item.stock !== -1 && item.stock < qty) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem estoque" })], ephemeral: true });
-        return;
-      }
       const rotation = await getActiveRotation(guildId);
       const { price: unitPrice, discount_pct } = applyRotationPrice(item.price, rotation, item.name);
       const total = unitPrice * qty;
-      const acc = await getAccount(guildId, interaction.user.id);
-      if (acc.wallet < total) {
+
+      // Atômico: desconta estoque com filtro de quantidade disponível.
+      if (item.stock !== -1) {
+        const stockUpdate = await ShopItem.updateOne(
+          { _id: item._id, stock: { $gte: qty } },
+          { $inc: { stock: -qty } },
+        );
+        if (stockUpdate.modifiedCount === 0) {
+          await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem estoque" })], ephemeral: true });
+          return;
+        }
+      }
+
+      // Atômico: desconta saldo da carteira só se houver fundos suficientes.
+      const { EconomyAccount } = await import("../../../database/models.js");
+      const walletUpdate = await EconomyAccount.findOneAndUpdate(
+        { guildId, userId: interaction.user.id, wallet: { $gte: total } },
+        { $inc: { wallet: -total } },
+        { new: true },
+      );
+      if (!walletUpdate) {
+        // Devolve estoque se houver.
+        if (item.stock !== -1) {
+          await ShopItem.updateOne({ _id: item._id }, { $inc: { stock: qty } });
+        }
         await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Saldo insuficiente" })], ephemeral: true });
         return;
       }
-      acc.wallet -= total;
-      await acc.save();
-      if (item.stock !== -1) {
-        item.stock -= qty;
-        await item.save();
-      }
+      const acc = walletUpdate;
       if (item.roleId && interaction.guild) {
         const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => null);
         await member?.roles.add(item.roleId).catch(() => {});

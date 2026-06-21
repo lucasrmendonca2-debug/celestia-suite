@@ -16,7 +16,9 @@ const schema = z.object({
   APP_URL: z
     .string()
     .url()
-    .default("https://id-preview--e9bcc241-1f95-42ca-967d-43c879373224.lovable.app"),
+    .default("https://zenoxbot.lovable.app"),
+  BOT_HTTP_PORT: z.coerce.number().optional(),
+  BOT_API_SECRET: z.string().optional().or(z.literal("")),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   LOG_LEVEL: z.string().default("info"),
 });

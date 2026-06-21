@@ -29,6 +29,10 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ChannelSelect } from "@/components/dashboard/selectors/ChannelSelect";
+import { MultiChannelSelect } from "@/components/dashboard/selectors/MultiChannelSelect";
+import { MultiRoleSelect } from "@/components/dashboard/selectors/MultiRoleSelect";
+
 import {
   Select,
   SelectContent,

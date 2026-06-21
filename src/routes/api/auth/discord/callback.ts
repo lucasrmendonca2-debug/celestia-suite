@@ -50,16 +50,20 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
             accessToken: token.access_token,
             refreshToken: token.refresh_token,
             oauthRedirectUri: undefined,
+            postLoginRedirect: undefined,
             expiresAt: Date.now() + token.expires_in * 1000,
           };
+          const dest = session.data.postLoginRedirect;
+          const safeDest = dest && dest.startsWith("/") && !dest.startsWith("//") ? dest : "/dashboard";
           return new Response(null, {
             status: 302,
             headers: {
-              Location: `${url.origin}/dashboard`,
+              Location: `${url.origin}${safeDest}`,
               "Cache-Control": "no-store",
               "Set-Cookie": createSessionSetCookie(nextSession),
             },
           });
+
         } catch (err) {
           console.error("[discord/callback]", err);
           return htmlError(

@@ -90,7 +90,7 @@ const command: SlashCommand = {
             title: "🛒 Loja do servidor",
             description: items.length
               ? lines.join("\n\n")
-              : "Nenhum item na loja ainda. Staff: use `/loja add`.",
+              : "Nenhum item na loja ainda. Staff: use `/loja adicionar`.",
             footer: expires
               ? `Rotação reseta em <t:${Math.floor(new Date(expires).getTime() / 1000)}:R>`
               : undefined,

@@ -317,11 +317,12 @@ function LogsPage() {
 
         <TabsContent value="general" className="space-y-4">
           <AuroraSection title="Canal global (fallback)" icon={Server} tone="lavender">
-            <AuroraField label="ID do canal">
-              <Input
-                placeholder="ID do canal"
-                value={(form.log_channel_id as string | null) ?? ""}
-                onChange={(e) => set("log_channel_id", e.target.value.trim() || null)}
+            <AuroraField label="Canal de destino">
+              <ChannelSelect
+                guildId={guildId}
+                value={(form.log_channel_id as string | null) ?? null}
+                onChange={(v) => set("log_channel_id", v)}
+                placeholder="Selecione um canal"
               />
             </AuroraField>
           </AuroraSection>

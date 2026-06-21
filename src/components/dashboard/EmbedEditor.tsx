@@ -186,10 +186,12 @@ export function EmbedEditor({ value, onChange }: Props) {
                   type="button"
                   variant="ghost"
                   size="icon"
+                  aria-label="Remover campo"
                   onClick={() => update({ fields: fields.filter((_, j) => j !== i) })}
                 >
                   <Trash2 className="size-4" />
                 </Button>
+
               </div>
             ))}
           </div>

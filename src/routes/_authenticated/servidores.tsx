@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Crown, ShieldCheck, Search, ArrowRight, Plus, Server, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
+import { buildGuildSlug } from "@/lib/guild/slug";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
 import { Mascot } from "@/components/Mascot";
 import { AuroraStatCard } from "@/components/dashboard/aurora-ui";

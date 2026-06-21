@@ -382,8 +382,20 @@ function LevelingPage() {
                       </span>
 
 
-                      <span className="flex-1 font-mono text-xs truncate">
-                        {u.user_id}
+                      {u.avatar_url ? (
+                        <img
+                          src={u.avatar_url}
+                          alt=""
+                          width={28}
+                          height={28}
+                          className="size-7 rounded-full ring-1 ring-border/40"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <span className="size-7 rounded-full bg-muted" />
+                      )}
+                      <span className="flex-1 truncate text-sm font-medium">
+                        {u.display_name ?? u.user_id}
                       </span>
                       <span className="text-xs text-muted-foreground">
                         {u.messages} msgs

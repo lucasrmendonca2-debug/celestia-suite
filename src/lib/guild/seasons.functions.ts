@@ -113,18 +113,39 @@ export const deleteSeason = createServerFn({ method: "POST" })
   });
 
 export const getSeasonLeaderboard = createServerFn({ method: "GET" })
-  .inputValidator((d: { guildId: string; seasonId: string }) =>
-    z.object({ guildId: guildIdSchema, seasonId: z.string().uuid() }).parse(d),
+  .inputValidator((d: { guildId: string; seasonId: string; limit?: number; offset?: number }) =>
+    z
+      .object({
+        guildId: guildIdSchema,
+        seasonId: z.string().uuid(),
+        limit: z.number().int().min(1).max(100).optional().default(50),
+        offset: z.number().int().min(0).max(10_000).optional().default(0),
+      })
+      .parse(d),
   )
   .handler(async ({ data }) => {
     await perm(data.guildId);
     const sb = await admin();
+    const from = data.offset;
+    const to = data.offset + data.limit - 1;
     const { data: rows, error } = await sb
       .from("level_season_users")
       .select("user_id,xp,level,messages_count,updated_at")
       .eq("season_id", data.seasonId)
       .order("xp", { ascending: false })
-      .limit(100);
+      .range(from, to);
     if (error) throw new Error(error.message);
-    return rows ?? [];
+    const list = rows ?? [];
+    const { resolveDiscordUsers } = await import("@/lib/discord/users.server");
+    const ids = list.map((r) => r.user_id).filter(Boolean) as string[];
+    const users = await resolveDiscordUsers(ids);
+    return list.map((r) => {
+      const u = users[r.user_id];
+      return {
+        ...r,
+        display_name: u?.globalName ?? u?.username ?? r.user_id,
+        avatar_url: u?.avatarUrl ?? null,
+      };
+    });
   });
+

@@ -123,7 +123,7 @@ function Landing() {
                 <span className="absolute inset-0 animate-ping rounded-full bg-[#10D9A0]" />
                 <span className="relative size-2 rounded-full bg-[#10D9A0]" />
               </span>
-              Online · +12.000 servidores
+              {data.online ? `Online · ${serversLabel} servidores` : `Pronto pra começar · ${serversLabel} servidores`}
             </div>
 
             <h1 className="font-['Plus_Jakarta_Sans'] text-5xl font-extrabold leading-[0.95] tracking-tight md:text-7xl">

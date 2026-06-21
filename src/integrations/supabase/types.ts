@@ -925,6 +925,48 @@ export type Database = {
         }
         Relationships: []
       }
+      guild_multipliers: {
+        Row: {
+          active: boolean
+          created_at: string
+          created_by: string | null
+          guild_id: string
+          id: string
+          kind: string
+          label: string | null
+          multiplier: number
+          target_id: string
+          target_type: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          guild_id: string
+          id?: string
+          kind: string
+          label?: string | null
+          multiplier?: number
+          target_id: string
+          target_type: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          created_by?: string | null
+          guild_id?: string
+          id?: string
+          kind?: string
+          label?: string | null
+          multiplier?: number
+          target_id?: string
+          target_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       level_config: {
         Row: {
           cooldown_seconds: number

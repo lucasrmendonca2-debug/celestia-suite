@@ -116,7 +116,7 @@ const command: SlashCommand = {
       return;
     }
 
-    if (sub === "list") {
+    if (sub === "listar") {
       const list = await Giveaway.find({ guildId, ended: false }).sort({ endsAt: 1 }).limit(10);
       await interaction.reply({
         embeds: [

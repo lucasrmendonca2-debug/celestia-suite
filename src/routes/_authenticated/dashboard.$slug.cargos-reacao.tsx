@@ -12,6 +12,7 @@ import {
   removeReactionRole,
 } from "@/lib/guild/modules.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import {
   AuroraSection,
   AuroraStatCard,

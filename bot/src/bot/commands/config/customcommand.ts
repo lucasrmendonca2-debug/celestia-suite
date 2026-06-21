@@ -56,7 +56,7 @@ const command: SlashCommand = {
         { upsert: true, setDefaultsOnInsert: true },
       );
       await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Comando salvo", description: `Use **!${name}** no chat.` })], ephemeral: true });
-    } else if (sub === "remove") {
+    } else if (sub === "remover") {
       const name = interaction.options.getString("nome", true).toLowerCase();
       await CustomCommand.deleteOne({ guildId, name });
       await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Removido" })], ephemeral: true });

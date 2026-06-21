@@ -207,6 +207,12 @@ function Landing() {
                   alt="Zenox tentando sair da tela"
                   className="paint-punch absolute inset-0 size-full object-contain p-4"
                 />
+                <img
+                  src={paintPunch}
+                  alt=""
+                  aria-hidden
+                  className="paint-fist-swap absolute inset-0 size-full object-contain p-4"
+                />
                 {/* Crack lines suggesting glass */}
                 <span aria-hidden className="paint-crack paint-flash pointer-events-none absolute inset-0" />
                 {/* POW! impact burst */}

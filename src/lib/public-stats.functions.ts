@@ -27,7 +27,9 @@ export const getPublicStats = createServerFn({ method: "GET" }).handler(
     if (!supabase) {
       return { servers: 0, members: 0, commands, lastHeartbeat: null, online: false };
     }
-    const { data } = await supabase.rpc("get_public_stats").maybeSingle();
+    const { data } = await (supabase as unknown as {
+      rpc: (name: string) => { maybeSingle: () => Promise<{ data: { servers_present: number; total_members: number; last_heartbeat: string | null } | null }> };
+    }).rpc("get_public_stats").maybeSingle();
     const last = data?.last_heartbeat ?? null;
     const online = last ? Date.now() - new Date(last).getTime() < 5 * 60_000 : false;
     return {

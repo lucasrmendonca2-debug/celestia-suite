@@ -39,6 +39,8 @@ import {
   RolePicker,
   MultiRolePicker,
 } from "@/components/dashboard/tickets/DiscordPickers";
+import { SnowflakeChipInput } from "@/components/dashboard/selectors/SnowflakeChipInput";
+
 import {
   AuroraSection,
   AuroraStatCard,

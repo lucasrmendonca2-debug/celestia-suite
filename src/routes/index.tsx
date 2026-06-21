@@ -223,7 +223,7 @@ function Landing() {
                 <Zap className="size-3.5" /> 99.9% uptime
               </FloatingBadge>
               <FloatingBadge className="-right-4 bottom-8 rotate-3" tone="sky">
-                <Bot className="size-3.5" /> +90 comandos
+                <Bot className="size-3.5" /> {commandsLabel} comandos
               </FloatingBadge>
             </div>
           </div>

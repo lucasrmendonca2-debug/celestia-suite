@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Modal, Field, Empty } from "./LevelsTab";
 import { RolePicker } from "./DiscordPickers";
+import { RoleBadge } from "@/components/dashboard/DiscordBadges";
 
 type Perm = Awaited<ReturnType<typeof listPermissionRoles>>[number];
 

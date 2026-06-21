@@ -54,8 +54,24 @@ export interface GuildOverview {
   counts: {
     openTickets: number;
     modCases7d: number;
+    modCasesOpen: number;
+    warnings7d: number;
     customCommands: number;
     activeModules: number;
+    economyCirculating: number;
+    economyUsers: number;
+    suggestionsOpen: number;
+    appealsPending: number;
+  };
+  activity: {
+    day: string;
+    modCases: number;
+    tickets: number;
+    warnings: number;
+  }[];
+  health: {
+    lastSeenAt: string | null;
+    memberCountTracked: number | null;
   };
 }
 

@@ -31,6 +31,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 
 type AreaKey = DashboardArea | "all";
 
@@ -43,26 +44,27 @@ const PRESETS: { id: string; label: string; areas: AreaKey[] }[] = [
   { id: "viewer", label: "Viewer", areas: ["overview"] },
 ];
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/permissoes")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/permissoes")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     await context.queryClient.ensureQueryData({
-      queryKey: ["dashboard-perms", params.guildId],
-      queryFn: () => listDashboardPermissions({ data: { guildId: params.guildId } }),
+      queryKey: ["dashboard-perms", guildId],
+      queryFn: () => listDashboardPermissions({ data: { guildId: guildId } }),
     });
-    return { user };
+    return { guildId, user };
   },
   component: PermissionsPage,
 });
 
 function PermissionsPage() {
   const { user } = Route.useLoaderData();
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const qc = useQueryClient();
 
   const { data: rows } = useSuspenseQuery({

@@ -20,20 +20,22 @@ import {
 import { Mascot } from "@/components/Mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/embeds")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/embeds")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     await context.queryClient.ensureQueryData({
-      queryKey: ["embeds", params.guildId],
-      queryFn: () => listEmbedTemplates({ data: { guildId: params.guildId } }),
+      queryKey: ["embeds", guildId],
+      queryFn: () => listEmbedTemplates({ data: { guildId: guildId } }),
     });
-    return { user };
+    return { guildId, user };
   },
   component: EmbedsPage,
 });
@@ -51,7 +53,7 @@ const EMPTY: EmbedForm = {
 
 function EmbedsPage() {
   const { user } = Route.useLoaderData();
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const qc = useQueryClient();
   const { data: rows } = useSuspenseQuery({
     queryKey: ["embeds", guildId],

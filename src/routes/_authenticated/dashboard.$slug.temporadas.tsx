@@ -38,26 +38,28 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/temporadas")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/temporadas")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     await context.queryClient.ensureQueryData({
-      queryKey: ["seasons", params.guildId],
-      queryFn: () => listSeasons({ data: { guildId: params.guildId } }),
+      queryKey: ["seasons", guildId],
+      queryFn: () => listSeasons({ data: { guildId: guildId } }),
     });
-    return { user };
+    return { guildId, user };
   },
   component: SeasonsPage,
 });
 
 function SeasonsPage() {
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const { user } = Route.useLoaderData();
   const qc = useQueryClient();
 

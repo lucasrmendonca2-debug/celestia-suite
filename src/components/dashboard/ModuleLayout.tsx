@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { ChevronRight, type LucideIcon } from "lucide-react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { listMyGuilds } from "@/lib/auth/auth.functions";
+import { buildGuildSlug } from "@/lib/guild/slug";
 import { DashboardSidebar } from "./DashboardSidebar";
 import { DashboardTopbar } from "./DashboardTopbar";
 
@@ -30,6 +31,7 @@ export function ModuleLayout({
     queryFn: () => listMyGuilds(),
   });
   const guild = guilds.find((g) => g.id === guildId);
+  const slug = guild ? buildGuildSlug(guild) : guildId;
 
   return (
     <div className="aurora-shell flex min-h-screen text-foreground">
@@ -48,8 +50,8 @@ export function ModuleLayout({
             </Link>
             <ChevronRight className="size-3" />
             <Link
-              to="/g/$guildId"
-              params={{ guildId }}
+              to="/dashboard/$slug"
+              params={{ slug }}
               className="transition hover:text-foreground"
             >
               {guild?.name ?? guildId}

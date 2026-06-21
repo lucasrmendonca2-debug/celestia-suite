@@ -23,20 +23,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/comandos-bot")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/comandos-bot")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     await context.queryClient.ensureQueryData({
-      queryKey: ["commands", params.guildId],
-      queryFn: () => listCustomCommands({ data: { guildId: params.guildId } }),
+      queryKey: ["commands", guildId],
+      queryFn: () => listCustomCommands({ data: { guildId: guildId } }),
     });
-    return { user };
+    return { guildId, user };
   },
   component: CommandsPage,
 });
@@ -62,7 +64,7 @@ const EMPTY: CmdForm = {
 
 function CommandsPage() {
   const { user } = Route.useLoaderData();
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const qc = useQueryClient();
   const { data: rows } = useSuspenseQuery({
     queryKey: ["commands", guildId],

@@ -46,31 +46,33 @@ import {
   AuroraField,
 } from "@/components/dashboard/aurora-ui";
 import { Mascot } from "@/components/Mascot";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/moderacao")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/moderacao")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     const [config, stats, automodConfig] = await Promise.all([
       context.queryClient.ensureQueryData({
-        queryKey: ["moderation-config", params.guildId],
-        queryFn: () => getModerationConfig({ data: { guildId: params.guildId } }),
+        queryKey: ["moderation-config", guildId],
+        queryFn: () => getModerationConfig({ data: { guildId: guildId } }),
       }),
       context.queryClient.ensureQueryData({
-        queryKey: ["moderation-stats", params.guildId],
-        queryFn: () => getModerationStats({ data: { guildId: params.guildId } }),
+        queryKey: ["moderation-stats", guildId],
+        queryFn: () => getModerationStats({ data: { guildId: guildId } }),
       }),
       context.queryClient.ensureQueryData({
-        queryKey: ["automod", params.guildId],
-        queryFn: () => getAutomodConfig({ data: { guildId: params.guildId } }),
+        queryKey: ["automod", guildId],
+        queryFn: () => getAutomodConfig({ data: { guildId: guildId } }),
       }),
     ]);
-    return { user, config, stats, automodConfig };
+    return { guildId, user, config, stats, automodConfig };
   },
   errorComponent: ({ error }) => (
     <div className="p-8">
@@ -87,7 +89,7 @@ export const Route = createFileRoute("/_authenticated/g/$guildId/moderacao")({
 
 function ModerationPage() {
   const { user, config, stats, automodConfig } = Route.useLoaderData();
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
 
   return (
     <ModuleLayout

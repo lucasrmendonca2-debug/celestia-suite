@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -35,43 +36,44 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/social")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/social")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     const [social, level] = await Promise.all([
       context.queryClient.ensureQueryData({
-        queryKey: ["social-config", params.guildId],
-        queryFn: () => getSocialConfig({ data: { guildId: params.guildId } }),
+        queryKey: ["social-config", guildId],
+        queryFn: () => getSocialConfig({ data: { guildId: guildId } }),
       }),
       context.queryClient.ensureQueryData({
-        queryKey: ["level-config", params.guildId],
-        queryFn: () => getLevelConfig({ data: { guildId: params.guildId } }),
+        queryKey: ["level-config", guildId],
+        queryFn: () => getLevelConfig({ data: { guildId: guildId } }),
       }),
     ]);
     await Promise.all([
       context.queryClient.ensureQueryData({
-        queryKey: ["social-rewards", params.guildId],
-        queryFn: () => listSocialRewards({ data: { guildId: params.guildId } }),
+        queryKey: ["social-rewards", guildId],
+        queryFn: () => listSocialRewards({ data: { guildId: guildId } }),
       }),
       context.queryClient.ensureQueryData({
-        queryKey: ["social-lb", params.guildId],
-        queryFn: () => getSocialLeaderboard({ data: { guildId: params.guildId } }),
+        queryKey: ["social-lb", guildId],
+        queryFn: () => getSocialLeaderboard({ data: { guildId: guildId } }),
       }),
       context.queryClient.ensureQueryData({
-        queryKey: ["social-logs", params.guildId],
-        queryFn: () => getSocialLogs({ data: { guildId: params.guildId } }),
+        queryKey: ["social-logs", guildId],
+        queryFn: () => getSocialLogs({ data: { guildId: guildId } }),
       }),
       context.queryClient.ensureQueryData({
-        queryKey: ["my-profile", params.guildId],
-        queryFn: () => getMyProfile({ data: { guildId: params.guildId } }),
+        queryKey: ["my-profile", guildId],
+        queryFn: () => getMyProfile({ data: { guildId: guildId } }),
       }),
     ]);
-    return { user, social, level };
+    return { guildId, user, social, level };
   },
   component: SocialPage,
 });
@@ -82,7 +84,7 @@ function parseList(s: string): string[] {
 
 function SocialPage() {
   const { user, social, level } = Route.useLoaderData();
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const qc = useQueryClient();
 
   const updSocial = useServerFn(updateSocialConfig);

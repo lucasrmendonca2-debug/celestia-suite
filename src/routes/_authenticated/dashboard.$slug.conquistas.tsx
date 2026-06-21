@@ -29,6 +29,7 @@ import {
   AuroraField,
 } from "@/components/dashboard/aurora-ui";
 import { Mascot } from "@/components/Mascot";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 
 const TRIGGER_LABELS: Record<string, string> = {
   manual: "Manual",
@@ -38,25 +39,26 @@ const TRIGGER_LABELS: Record<string, string> = {
   badges_collected: "Badges coletadas",
 };
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/conquistas")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/conquistas")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     await Promise.all([
       context.queryClient.ensureQueryData({
-        queryKey: ["achievements", params.guildId],
-        queryFn: () => listAchievements({ data: { guildId: params.guildId } }),
+        queryKey: ["achievements", guildId],
+        queryFn: () => listAchievements({ data: { guildId: guildId } }),
       }),
       context.queryClient.ensureQueryData({
-        queryKey: ["badges", params.guildId],
-        queryFn: () => listBadges({ data: { guildId: params.guildId } }),
+        queryKey: ["badges", guildId],
+        queryFn: () => listBadges({ data: { guildId: guildId } }),
       }),
     ]);
-    return { user };
+    return { guildId, user };
   },
   component: AchievementsPage,
 });
@@ -99,7 +101,7 @@ const EMPTY: AForm = {
 
 function AchievementsPage() {
   const { user } = Route.useLoaderData();
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const qc = useQueryClient();
 
   const save = useServerFn(upsertAchievement);

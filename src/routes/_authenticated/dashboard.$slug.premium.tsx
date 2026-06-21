@@ -26,6 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 
 const REDEEM_REASONS: Record<string, string> = {
   not_found: "Código não encontrado.",
@@ -35,23 +36,24 @@ const REDEEM_REASONS: Record<string, string> = {
   plan_mismatch: "Esse código não é de servidor.",
 };
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/premium")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/premium")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     await context.queryClient.ensureQueryData({
-      queryKey: ["premium-status", params.guildId],
-      queryFn: () => getGuildPremiumStatus({ data: { guildId: params.guildId } }),
+      queryKey: ["premium-status", guildId],
+      queryFn: () => getGuildPremiumStatus({ data: { guildId: guildId } }),
     });
     await context.queryClient.ensureQueryData({
       queryKey: ["premium-plans"],
       queryFn: () => listPremiumPlans(),
     });
-    return { user };
+    return { guildId, user };
   },
   component: PremiumPage,
 });
@@ -68,7 +70,7 @@ function daysRemaining(iso: string | null | undefined): number | null {
 }
 
 function PremiumPage() {
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const { user } = Route.useLoaderData();
   const qc = useQueryClient();
 

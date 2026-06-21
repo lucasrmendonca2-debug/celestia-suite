@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -64,19 +65,20 @@ const RARITY_STYLE: Record<string, { label: string; ring: string; bg: string }> 
   },
 };
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/badges")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/badges")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     await context.queryClient.ensureQueryData({
-      queryKey: ["badges", params.guildId],
-      queryFn: () => listBadges({ data: { guildId: params.guildId } }),
+      queryKey: ["badges", guildId],
+      queryFn: () => listBadges({ data: { guildId: guildId } }),
     });
-    return { user };
+    return { guildId, user };
   },
   component: BadgesPage,
 });
@@ -106,7 +108,7 @@ const EMPTY: BadgeForm = {
 
 function BadgesPage() {
   const { user } = Route.useLoaderData();
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const qc = useQueryClient();
 
   const save = useServerFn(upsertBadge);

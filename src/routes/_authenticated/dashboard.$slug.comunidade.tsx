@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -34,19 +35,20 @@ import {
   cancelPoll,
 } from "@/lib/guild/community.functions";
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/comunidade")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/comunidade")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     await context.queryClient.ensureQueryData({
-      queryKey: ["community-config", params.guildId],
-      queryFn: () => getCommunityConfig({ data: { guildId: params.guildId } }),
+      queryKey: ["community-config", guildId],
+      queryFn: () => getCommunityConfig({ data: { guildId: guildId } }),
     });
-    return { user };
+    return { guildId, user };
   },
   component: CommunityPage,
   errorComponent: ({ error }) => (
@@ -81,7 +83,7 @@ const STATUS_TONE: Record<string, "mint" | "peach" | "pink" | "cyan" | "lavender
 };
 
 function CommunityPage() {
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const { user } = Route.useLoaderData();
 
   return (

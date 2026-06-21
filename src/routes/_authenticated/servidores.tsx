@@ -3,6 +3,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Crown, ShieldCheck, Search, ArrowRight, Plus, Server, Sparkles } from "lucide-react";
 import { useMemo, useState } from "react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
+import { buildGuildSlug } from "@/lib/guild/slug";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
 import { Mascot } from "@/components/Mascot";
 import { AuroraStatCard } from "@/components/dashboard/aurora-ui";
@@ -153,8 +154,8 @@ function ServerPicker() {
                   return (
                     <Link
                       key={g.id}
-                      to="/g/$guildId"
-                      params={{ guildId: g.id }}
+                      to="/dashboard/$slug"
+                      params={{ slug: buildGuildSlug(g) }}
                       className="aurora-panel aurora-card-hover group relative flex items-center gap-3 overflow-hidden p-4"
                       style={{
                         background: `linear-gradient(160deg, color-mix(in oklab, var(--aurora-${tone}) 14%, var(--card)), color-mix(in oklab, var(--card) 70%, transparent))`,

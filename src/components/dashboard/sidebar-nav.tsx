@@ -24,6 +24,8 @@ import {
 
 import { getGuildPremiumStatus } from "@/lib/guild/premium.functions";
 import { getGuildConfig } from "@/lib/guild/guild.functions";
+import { listMyGuilds } from "@/lib/auth/auth.functions";
+import { buildGuildSlug } from "@/lib/guild/slug";
 
 interface Item {
   to: string;
@@ -104,7 +106,14 @@ export function SidebarNav({
   onNavigate?: () => void;
 }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const base = `/g/${guildId}`;
+  const { data: guilds } = useQuery({
+    queryKey: ["my-guilds"],
+    queryFn: () => listMyGuilds(),
+    staleTime: 60_000,
+  });
+  const currentGuild = guilds?.find((g) => g.id === guildId);
+  const slug = currentGuild ? buildGuildSlug(currentGuild) : guildId;
+  const base = `/dashboard/${slug}`;
 
   const { data: premium } = useQuery({
     queryKey: ["premium-status", guildId],

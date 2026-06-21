@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -28,7 +29,7 @@ import {
 } from "@/components/ui/select";
 
 export const Route = createFileRoute(
-  "/_authenticated/g/$guildId/cargos-reacao",
+  "/_authenticated/dashboard/$slug/cargos-reacao",
 )({
   loader: async ({ context, params }) => {
     const user = await requireUser();
@@ -36,12 +37,13 @@ export const Route = createFileRoute(
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     await context.queryClient.ensureQueryData({
-      queryKey: ["rr", params.guildId],
-      queryFn: () => listReactionRoles({ data: { guildId: params.guildId } }),
+      queryKey: ["rr", guildId],
+      queryFn: () => listReactionRoles({ data: { guildId: guildId } }),
     });
-    return { user };
+    return { guildId, user };
   },
   component: ReactionRolesPage,
 });
@@ -55,7 +57,7 @@ const MODE_LABEL: Record<string, string> = {
 
 function ReactionRolesPage() {
   const { user } = Route.useLoaderData();
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const qc = useQueryClient();
   const { data: rows } = useSuspenseQuery({
     queryKey: ["rr", guildId],

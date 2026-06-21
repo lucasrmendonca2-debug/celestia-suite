@@ -40,14 +40,7 @@ function Suporte() {
             title="Discord oficial"
             desc="Tira dúvida na hora com a gente e com outros usuários."
             cta="Entrar no server"
-          />
-          <ChannelCard
-            icon={Mail}
-            color="#EC4899"
-            soft="#FFE4F1"
-            title="E-mail"
-            desc="Pra parcerias e negócios: contato@zenoxbot.com"
-            cta="Enviar e-mail"
+            href="https://discord.gg/wda"
           />
           <ChannelCard
             icon={LifeBuoy}
@@ -57,6 +50,15 @@ function Suporte() {
             desc="Vê em tempo real se algum serviço tá fora do ar."
             cta="Ver status"
             to="/status"
+          />
+          <ChannelCard
+            icon={Mail}
+            color="#EC4899"
+            soft="#FFE4F1"
+            title="Reportar bug"
+            desc="Achou algo estranho? Manda ticket no servidor de suporte."
+            cta="Abrir ticket"
+            href="https://discord.gg/wda"
           />
         </div>
 
@@ -98,6 +100,7 @@ function ChannelCard({
   desc,
   cta,
   to,
+  href,
 }: {
   icon: typeof MessageCircle;
   color: string;
@@ -106,6 +109,7 @@ function ChannelCard({
   desc: string;
   cta: string;
   to?: string;
+  href?: string;
 }) {
   const inner = (
     <>
@@ -124,11 +128,19 @@ function ChannelCard({
   );
   const className =
     "block rounded-3xl border-2 border-[#1B0E3B] bg-white p-6 shadow-[0_5px_0_0_#1B0E3B] transition-transform hover:-translate-y-1";
-  return to ? (
-    <Link to={to} className={className}>
-      {inner}
-    </Link>
-  ) : (
-    <div className={className}>{inner}</div>
-  );
+  if (href) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer" className={className}>
+        {inner}
+      </a>
+    );
+  }
+  if (to) {
+    return (
+      <Link to={to} className={className}>
+        {inner}
+      </Link>
+    );
+  }
+  return <div className={className}>{inner}</div>;
 }

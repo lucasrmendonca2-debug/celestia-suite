@@ -26,16 +26,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/assets")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/assets")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
-    return { user };
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
+    return { guildId, user };
   },
   component: AssetsPage,
 });
@@ -53,7 +55,7 @@ const MODULES: AssetModule[] = [
 ];
 
 function AssetsPage() {
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const { user } = Route.useLoaderData();
   const qc = useQueryClient();
   const [active, setActive] = useState<AssetModule>("GLOBAL");

@@ -331,6 +331,8 @@ function LogsPage() {
             tone="cyan"
             icon={Hash}
             k="ignored_channels"
+            kind="channel"
+            guildId={guildId}
             form={form}
             set={set}
           />
@@ -339,6 +341,8 @@ function LogsPage() {
             tone="peach"
             icon={Tag}
             k="ignored_roles"
+            kind="role"
+            guildId={guildId}
             form={form}
             set={set}
           />
@@ -347,6 +351,8 @@ function LogsPage() {
             tone="pink"
             icon={Users}
             k="ignored_users"
+            kind="user"
+            guildId={guildId}
             form={form}
             set={set}
           />

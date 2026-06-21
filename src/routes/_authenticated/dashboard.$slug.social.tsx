@@ -21,6 +21,7 @@ import {
 } from "@/lib/guild/social.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
 import { Mascot } from "@/components/Mascot";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { AuroraStatCard } from "@/components/dashboard/aurora-ui";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

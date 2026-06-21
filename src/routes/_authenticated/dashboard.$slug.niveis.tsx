@@ -18,9 +18,14 @@ import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ChannelSelect } from "@/components/dashboard/selectors/ChannelSelect";
+import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
+import { MultiRoleSelect } from "@/components/dashboard/selectors/MultiRoleSelect";
+import { MultiChannelSelect } from "@/components/dashboard/selectors/MultiChannelSelect";
+
+
 import {
   AuroraSection,
   AuroraStatCard,
@@ -218,16 +223,13 @@ function LevelingPage() {
               label="Canal de level up"
               hint="Vazio = envia no mesmo canal da mensagem que subiu de nível."
             >
-              <Input
-                placeholder="ID do canal"
-                value={form.level_up_channel_id ?? ""}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    level_up_channel_id: e.target.value.trim() || null,
-                  })
-                }
+              <ChannelSelect
+                guildId={guildId}
+                value={form.level_up_channel_id ?? null}
+                onChange={(id) => setForm({ ...form, level_up_channel_id: id })}
+                placeholder="Selecione um canal"
               />
+
             </AuroraField>
             <AuroraField
               label="Texto enviado"
@@ -250,27 +252,22 @@ function LevelingPage() {
           </AuroraSection>
 
           <AuroraSection title="Exceções" icon={Users} tone="cyan">
-            <AuroraField label="Canais sem XP (IDs)">
-              <Textarea
-                rows={2}
-                className="font-mono text-xs"
-                value={(form.no_xp_channels ?? []).join("\n")}
-                onChange={(e) =>
-                  setForm({ ...form, no_xp_channels: parseList(e.target.value) })
-                }
+            <AuroraField label="Canais sem XP">
+              <MultiChannelSelect
+                guildId={guildId}
+                value={form.no_xp_channels ?? []}
+                onChange={(ids) => setForm({ ...form, no_xp_channels: ids })}
               />
             </AuroraField>
-            <AuroraField label="Cargos sem XP (IDs)">
-              <Textarea
-                rows={2}
-                className="font-mono text-xs"
-                value={(form.no_xp_roles ?? []).join("\n")}
-                onChange={(e) =>
-                  setForm({ ...form, no_xp_roles: parseList(e.target.value) })
-                }
+            <AuroraField label="Cargos sem XP">
+              <MultiRoleSelect
+                guildId={guildId}
+                value={form.no_xp_roles ?? []}
+                onChange={(ids) => setForm({ ...form, no_xp_roles: ids })}
               />
             </AuroraField>
           </AuroraSection>
+
 
           <AuroraSection title="Recompensas" icon={Trophy} tone="lavender">
             <AuroraSwitchRow
@@ -291,11 +288,14 @@ function LevelingPage() {
                 value={newLevel}
                 onChange={(e) => setNewLevel(e.target.value)}
               />
-              <Input
-                placeholder="ID do cargo"
-                value={newRoleId}
-                onChange={(e) => setNewRoleId(e.target.value.trim())}
+              <RoleSelect
+                guildId={guildId}
+                value={newRoleId || null}
+                onChange={(id) => setNewRoleId(id ?? "")}
+                excludeManaged
+                placeholder="Selecione um cargo"
               />
+
               <Button
                 onClick={() => addReward.mutate()}
                 disabled={!newLevel || !newRoleId || addReward.isPending}

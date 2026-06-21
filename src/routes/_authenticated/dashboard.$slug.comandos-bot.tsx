@@ -24,7 +24,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import { MultiRoleSelect } from "@/components/dashboard/selectors/MultiRoleSelect";
 import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard/$slug/comandos-bot")({
   loader: async ({ context, params }) => {
@@ -52,6 +55,7 @@ interface CmdForm {
   use_embed: boolean;
   embed: EmbedData;
   enabled: boolean;
+  required_roles: string[];
 }
 
 const EMPTY: CmdForm = {
@@ -61,7 +65,9 @@ const EMPTY: CmdForm = {
   use_embed: false,
   embed: { color: "#5865F2", description: "Olá, mundo!" },
   enabled: true,
+  required_roles: [],
 };
+
 
 function CommandsPage() {
   const { user } = Route.useLoaderData();
@@ -88,6 +94,7 @@ function CommandsPage() {
       use_embed: !!r.embed,
       embed: r.embed ?? EMPTY.embed,
       enabled: r.enabled,
+      required_roles: Array.isArray(r.required_roles) ? r.required_roles : [],
     });
 
   const save = useMutation({
@@ -100,7 +107,8 @@ function CommandsPage() {
           description: selected.description,
           response_text: selected.use_embed ? null : selected.response_text,
           embed: selected.use_embed ? selected.embed : null,
-          required_roles: [],
+          required_roles: selected.required_roles,
+
           enabled: selected.enabled,
         },
       }),
@@ -244,7 +252,21 @@ function CommandsPage() {
               checked={selected.enabled}
               onChange={(v) => setSelected({ ...selected, enabled: v })}
             />
+            <div className="space-y-1.5 pt-2">
+              <Label>Cargos obrigatórios (opcional)</Label>
+              <p className="text-xs text-muted-foreground">
+                Se preenchido, apenas membros com pelo menos um desses cargos podem usar o comando.
+              </p>
+              <MultiRoleSelect
+                guildId={guildId}
+                value={selected.required_roles}
+                onChange={(ids) => setSelected({ ...selected, required_roles: ids })}
+                excludeManaged
+                placeholder="Restringir a cargos…"
+              />
+            </div>
           </AuroraSection>
+
 
           <AuroraSection title="Resposta" icon={Terminal} tone="cyan">
             <Tabs

@@ -29,6 +29,10 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ChannelSelect } from "@/components/dashboard/selectors/ChannelSelect";
+import { MultiChannelSelect } from "@/components/dashboard/selectors/MultiChannelSelect";
+import { MultiRoleSelect } from "@/components/dashboard/selectors/MultiRoleSelect";
+
 import {
   Select,
   SelectContent,
@@ -222,12 +226,17 @@ function SocialPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["social-rewards", guildId] }),
   });
 
-  const ignoredChannelsStr = Array.isArray(s.ignored_channel_ids)
-    ? s.ignored_channel_ids.join(", ")
-    : s.ignored_channel_ids ?? "";
-  const ignoredRolesStr = Array.isArray(s.ignored_role_ids)
-    ? s.ignored_role_ids.join(", ")
-    : s.ignored_role_ids ?? "";
+  const ignoredChannelIds = Array.isArray(s.ignored_channel_ids)
+    ? s.ignored_channel_ids
+    : typeof s.ignored_channel_ids === "string"
+      ? parseList(s.ignored_channel_ids)
+      : [];
+  const ignoredRoleIds = Array.isArray(s.ignored_role_ids)
+    ? s.ignored_role_ids
+    : typeof s.ignored_role_ids === "string"
+      ? parseList(s.ignored_role_ids)
+      : [];
+
 
   return (
     <ModuleLayout
@@ -309,33 +318,33 @@ function SocialPage() {
           <Card title="Listas de ignorados">
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <Label>Canais ignorados (IDs separados por vírgula)</Label>
-                <Textarea
-                  value={ignoredChannelsStr}
-                  onChange={(e) => setS({ ...s, ignored_channel_ids: e.target.value })}
-                  placeholder="123456789012345678, 234567..."
-                  rows={3}
+                <Label>Canais ignorados</Label>
+                <MultiChannelSelect
+                  guildId={guildId}
+                  value={ignoredChannelIds}
+                  onChange={(ids) => setS({ ...s, ignored_channel_ids: ids })}
                 />
               </div>
               <div>
-                <Label>Cargos ignorados (IDs separados por vírgula)</Label>
-                <Textarea
-                  value={ignoredRolesStr}
-                  onChange={(e) => setS({ ...s, ignored_role_ids: e.target.value })}
-                  placeholder="123456789012345678"
-                  rows={3}
+                <Label>Cargos ignorados</Label>
+                <MultiRoleSelect
+                  guildId={guildId}
+                  value={ignoredRoleIds}
+                  onChange={(ids) => setS({ ...s, ignored_role_ids: ids })}
                 />
               </div>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
                 <Label>Canal de logs</Label>
-                <Input
-                  value={s.log_channel_id ?? ""}
-                  onChange={(e) => setS({ ...s, log_channel_id: e.target.value })}
-                  placeholder="ID do canal"
+                <ChannelSelect
+                  guildId={guildId}
+                  value={s.log_channel_id ?? null}
+                  onChange={(id) => setS({ ...s, log_channel_id: id })}
+                  placeholder="Selecione um canal"
                 />
               </div>
+
               <div>
                 <Label>Cor dos embeds</Label>
                 <Input
@@ -394,14 +403,16 @@ function SocialPage() {
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label="Canal fixo (ID)">
-                <Input
-                  value={l.level_up_channel_id ?? ""}
-                  onChange={(e) => setL({ ...l, level_up_channel_id: e.target.value })}
-                  placeholder="ID do canal"
+              <Field label="Canal fixo">
+                <ChannelSelect
+                  guildId={guildId}
+                  value={l.level_up_channel_id ?? null}
+                  onChange={(id) => setL({ ...l, level_up_channel_id: id })}
+                  placeholder="Selecione um canal"
                   disabled={l.level_up_message_mode !== "fixed_channel"}
                 />
               </Field>
+
               <Field label="Apagar mensagem após (s) — 0 desativa">
                 <Input type="number" value={l.delete_level_up_after_seconds} onChange={(e) => setL({ ...l, delete_level_up_after_seconds: e.target.value })} />
               </Field>

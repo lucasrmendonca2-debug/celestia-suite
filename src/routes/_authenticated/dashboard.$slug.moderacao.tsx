@@ -39,6 +39,8 @@ import {
   RolePicker,
   MultiRolePicker,
 } from "@/components/dashboard/tickets/DiscordPickers";
+import { SnowflakeChipInput } from "@/components/dashboard/selectors/SnowflakeChipInput";
+
 import {
   AuroraSection,
   AuroraStatCard,
@@ -286,7 +288,17 @@ function GeneralTab({
             onChange={(v) => setForm({ ...form, protected_role_ids: v })}
           />
         </PickerField>
+        <PickerField
+          label="Usuários protegidos (IDs)"
+          hint="Membros aqui listados nunca podem ser punidos. Clique direito no usuário → Copiar ID."
+        >
+          <SnowflakeChipInput
+            value={form.protected_user_ids ?? []}
+            onChange={(ids) => setForm({ ...form, protected_user_ids: ids })}
+          />
+        </PickerField>
       </SectionCard>
+
 
       <SectionCard title="Punições temporárias">
         <SwitchRow

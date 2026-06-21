@@ -61,7 +61,6 @@ export function Mascot({
         width={size}
         height={size}
         className="size-full object-contain drop-shadow-[0_8px_24px_color-mix(in_oklab,var(--aurora-lavender)_60%,transparent)]"
-        loading="lazy"
       />
     </div>
   );

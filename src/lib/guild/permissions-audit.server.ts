@@ -67,6 +67,12 @@ export async function assertCanAccessArea(
 ): Promise<Actor> {
   const actor = await getActor();
   await assertManagerOf(guildId, actor.accessToken);
+
+  // Dono da guild sempre passa — evita lockout depois de configurar permissões.
+  const guilds = await fetchUserGuilds(actor.accessToken);
+  const g = guilds.find((x) => x.id === guildId);
+  if (g?.owner) return { id: actor.id, tag: actor.tag };
+
   const { data: rows, error } = await supabaseAdmin
     .from("dashboard_permissions")
     .select("role_id, areas")
@@ -80,7 +86,7 @@ export async function assertCanAccessArea(
     const areas = r.areas as string[];
     return areas.includes("all") || areas.includes(area);
   });
-  if (!allowed) throw new Error("Seu cargo não tem acesso a essa área.");
+  if (!allowed) throw new Error("Seu cargo não tem acesso a essa área. (Donos da guild sempre passam.)");
   return { id: actor.id, tag: actor.tag };
 }
 

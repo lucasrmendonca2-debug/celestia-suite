@@ -104,7 +104,7 @@ const command: SlashCommand = {
       const rotation = await ensureRotation(guildId);
       if (!rotation.length) {
         await interaction.reply({
-          embeds: [brandEmbed({ kind: "info", title: "Sem rotação ativa", description: "Adicione itens com `/loja add` primeiro." })],
+          embeds: [brandEmbed({ kind: "info", title: "Sem rotação ativa", description: "Adicione itens com `/loja adicionar` primeiro." })],
           ephemeral: true,
         });
         return;

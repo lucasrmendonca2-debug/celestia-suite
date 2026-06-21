@@ -44,7 +44,7 @@ import {
 } from "@/components/ui/tabs";
 import type { LucideIcon } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/logs")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/logs")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

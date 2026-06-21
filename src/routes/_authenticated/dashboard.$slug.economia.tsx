@@ -38,7 +38,7 @@ import {
 } from "@/components/dashboard/aurora-ui";
 import { Mascot } from "@/components/Mascot";
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/economia")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/economia")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

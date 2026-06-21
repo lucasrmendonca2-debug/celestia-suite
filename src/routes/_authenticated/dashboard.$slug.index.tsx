@@ -23,7 +23,7 @@ import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
 import { Mascot } from "@/components/Mascot";
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

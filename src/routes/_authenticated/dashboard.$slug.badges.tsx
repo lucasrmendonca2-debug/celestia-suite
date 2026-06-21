@@ -64,7 +64,7 @@ const RARITY_STYLE: Record<string, { label: string; ring: string; bg: string }> 
   },
 };
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/badges")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/badges")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

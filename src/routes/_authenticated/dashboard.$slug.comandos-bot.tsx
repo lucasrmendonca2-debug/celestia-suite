@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/comandos-bot")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/comandos-bot")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

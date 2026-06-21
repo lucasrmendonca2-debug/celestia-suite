@@ -38,7 +38,7 @@ import { AuroraStatCard } from "@/components/dashboard/aurora-ui";
 import { Mascot } from "@/components/Mascot";
 
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/tickets")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/tickets")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

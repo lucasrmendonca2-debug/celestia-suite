@@ -43,7 +43,7 @@ const PRESETS: { id: string; label: string; areas: AreaKey[] }[] = [
   { id: "viewer", label: "Viewer", areas: ["overview"] },
 ];
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/permissoes")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/permissoes")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

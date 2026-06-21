@@ -39,7 +39,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/temporadas")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/temporadas")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

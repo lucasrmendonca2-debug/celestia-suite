@@ -23,7 +23,7 @@ import {
 import { AuroraSection, AuroraStatCard } from "@/components/dashboard/aurora-ui";
 import { Mascot } from "@/components/Mascot";
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/cargo-automatico")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/cargo-automatico")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

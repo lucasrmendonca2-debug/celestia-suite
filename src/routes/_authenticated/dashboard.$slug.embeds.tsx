@@ -21,7 +21,7 @@ import { Mascot } from "@/components/Mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/embeds")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/embeds")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

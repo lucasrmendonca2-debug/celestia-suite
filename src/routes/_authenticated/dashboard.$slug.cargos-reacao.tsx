@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/select";
 
 export const Route = createFileRoute(
-  "/_authenticated/g/$guildId/cargos-reacao",
+  "/_authenticated/dashboard/$slug/cargos-reacao",
 )({
   loader: async ({ context, params }) => {
     const user = await requireUser();

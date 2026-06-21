@@ -22,7 +22,7 @@ import { Mascot } from "@/components/Mascot";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/boas-vindas")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/boas-vindas")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

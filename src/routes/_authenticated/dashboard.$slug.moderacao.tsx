@@ -48,7 +48,7 @@ import {
 import { Mascot } from "@/components/Mascot";
 
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/moderacao")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/moderacao")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

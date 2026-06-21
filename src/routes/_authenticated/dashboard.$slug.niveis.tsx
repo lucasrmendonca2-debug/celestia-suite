@@ -30,7 +30,7 @@ import { Mascot } from "@/components/Mascot";
 import { Trophy, Zap, Users, Crown, Medal, Award } from "lucide-react";
 
 
-export const Route = createFileRoute("/_authenticated/g/$guildId/niveis")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug/niveis")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

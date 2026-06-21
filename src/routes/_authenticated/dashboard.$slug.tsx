@@ -5,7 +5,7 @@ import { checkBotInGuild } from "@/lib/guild/bot-presence.functions";
 import { Mascot } from "@/components/Mascot";
 import { MagicLoader } from "@/components/MagicLoader";
 
-export const Route = createFileRoute("/_authenticated/g/$guildId")({
+export const Route = createFileRoute("/_authenticated/dashboard/$slug")({
   loader: async ({ context, params }) => {
     const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({

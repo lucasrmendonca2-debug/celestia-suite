@@ -226,12 +226,17 @@ function SocialPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["social-rewards", guildId] }),
   });
 
-  const ignoredChannelsStr = Array.isArray(s.ignored_channel_ids)
-    ? s.ignored_channel_ids.join(", ")
-    : s.ignored_channel_ids ?? "";
-  const ignoredRolesStr = Array.isArray(s.ignored_role_ids)
-    ? s.ignored_role_ids.join(", ")
-    : s.ignored_role_ids ?? "";
+  const ignoredChannelIds = Array.isArray(s.ignored_channel_ids)
+    ? s.ignored_channel_ids
+    : typeof s.ignored_channel_ids === "string"
+      ? parseList(s.ignored_channel_ids)
+      : [];
+  const ignoredRoleIds = Array.isArray(s.ignored_role_ids)
+    ? s.ignored_role_ids
+    : typeof s.ignored_role_ids === "string"
+      ? parseList(s.ignored_role_ids)
+      : [];
+
 
   return (
     <ModuleLayout

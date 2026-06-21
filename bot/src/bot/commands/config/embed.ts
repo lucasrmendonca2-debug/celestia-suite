@@ -14,7 +14,8 @@ const command: SlashCommand = {
     .setDescription("Editor de embeds avançado.")
     .addSubcommand((s) =>
       s
-        .setName("send")
+        .setName("enviar")
+        .setNameLocalizations({ "en-US": "send" })
         .setDescription("Envia um embed em um canal")
         .addChannelOption((o) => o.setName("canal").setDescription("Canal").addChannelTypes(ChannelType.GuildText).setRequired(true))
         .addStringOption((o) => o.setName("descricao").setDescription("Descrição (use {server}, {user})").setRequired(true))
@@ -27,12 +28,13 @@ const command: SlashCommand = {
     )
     .addSubcommand((s) =>
       s
-        .setName("send-template")
+        .setName("enviar-modelo")
+        .setNameLocalizations({ "en-US": "send-template" })
         .setDescription("Envia um template salvo")
         .addStringOption((o) => o.setName("nome").setDescription("Nome").setRequired(true))
         .addChannelOption((o) => o.setName("canal").setDescription("Canal").addChannelTypes(ChannelType.GuildText).setRequired(true)),
     )
-    .addSubcommand((s) => s.setName("templates").setDescription("Lista templates salvos")),
+    .addSubcommand((s) => s.setName("modelos").setNameLocalizations({ "en-US": "templates" }).setDescription("Lista templates salvos")),
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guildId!;

@@ -5,7 +5,7 @@ import { LogOut, Menu } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeProvider";
 import { PremiumBadge } from "@/components/premium/PremiumBadge";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { Mascot, MascotPeek } from "@/components/Mascot";
+import { Mascot } from "@/components/Mascot";
 import { SidebarNav } from "./sidebar-nav";
 
 function avatarUrl(u: CurrentUser): string {
@@ -77,9 +77,7 @@ export function DashboardTopbar({
 
       <div className="flex shrink-0 items-center gap-2 sm:gap-3">
         <ThemeToggle />
-        {/* mascote-peek: aparece de trás do botão Sair ao hover */}
-        <div className="mascot-peek-trigger relative hidden items-center gap-2 sm:flex">
-          <MascotPeek size={56} />
+        <div className="hidden items-center gap-2 sm:flex">
           <div className="hidden text-right md:block">
             <p className="text-sm font-medium leading-tight">
               {user.globalName ?? user.username}

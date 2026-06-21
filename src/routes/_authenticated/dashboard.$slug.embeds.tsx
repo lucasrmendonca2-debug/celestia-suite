@@ -195,9 +195,17 @@ function EmbedsPage() {
 
           {sel.id && (
             <div className="flex justify-end">
-              <Button variant="ghost" size="sm" onClick={() => del.mutate(sel.id!)}>
-                <Trash2 className="mr-1.5 size-4" /> Excluir
-              </Button>
+              <ConfirmDeleteButton
+                onConfirm={() => del.mutate(sel.id!)}
+                title="Excluir embed?"
+                description={`O embed "${sel.name}" será apagado.`}
+                trigger={
+                  <Button variant="ghost" size="sm">
+                    <Trash2 className="mr-1.5 size-4" /> Excluir
+                  </Button>
+                }
+              />
+
             </div>
           )}
         </div>

@@ -26,7 +26,7 @@ export interface UserMissionRow {
 }
 
 const DEFAULTS: Array<Omit<MissionRow, "id" | "guild_id">> = [
-  { slug: "daily_claim", title: "Pegue sua diária", description: "Use /diaria hoje.", kind: "daily", goal: 1, reward: 150, active: true, sort_order: 1 },
+  { slug: "daily_claim", title: "Pegue sua diária", description: "Use /diario hoje.", kind: "daily", goal: 1, reward: 150, active: true, sort_order: 1 },
   { slug: "work_3", title: "Trabalhador", description: "Use /trabalhar 3 vezes.", kind: "work", goal: 3, reward: 250, active: true, sort_order: 2 },
   { slug: "spend_500", title: "Consumidor", description: "Gaste 500 na loja.", kind: "shop_spend", goal: 500, reward: 300, active: true, sort_order: 3 },
 ];

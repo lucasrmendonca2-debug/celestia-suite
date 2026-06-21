@@ -15,7 +15,8 @@ const command: SlashCommand = {
     .setDescription("Sistema de sorteios.")
     .addSubcommand((s) =>
       s
-        .setName("start")
+        .setName("iniciar")
+        .setNameLocalizations({ "en-US": "start" })
         .setDescription("Inicia um giveaway")
         .addStringOption((o) => o.setName("premio").setDescription("Prêmio").setRequired(true))
         .addStringOption((o) => o.setName("duracao").setDescription("Ex: 1h, 30m, 2d").setRequired(true))
@@ -28,12 +29,12 @@ const command: SlashCommand = {
         .addIntegerOption((o) => o.setName("vip_bonus").setDescription("Entradas extras para VIP").setMinValue(0).setMaxValue(10)),
     )
     .addSubcommand((s) =>
-      s.setName("end").setDescription("Encerra agora").addStringOption((o) => o.setName("id").setDescription("ID do giveaway").setRequired(true)),
+      s.setName("encerrar").setNameLocalizations({ "en-US": "end" }).setDescription("Encerra agora").addStringOption((o) => o.setName("id").setDescription("ID do giveaway").setRequired(true)),
     )
     .addSubcommand((s) =>
       s.setName("reroll").setDescription("Sorteia novos vencedores").addStringOption((o) => o.setName("id").setDescription("ID").setRequired(true)),
     )
-    .addSubcommand((s) => s.setName("list").setDescription("Lista giveaways ativos")),
+    .addSubcommand((s) => s.setName("listar").setNameLocalizations({ "en-US": "list" }).setDescription("Lista giveaways ativos")),
   async execute(interaction, { client }) {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guildId!;

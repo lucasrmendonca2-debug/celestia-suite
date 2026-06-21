@@ -15,12 +15,18 @@ import {
   ArrowRight,
   HeartPulse,
   Bot,
+  MessageSquareWarning,
+  Gavel,
+  Lightbulb,
+  Wallet,
+  Clock,
   type LucideIcon,
 } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import { getGuildOverview } from "@/lib/guild/overview.functions";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
+import { ActivityChart } from "@/components/dashboard/ActivityChart";
 import { Mascot } from "@/components/Mascot";
 import { resolveGuildIdFromSlug, buildGuildSlug } from "@/lib/guild/slug";
 
@@ -150,14 +156,14 @@ function GuildOverviewPage() {
             </div>
           </section>
 
-          {/* Métricas */}
+          {/* Métricas principais */}
           <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <StatCard
               icon={Sparkles}
               tone="lavender"
               label="Módulos ativos"
               value={`${overview.counts.activeModules}/6`}
-              hint="Boas-vindas · logs · tickets · moderação · economia · níveis"
+              hint="Boas-vindas · logs · tickets · mod · economia · níveis"
             />
             <StatCard
               icon={Ticket}
@@ -180,6 +186,113 @@ function GuildOverviewPage() {
               value={fmt.format(overview.counts.customCommands)}
               hint="Criados no dashboard"
             />
+          </section>
+
+          {/* Métricas secundárias */}
+          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <StatCard
+              icon={Gavel}
+              tone="pink"
+              label="Casos ativos"
+              value={fmt.format(overview.counts.modCasesOpen)}
+              hint="Mutes / bans em vigor"
+            />
+            <StatCard
+              icon={MessageSquareWarning}
+              tone="peach"
+              label="Avisos (7d)"
+              value={fmt.format(overview.counts.warnings7d)}
+              hint="Warns aplicados"
+            />
+            <StatCard
+              icon={Wallet}
+              tone="mint"
+              label="Economia"
+              value={fmt.format(overview.counts.economyCirculating)}
+              hint={`${fmt.format(overview.counts.economyUsers)} carteira(s)`}
+            />
+            <StatCard
+              icon={Lightbulb}
+              tone="lavender"
+              label="Sugestões abertas"
+              value={fmt.format(overview.counts.suggestionsOpen)}
+              hint={
+                overview.counts.appealsPending > 0
+                  ? `+${fmt.format(overview.counts.appealsPending)} apelações`
+                  : "Aguardando análise"
+              }
+            />
+          </section>
+
+          {/* Atividade dos últimos 7 dias */}
+          <section className="grid gap-4 lg:grid-cols-5">
+            <div className="aurora-panel relative overflow-hidden p-6 lg:col-span-3">
+              <div
+                aria-hidden
+                className="absolute -right-10 -top-10 size-48 rounded-full opacity-30 blur-3xl"
+                style={{
+                  background:
+                    "radial-gradient(circle, color-mix(in oklab, var(--aurora-cyan) 60%, transparent), transparent 70%)",
+                }}
+              />
+              <div className="relative mb-4 flex items-center justify-between">
+                <div>
+                  <h3 className="font-display flex items-center gap-2 text-base font-bold">
+                    <Activity className="size-4 text-[var(--aurora-cyan)]" />
+                    Atividade — 7 dias
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Casos de moderação, tickets e avisos por dia.
+                  </p>
+                </div>
+              </div>
+              <div className="relative">
+                <ActivityChart data={overview.activity} />
+              </div>
+            </div>
+
+            <div className="aurora-panel relative overflow-hidden p-6 lg:col-span-2">
+              <div className="relative flex h-full flex-col">
+                <div className="mb-2 flex items-center gap-2">
+                  <Sparkles className="size-4 text-[var(--aurora-lavender)]" />
+                  <h3 className="font-display text-base font-bold">Análise do Zenox</h3>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Resumo automático do estado do servidor.
+                </p>
+                <div className="my-4 flex justify-center">
+                  <Mascot variant="analyst" size={140} glow />
+                </div>
+                <ul className="mt-auto space-y-1.5 text-xs">
+                  <InsightLine
+                    ok={overview.counts.openTickets === 0}
+                    text={
+                      overview.counts.openTickets === 0
+                        ? "Nenhum ticket aberto agora."
+                        : `${fmt.format(overview.counts.openTickets)} ticket(s) aguardando.`
+                    }
+                  />
+                  <InsightLine
+                    ok={overview.counts.appealsPending === 0}
+                    text={
+                      overview.counts.appealsPending === 0
+                        ? "Sem apelações pendentes."
+                        : `${fmt.format(overview.counts.appealsPending)} apelação(ões) p/ revisar.`
+                    }
+                  />
+                  <InsightLine
+                    ok={overview.bot.present && (overview.bot.isAdmin || missing.length === 0)}
+                    text={
+                      !overview.bot.present
+                        ? "Bot fora do servidor."
+                        : missing.length === 0
+                          ? "Permissões do bot ok."
+                          : `${missing.length} permissão(ões) faltando.`
+                    }
+                  />
+                </ul>
+              </div>
+            </div>
           </section>
 
           {/* Checklist + Saúde */}
@@ -424,5 +537,18 @@ function QuickAction({
       </div>
       <ArrowRight className="relative size-4 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-foreground" />
     </Link>
+  );
+}
+
+function InsightLine({ ok, text }: { ok: boolean; text: string }) {
+  return (
+    <li className="flex items-start gap-2">
+      {ok ? (
+        <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-emerald-500" />
+      ) : (
+        <Clock className="mt-0.5 size-3.5 shrink-0 text-amber-500" />
+      )}
+      <span className={ok ? "text-foreground/90" : "text-foreground"}>{text}</span>
+    </li>
   );
 }

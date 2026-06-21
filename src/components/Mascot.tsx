@@ -5,6 +5,7 @@ import sleeping from "@/assets/mascot-sleeping.png.asset.json";
 import celebrate from "@/assets/mascot-celebrate.png.asset.json";
 import loading from "@/assets/mascot-loading.png.asset.json";
 import original from "@/assets/zenox-mascot.png.asset.json";
+import analyst from "@/assets/mascot-analyst.png.asset.json";
 
 const SOURCES = {
   hero,
@@ -14,6 +15,7 @@ const SOURCES = {
   celebrate,
   loading,
   original,
+  analyst,
 } as const;
 
 export type MascotVariant = keyof typeof SOURCES;

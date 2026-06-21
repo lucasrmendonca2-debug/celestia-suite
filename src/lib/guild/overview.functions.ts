@@ -181,7 +181,16 @@ export const getGuildOverview = createServerFn({ method: "GET" })
       lvlRow,
       openTicketsCount,
       modCases7dCount,
+      modCasesOpenCount,
+      warnings7dCount,
       customCmdCount,
+      economyAgg,
+      suggestionsOpenCount,
+      appealsPendingCount,
+      presenceRow,
+      modCasesSeries,
+      ticketsSeries,
+      warningsSeries,
     ] = await Promise.all([
       supabaseAdmin
         .from("guild_configs")
@@ -224,9 +233,56 @@ export const getGuildOverview = createServerFn({ method: "GET" })
         .eq("guild_id", data.guildId)
         .gte("created_at", sevenDaysAgo),
       supabaseAdmin
+        .from("mod_cases")
+        .select("id", { count: "exact", head: true })
+        .eq("guild_id", data.guildId)
+        .eq("active", true),
+      supabaseAdmin
+        .from("warnings")
+        .select("id", { count: "exact", head: true })
+        .eq("guild_id", data.guildId)
+        .gte("created_at", sevenDaysAgo),
+      supabaseAdmin
         .from("custom_commands")
         .select("id", { count: "exact", head: true })
         .eq("guild_id", data.guildId),
+      supabaseAdmin
+        .from("user_economy")
+        .select("balance")
+        .eq("guild_id", data.guildId),
+      supabaseAdmin
+        .from("suggestions")
+        .select("id", { count: "exact", head: true })
+        .eq("guild_id", data.guildId)
+        .in("status", ["pending", "open"]),
+      supabaseAdmin
+        .from("mod_appeals")
+        .select("id", { count: "exact", head: true })
+        .eq("guild_id", data.guildId)
+        .eq("status", "pending"),
+      supabaseAdmin
+        .from("bot_guild_presence")
+        .select("last_seen_at, member_count")
+        .eq("guild_id", data.guildId)
+        .maybeSingle(),
+      supabaseAdmin
+        .from("mod_cases")
+        .select("created_at")
+        .eq("guild_id", data.guildId)
+        .gte("created_at", sevenDaysAgo)
+        .limit(2000),
+      supabaseAdmin
+        .from("tickets")
+        .select("created_at")
+        .eq("guild_id", data.guildId)
+        .gte("created_at", sevenDaysAgo)
+        .limit(2000),
+      supabaseAdmin
+        .from("warnings")
+        .select("created_at")
+        .eq("guild_id", data.guildId)
+        .gte("created_at", sevenDaysAgo)
+        .limit(2000),
     ]);
 
     const welcomeEnabled = Boolean(welcomeRow.data?.welcome_enabled);
@@ -249,6 +305,42 @@ export const getGuildOverview = createServerFn({ method: "GET" })
       levelingEnabled,
     ].filter(Boolean).length;
 
+    // Economia em circulação (soma do balance)
+    const economyRows = (economyAgg.data ?? []) as { balance: number | null }[];
+    const economyCirculating = economyRows.reduce(
+      (acc, r) => acc + (typeof r.balance === "number" ? r.balance : 0),
+      0,
+    );
+    const economyUsers = economyRows.length;
+
+    // Série de 7 dias
+    const buckets = new Map<string, { modCases: number; tickets: number; warnings: number }>();
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setUTCHours(0, 0, 0, 0);
+      d.setUTCDate(d.getUTCDate() - i);
+      buckets.set(d.toISOString().slice(0, 10), { modCases: 0, tickets: 0, warnings: 0 });
+    }
+    const bump = (
+      iso: string | null | undefined,
+      key: "modCases" | "tickets" | "warnings",
+    ) => {
+      if (!iso) return;
+      const day = iso.slice(0, 10);
+      const b = buckets.get(day);
+      if (b) b[key]++;
+    };
+    for (const r of (modCasesSeries.data ?? []) as { created_at: string }[]) {
+      bump(r.created_at, "modCases");
+    }
+    for (const r of (ticketsSeries.data ?? []) as { created_at: string }[]) {
+      bump(r.created_at, "tickets");
+    }
+    for (const r of (warningsSeries.data ?? []) as { created_at: string }[]) {
+      bump(r.created_at, "warnings");
+    }
+    const activity = Array.from(buckets.entries()).map(([day, v]) => ({ day, ...v }));
+
     return {
       discord: { name, iconUrl, memberCount, presenceCount },
       bot: { present, isAdmin, permissions, highestRolePosition },
@@ -265,8 +357,19 @@ export const getGuildOverview = createServerFn({ method: "GET" })
       counts: {
         openTickets: openTicketsCount.count ?? 0,
         modCases7d: modCases7dCount.count ?? 0,
+        modCasesOpen: modCasesOpenCount.count ?? 0,
+        warnings7d: warnings7dCount.count ?? 0,
         customCommands: customCmdCount.count ?? 0,
         activeModules,
+        economyCirculating,
+        economyUsers,
+        suggestionsOpen: suggestionsOpenCount.count ?? 0,
+        appealsPending: appealsPendingCount.count ?? 0,
+      },
+      activity,
+      health: {
+        lastSeenAt: presenceRow.data?.last_seen_at ?? null,
+        memberCountTracked: presenceRow.data?.member_count ?? null,
       },
     };
   });

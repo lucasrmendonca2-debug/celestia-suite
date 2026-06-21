@@ -12,6 +12,7 @@ import {
   ShoppingBag,
   Target,
   Briefcase,
+  Zap,
 } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {

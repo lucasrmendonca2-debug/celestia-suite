@@ -157,7 +157,7 @@ function GuildOverviewPage() {
               tone="lavender"
               label="Módulos ativos"
               value={`${overview.counts.activeModules}/6`}
-              hint="Welcome · logs · tickets · mod · economia · level"
+              hint="Boas-vindas · logs · tickets · moderação · economia · níveis"
             />
             <StatCard
               icon={Ticket}

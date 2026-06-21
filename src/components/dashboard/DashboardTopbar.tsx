@@ -31,7 +31,7 @@ export function DashboardTopbar({
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-20 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b border-border/40 bg-background/60 px-4 py-3 backdrop-blur-2xl sm:px-6">
+    <header className="sticky top-0 z-20 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 border-b-2 border-[#1B0E3B] bg-white/85 px-4 py-3 backdrop-blur-md sm:px-6">
       <div className="flex items-center gap-2">
         {guildId && (
           <Sheet open={open} onOpenChange={setOpen}>

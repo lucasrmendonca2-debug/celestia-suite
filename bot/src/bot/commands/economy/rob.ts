@@ -12,7 +12,8 @@ const command: SlashCommand = {
   cooldown: 5,
   guildOnly: true,
   data: new SlashCommandBuilder()
-    .setName("rob")
+    .setName("roubar")
+    .setNameLocalizations({ "en-US": "rob" })
     .setDescription("Tenta roubar outro membro.")
     .addUserOption((o) => o.setName("usuario").setDescription("Alvo").setRequired(true)),
   async execute(interaction) {

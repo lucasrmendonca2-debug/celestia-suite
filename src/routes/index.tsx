@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { getPublicStats } from "@/lib/public-stats.functions";
 import {
   Shield,
   Ticket,
@@ -48,8 +49,15 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  loader: () => getPublicStats(),
   component: Landing,
 });
+
+function formatCount(n: number): string {
+  if (n >= 1000) return `${(n / 1000).toFixed(n >= 10000 ? 0 : 1).replace(/\.0$/, "")}k+`;
+  if (n <= 0) return "—";
+  return String(n);
+}
 
 function startDiscordLogin(event: MouseEvent<HTMLAnchorElement>) {
   event.preventDefault();
@@ -90,14 +98,15 @@ const modules: {
   { n: "09", title: "Sugestões", desc: "Canal de feedback com aprovação, rejeição e comentários.", tone: "coral", icon: Lightbulb },
 ];
 
-const stats: { v: string; l: string; tone: Tone }[] = [
-  { v: "+90", l: "comandos", tone: "purple" },
-  { v: "+12k", l: "servidores", tone: "pink" },
+const staticStats: { v: string; l: string; tone: Tone }[] = [
   { v: "99.9%", l: "uptime", tone: "mint" },
   { v: "<80ms", l: "latência", tone: "sky" },
 ];
 
 function Landing() {
+  const data = Route.useLoaderData();
+  const serversLabel = data.servers > 0 ? formatCount(data.servers) : "Novo";
+  const commandsLabel = `${data.commands}+`;
   return (
     <div className="min-h-screen overflow-hidden bg-[#FBF7FF] font-['Inter'] text-[#1B0E3B] selection:bg-[#7C3AED] selection:text-white">
       {/* Floating shapes */}
@@ -114,7 +123,7 @@ function Landing() {
                 <span className="absolute inset-0 animate-ping rounded-full bg-[#10D9A0]" />
                 <span className="relative size-2 rounded-full bg-[#10D9A0]" />
               </span>
-              Online · +12.000 servidores
+              {data.online ? `Online · ${serversLabel} servidores` : `Pronto pra começar · ${serversLabel} servidores`}
             </div>
 
             <h1 className="font-['Plus_Jakarta_Sans'] text-5xl font-extrabold leading-[0.95] tracking-tight md:text-7xl">
@@ -165,7 +174,7 @@ function Landing() {
                 ))}
               </div>
               <span>
-                <strong className="text-[#1B0E3B]">+12.000</strong> servidores ativos esse mês
+                <strong className="text-[#1B0E3B]">{serversLabel}</strong> servidores conectados
               </span>
             </div>
           </div>
@@ -214,7 +223,7 @@ function Landing() {
                 <Zap className="size-3.5" /> 99.9% uptime
               </FloatingBadge>
               <FloatingBadge className="-right-4 bottom-8 rotate-3" tone="sky">
-                <Bot className="size-3.5" /> +90 comandos
+                <Bot className="size-3.5" /> {commandsLabel} comandos
               </FloatingBadge>
             </div>
           </div>
@@ -224,7 +233,11 @@ function Landing() {
       {/* STATS */}
       <section className="px-4 py-8 md:px-6">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 md:grid-cols-4">
-          {stats.map((s) => {
+          {[
+            { v: commandsLabel, l: "comandos", tone: "purple" as Tone },
+            { v: serversLabel, l: "servidores", tone: "pink" as Tone },
+            ...staticStats,
+          ].map((s) => {
             const t = TONE[s.tone];
             return (
               <div

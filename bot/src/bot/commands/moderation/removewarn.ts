@@ -3,7 +3,6 @@ import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import {
   deactivateWarning,
-  getModerationConfig,
   logModerationEvent,
 } from "../../systems/moderation/moderation.service.js";
 import { hasModCapability } from "../../systems/moderation/moderation.permissions.js";
@@ -27,7 +26,6 @@ const command: SlashCommand = {
     }
     const id = interaction.options.getInteger("id", true);
     await deactivateWarning(id, guild.id);
-    await getModerationConfig(guild.id);
     await logModerationEvent({
       guildId: guild.id,
       moderatorId: interaction.user.id,

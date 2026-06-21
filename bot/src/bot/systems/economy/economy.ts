@@ -20,11 +20,12 @@ export async function addWallet(guildId: string, userId: string, amount: number)
 }
 
 export async function removeWallet(guildId: string, userId: string, amount: number): Promise<boolean> {
-  const acc = await getAccount(guildId, userId);
-  if (acc.wallet < amount) return false;
-  acc.wallet -= amount;
-  await acc.save();
-  return true;
+  // Atomic conditional debit — previne double-spend em /pay, /shop buy, etc.
+  const res = await EconomyAccount.updateOne(
+    { guildId, userId, wallet: { $gte: amount } },
+    { $inc: { wallet: -amount } },
+  );
+  return res.modifiedCount > 0;
 }
 
 export async function isVip(guildId: string, userId: string): Promise<boolean> {

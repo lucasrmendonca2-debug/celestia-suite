@@ -11,12 +11,13 @@ const command: SlashCommand = {
     try {
       const res = await fetch("https://meme-api.com/gimme");
       const data = (await res.json()) as { title: string; url: string; postLink: string; subreddit: string };
+      const safeUrl = typeof data?.url === "string" && /^https?:\/\//i.test(data.url) ? data.url : undefined;
       await interaction.editReply({
         embeds: [
           brandEmbed({
-            title: data.title,
-            image: data.url,
-            footer: `r/${data.subreddit}`,
+            title: (data?.title ?? "Meme").slice(0, 256),
+            image: safeUrl,
+            footer: data?.subreddit ? `r/${data.subreddit}` : undefined,
           }),
         ],
       });

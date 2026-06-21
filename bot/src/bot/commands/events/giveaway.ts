@@ -79,6 +79,11 @@ const command: SlashCommand = {
 
     if (sub === "end") {
       const id = interaction.options.getString("id", true);
+      const g = await Giveaway.findById(id);
+      if (!g || g.guildId !== guildId) {
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Giveaway não encontrado neste servidor" })], ephemeral: true });
+        return;
+      }
       await endGiveaway(client, id);
       await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Encerrado" })], ephemeral: true });
       return;
@@ -87,7 +92,11 @@ const command: SlashCommand = {
     if (sub === "reroll") {
       const id = interaction.options.getString("id", true);
       const g = await Giveaway.findById(id);
-      if (!g || !g.ended) {
+      if (!g || g.guildId !== guildId) {
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Giveaway não encontrado neste servidor" })], ephemeral: true });
+        return;
+      }
+      if (!g.ended) {
         await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Giveaway não está encerrado" })], ephemeral: true });
         return;
       }

@@ -98,6 +98,10 @@ const command: SlashCommand = {
       await member.roles.add(config.mute_role_id, `[${interaction.user.tag}] tempmute`);
     } else if (member.moderatable) {
       await member.timeout(Math.min(duration, 28 * 86400) * 1000, `[${interaction.user.tag}] tempmute`);
+    } else {
+      return interaction.editReply({
+        embeds: [brandEmbed({ kind: "error", title: "Não consigo silenciar (hierarquia) e não há cargo de mute configurado." })],
+      });
     }
     const p = await createPunishment({
       guildId: guild.id,

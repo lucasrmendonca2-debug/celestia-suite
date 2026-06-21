@@ -116,23 +116,31 @@ const command: SlashCommand = {
 
     if (!scheduledFor) {
       const ch = canal as TextChannel;
-      await ch.send({
-        content: mentionContent ?? undefined,
-        embeds: [
-          brandEmbed({
-            kind: "info",
-            title: titulo ?? "📣 Anúncio",
-            description: mensagem,
-            footer: `Por ${interaction.user.username}`,
-          }),
-        ],
-        allowedMentions:
-          mencao === "everyone" || mencao === "here"
-            ? { parse: ["everyone"] }
-            : mencao && /^\d{17,20}$/.test(mencao)
-              ? { roles: [mencao] }
-              : { parse: [] },
-      });
+      try {
+        await ch.send({
+          content: mentionContent ?? undefined,
+          embeds: [
+            brandEmbed({
+              kind: "info",
+              title: (titulo ?? "📣 Anúncio").slice(0, 256),
+              description: mensagem.slice(0, 4000),
+              footer: `Por ${interaction.user.username}`,
+            }),
+          ],
+          allowedMentions:
+            mencao === "everyone" || mencao === "here"
+              ? { parse: ["everyone"] }
+              : mencao && /^\d{17,20}$/.test(mencao)
+                ? { roles: [mencao] }
+                : { parse: [] },
+        });
+      } catch (err) {
+        await interaction.reply({
+          content: `❌ Falha ao enviar em <#${canal.id}>. O bot tem permissão de **Enviar Mensagens** e **Inserir Links** lá?`,
+          ephemeral: true,
+        });
+        return;
+      }
       await Announcement.create({
         guildId: interaction.guildId!,
         channelId: canal.id,

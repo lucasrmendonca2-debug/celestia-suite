@@ -50,7 +50,6 @@ import { Route as AuthenticatedDashboardSlugCargosReacaoRouteImport } from './ro
 import { Route as AuthenticatedDashboardSlugCargoAutomaticoRouteImport } from './routes/_authenticated/dashboard.$slug.cargo-automatico'
 import { Route as AuthenticatedDashboardSlugBoasVindasRouteImport } from './routes/_authenticated/dashboard.$slug.boas-vindas'
 import { Route as AuthenticatedDashboardSlugBadgesRouteImport } from './routes/_authenticated/dashboard.$slug.badges'
-import { Route as AuthenticatedDashboardSlugAutomodRouteImport } from './routes/_authenticated/dashboard.$slug.automod'
 import { Route as AuthenticatedDashboardSlugAssetsRouteImport } from './routes/_authenticated/dashboard.$slug.assets'
 
 const SuporteRoute = SuporteRouteImport.update({
@@ -280,12 +279,6 @@ const AuthenticatedDashboardSlugBadgesRoute =
     path: '/badges',
     getParentRoute: () => AuthenticatedDashboardSlugRoute,
   } as any)
-const AuthenticatedDashboardSlugAutomodRoute =
-  AuthenticatedDashboardSlugAutomodRouteImport.update({
-    id: '/automod',
-    path: '/automod',
-    getParentRoute: () => AuthenticatedDashboardSlugRoute,
-  } as any)
 const AuthenticatedDashboardSlugAssetsRoute =
   AuthenticatedDashboardSlugAssetsRouteImport.update({
     id: '/assets',
@@ -314,7 +307,6 @@ export interface FileRoutesByFullPath {
   '/api/public/bot-guild-presence': typeof ApiPublicBotGuildPresenceRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/$slug/assets': typeof AuthenticatedDashboardSlugAssetsRoute
-  '/dashboard/$slug/automod': typeof AuthenticatedDashboardSlugAutomodRoute
   '/dashboard/$slug/badges': typeof AuthenticatedDashboardSlugBadgesRoute
   '/dashboard/$slug/boas-vindas': typeof AuthenticatedDashboardSlugBoasVindasRoute
   '/dashboard/$slug/cargo-automatico': typeof AuthenticatedDashboardSlugCargoAutomaticoRoute
@@ -357,7 +349,6 @@ export interface FileRoutesByTo {
   '/api/public/bot-guild-presence': typeof ApiPublicBotGuildPresenceRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
   '/dashboard/$slug/assets': typeof AuthenticatedDashboardSlugAssetsRoute
-  '/dashboard/$slug/automod': typeof AuthenticatedDashboardSlugAutomodRoute
   '/dashboard/$slug/badges': typeof AuthenticatedDashboardSlugBadgesRoute
   '/dashboard/$slug/boas-vindas': typeof AuthenticatedDashboardSlugBoasVindasRoute
   '/dashboard/$slug/cargo-automatico': typeof AuthenticatedDashboardSlugCargoAutomaticoRoute
@@ -403,7 +394,6 @@ export interface FileRoutesById {
   '/api/public/bot-guild-presence': typeof ApiPublicBotGuildPresenceRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
   '/_authenticated/dashboard/$slug/assets': typeof AuthenticatedDashboardSlugAssetsRoute
-  '/_authenticated/dashboard/$slug/automod': typeof AuthenticatedDashboardSlugAutomodRoute
   '/_authenticated/dashboard/$slug/badges': typeof AuthenticatedDashboardSlugBadgesRoute
   '/_authenticated/dashboard/$slug/boas-vindas': typeof AuthenticatedDashboardSlugBoasVindasRoute
   '/_authenticated/dashboard/$slug/cargo-automatico': typeof AuthenticatedDashboardSlugCargoAutomaticoRoute
@@ -449,7 +439,6 @@ export interface FileRouteTypes {
     | '/api/public/bot-guild-presence'
     | '/dashboard/'
     | '/dashboard/$slug/assets'
-    | '/dashboard/$slug/automod'
     | '/dashboard/$slug/badges'
     | '/dashboard/$slug/boas-vindas'
     | '/dashboard/$slug/cargo-automatico'
@@ -492,7 +481,6 @@ export interface FileRouteTypes {
     | '/api/public/bot-guild-presence'
     | '/dashboard'
     | '/dashboard/$slug/assets'
-    | '/dashboard/$slug/automod'
     | '/dashboard/$slug/badges'
     | '/dashboard/$slug/boas-vindas'
     | '/dashboard/$slug/cargo-automatico'
@@ -537,7 +525,6 @@ export interface FileRouteTypes {
     | '/api/public/bot-guild-presence'
     | '/_authenticated/dashboard/'
     | '/_authenticated/dashboard/$slug/assets'
-    | '/_authenticated/dashboard/$slug/automod'
     | '/_authenticated/dashboard/$slug/badges'
     | '/_authenticated/dashboard/$slug/boas-vindas'
     | '/_authenticated/dashboard/$slug/cargo-automatico'
@@ -869,13 +856,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardSlugBadgesRouteImport
       parentRoute: typeof AuthenticatedDashboardSlugRoute
     }
-    '/_authenticated/dashboard/$slug/automod': {
-      id: '/_authenticated/dashboard/$slug/automod'
-      path: '/automod'
-      fullPath: '/dashboard/$slug/automod'
-      preLoaderRoute: typeof AuthenticatedDashboardSlugAutomodRouteImport
-      parentRoute: typeof AuthenticatedDashboardSlugRoute
-    }
     '/_authenticated/dashboard/$slug/assets': {
       id: '/_authenticated/dashboard/$slug/assets'
       path: '/assets'
@@ -888,7 +868,6 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedDashboardSlugRouteChildren {
   AuthenticatedDashboardSlugAssetsRoute: typeof AuthenticatedDashboardSlugAssetsRoute
-  AuthenticatedDashboardSlugAutomodRoute: typeof AuthenticatedDashboardSlugAutomodRoute
   AuthenticatedDashboardSlugBadgesRoute: typeof AuthenticatedDashboardSlugBadgesRoute
   AuthenticatedDashboardSlugBoasVindasRoute: typeof AuthenticatedDashboardSlugBoasVindasRoute
   AuthenticatedDashboardSlugCargoAutomaticoRoute: typeof AuthenticatedDashboardSlugCargoAutomaticoRoute
@@ -913,8 +892,6 @@ const AuthenticatedDashboardSlugRouteChildren: AuthenticatedDashboardSlugRouteCh
   {
     AuthenticatedDashboardSlugAssetsRoute:
       AuthenticatedDashboardSlugAssetsRoute,
-    AuthenticatedDashboardSlugAutomodRoute:
-      AuthenticatedDashboardSlugAutomodRoute,
     AuthenticatedDashboardSlugBadgesRoute:
       AuthenticatedDashboardSlugBadgesRoute,
     AuthenticatedDashboardSlugBoasVindasRoute:

@@ -332,13 +332,12 @@ function LevelingPage() {
                       </span>
                       <span className="font-mono text-sm">{r.role_id}</span>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => removeReward.mutate(r.id)}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
+                    <ConfirmDeleteButton
+                      onConfirm={() => removeReward.mutate(r.id)}
+                      title="Remover recompensa de nível?"
+                      description={`A recompensa do nível ${r.level} será apagada.`}
+                    />
+
                   </li>
                 ))}
               </ul>

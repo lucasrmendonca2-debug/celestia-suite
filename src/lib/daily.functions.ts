@@ -9,9 +9,13 @@ function botBase(): string | null {
 
 function botBaseCandidates(): string[] {
   const base = botBase();
-  if (!base) return [];
+  const fallbackBases = [
+    "http://ec2-52-67-80-142.sa-east-1.compute.amazonaws.com:8080",
+    "http://52.67.80.142:8080",
+  ];
+  if (!base) return fallbackBases;
 
-  const candidates = [base];
+  const candidates = [base, ...fallbackBases];
   try {
     const url = new URL(base);
     if (url.protocol === "http:" && url.port === "3001") {

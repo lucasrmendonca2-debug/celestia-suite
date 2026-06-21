@@ -42,6 +42,15 @@ function requestTimeoutError() {
   } satisfies AnyStatus;
 }
 
+function errorMessage(status: AnyStatus) {
+  const error = (status as any).error;
+  if (error === "fetch_failed") return "Não consegui conectar na API do bot.";
+  if (error === "bot_timeout") return "A API do bot demorou demais para responder.";
+  if (error === "bot_not_configured") return "A URL da API do bot não está configurada.";
+  if (error === "bot_secret_missing") return "O segredo da API do bot não está configurado.";
+  return (status as any).data?.message || "Gere um novo link com /daily no Discord.";
+}
+
 function Countdown({ to }: { to: string }) {
   const [ms, setMs] = useState(() => new Date(to).getTime() - Date.now());
   useEffect(() => {
@@ -215,7 +224,7 @@ function DailyPage() {
             <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-6 text-center text-sm text-red-200">
               <p className="font-semibold">Não foi possível validar o link.</p>
               <p className="mt-1 opacity-80">Motivo: {(status as any).error}</p>
-              <p className="mt-3 text-xs opacity-70">Gere um novo com <code>/daily</code> no Discord.</p>
+              <p className="mt-3 text-xs opacity-70">{errorMessage(status)}</p>
             </div>
           )}
 

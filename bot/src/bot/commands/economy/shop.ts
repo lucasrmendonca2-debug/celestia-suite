@@ -21,10 +21,11 @@ const command: SlashCommand = {
   data: new SlashCommandBuilder()
     .setName("loja").setNameLocalizations({"en-US":"shop"})
     .setDescription("Loja do servidor.")
-    .addSubcommand((s) => s.setName("list").setDescription("Lista itens"))
+    .addSubcommand((s) => s.setName("listar").setNameLocalizations({ "en-US": "list" }).setDescription("Lista itens"))
     .addSubcommand((s) =>
       s
-        .setName("add")
+        .setName("adicionar")
+        .setNameLocalizations({ "en-US": "add" })
         .setDescription("Staff: adiciona item")
         .addStringOption((o) => o.setName("nome").setDescription("Nome").setRequired(true))
         .addIntegerOption((o) => o.setName("preco").setDescription("Preço").setRequired(true).setMinValue(0))
@@ -34,13 +35,15 @@ const command: SlashCommand = {
     )
     .addSubcommand((s) =>
       s
-        .setName("remove")
+        .setName("remover")
+        .setNameLocalizations({ "en-US": "remove" })
         .setDescription("Staff: remove item")
         .addStringOption((o) => o.setName("nome").setDescription("Nome").setRequired(true)),
     )
     .addSubcommand((s) =>
       s
-        .setName("buy")
+        .setName("comprar")
+        .setNameLocalizations({ "en-US": "buy" })
         .setDescription("Compra um item")
         .addStringOption((o) => o.setName("nome").setDescription("Nome").setRequired(true))
         .addIntegerOption((o) => o.setName("quantidade").setDescription("Qtd").setMinValue(1)),

@@ -3555,6 +3555,23 @@ export type Database = {
       }
     }
     Functions: {
+      economy_credit_wallet: {
+        Args: { _amount: number; _guild_id: string; _user_id: string }
+        Returns: Json
+      }
+      economy_debit_wallet: {
+        Args: { _amount: number; _guild_id: string; _user_id: string }
+        Returns: Json
+      }
+      economy_transfer_wallet: {
+        Args: {
+          _amount: number
+          _from_user_id: string
+          _guild_id: string
+          _to_user_id: string
+        }
+        Returns: Json
+      }
       get_public_stats: {
         Args: never
         Returns: {

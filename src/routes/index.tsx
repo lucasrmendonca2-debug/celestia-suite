@@ -23,7 +23,7 @@ import {
 } from "lucide-react";
 import { Mascot } from "@/components/Mascot";
 import chibiPeek from "@/assets/mascot-chibi-peek.png";
-import chibiClimb1 from "@/assets/chibi-climb-1.png";
+// chibi-climb-1 (3 braços) removido propositalmente
 import chibiClimb2 from "@/assets/chibi-climb-2.png";
 import chibiClimb3 from "@/assets/chibi-climb-3.png";
 import chibiClimb4 from "@/assets/chibi-climb-4.png";

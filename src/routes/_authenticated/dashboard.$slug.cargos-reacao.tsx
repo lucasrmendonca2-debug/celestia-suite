@@ -220,9 +220,9 @@ function ReactionRolesPage() {
                   key={r.id}
                   className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card/40 px-4 py-3 transition hover:border-[color:color-mix(in_oklab,var(--aurora-peach)_45%,var(--border))]"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
                     <span
-                      className="flex size-10 items-center justify-center rounded-xl text-xl"
+                      className="flex size-10 shrink-0 items-center justify-center rounded-xl text-xl"
                       style={{
                         background:
                           "linear-gradient(135deg, color-mix(in oklab, var(--aurora-peach) 30%, transparent), color-mix(in oklab, var(--aurora-pink) 20%, transparent))",
@@ -230,12 +230,17 @@ function ReactionRolesPage() {
                     >
                       {r.emoji}
                     </span>
-                    <div className="min-w-0">
-                      <p className="font-mono text-sm">@{r.role_id}</p>
-                      <p className="text-xs text-muted-foreground">
-                        msg <span className="font-mono">{r.message_id}</span> ·{" "}
-                        <span className="text-foreground/80">{MODE_LABEL[r.mode] ?? r.mode}</span>
-                      </p>
+                    <div className="min-w-0 space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <RoleBadge guildId={guildId} roleId={r.role_id} />
+                        <span className="rounded-full border border-border/60 bg-card/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                          {MODE_LABEL[r.mode] ?? r.mode}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                        em <ChannelBadge guildId={guildId} channelId={r.channel_id} />
+                        <span>· msg <span className="font-mono">{String(r.message_id).slice(-6)}</span></span>
+                      </div>
                     </div>
                   </div>
                   <ConfirmDeleteButton

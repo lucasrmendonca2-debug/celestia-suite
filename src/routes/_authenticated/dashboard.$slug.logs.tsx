@@ -547,8 +547,12 @@ function HistoryView({ guildId }: { guildId: string }) {
                 <td className="px-3 py-2 font-mono text-xs">
                   {r.target_tag ?? r.target_id ?? "—"}
                 </td>
-                <td className="px-3 py-2 font-mono text-xs">
-                  {r.channel_id ? `#${r.channel_id}` : "—"}
+                <td className="px-3 py-2">
+                  {r.channel_id ? (
+                    <ChannelBadge guildId={guildId} channelId={r.channel_id} />
+                  ) : (
+                    <span className="text-xs text-muted-foreground">—</span>
+                  )}
                 </td>
               </tr>
             ))}

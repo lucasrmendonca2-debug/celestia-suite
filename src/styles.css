@@ -458,3 +458,128 @@
 @media (prefers-reduced-motion: reduce) {
   .aurora-cta::before { animation: none; }
 }
+
+
+/* =========================================================
+   PAINT STYLE OVERRIDES (applied globally to dashboard pages)
+   Hijacks aurora-shell / aurora-panel to render the playful
+   MS-Paint inspired aesthetic shared with the landing page.
+   ========================================================= */
+
+:root {
+  --paint-ink: #1B0E3B;
+  --paint-cream: #FBF7FF;
+  --paint-purple: #7C3AED;
+  --paint-pink: #EC4899;
+  --paint-sun: #FBBF24;
+  --paint-mint: #10D9A0;
+  --paint-sky: #38BDF8;
+  --paint-coral: #FB7185;
+}
+
+/* Scattered doodle SVG used as a tileable background */
+.paint-doodles,
+.aurora-shell {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--paint-cream);
+  background-image:
+    radial-gradient(ellipse 60% 50% at 12% 5%, color-mix(in oklab, var(--paint-sun) 22%, transparent), transparent 60%),
+    radial-gradient(ellipse 55% 45% at 88% 18%, color-mix(in oklab, var(--paint-pink) 20%, transparent), transparent 60%),
+    radial-gradient(ellipse 65% 55% at 50% 100%, color-mix(in oklab, var(--paint-purple) 18%, transparent), transparent 60%),
+    url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='620' height='620' viewBox='0 0 620 620'%3E%3Cg fill='none' stroke='%231B0E3B' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M70 80 l10 -26 l10 26 l26 10 l-26 10 l-10 26 l-10 -26 l-26 -10 z' fill='%23FBBF24'/%3E%3Ccircle cx='510' cy='100' r='16' fill='%23EC4899'/%3E%3Cpath d='M160 250 q22 -36 44 0 q-22 36 -44 0' fill='%2310D9A0'/%3E%3Cpath d='M430 360 l0 36 m-18 -18 l36 0'/%3E%3Cpath d='M540 470 q-12 -12 0 -24 q12 12 24 0 q-12 12 0 24 q-12 -12 -24 0' fill='%2338BDF8'/%3E%3Ccircle cx='90' cy='480' r='14' fill='%237C3AED'/%3E%3Cpath d='M300 80 l12 12 m0 -12 l-12 12'/%3E%3Cpath d='M50 350 c22 -22 44 -22 66 0' fill='%23FB7185'/%3E%3Cpath d='M380 150 l8 -16 l8 16 l-8 8 z' fill='%237C3AED'/%3E%3Cpath d='M260 420 q-10 -10 0 -20 q10 10 20 0 q-10 10 0 20 q-10 -10 -20 0' fill='%23FBBF24'/%3E%3Cpath d='M460 540 c-8 -14 16 -28 8 -42 c-6 -10 6 -18 14 -10'/%3E%3Cpath d='M180 540 l0 -22 m-11 11 l22 0'/%3E%3Ccircle cx='560' cy='280' r='6' fill='%231B0E3B'/%3E%3Ccircle cx='340' cy='300' r='5' fill='%231B0E3B'/%3E%3Ccircle cx='220' cy='160' r='5' fill='%231B0E3B'/%3E%3Cpath d='M120 230 q14 -14 28 0 t28 0' /%3E%3Cpath d='M400 250 c10 -6 18 4 14 12 c-4 8 -16 4 -14 -4 c2 -10 16 -8 18 0' fill='%23EC4899'/%3E%3Cpath d='M540 380 l-8 14 l16 0 z' fill='%2310D9A0'/%3E%3Cpath d='M60 580 q20 -10 36 0 q16 10 36 0'/%3E%3C/g%3E%3C/svg%3E");
+  background-repeat: no-repeat, no-repeat, no-repeat, repeat;
+  background-size: auto, auto, auto, 620px 620px;
+}
+
+.aurora-shell::before {
+  content: none !important;
+}
+
+/* Card surfaces */
+.aurora-panel,
+.cyber-panel {
+  position: relative;
+  border-radius: 1.5rem;
+  border: 2px solid var(--paint-ink);
+  background: #ffffff;
+  box-shadow: 0 5px 0 0 var(--paint-ink);
+  backdrop-filter: none;
+}
+
+.aurora-card-hover,
+.cyber-card-hover {
+  transition: transform 180ms cubic-bezier(.22,.61,.36,1), box-shadow 180ms ease;
+}
+.aurora-card-hover:hover,
+.cyber-card-hover:hover {
+  transform: translateY(-3px);
+  border-color: var(--paint-ink);
+  box-shadow: 0 8px 0 0 var(--paint-ink);
+}
+
+/* Dark mode keeps shell readable but still playful */
+.dark .aurora-shell,
+.dark .paint-doodles {
+  background-color: #160a2e;
+}
+.dark .aurora-panel,
+.dark .cyber-panel {
+  background: color-mix(in oklab, #ffffff 8%, #160a2e);
+  border-color: color-mix(in oklab, var(--paint-purple) 60%, #ffffff);
+  box-shadow: 0 5px 0 0 color-mix(in oklab, var(--paint-purple) 70%, #000);
+}
+
+/* Pill / chip helper (also used by aurora-pill) */
+.aurora-pill {
+  font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--paint-ink);
+  border-radius: 9999px;
+  padding: 4px 12px;
+  border: 2px solid var(--paint-ink);
+  background: #ffffff;
+  box-shadow: 0 2px 0 0 var(--paint-ink);
+  backdrop-filter: none;
+}
+
+/* Number slot-roll animation for /daily */
+@keyframes slot-roll {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-90%); }
+}
+.slot-strip {
+  display: inline-flex;
+  flex-direction: column;
+  line-height: 1;
+  animation: slot-roll 1.2s cubic-bezier(.2,.7,.2,1) forwards;
+}
+.slot-window {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+@keyframes coin-pop {
+  0%   { transform: scale(0.4) rotate(-20deg); opacity: 0; }
+  60%  { transform: scale(1.15) rotate(8deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+.coin-pop { animation: coin-pop 600ms cubic-bezier(.34,1.56,.64,1) both; }
+
+@keyframes confetti-fall {
+  0%   { transform: translate3d(0,-20px,0) rotate(0deg); opacity: 0; }
+  10%  { opacity: 1; }
+  100% { transform: translate3d(var(--cx,0), 220px, 0) rotate(540deg); opacity: 0; }
+}
+.confetti-piece {
+  position: absolute;
+  width: 10px;
+  height: 14px;
+  border: 1.5px solid var(--paint-ink);
+  border-radius: 2px;
+  animation: confetti-fall 1.6s ease-in forwards;
+}

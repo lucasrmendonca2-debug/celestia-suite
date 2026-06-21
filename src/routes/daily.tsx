@@ -254,13 +254,16 @@ function DailyPage() {
 
             {claimed && (
               <div className="space-y-5">
-                <div className="rounded-2xl border-2 border-[#1B0E3B] bg-[#D6FBEC] p-6 text-center shadow-[0_5px_0_0_#1B0E3B]">
-                  <Sparkles className="mx-auto mb-2 size-10 text-[#047857]" />
+                <div className="relative overflow-hidden rounded-2xl border-2 border-[#1B0E3B] bg-[#D6FBEC] p-6 text-center shadow-[0_5px_0_0_#1B0E3B]">
+                  <Confetti />
+                  <Sparkles className="coin-pop mx-auto mb-2 size-10 text-[#047857]" />
                   <p className="font-mono text-[10px] font-extrabold uppercase tracking-widest text-[#047857]">
                     Resgatado!
                   </p>
-                  <p className="mt-1 font-['Plus_Jakarta_Sans'] text-5xl font-extrabold text-[#1B0E3B]">
-                    +{claimed.amount.toLocaleString("pt-BR")} {claimed.currency.emoji}
+                  <p className="mt-1 flex items-baseline justify-center gap-2 font-['Plus_Jakarta_Sans'] text-5xl font-extrabold text-[#1B0E3B]">
+                    <span>+</span>
+                    <RollingNumber target={claimed.amount} />
+                    <span className="text-4xl">{claimed.currency.emoji}</span>
                   </p>
                   <p className="mt-2 text-sm font-semibold text-[#047857]">
                     Carteira: {claimed.wallet.toLocaleString("pt-BR")} {claimed.currency.name}
@@ -370,6 +373,63 @@ function MiniStat({
       <Icon className={`mx-auto mb-1 size-4 ${text}`} />
       <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#5B4B7A]">{label}</p>
       <p className="font-['Plus_Jakarta_Sans'] text-base font-extrabold text-[#1B0E3B]">{value}</p>
+    </div>
+  );
+}
+
+function RollingNumber({ target, duration = 1400 }: { target: number; duration?: number }) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - t, 3);
+      // Slot-style: random jitter near end, settles exactly on target
+      if (t < 0.85) {
+        const jitter = Math.floor(Math.random() * Math.max(target, 100));
+        setValue(Math.floor(eased * target * 0.95) + (jitter % 7));
+      } else {
+        setValue(Math.floor(eased * target));
+      }
+      if (t < 1) raf = requestAnimationFrame(tick);
+      else setValue(target);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return (
+    <span className="font-mono tabular-nums">{value.toLocaleString("pt-BR")}</span>
+  );
+}
+
+function Confetti() {
+  const pieces = Array.from({ length: 18 });
+  const colors = ["#FBBF24", "#EC4899", "#10D9A0", "#7C3AED", "#38BDF8", "#FB7185"];
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+      {pieces.map((_, i) => {
+        const left = (i / pieces.length) * 100;
+        const cx = (Math.random() - 0.5) * 80;
+        const delay = Math.random() * 0.4;
+        const rot = Math.random() * 360;
+        const color = colors[i % colors.length];
+        return (
+          <span
+            key={i}
+            className="confetti-piece"
+            style={{
+              left: `${left}%`,
+              top: "-10px",
+              background: color,
+              transform: `rotate(${rot}deg)`,
+              animationDelay: `${delay}s`,
+              ["--cx" as any]: `${cx}px`,
+            }}
+          />
+        );
+      })}
     </div>
   );
 }

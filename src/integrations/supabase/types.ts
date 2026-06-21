@@ -103,6 +103,48 @@ export type Database = {
         }
         Relationships: []
       }
+      announcements: {
+        Row: {
+          author_id: string
+          channel_id: string
+          content: string | null
+          created_at: string
+          embed: Json | null
+          guild_id: string
+          id: string
+          message_id: string | null
+          scheduled_at: string | null
+          sent_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          channel_id: string
+          content?: string | null
+          created_at?: string
+          embed?: Json | null
+          guild_id: string
+          id?: string
+          message_id?: string | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          channel_id?: string
+          content?: string | null
+          created_at?: string
+          embed?: Json | null
+          guild_id?: string
+          id?: string
+          message_id?: string | null
+          scheduled_at?: string | null
+          sent_at?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       app_error_logs: {
         Row: {
           count: number
@@ -247,6 +289,45 @@ export type Database = {
           whitelist_channels?: string[]
           whitelist_roles?: string[]
           whitelist_users?: string[]
+        }
+        Relationships: []
+      }
+      automod_incidents: {
+        Row: {
+          channel_id: string | null
+          created_at: string
+          detail: Json
+          guild_id: string
+          id: string
+          message_id: string | null
+          reason: string | null
+          severity: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          channel_id?: string | null
+          created_at?: string
+          detail?: Json
+          guild_id: string
+          id?: string
+          message_id?: string | null
+          reason?: string | null
+          severity?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          channel_id?: string | null
+          created_at?: string
+          detail?: Json
+          guild_id?: string
+          id?: string
+          message_id?: string | null
+          reason?: string | null
+          severity?: string
+          type?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -514,6 +595,30 @@ export type Database = {
         }
         Relationships: []
       }
+      cooldowns: {
+        Row: {
+          command: string
+          created_at: string
+          expires_at: string
+          guild_id: string
+          user_id: string
+        }
+        Insert: {
+          command: string
+          created_at?: string
+          expires_at: string
+          guild_id: string
+          user_id: string
+        }
+        Update: {
+          command?: string
+          created_at?: string
+          expires_at?: string
+          guild_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       custom_commands: {
         Row: {
           created_at: string
@@ -556,6 +661,39 @@ export type Database = {
           response_text?: string | null
           updated_at?: string
           uses?: number
+        }
+        Relationships: []
+      }
+      daily_tokens: {
+        Row: {
+          created_at: string
+          expires_at: string
+          guild_id: string | null
+          id: string
+          token: string
+          used: boolean
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at: string
+          guild_id?: string | null
+          id?: string
+          token: string
+          used?: boolean
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string
+          guild_id?: string | null
+          id?: string
+          token?: string
+          used?: boolean
+          used_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -739,6 +877,60 @@ export type Database = {
         }
         Relationships: []
       }
+      giveaways: {
+        Row: {
+          channel_id: string
+          created_at: string
+          ended: boolean
+          ended_at: string | null
+          ends_at: string
+          guild_id: string
+          host_id: string
+          id: string
+          message_id: string | null
+          participants: Json
+          prize: string
+          requirements: Json
+          updated_at: string
+          winners: Json
+          winners_count: number
+        }
+        Insert: {
+          channel_id: string
+          created_at?: string
+          ended?: boolean
+          ended_at?: string | null
+          ends_at: string
+          guild_id: string
+          host_id: string
+          id?: string
+          message_id?: string | null
+          participants?: Json
+          prize: string
+          requirements?: Json
+          updated_at?: string
+          winners?: Json
+          winners_count?: number
+        }
+        Update: {
+          channel_id?: string
+          created_at?: string
+          ended?: boolean
+          ended_at?: string | null
+          ends_at?: string
+          guild_id?: string
+          host_id?: string
+          id?: string
+          message_id?: string | null
+          participants?: Json
+          prize?: string
+          requirements?: Json
+          updated_at?: string
+          winners?: Json
+          winners_count?: number
+        }
+        Relationships: []
+      }
       guild_autoroles: {
         Row: {
           created_at: string
@@ -766,9 +958,16 @@ export type Database = {
       guild_configs: {
         Row: {
           created_at: string
+          economy_currency_emoji: string | null
+          economy_currency_name: string | null
           guild_id: string
+          member_log_channel_id: string | null
+          message_log_channel_id: string | null
+          mod_log_channel_id: string | null
+          server_log_channel_id: string | null
           updated_at: string
           updated_by: string | null
+          vip_role_id: string | null
           welcome_channel_id: string | null
           welcome_embed_color: string
           welcome_embed_enabled: boolean
@@ -777,9 +976,16 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          economy_currency_emoji?: string | null
+          economy_currency_name?: string | null
           guild_id: string
+          member_log_channel_id?: string | null
+          message_log_channel_id?: string | null
+          mod_log_channel_id?: string | null
+          server_log_channel_id?: string | null
           updated_at?: string
           updated_by?: string | null
+          vip_role_id?: string | null
           welcome_channel_id?: string | null
           welcome_embed_color?: string
           welcome_embed_enabled?: boolean
@@ -788,9 +994,16 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          economy_currency_emoji?: string | null
+          economy_currency_name?: string | null
           guild_id?: string
+          member_log_channel_id?: string | null
+          message_log_channel_id?: string | null
+          mod_log_channel_id?: string | null
+          server_log_channel_id?: string | null
           updated_at?: string
           updated_by?: string | null
+          vip_role_id?: string | null
           welcome_channel_id?: string | null
           welcome_embed_color?: string
           welcome_embed_enabled?: boolean
@@ -966,6 +1179,50 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      inventory_items: {
+        Row: {
+          created_at: string
+          guild_id: string
+          id: string
+          metadata: Json
+          name: string
+          quantity: number
+          shop_item_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          guild_id: string
+          id?: string
+          metadata?: Json
+          name: string
+          quantity?: number
+          shop_item_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          guild_id?: string
+          id?: string
+          metadata?: Json
+          name?: string
+          quantity?: number
+          shop_item_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_items_shop_item_id_fkey"
+            columns: ["shop_item_id"]
+            isOneToOne: false
+            referencedRelation: "shop_items"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       level_config: {
         Row: {
@@ -1215,6 +1472,45 @@ export type Database = {
           user_id?: string
           username?: string | null
           xp?: number
+        }
+        Relationships: []
+      }
+      marriages: {
+        Row: {
+          broken_at: string | null
+          created_at: string
+          guild_id: string
+          id: string
+          proposed_by: string | null
+          since: string | null
+          status: string
+          updated_at: string
+          user_a_id: string
+          user_b_id: string
+        }
+        Insert: {
+          broken_at?: string | null
+          created_at?: string
+          guild_id: string
+          id?: string
+          proposed_by?: string | null
+          since?: string | null
+          status?: string
+          updated_at?: string
+          user_a_id: string
+          user_b_id: string
+        }
+        Update: {
+          broken_at?: string | null
+          created_at?: string
+          guild_id?: string
+          id?: string
+          proposed_by?: string | null
+          since?: string | null
+          status?: string
+          updated_at?: string
+          user_a_id?: string
+          user_b_id?: string
         }
         Relationships: []
       }
@@ -2017,6 +2313,45 @@ export type Database = {
           message_id?: string
           mode?: string
           role_id?: string
+        }
+        Relationships: []
+      }
+      reminders: {
+        Row: {
+          channel_id: string | null
+          created_at: string
+          fire_at: string
+          fired: boolean
+          fired_at: string | null
+          guild_id: string | null
+          id: string
+          message: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          channel_id?: string | null
+          created_at?: string
+          fire_at: string
+          fired?: boolean
+          fired_at?: string | null
+          guild_id?: string | null
+          id?: string
+          message: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          channel_id?: string | null
+          created_at?: string
+          fire_at?: string
+          fired?: boolean
+          fired_at?: string | null
+          guild_id?: string | null
+          id?: string
+          message?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -3074,8 +3409,11 @@ export type Database = {
         Row: {
           balance: number
           bank: number
+          bank_cap: number
           guild_id: string
+          last_crime_at: string | null
           last_daily_at: string | null
+          last_rob_at: string | null
           last_work_at: string | null
           updated_at: string
           user_id: string
@@ -3083,8 +3421,11 @@ export type Database = {
         Insert: {
           balance?: number
           bank?: number
+          bank_cap?: number
           guild_id: string
+          last_crime_at?: string | null
           last_daily_at?: string | null
+          last_rob_at?: string | null
           last_work_at?: string | null
           updated_at?: string
           user_id: string
@@ -3092,8 +3433,11 @@ export type Database = {
         Update: {
           balance?: number
           bank?: number
+          bank_cap?: number
           guild_id?: string
+          last_crime_at?: string | null
           last_daily_at?: string | null
+          last_rob_at?: string | null
           last_work_at?: string | null
           updated_at?: string
           user_id?: string

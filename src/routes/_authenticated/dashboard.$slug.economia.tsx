@@ -103,6 +103,8 @@ function EconomyPage() {
   const removeItem = useServerFn(removeShopItem);
   const upsertMission = useServerFn(upsertEconomyMission);
   const removeMission = useServerFn(removeEconomyMission);
+  const upsertMult = useServerFn(upsertMultiplier);
+  const removeMult = useServerFn(removeMultiplier);
 
   const [form, setForm] = useState<any>(config);
   const [item, setItem] = useState({

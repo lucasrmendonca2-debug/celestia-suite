@@ -89,13 +89,17 @@ export function SiteHeader() {
                 {l.label}
               </Link>
             ))}
-            <Link
-              to="/entrar"
-              onClick={() => setOpen(false)}
+            <a
+              href="/api/auth/discord/login"
+              onClick={(e) => {
+                e.preventDefault();
+                setOpen(false);
+                window.location.href = `/api/auth/discord/login?origin=${encodeURIComponent(window.location.origin)}`;
+              }}
               className="mt-2 rounded-xl bg-[#1B0E3B] px-3 py-2 text-center text-sm font-bold text-white"
             >
               Entrar
-            </Link>
+            </a>
           </div>
         </div>
       )}

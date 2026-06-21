@@ -8,6 +8,7 @@ import {
   deleteActiveTicket,
 } from "@/lib/guild/tickets.functions";
 import { Button } from "@/components/ui/button";
+import { ChannelBadge } from "@/components/dashboard/DiscordBadges";
 
 export function ActiveTicketsCard({ guildId }: { guildId: string }) {
   const list = useServerFn(listOpenTickets);
@@ -68,10 +69,11 @@ export function ActiveTicketsCard({ guildId }: { guildId: string }) {
                     <span className="ml-1 text-xs text-red-500">prioridade</span>
                   )}
                 </p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {t.category_name ?? "Geral"} · canal{" "}
-                  <code className="font-mono">{t.channel_id}</code>
-                </p>
+                <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+                  <span>{t.category_name ?? "Geral"}</span>
+                  <span>·</span>
+                  <ChannelBadge guildId={guildId} channelId={t.channel_id} />
+                </div>
               </div>
               <ConfirmDeleteButton
                 onConfirm={() => del.mutate(t.id)}

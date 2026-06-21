@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RoleBadge } from "@/components/dashboard/DiscordBadges";
 
 type Level = Awaited<ReturnType<typeof listAccessLevels>>[number];
 
@@ -60,14 +61,30 @@ export function LevelsTab({ guildId }: { guildId: string }) {
               onClick={() => setEditing(l)}
               className="flex items-center justify-between rounded-lg border border-border bg-card/40 p-3 text-left transition hover:border-primary/40 hover:bg-card/60"
             >
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium">
                   {l.name}{" "}
                   <span className="text-xs text-muted-foreground">({l.key})</span>
+                  <span className="ml-2 rounded-md bg-muted px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">
+                    rank {l.rank}
+                  </span>
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  rank {l.rank} • {l.role_ids.length} cargo(s)
-                </p>
+                {l.role_ids.length === 0 ? (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Nenhum cargo vinculado
+                  </p>
+                ) : (
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {l.role_ids.slice(0, 6).map((rid) => (
+                      <RoleBadge key={rid} guildId={l.guild_id} roleId={rid} />
+                    ))}
+                    {l.role_ids.length > 6 && (
+                      <span className="text-xs text-muted-foreground">
+                        +{l.role_ids.length - 6}
+                      </span>
+                    )}
+                  </div>
+                )}
               </div>
             </button>
           ))}

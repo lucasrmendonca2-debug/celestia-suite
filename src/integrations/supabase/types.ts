@@ -3253,6 +3253,14 @@ export type Database = {
       }
     }
     Functions: {
+      get_public_stats: {
+        Args: never
+        Returns: {
+          last_heartbeat: string
+          servers_present: number
+          total_members: number
+        }[]
+      }
       next_case_number: { Args: { _guild_id: string }; Returns: number }
     }
     Enums: {

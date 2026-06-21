@@ -2,15 +2,15 @@
  * Pré-visualização estilo Discord (avatar do bot, nome, badge, timestamp,
  * conteúdo + embed opcional com barra colorida lateral).
  */
-import { useQuery } from "@tanstack/react-query";
 import { Bot } from "lucide-react";
-import { getBotIdentity } from "@/lib/guild/discord-resources.functions";
 
 interface Props {
-  guildId: string;
+  guildId?: string;
   content?: string;
   embed?: boolean;
   embedColor?: string;
+  botName?: string;
+  botAvatarUrl?: string | null;
   className?: string;
 }
 
@@ -22,27 +22,15 @@ function nowLabel() {
 }
 
 export function DiscordMessagePreview({
-  guildId,
   content,
   embed,
   embedColor,
+  botName = "Zenox",
+  botAvatarUrl = null,
   className = "",
 }: Props) {
-  const { data: bot } = useQuery({
-    queryKey: ["bot-identity", guildId],
-    queryFn: async () => {
-      try {
-        return await getBotIdentity({ data: { guildId } });
-      } catch {
-        return null;
-      }
-    },
-    staleTime: 5 * 60_000,
-    retry: false,
-  });
-
-  const name = bot?.username ?? "Zenox";
-  const avatar = bot?.avatar_url ?? null;
+  const name = botName;
+  const avatar = botAvatarUrl;
 
   return (
     <div

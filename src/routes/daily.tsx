@@ -35,6 +35,13 @@ function isStatus(s: AnyStatus | null): s is DailyStatusDTO {
   return !!s && (s as any).ok === true;
 }
 
+function requestTimeoutError() {
+  return {
+    error: "site_request_timeout",
+    data: { message: "A validação demorou demais. Abra um novo link pelo Discord." },
+  } satisfies AnyStatus;
+}
+
 function Countdown({ to }: { to: string }) {
   const [ms, setMs] = useState(() => new Date(to).getTime() - Date.now());
   useEffect(() => {
@@ -94,6 +101,12 @@ function DailyPage() {
       return;
     }
     let cancelled = false;
+    const timeout = window.setTimeout(() => {
+      if (!cancelled) {
+        setStatus(requestTimeoutError());
+        setLoading(false);
+      }
+    }, 9000);
     setLoading(true);
     fetchStatus({ data: { token } })
       .then((r) => {
@@ -110,10 +123,12 @@ function DailyPage() {
         },
       )
       .finally(() => {
+        window.clearTimeout(timeout);
         if (!cancelled) setLoading(false);
       });
     return () => {
       cancelled = true;
+      window.clearTimeout(timeout);
     };
   }, [token]);
 

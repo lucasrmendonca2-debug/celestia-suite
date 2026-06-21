@@ -202,13 +202,14 @@ function DailyPage() {
                 Você precisa entrar com Discord para resgatar.
               </p>
               <a
-                href={`/login?next=/daily?token=${encodeURIComponent(token)}`}
+                href={`/api/auth/discord/login?next=${encodeURIComponent(`/daily?token=${token}`)}`}
                 className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-black hover:bg-white/90"
               >
                 Entrar com Discord
               </a>
             </div>
           )}
+
 
           {token && !loading && status && (status as any).error && (status as any).error !== "not_logged_in" && (
             <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-6 text-center text-sm text-red-200">

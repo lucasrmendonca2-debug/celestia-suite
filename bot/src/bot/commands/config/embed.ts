@@ -69,7 +69,7 @@ const command: SlashCommand = {
       return;
     }
 
-    if (sub === "send-template") {
+    if (sub === "enviar-modelo") {
       const name = interaction.options.getString("nome", true);
       const channel = interaction.options.getChannel("canal", true) as TextChannel;
       const t = await EmbedTemplate.findOne({ guildId, name });

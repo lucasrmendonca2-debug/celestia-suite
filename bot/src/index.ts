@@ -7,12 +7,11 @@ import { startSchedulers } from "./bot/systems/scheduler.js";
 import { startModerationScheduler } from "./bot/systems/moderation/temporary.scheduler.js";
 import { startTicketSlaScheduler } from "./bot/systems/tickets/sla.scheduler.js";
 import { startTicketAutocloseScheduler } from "./bot/systems/tickets/autoclose.scheduler.js";
-import { connectDatabase, disconnectDatabase } from "./database/connection.js";
 import { startHttpServer } from "./http/server.js";
 import type { ZenoxClient } from "./types/command.js";
 
 async function bootstrap() {
-  await connectDatabase();
+
 
   const client = new Client({
     intents: [
@@ -56,7 +55,7 @@ async function bootstrap() {
   const shutdown = async (sig: string) => {
     logger.info({ sig }, "Encerrando bot...");
     await client.destroy();
-    await disconnectDatabase();
+
     process.exit(0);
   };
   process.on("SIGINT", () => void shutdown("SIGINT"));

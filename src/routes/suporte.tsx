@@ -40,14 +40,7 @@ function Suporte() {
             title="Discord oficial"
             desc="Tira dúvida na hora com a gente e com outros usuários."
             cta="Entrar no server"
-          />
-          <ChannelCard
-            icon={Mail}
-            color="#EC4899"
-            soft="#FFE4F1"
-            title="E-mail"
-            desc="Pra parcerias e negócios: contato@zenoxbot.com"
-            cta="Enviar e-mail"
+            href="https://discord.gg/wda"
           />
           <ChannelCard
             icon={LifeBuoy}
@@ -57,6 +50,15 @@ function Suporte() {
             desc="Vê em tempo real se algum serviço tá fora do ar."
             cta="Ver status"
             to="/status"
+          />
+          <ChannelCard
+            icon={Mail}
+            color="#EC4899"
+            soft="#FFE4F1"
+            title="Reportar bug"
+            desc="Achou algo estranho? Manda ticket no servidor de suporte."
+            cta="Abrir ticket"
+            href="https://discord.gg/wda"
           />
         </div>
 

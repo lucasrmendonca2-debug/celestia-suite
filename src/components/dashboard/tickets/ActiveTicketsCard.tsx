@@ -73,19 +73,24 @@ export function ActiveTicketsCard({ guildId }: { guildId: string }) {
                   <code className="font-mono">{t.channel_id}</code>
                 </p>
               </div>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="gap-2 text-destructive hover:text-destructive"
+              <ConfirmDeleteButton
+                onConfirm={() => del.mutate(t.id)}
+                title={`Apagar ticket de ${t.username}?`}
+                description="O canal do ticket será removido do Discord."
+                confirmLabel="Apagar ticket"
                 disabled={del.isPending}
-                onClick={() => {
-                  if (confirm(`Apagar o ticket de ${t.username}? O canal será removido.`)) {
-                    del.mutate(t.id);
-                  }
-                }}
-              >
-                <Trash2 className="size-4" /> Apagar
-              </Button>
+                trigger={
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="gap-2 text-destructive hover:text-destructive"
+                    disabled={del.isPending}
+                  >
+                    <Trash2 className="size-4" /> Apagar
+                  </Button>
+                }
+              />
+
             </div>
           ))}
         </div>

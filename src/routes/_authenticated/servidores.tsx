@@ -154,8 +154,8 @@ function ServerPicker() {
                   return (
                     <Link
                       key={g.id}
-                      to="/g/$guildId"
-                      params={{ guildId: g.id }}
+                      to="/dashboard/$slug"
+                      params={{ slug: buildGuildSlug(g) }}
                       className="aurora-panel aurora-card-hover group relative flex items-center gap-3 overflow-hidden p-4"
                       style={{
                         background: `linear-gradient(160deg, color-mix(in oklab, var(--aurora-${tone}) 14%, var(--card)), color-mix(in oklab, var(--card) 70%, transparent))`,

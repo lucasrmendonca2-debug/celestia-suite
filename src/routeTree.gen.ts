@@ -29,6 +29,7 @@ import { Route as AuthenticatedAdminPremiumRouteImport } from './routes/_authent
 import { Route as AuthenticatedDashboardSlugIndexRouteImport } from './routes/_authenticated/dashboard.$slug.index'
 import { Route as ApiAuthDiscordLoginRouteImport } from './routes/api/auth/discord/login'
 import { Route as ApiAuthDiscordCallbackRouteImport } from './routes/api/auth/discord/callback'
+import { Route as AuthenticatedGGuildIdSplatRouteImport } from './routes/_authenticated/g.$guildId.$'
 import { Route as AuthenticatedDashboardSlugTicketsRouteImport } from './routes/_authenticated/dashboard.$slug.tickets'
 import { Route as AuthenticatedDashboardSlugTemporadasRouteImport } from './routes/_authenticated/dashboard.$slug.temporadas'
 import { Route as AuthenticatedDashboardSlugSocialRouteImport } from './routes/_authenticated/dashboard.$slug.social'
@@ -153,6 +154,12 @@ const ApiAuthDiscordCallbackRoute = ApiAuthDiscordCallbackRouteImport.update({
   path: '/api/auth/discord/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedGGuildIdSplatRoute =
+  AuthenticatedGGuildIdSplatRouteImport.update({
+    id: '/g/$guildId/$',
+    path: '/g/$guildId/$',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedDashboardSlugTicketsRoute =
   AuthenticatedDashboardSlugTicketsRouteImport.update({
     id: '/tickets',
@@ -304,6 +311,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/$slug/social': typeof AuthenticatedDashboardSlugSocialRoute
   '/dashboard/$slug/temporadas': typeof AuthenticatedDashboardSlugTemporadasRoute
   '/dashboard/$slug/tickets': typeof AuthenticatedDashboardSlugTicketsRoute
+  '/g/$guildId/$': typeof AuthenticatedGGuildIdSplatRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
   '/dashboard/$slug/': typeof AuthenticatedDashboardSlugIndexRoute
@@ -343,6 +351,7 @@ export interface FileRoutesByTo {
   '/dashboard/$slug/social': typeof AuthenticatedDashboardSlugSocialRoute
   '/dashboard/$slug/temporadas': typeof AuthenticatedDashboardSlugTemporadasRoute
   '/dashboard/$slug/tickets': typeof AuthenticatedDashboardSlugTicketsRoute
+  '/g/$guildId/$': typeof AuthenticatedGGuildIdSplatRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
   '/dashboard/$slug': typeof AuthenticatedDashboardSlugIndexRoute
@@ -385,6 +394,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/$slug/social': typeof AuthenticatedDashboardSlugSocialRoute
   '/_authenticated/dashboard/$slug/temporadas': typeof AuthenticatedDashboardSlugTemporadasRoute
   '/_authenticated/dashboard/$slug/tickets': typeof AuthenticatedDashboardSlugTicketsRoute
+  '/_authenticated/g/$guildId/$': typeof AuthenticatedGGuildIdSplatRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
   '/_authenticated/dashboard/$slug/': typeof AuthenticatedDashboardSlugIndexRoute
@@ -427,6 +437,7 @@ export interface FileRouteTypes {
     | '/dashboard/$slug/social'
     | '/dashboard/$slug/temporadas'
     | '/dashboard/$slug/tickets'
+    | '/g/$guildId/$'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
     | '/dashboard/$slug/'
@@ -466,6 +477,7 @@ export interface FileRouteTypes {
     | '/dashboard/$slug/social'
     | '/dashboard/$slug/temporadas'
     | '/dashboard/$slug/tickets'
+    | '/g/$guildId/$'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
     | '/dashboard/$slug'
@@ -507,6 +519,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/$slug/social'
     | '/_authenticated/dashboard/$slug/temporadas'
     | '/_authenticated/dashboard/$slug/tickets'
+    | '/_authenticated/g/$guildId/$'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
     | '/_authenticated/dashboard/$slug/'
@@ -671,6 +684,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/api/auth/discord/callback'
       preLoaderRoute: typeof ApiAuthDiscordCallbackRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/g/$guildId/$': {
+      id: '/_authenticated/g/$guildId/$'
+      path: '/g/$guildId/$'
+      fullPath: '/g/$guildId/$'
+      preLoaderRoute: typeof AuthenticatedGGuildIdSplatRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard/$slug/tickets': {
       id: '/_authenticated/dashboard/$slug/tickets'
@@ -883,6 +903,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminPremiumRoute: typeof AuthenticatedAdminPremiumRoute
   AuthenticatedDashboardSlugRoute: typeof AuthenticatedDashboardSlugRouteWithChildren
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
+  AuthenticatedGGuildIdSplatRoute: typeof AuthenticatedGGuildIdSplatRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -890,6 +911,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminPremiumRoute: AuthenticatedAdminPremiumRoute,
   AuthenticatedDashboardSlugRoute: AuthenticatedDashboardSlugRouteWithChildren,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
+  AuthenticatedGGuildIdSplatRoute: AuthenticatedGGuildIdSplatRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

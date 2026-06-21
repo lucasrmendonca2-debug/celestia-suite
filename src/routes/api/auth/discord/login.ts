@@ -13,15 +13,20 @@ export const Route = createFileRoute("/api/auth/discord/login")({
         const oauthRedirectUri = shouldIncludeDiscordRedirectUri(redirectUri) ? redirectUri : undefined;
         const session = await getSession();
 
+        const nextParam = requestUrl.searchParams.get("next");
+        const postLoginRedirect =
+          nextParam && nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : undefined;
+
         const url = buildAuthorizeUrl(state, oauthRedirectUri);
         return new Response(null, {
           status: 302,
           headers: {
             Location: url,
             "Cache-Control": "no-store",
-            "Set-Cookie": createSessionSetCookie({ ...session.data, oauthRedirectUri }),
+            "Set-Cookie": createSessionSetCookie({ ...session.data, oauthRedirectUri, postLoginRedirect }),
           },
         });
+
       },
     },
   },

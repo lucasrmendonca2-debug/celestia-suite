@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { DashboardErrorBoundary, DashboardNotFound } from "@/components/dashboard/RouteBoundaries";
 import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
@@ -57,6 +58,8 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/temporadas
     return { guildId, user };
   },
   component: SeasonsPage,
+  errorComponent: ({ error, reset }) => <DashboardErrorBoundary error={error as Error} reset={reset} />,
+  notFoundComponent: () => <DashboardNotFound />,
 });
 
 function SeasonsPage() {

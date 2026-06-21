@@ -21,6 +21,12 @@ export const Route = createFileRoute("/recursos")({
     meta: [
       { title: "Recursos — Zenox" },
       { name: "description", content: "Todos os módulos do Zenox: moderação, economia, level, tickets, sorteios, mini-games e muito mais." },
+      { property: "og:title", content: "Recursos — Zenox" },
+      { property: "og:description", content: "Todos os módulos do Zenox: moderação, economia, level, tickets, sorteios, mini-games e muito mais." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Recursos — Zenox" },
+      { name: "twitter:description", content: "Conheça todos os módulos do Zenox para sua comunidade Discord." },
     ],
   }),
   component: Recursos,

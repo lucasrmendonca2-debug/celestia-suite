@@ -70,7 +70,8 @@ const SECTIONS: Section[] = [
     title: "Engajamento",
     items: [
       { to: "economia", label: "Economia", icon: Coins },
-      { to: "social", label: "Social & Level", icon: TrendingUp },
+      { to: "niveis", label: "Níveis & XP", icon: TrendingUp },
+      { to: "social", label: "Social", icon: Users },
       { to: "badges", label: "Badges", icon: Award },
       { to: "conquistas", label: "Conquistas", icon: Trophy },
       { to: "temporadas", label: "Temporadas", icon: Trophy },

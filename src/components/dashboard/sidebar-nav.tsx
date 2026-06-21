@@ -24,6 +24,8 @@ import {
 
 import { getGuildPremiumStatus } from "@/lib/guild/premium.functions";
 import { getGuildConfig } from "@/lib/guild/guild.functions";
+import { listMyGuilds } from "@/lib/auth/auth.functions";
+import { buildGuildSlug } from "@/lib/guild/slug";
 
 interface Item {
   to: string;

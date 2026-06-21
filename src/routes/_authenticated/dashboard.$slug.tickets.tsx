@@ -712,21 +712,28 @@ function DeletePanelButton({
   });
   if (!hasPanel) return null;
   return (
-    <Button
-      type="button"
-      size="lg"
-      variant="ghost"
+    <ConfirmDeleteButton
+      onConfirm={() => mutation.mutate()}
+      title="Apagar painel publicado?"
+      description="A mensagem do painel será apagada do canal do Discord."
+      confirmLabel="Apagar painel"
       disabled={disabled || mutation.isPending}
-      onClick={() => {
-        if (confirm("Apagar a mensagem do painel publicado?")) mutation.mutate();
-      }}
-      className="gap-2 text-destructive hover:text-destructive"
-    >
-      <Trash2 className="size-4" />
-      {mutation.isPending ? "Apagando…" : "Apagar painel"}
-    </Button>
+      trigger={
+        <Button
+          type="button"
+          size="lg"
+          variant="ghost"
+          disabled={disabled || mutation.isPending}
+          className="gap-2 text-destructive hover:text-destructive"
+        >
+          <Trash2 className="size-4" />
+          {mutation.isPending ? "Apagando…" : "Apagar painel"}
+        </Button>
+      }
+    />
   );
 }
+
 
 function SectionCard({
   title,

@@ -1,5 +1,7 @@
 import { EconomyAccount, VipMembership } from "../../../database/models.js";
+import { supabase } from "../../../database/supabase.js";
 import { getConfig } from "../../utils/guildCache.js";
+import { logger } from "../../utils/logger.js";
 
 export async function getAccount(guildId: string, userId: string) {
   const acc = await EconomyAccount.findOneAndUpdate(
@@ -11,21 +13,70 @@ export async function getAccount(guildId: string, userId: string) {
   return acc;
 }
 
+/**
+ * Crédito atômico via RPC (`economy_credit_wallet`).
+ * Cria a linha se não existir.
+ */
 export async function addWallet(guildId: string, userId: string, amount: number) {
-  await EconomyAccount.updateOne(
-    { guildId, userId },
-    { $inc: { wallet: amount }, $setOnInsert: { guildId, userId } },
-    { upsert: true },
-  );
+  if (amount <= 0) return;
+  const { error } = await supabase.rpc("economy_credit_wallet", {
+    _guild_id: guildId,
+    _user_id: userId,
+    _amount: amount,
+  });
+  if (error) {
+    logger.error({ err: error, guildId, userId, amount }, "addWallet RPC falhou");
+    // Fallback degradado: tenta via shim
+    await EconomyAccount.updateOne(
+      { guildId, userId },
+      { $inc: { wallet: amount }, $setOnInsert: { guildId, userId } },
+      { upsert: true },
+    );
+  }
 }
 
+/**
+ * Débito atômico via RPC (`economy_debit_wallet`).
+ * Retorna `false` se saldo insuficiente — usado por `/pay`, `/shop buy`, `/rob`
+ * para prevenir double-spend sob concorrência.
+ */
 export async function removeWallet(guildId: string, userId: string, amount: number): Promise<boolean> {
-  // Atomic conditional debit — previne double-spend em /pay, /shop buy, etc.
-  const res = await EconomyAccount.updateOne(
-    { guildId, userId, wallet: { $gte: amount } },
-    { $inc: { wallet: -amount } },
-  );
-  return res.modifiedCount > 0;
+  if (amount <= 0) return false;
+  const { data, error } = await supabase.rpc("economy_debit_wallet", {
+    _guild_id: guildId,
+    _user_id: userId,
+    _amount: amount,
+  });
+  if (error) {
+    logger.error({ err: error, guildId, userId, amount }, "removeWallet RPC falhou");
+    return false;
+  }
+  return !!(data && typeof data === "object" && (data as any).ok === true);
+}
+
+/**
+ * Transferência atômica entre carteiras — débito + crédito numa só transação.
+ * Garante que `/pay` nunca duplica nem perde moedas.
+ */
+export async function transferWallet(
+  guildId: string,
+  fromUserId: string,
+  toUserId: string,
+  amount: number,
+): Promise<{ ok: boolean; reason?: string }> {
+  if (amount <= 0) return { ok: false, reason: "invalid_amount" };
+  const { data, error } = await supabase.rpc("economy_transfer_wallet", {
+    _guild_id: guildId,
+    _from_user_id: fromUserId,
+    _to_user_id: toUserId,
+    _amount: amount,
+  });
+  if (error) {
+    logger.error({ err: error, guildId, fromUserId, toUserId, amount }, "transferWallet RPC falhou");
+    return { ok: false, reason: "rpc_error" };
+  }
+  const payload = data as any;
+  return payload?.ok ? { ok: true } : { ok: false, reason: payload?.reason ?? "unknown" };
 }
 
 export async function isVip(guildId: string, userId: string): Promise<boolean> {

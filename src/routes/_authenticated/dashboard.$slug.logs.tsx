@@ -504,8 +504,8 @@ function HistoryView({ guildId }: { guildId: string }) {
           Atualizar
         </Button>
       </div>
-      <div className="overflow-hidden rounded-xl border border-border bg-card/40">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-xl border border-border bg-card/40">
+        <table className="w-full min-w-[780px] text-sm">
           <thead className="bg-[color:color-mix(in_oklab,var(--aurora-lavender)_10%,transparent)] text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="px-3 py-2 text-left">Quando</th>

@@ -78,7 +78,7 @@ const command: SlashCommand = {
       return;
     }
 
-    if (sub === "end") {
+    if (sub === "encerrar") {
       const id = interaction.options.getString("id", true);
       const g = await Giveaway.findById(id);
       if (!g || g.guildId !== guildId) {

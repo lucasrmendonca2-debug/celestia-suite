@@ -124,6 +124,14 @@ function EconomyPage() {
     sort_order: 1,
   });
 
+  const [mult, setMult] = useState({
+    kind: "xp" as "xp" | "coin",
+    target_type: "role" as "role" | "channel",
+    target_id: "",
+    multiplier: 2,
+    label: "",
+  });
+
   const { data: shop } = useSuspenseQuery({
     queryKey: ["shop", guildId],
     queryFn: () => listShopItems({ data: { guildId } }),

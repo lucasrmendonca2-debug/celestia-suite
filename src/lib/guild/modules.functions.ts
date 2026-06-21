@@ -558,21 +558,41 @@ export const removeLevelReward = createServerFn({ method: "POST" })
   });
 
 export const getLeaderboard = createServerFn({ method: "GET" })
-  .inputValidator((d: { guildId: string }) =>
-    z.object({ guildId: guildIdSchema }).parse(d),
+  .inputValidator((d: { guildId: string; limit?: number; offset?: number }) =>
+    z
+      .object({
+        guildId: guildIdSchema,
+        limit: z.number().int().min(1).max(100).optional().default(50),
+        offset: z.number().int().min(0).max(10_000).optional().default(0),
+      })
+      .parse(d),
   )
   .handler(async ({ data }) => {
     await perm(data.guildId);
     const sb = await admin();
+    const from = data.offset;
+    const to = data.offset + data.limit - 1;
     const { data: rows, error } = await sb
       .from("level_users")
       .select("user_id, username, xp, level, total_xp, messages_count")
       .eq("guild_id", data.guildId)
       .order("total_xp", { ascending: false })
-      .limit(50);
+      .range(from, to);
     if (error) throw new Error(error.message);
-    return rows ?? [];
+    const list = rows ?? [];
+    const { resolveDiscordUsers } = await import("@/lib/discord/users.server");
+    const ids = list.map((r) => r.user_id).filter(Boolean) as string[];
+    const users = await resolveDiscordUsers(ids);
+    return list.map((r) => {
+      const u = users[r.user_id];
+      return {
+        ...r,
+        display_name: u?.globalName ?? u?.username ?? r.username ?? r.user_id,
+        avatar_url: u?.avatarUrl ?? null,
+      };
+    });
   });
+
 
 // ============================================================
 // ECONOMY

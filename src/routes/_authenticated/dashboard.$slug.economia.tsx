@@ -321,10 +321,13 @@ function EconomyPage() {
                   onChange={(e) => setItem({ ...item, price: Number(e.target.value) })}
                 />
               </AuroraField>
-              <AuroraField label="ID do cargo entregue">
-                <Input
-                  value={item.role_id}
-                  onChange={(e) => setItem({ ...item, role_id: e.target.value.trim() })}
+              <AuroraField label="Cargo entregue na compra">
+                <RoleSelect
+                  guildId={guildId}
+                  value={item.role_id || null}
+                  onChange={(id) => setItem({ ...item, role_id: id ?? "" })}
+                  excludeManaged
+                  placeholder="Selecione um cargo"
                 />
               </AuroraField>
               <AuroraField label="Descrição">

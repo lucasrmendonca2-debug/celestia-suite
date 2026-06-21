@@ -376,3 +376,60 @@ function MiniStat({
     </div>
   );
 }
+
+function RollingNumber({ target, duration = 1400 }: { target: number; duration?: number }) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    const start = performance.now();
+    let raf = 0;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      // ease-out cubic
+      const eased = 1 - Math.pow(1 - t, 3);
+      // Slot-style: random jitter near end, settles exactly on target
+      if (t < 0.85) {
+        const jitter = Math.floor(Math.random() * Math.max(target, 100));
+        setValue(Math.floor(eased * target * 0.95) + (jitter % 7));
+      } else {
+        setValue(Math.floor(eased * target));
+      }
+      if (t < 1) raf = requestAnimationFrame(tick);
+      else setValue(target);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, duration]);
+  return (
+    <span className="font-mono tabular-nums">{value.toLocaleString("pt-BR")}</span>
+  );
+}
+
+function Confetti() {
+  const pieces = Array.from({ length: 18 });
+  const colors = ["#FBBF24", "#EC4899", "#10D9A0", "#7C3AED", "#38BDF8", "#FB7185"];
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+      {pieces.map((_, i) => {
+        const left = (i / pieces.length) * 100;
+        const cx = (Math.random() - 0.5) * 80;
+        const delay = Math.random() * 0.4;
+        const rot = Math.random() * 360;
+        const color = colors[i % colors.length];
+        return (
+          <span
+            key={i}
+            className="confetti-piece"
+            style={{
+              left: `${left}%`,
+              top: "-10px",
+              background: color,
+              transform: `rotate(${rot}deg)`,
+              animationDelay: `${delay}s`,
+              ["--cx" as any]: `${cx}px`,
+            }}
+          />
+        );
+      })}
+    </div>
+  );
+}

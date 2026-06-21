@@ -14,6 +14,7 @@ import {
   updateLevelingConfig,
 } from "@/lib/guild/modules.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

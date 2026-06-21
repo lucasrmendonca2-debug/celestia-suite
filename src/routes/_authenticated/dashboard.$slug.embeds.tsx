@@ -11,6 +11,7 @@ import {
   upsertEmbedTemplate,
 } from "@/lib/guild/modules.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { EmbedEditor, type EmbedData } from "@/components/dashboard/EmbedEditor";
 import {
   AuroraSection,

@@ -12,6 +12,7 @@ import {
   upsertAchievement,
 } from "@/lib/guild/badges.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

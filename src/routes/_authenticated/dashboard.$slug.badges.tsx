@@ -14,6 +14,7 @@ import {
   upsertBadge,
 } from "@/lib/guild/badges.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import {
   AuroraSection,
   AuroraStatCard,

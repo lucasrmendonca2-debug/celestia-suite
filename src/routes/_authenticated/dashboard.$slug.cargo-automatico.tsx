@@ -11,6 +11,7 @@ import {
   removeAutorole,
 } from "@/lib/guild/modules.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { Button } from "@/components/ui/button";
 import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
 import {

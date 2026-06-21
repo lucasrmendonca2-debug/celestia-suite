@@ -14,6 +14,8 @@ import {
   dmPunishedUser,
   postModerationLog,
 } from "../../systems/moderation/moderation.logger.js";
+import { createCase } from "../../systems/moderation/cases.service.js";
+import { logger } from "../../utils/logger.js";
 
 const command: SlashCommand = {
   category: "moderation",

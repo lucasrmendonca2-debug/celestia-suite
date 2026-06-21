@@ -50,12 +50,25 @@ const command: SlashCommand = {
       return;
     }
     me.lastRob = now;
+    await me.save();
     const c = await getCurrency(guildId);
     if (Math.random() < 0.45) {
       const taken = Math.floor(them.wallet * (0.1 + Math.random() * 0.3));
-      them.wallet -= taken;
-      me.wallet += taken;
-      await Promise.all([me.save(), them.save()]);
+      // Atômico: só desconta se ainda tiver saldo.
+      const { EconomyAccount } = await import("../../../database/models.js");
+      const updated = await EconomyAccount.findOneAndUpdate(
+        { guildId, userId: target.id, wallet: { $gte: taken } },
+        { $inc: { wallet: -taken } },
+        { new: true },
+      );
+      if (!updated) {
+        await interaction.reply({
+          embeds: [ui.warn({ title: "Alvo escapou", description: `${target} esvaziou a carteira antes do golpe.` })],
+          ephemeral: true,
+        });
+        return;
+      }
+      await EconomyAccount.updateOne({ guildId, userId: interaction.user.id }, { $inc: { wallet: taken } });
       await interaction.reply({
         embeds: [
           ui.economy({
@@ -67,8 +80,11 @@ const command: SlashCommand = {
       });
     } else {
       const fine = Math.min(me.wallet, Math.floor(150 + Math.random() * 400));
-      me.wallet -= fine;
-      await me.save();
+      const { EconomyAccount } = await import("../../../database/models.js");
+      await EconomyAccount.updateOne(
+        { guildId, userId: interaction.user.id, wallet: { $gte: fine } },
+        { $inc: { wallet: -fine } },
+      );
       await interaction.reply({
         embeds: [
           ui.error({

@@ -16,6 +16,7 @@ import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as DocsRouteImport } from './routes/docs'
+import { Route as DailyRouteImport } from './routes/daily'
 import { Route as ComandosRouteImport } from './routes/comandos'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
@@ -84,6 +85,11 @@ const EntrarRoute = EntrarRouteImport.update({
 const DocsRoute = DocsRouteImport.update({
   id: '/docs',
   path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DailyRoute = DailyRouteImport.update({
+  id: '/daily',
+  path: '/daily',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ComandosRoute = ComandosRouteImport.update({
@@ -285,6 +291,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/blog': typeof BlogRoute
   '/comandos': typeof ComandosRoute
+  '/daily': typeof DailyRoute
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
@@ -327,6 +334,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/blog': typeof BlogRoute
   '/comandos': typeof ComandosRoute
+  '/daily': typeof DailyRoute
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
@@ -370,6 +378,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/blog': typeof BlogRoute
   '/comandos': typeof ComandosRoute
+  '/daily': typeof DailyRoute
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
@@ -414,6 +423,7 @@ export interface FileRouteTypes {
     | '/'
     | '/blog'
     | '/comandos'
+    | '/daily'
     | '/docs'
     | '/entrar'
     | '/login'
@@ -456,6 +466,7 @@ export interface FileRouteTypes {
     | '/'
     | '/blog'
     | '/comandos'
+    | '/daily'
     | '/docs'
     | '/entrar'
     | '/login'
@@ -498,6 +509,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/blog'
     | '/comandos'
+    | '/daily'
     | '/docs'
     | '/entrar'
     | '/login'
@@ -542,6 +554,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   BlogRoute: typeof BlogRoute
   ComandosRoute: typeof ComandosRoute
+  DailyRoute: typeof DailyRoute
   DocsRoute: typeof DocsRoute
   EntrarRoute: typeof EntrarRoute
   LoginRoute: typeof LoginRoute
@@ -604,6 +617,13 @@ declare module '@tanstack/react-router' {
       path: '/docs'
       fullPath: '/docs'
       preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/daily': {
+      id: '/daily'
+      path: '/daily'
+      fullPath: '/daily'
+      preLoaderRoute: typeof DailyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/comandos': {
@@ -955,6 +975,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   BlogRoute: BlogRoute,
   ComandosRoute: ComandosRoute,
+  DailyRoute: DailyRoute,
   DocsRoute: DocsRoute,
   EntrarRoute: EntrarRoute,
   LoginRoute: LoginRoute,

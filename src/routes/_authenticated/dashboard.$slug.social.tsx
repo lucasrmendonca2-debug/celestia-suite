@@ -562,9 +562,9 @@ function SocialPage() {
                   <SelectContent>
                     <SelectItem value="role">Cargo</SelectItem>
                     <SelectItem value="coins">Moedas</SelectItem>
-                    <SelectItem value="badge">Badge (pass 2)</SelectItem>
                     <SelectItem value="title">Título</SelectItem>
                   </SelectContent>
+
                 </Select>
               </Field>
               <Field label={newReward.reward_type === "role" ? "ID do cargo" : newReward.reward_type === "coins" ? "Quantidade" : "Valor"}>

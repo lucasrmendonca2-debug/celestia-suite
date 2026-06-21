@@ -3220,6 +3220,10 @@ export type Database = {
         }[]
       }
       next_case_number: { Args: { _guild_id: string }; Returns: number }
+      redeem_guild_premium_code: {
+        Args: { _code: string; _guild_id: string }
+        Returns: Json
+      }
     }
     Enums: {
       [_ in never]: never

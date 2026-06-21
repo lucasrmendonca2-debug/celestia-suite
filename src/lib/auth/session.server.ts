@@ -16,8 +16,10 @@ export interface ZenoxSession {
   accessToken?: string;
   refreshToken?: string;
   oauthRedirectUri?: string;
+  postLoginRedirect?: string;
   expiresAt?: number; // epoch ms
 }
+
 
 const COOKIE_NAME = "zenox_session";
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 7;

@@ -99,7 +99,7 @@ async function main() {
       .put(Routes.applicationCommands(env.DISCORD_CLIENT_ID), { body: [] })
       .then(() => logger.info("🧹 Comandos globais limpos (modo DEV)"))
       .catch((err) => logger.warn({ err }, "Falha ao limpar globais (segue mesmo assim)"));
-    await rest.put(Routes.applicationGuildCommands(env.DISCORD_CLIENT_ID, env.DISCORD_DEV_GUILD_ID), { body });
+    await rest.put(Routes.applicationGuildCommands(env.DISCORD_CLIENT_ID, env.DISCORD_DEV_GUILD_ID!), { body });
     logger.info(`✅ ${body.length} comandos registrados no guild ${env.DISCORD_DEV_GUILD_ID}`);
   } else {
     // Em PROD: limpa qualquer guild-scoped residual ANTES de publicar global.

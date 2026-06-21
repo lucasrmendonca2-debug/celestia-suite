@@ -403,14 +403,16 @@ function SocialPage() {
                   </SelectContent>
                 </Select>
               </Field>
-              <Field label="Canal fixo (ID)">
-                <Input
-                  value={l.level_up_channel_id ?? ""}
-                  onChange={(e) => setL({ ...l, level_up_channel_id: e.target.value })}
-                  placeholder="ID do canal"
+              <Field label="Canal fixo">
+                <ChannelSelect
+                  guildId={guildId}
+                  value={l.level_up_channel_id ?? null}
+                  onChange={(id) => setL({ ...l, level_up_channel_id: id })}
+                  placeholder="Selecione um canal"
                   disabled={l.level_up_message_mode !== "fixed_channel"}
                 />
               </Field>
+
               <Field label="Apagar mensagem após (s) — 0 desativa">
                 <Input type="number" value={l.delete_level_up_after_seconds} onChange={(e) => setL({ ...l, delete_level_up_after_seconds: e.target.value })} />
               </Field>

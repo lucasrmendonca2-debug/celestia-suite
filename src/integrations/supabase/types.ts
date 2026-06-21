@@ -1093,30 +1093,6 @@ export type Database = {
         }
         Relationships: []
       }
-      level_rewards_legacy: {
-        Row: {
-          created_at: string
-          guild_id: string
-          id: string
-          level: number
-          role_id: string
-        }
-        Insert: {
-          created_at?: string
-          guild_id: string
-          id?: string
-          level: number
-          role_id: string
-        }
-        Update: {
-          created_at?: string
-          guild_id?: string
-          id?: string
-          level?: number
-          role_id?: string
-        }
-        Relationships: []
-      }
       level_season_users: {
         Row: {
           created_at: string
@@ -1239,57 +1215,6 @@ export type Database = {
           user_id?: string
           username?: string | null
           xp?: number
-        }
-        Relationships: []
-      }
-      leveling_config_legacy: {
-        Row: {
-          cooldown_seconds: number
-          created_at: string
-          enabled: boolean
-          guild_id: string
-          level_up_channel_id: string | null
-          level_up_dm: boolean
-          level_up_message: string
-          no_xp_channels: string[]
-          no_xp_roles: string[]
-          stack_rewards: boolean
-          updated_at: string
-          updated_by: string | null
-          xp_per_message_max: number
-          xp_per_message_min: number
-        }
-        Insert: {
-          cooldown_seconds?: number
-          created_at?: string
-          enabled?: boolean
-          guild_id: string
-          level_up_channel_id?: string | null
-          level_up_dm?: boolean
-          level_up_message?: string
-          no_xp_channels?: string[]
-          no_xp_roles?: string[]
-          stack_rewards?: boolean
-          updated_at?: string
-          updated_by?: string | null
-          xp_per_message_max?: number
-          xp_per_message_min?: number
-        }
-        Update: {
-          cooldown_seconds?: number
-          created_at?: string
-          enabled?: boolean
-          guild_id?: string
-          level_up_channel_id?: string | null
-          level_up_dm?: boolean
-          level_up_message?: string
-          no_xp_channels?: string[]
-          no_xp_roles?: string[]
-          stack_rewards?: boolean
-          updated_at?: string
-          updated_by?: string | null
-          xp_per_message_max?: number
-          xp_per_message_min?: number
         }
         Relationships: []
       }
@@ -1861,42 +1786,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      premium_feature_usage: {
-        Row: {
-          created_at: string
-          feature_key: string
-          guild_id: string | null
-          id: string
-          limit_amount: number
-          reset_at: string | null
-          updated_at: string
-          used_amount: number
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          feature_key: string
-          guild_id?: string | null
-          id?: string
-          limit_amount?: number
-          reset_at?: string | null
-          updated_at?: string
-          used_amount?: number
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          feature_key?: string
-          guild_id?: string | null
-          id?: string
-          limit_amount?: number
-          reset_at?: string | null
-          updated_at?: string
-          used_amount?: number
-          user_id?: string | null
-        }
-        Relationships: []
       }
       premium_guild_config: {
         Row: {
@@ -3208,36 +3097,6 @@ export type Database = {
           last_work_at?: string | null
           updated_at?: string
           user_id?: string
-        }
-        Relationships: []
-      }
-      user_levels_legacy: {
-        Row: {
-          guild_id: string
-          last_message_at: string | null
-          level: number
-          messages: number
-          updated_at: string
-          user_id: string
-          xp: number
-        }
-        Insert: {
-          guild_id: string
-          last_message_at?: string | null
-          level?: number
-          messages?: number
-          updated_at?: string
-          user_id: string
-          xp?: number
-        }
-        Update: {
-          guild_id?: string
-          last_message_at?: string | null
-          level?: number
-          messages?: number
-          updated_at?: string
-          user_id?: string
-          xp?: number
         }
         Relationships: []
       }

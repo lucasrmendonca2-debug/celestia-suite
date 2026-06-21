@@ -38,7 +38,7 @@ export function DiscordMessagePreview({
     >
       <div className="flex gap-3">
         {avatar ? (
-          <img
+          <img loading="lazy" decoding="async"
             src={avatar}
             alt={name}
             className="size-10 shrink-0 rounded-full object-cover"

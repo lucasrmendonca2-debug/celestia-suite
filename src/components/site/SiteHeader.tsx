@@ -19,7 +19,7 @@ export function ZenoxWordmark({ className = "" }: { className?: string }) {
       className={`group inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-white pl-1.5 pr-4 py-1.5 shadow-[0_4px_0_0_#1B0E3B] transition-transform hover:-translate-y-0.5 ${className}`}
     >
       <span className="relative inline-flex size-9 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-[#7C3AED] via-[#A855F7] to-[#EC4899] font-['Plus_Jakarta_Sans'] text-lg font-extrabold text-white shadow-inner">
-        <img
+        <img loading="lazy" decoding="async"
           src={zenoxMascot.url}
           alt=""
           className="absolute inset-0 size-full scale-110 object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100"

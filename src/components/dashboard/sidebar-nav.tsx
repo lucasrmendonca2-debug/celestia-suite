@@ -193,6 +193,7 @@ export function SidebarNav({
                   ) : (
                     <Link
                       to={href}
+                      preload="intent"
                       onClick={onNavigate}
                       className={`group flex items-center gap-2.5 rounded-md border px-3 py-2 text-sm transition ${
                         active

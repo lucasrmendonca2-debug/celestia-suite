@@ -1,59 +1,86 @@
-## Objetivo
-Melhorar o dashboard de forma substancial, corrigir bugs (especialmente Permissões), enriquecer Boas-vindas/Autorole/Cargos por reação, Economia e Moderação, manter o estilo Paint em todo dashboard com o mascote Zenox espalhado em poses contextuais, e adicionar uma aba interna `/dev-logs` (admin) capturando todos os erros para eu ler.
+# Plano: Otimização do Dashboard (Fases 12–18)
 
-Como o escopo é gigante, vou entregar em **fases** dentro deste mesmo plano. Cada fase é independente e testável — você pode pausar a qualquer momento.
+Foco em **velocidade percebida**, **responsividade real em mobile**, **bundle menor** e **arquitetura mais escalável**. Ordenado por impacto/esforço.
 
----
+## Diagnóstico atual
 
-### Fase 1 — Infra de logs internos + correções rápidas
-1. **Tabela `app_error_logs`** (migration) com RLS:
-   - colunas: `id`, `created_at`, `level` (error/warn/info), `source` (client/server/serverfn), `message`, `stack`, `route`, `user_id`, `user_tag`, `guild_id`, `metadata` jsonb, `user_agent`.
-   - SELECT só pra admin (via `has_role` se já existir, senão lista whitelist em `app_admins`).
-   - INSERT liberado pra `authenticated` (rate-limit por trigger simples).
-2. **Server fn `logAppError`** + helper `reportError(err, ctx)` no client.
-3. **Hook global no `__root.tsx`**: window.onerror, unhandledrejection, e patch no `console.error` que envia pro backend (debounced, dedup por message+stack).
-4. **Wrapper em todos os server fns críticos** (try/catch → logAppError → rethrow).
-5. **Rota `/dev-logs`** (dentro de `_authenticated/`) — visível só pra admin:
-   - tabela paginada, filtros (level, source, rota, intervalo, busca), expand pra ver stack/metadata, botão "marcar resolvido", botão "limpar antigos".
-6. **Correção da aba Permissões** — investigar bug atual (provavelmente roles não persistindo / áreas não validando), fixar.
-
-### Fase 2 — Overview turbinada
-- Cards: membros online/total, msgs/24h, comandos usados/24h, tickets abertos, casos de mod abertos, economia circulante.
-- Gráfico de atividade (linhas) últimos 7/30 dias.
-- Atalhos rápidos pros módulos mais usados.
-- "Saúde do servidor": módulos ativos, alertas (ex: log channel não configurado).
-- Mascote Zenox em pose "analista" no canto.
-
-### Fase 3 — Boas-vindas / Autorole / Cargos por reação
-- **Boas-vindas**: editor com preview ao vivo, variáveis ({user}, {server}, {memberCount}), suporte a embed + imagem custom + mensagem privada opcional, agendamento (delay), múltiplos templates com A/B.
-- **Autorole**: cargos diferentes para humanos/bots, delay, cargo "verificado" condicional, restauração de cargos ao retornar.
-- **Cargos por reação**: builder visual de painel, modo único/múltiplo/toggle, limites por usuário, expira, integração com botões (não só reações).
-
-### Fase 4 — Economia
-- Editor de loja com imagens, estoque, requisitos (nível/cargo), itens consumíveis vs permanentes.
-- Sistema de missões (diárias/semanais) editável.
-- Multiplicadores por cargo, canal, horário.
-- Rotação automática de loja (já existe tabela) — UI completa.
-- Daily com streaks configuráveis e bônus por marco.
-
-### Fase 5 — Moderação avançada
-- Automod: regras por gatilho (spam, caps, links, convites, palavras, menções, anexos) com thresholds + ações em escada (avisar→mutar→kick→ban).
-- Histórico filtrável + edição/revogação de casos.
-- Appeals: UI pra revisar.
-- Permissões granulares por comando de mod.
-
-### Fase 6 — Mascote Zenox contextual
-- Gerar ~8 poses no estilo Paint da home (não iguais): "analista" (overview), "policial" (mod), "carteiro" (boas-vindas), "comerciante" (economia), "detetive" (logs), "festeiro" (daily), "engenheiro" (configs), "fantasma triste" (404/erro).
-- Componente `<ZenoxHere variant="..." />` que escolhe pose conforme a página.
+- ~20 rotas de dashboard, várias com 400–900 linhas (`tickets` 915, `social` 821, `economia` 743, `logs` 564, `index` 554).
+- Todos os módulos são componentes inline no arquivo de rota → cada bundle de rota inclui form + tabs + tabelas + charts juntos.
+- `recharts` (via `src/components/ui/chart.tsx`) é pesado e provavelmente carregado em rotas que mostram gráficos sem split.
+- Mascote/banners em **PNG** servidos do R2 — sem WebP/AVIF, sem `loading="lazy"` consistente.
+- Sidebar/topbar re-renderizam a cada navegação porque a lista de guilds não é compartilhada via context estável.
+- `staleTime: 0` (default) em quase todas as queries — toda volta de aba refetcha tudo do Discord (lento e caro).
+- Mobile: sidebar fixa + tabelas largas (logs, mod cases, tickets) sem scroll horizontal nem layout cartão.
 
 ---
 
-### Detalhes técnicos
-- Logs: tabela em Lovable Cloud, RLS `has_role('admin')` pra SELECT.
-- Captura client: patch único em `__root.tsx`, batching de 1s.
-- Captura server: middleware global `errorMiddleware` já existe em `src/start.ts` — adicionar `logAppError` lá antes de rethrow.
-- Permissões: ler `dashboard_permissions` + testar fluxo atual antes de mexer.
-- Imagens do mascote: `imagegen` premium, paleta `#7C3AED #F472B6 #FBBF24 #34D399`, contorno preto grosso, mesmo traço da home.
+## Fase 12 — Cache & freshness (impacto alto, 1 arquivo)
 
-### Pergunta antes de começar
-Posso começar pela **Fase 1 (logs + fix Permissões)** agora? Ela destrava as outras porque qualquer bug nas próximas fases já cai no `/dev-logs` e eu leio direto. Confirma "vai" que eu emendo.
+- Subir `defaultPreloadStaleTime` continua 0 (Query controla), mas configurar `staleTime` por tipo de dado:
+  - `["my-guilds"]`: 5 min
+  - `["guild-roles", id]` / `["guild-channels", id]` / `["bot-identity", id]`: 5 min
+  - Configs de módulo (welcome, economy, etc): 30 s
+  - Stats/realtime (mod-stats, tickets-stats): 15 s
+- Centralizar em `src/lib/query/options.ts` com `queryOptions()` helpers nomeados — elimina duplicação e padroniza chaves.
+
+## Fase 13 — Layout responsivo padronizado
+
+- Auditar `ModuleLayout` + hero banners: aplicar `grid-cols-[minmax(0,1fr)_auto]` no header e `min-w-0` + `truncate` (segue regra `responsive-layout-patterns`).
+- Tabelas grandes (logs, mod cases, tickets, shop) ganham:
+  - container `overflow-x-auto` + `min-w-[720px]` na `<table>`
+  - layout alternativo **card-stack** em `<sm` (cada linha vira um cartão)
+- Sidebar: garantir `collapsible="offcanvas"` em mobile, `icon` em desktop, com `SidebarTrigger` sempre visível na topbar.
+- Pickers (`ChannelSelect`/`RoleSelect`/`UserBadge`): forçar `flex-wrap` + chips com `max-w-full truncate`.
+
+## Fase 14 — Code-splitting agressivo
+
+- Extrair tabs pesadas dos arquivos de rota para módulos próprios em `src/components/dashboard/<modulo>/`:
+  - `economia.tsx` → `EconomyGeneralTab`, `EconomyShopTab`, `EconomyMultipliersTab`, `EconomyMissionsTab`
+  - `tickets.tsx` → mover tabs restantes pra `tickets/`
+  - `social.tsx` → `SocialFeedTab`, `SocialProfilesTab`, `SocialConfigTab`
+  - `index.tsx` (overview) → extrair `ActivityChart`, `QuickStats`, `RecentActivity`
+- Lazy-import de Recharts em todos os charts (`const Chart = lazy(() => import('./Chart'))`) com `<Suspense fallback={<Skeleton/>} />`.
+- Meta: nenhum arquivo de rota > 250 linhas.
+
+## Fase 15 — Imagens & assets
+
+- Adicionar `vite-imagetools` ao `vite.config.ts` (via `defineConfig({ vite: { plugins: [imagetools()] } })`).
+- Migrar mascotes (`mascot-*.png`) + banners de economia/badges para `?format=webp&w=...` com fallback.
+- `loading="lazy" decoding="async"` em todas as `<img>` que não são LCP (mascote do hero pode receber `fetchpriority="high"` via head().links da rota).
+- Avatares de Discord (`cdn.discordapp.com`) — usar `?size=64` em vez de tamanho default.
+
+## Fase 16 — UX feedback (percepção de velocidade)
+
+- `pendingComponent` esqueleto por rota: cards/seções placeholder em vez de tela branca durante o loader.
+- `SaveBar` global: detectar `dirty` automaticamente, mostrar barra flutuante no rodapé com "Salvar / Descartar" — elimina os 12+ botões "Salvar" copiados em cada módulo.
+- Toast com undo nas mutações de delete (shop item, badge, mission, embed, multiplier).
+- Prefetch agressivo: `<Link preload="intent">` em todos os itens do sidebar → carrega a rota no hover (já é padrão TanStack, garantir).
+
+## Fase 17 — Server-side / N+1
+
+- `listGuildRoles`/`listGuildChannels` provavelmente são chamados em **toda** página que tem picker. Cachear no servidor com KV/edge cache por 60s (header `Cache-Control: private, max-age=60`).
+- Verificar com `supabase--slow_queries` se há queries lentas em `mod_cases`, `economy_transactions`, `level_users` e adicionar índices via migration.
+- Overview do dashboard (`dashboard.$slug.index.tsx`): consolidar 5+ chamadas em uma única server fn `getDashboardOverview` que retorna tudo num JSON.
+
+## Fase 18 — Polimento final
+
+- `MessageResponse`/AI Elements no canto: nada a fazer (não é app de chat).
+- Adicionar `<meta name="theme-color">` por rota.
+- Auditoria Lighthouse mobile: meta CLS < 0.05, LCP < 2.5s, TBT < 200ms na rota `/dashboard/$slug/`.
+- Remover imports não usados (especialmente `lucide-react`, hoje cada rota importa 6–10 ícones).
+
+---
+
+## Como executar
+
+Cada fase é independente e pode ser feita em uma sessão. Sugestão de ordem por **maior ROI primeiro**:
+
+1. **Fase 12** (cache) — ganho imediato, 1 arquivo
+2. **Fase 13** (responsivo) — desbloqueia mobile
+3. **Fase 15** (imagens) — corta peso do payload
+4. **Fase 16** (UX feedback) — sensação de "instantâneo"
+5. **Fase 14** (split) — bundle menor, exige refactor cuidadoso
+6. **Fase 17** (server) — depende de medir gargalos reais
+7. **Fase 18** (polimento)
+
+Por qual quer começar?

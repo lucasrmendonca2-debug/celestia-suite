@@ -1,9 +1,9 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Sparkles, MessageSquareHeart, Palette, Hash, Eye } from "lucide-react";
+import { Sparkles, MessageSquareHeart, Palette, Hash, Eye, Plus } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getGuildConfig,
@@ -47,6 +47,12 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/boas-vinda
     </div>
   ),
 });
+
+const VARIABLES = [
+  { token: "{user}", label: "Menção", example: "@VocêMesmo" },
+  { token: "{server}", label: "Nome do servidor", example: "" },
+  { token: "{count}", label: "Nº de membros", example: "1.337" },
+] as const;
 
 function renderPreview(message: string, guildName: string) {
   return message

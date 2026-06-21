@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Gift, Flame, Sparkles, TrendingUp, Lock, Loader2 } from "lucide-react";
+import { Gift, Flame, Sparkles, TrendingUp, Lock, Loader2, ArrowLeft } from "lucide-react";
 import {
   getDailyStatus,
   claimDaily,
   type DailyStatusDTO,
   type DailyClaimDTO,
 } from "@/lib/daily.functions";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/daily")({
@@ -62,7 +61,7 @@ function Countdown({ to }: { to: string }) {
   const m = Math.floor((ms % 3600000) / 60000);
   const s = Math.floor((ms % 60000) / 1000);
   return (
-    <span className="font-mono tabular-nums">
+    <span className="font-mono tabular-nums font-bold">
       {String(h).padStart(2, "0")}:{String(m).padStart(2, "0")}:{String(s).padStart(2, "0")}
     </span>
   );
@@ -71,26 +70,36 @@ function Countdown({ to }: { to: string }) {
 function StreakDots({ current, projected }: { current: number; projected: number }) {
   const days = Array.from({ length: 7 }, (_, i) => i + 1);
   return (
-    <div className="flex items-center justify-between gap-2 rounded-2xl border border-white/5 bg-black/30 p-4">
+    <div className="flex items-center justify-between gap-2 rounded-2xl border-2 border-[#1B0E3B] bg-[#FFF3D1] p-3 shadow-[0_4px_0_0_#1B0E3B]">
       {days.map((d) => {
         const isPast = d <= current;
         const isNext = d === projected && d > current;
         return (
-          <div key={d} className="flex flex-1 flex-col items-center gap-2">
+          <div key={d} className="flex flex-1 flex-col items-center gap-1.5">
             <div
               className={cn(
-                "flex h-10 w-10 items-center justify-center rounded-full border text-sm font-bold transition",
-                isPast && "border-amber-400/60 bg-amber-400/20 text-amber-300",
-                isNext && "border-amber-400 bg-amber-400 text-black shadow-lg shadow-amber-400/30 animate-pulse",
-                !isPast && !isNext && "border-white/10 bg-white/5 text-muted-foreground",
+                "flex h-10 w-10 items-center justify-center rounded-full border-2 border-[#1B0E3B] text-sm font-extrabold font-['Plus_Jakarta_Sans'] transition",
+                isPast && "bg-[#FBBF24] text-[#1B0E3B] shadow-[0_3px_0_0_#1B0E3B]",
+                isNext && "bg-[#EC4899] text-white shadow-[0_3px_0_0_#1B0E3B] animate-pulse",
+                !isPast && !isNext && "bg-white text-[#5B4B7A]",
               )}
             >
               {isPast ? "🔥" : d}
             </div>
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">D{d}</span>
+            <span className="text-[10px] font-extrabold uppercase tracking-widest text-[#5B4B7A]">D{d}</span>
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function BgBlobs() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div className="absolute -left-20 top-10 size-72 rounded-full bg-[#FBBF24]/40 blur-3xl" />
+      <div className="absolute -right-16 top-1/3 size-80 rounded-full bg-[#EC4899]/30 blur-3xl" />
+      <div className="absolute bottom-0 left-1/3 size-72 rounded-full bg-[#7C3AED]/25 blur-3xl" />
     </div>
   );
 }
@@ -121,16 +130,14 @@ function DailyPage() {
       .then((r) => {
         if (!cancelled) setStatus(r as AnyStatus);
       })
-      .catch((e) =>
-        {
-          if (!cancelled) {
-            setStatus({
-              error: "site_request_failed",
-              data: { message: e instanceof Error ? e.message : "Falha ao validar o link" },
-            });
-          }
-        },
-      )
+      .catch((e) => {
+        if (!cancelled) {
+          setStatus({
+            error: "site_request_failed",
+            data: { message: e instanceof Error ? e.message : "Falha ao validar o link" },
+          });
+        }
+      })
       .finally(() => {
         window.clearTimeout(timeout);
         if (!cancelled) setLoading(false);
@@ -149,7 +156,6 @@ function DailyPage() {
     if ((r as any).ok) {
       setClaimed(r as DailyClaimDTO);
     } else {
-      // re-pull status to show countdown if already claimed elsewhere
       try {
         const s = await fetchStatus({ data: { token } });
         setStatus(s as AnyStatus);
@@ -163,172 +169,207 @@ function DailyPage() {
   }
 
   return (
-    <div className="relative min-h-dvh overflow-hidden bg-gradient-to-br from-[#0b0118] via-[#1a0530] to-[#0b0118]">
-      {/* Aurora bg */}
-      <div className="pointer-events-none absolute inset-0 opacity-50">
-        <div className="absolute -left-40 top-20 h-96 w-96 rounded-full bg-amber-500/30 blur-3xl" />
-        <div className="absolute right-0 top-1/3 h-96 w-96 rounded-full bg-purple-500/30 blur-3xl" />
-        <div className="absolute bottom-0 left-1/3 h-96 w-96 rounded-full bg-pink-500/20 blur-3xl" />
-      </div>
+    <div className="relative min-h-dvh overflow-hidden bg-[#FBF7FF] font-['Inter'] text-[#1B0E3B] selection:bg-[#7C3AED] selection:text-white">
+      <BgBlobs />
 
       <div className="relative mx-auto flex min-h-dvh max-w-2xl flex-col items-center justify-center px-4 py-10">
-        <Link to="/" className="absolute left-4 top-4 text-sm text-muted-foreground hover:text-foreground">
-          ← Voltar
+        <Link
+          to="/"
+          className="absolute left-4 top-4 inline-flex items-center gap-1.5 rounded-full border-2 border-[#1B0E3B] bg-white px-3 py-1.5 text-xs font-extrabold uppercase tracking-widest text-[#1B0E3B] shadow-[0_3px_0_0_#1B0E3B] transition-transform hover:-translate-y-0.5"
+        >
+          <ArrowLeft className="size-3.5" /> Voltar
         </Link>
 
-        <div className="w-full rounded-3xl border border-white/10 bg-black/40 p-8 shadow-2xl backdrop-blur-xl">
-          {/* Header */}
-          <div className="mb-6 flex flex-col items-center text-center">
-            <div className="mb-3 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/30">
-              <Gift className="h-8 w-8 text-black" />
-            </div>
-            <h1 className="font-display text-3xl font-black text-white">Recompensa Diária</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Resgate seus Zen Coins e mantenha seu streak
-            </p>
-          </div>
-
-          {/* Body states */}
-          {!token && (
-            <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-6 text-center">
-              <Lock className="mx-auto mb-2 h-8 w-8 text-red-400" />
-              <p className="text-sm text-red-200">
-                Link inválido. Use o comando <code className="rounded bg-black/40 px-1.5 py-0.5">/daily</code> no Discord para gerar um novo.
+        {/* Card */}
+        <div className="relative w-full">
+          <div className="absolute inset-0 -z-10 translate-x-2 translate-y-2 rounded-[2rem] bg-[#1B0E3B]" />
+          <div className="relative rounded-[2rem] border-2 border-[#1B0E3B] bg-white p-7 shadow-[0_8px_0_0_#1B0E3B] sm:p-10">
+            {/* Header */}
+            <div className="mb-6 flex flex-col items-center text-center">
+              <div className="mb-3 flex size-16 items-center justify-center rounded-2xl border-2 border-[#1B0E3B] bg-[#FBBF24] shadow-[0_4px_0_0_#1B0E3B]">
+                <Gift className="size-8 text-[#1B0E3B]" />
+              </div>
+              <span className="inline-flex items-center gap-1.5 rounded-full border-2 border-[#1B0E3B] bg-white px-3 py-1 text-[10px] font-extrabold uppercase tracking-widest text-[#1B0E3B] shadow-[0_2px_0_0_#1B0E3B]">
+                <Sparkles className="size-3" /> Daily Reward
+              </span>
+              <h1 className="mt-3 font-['Plus_Jakarta_Sans'] text-4xl font-extrabold leading-tight tracking-tight">
+                Sua{" "}
+                <span className="relative inline-block">
+                  <span className="relative z-10">recompensa</span>
+                  <span aria-hidden className="absolute -bottom-1 left-0 -z-0 h-2.5 w-full -rotate-1 rounded-full bg-[#FBBF24]" />
+                </span>{" "}
+                chegou.
+              </h1>
+              <p className="mt-2 text-sm text-[#5B4B7A]">
+                Pegue seus Zen Coins e segura esse streak 🔥
               </p>
             </div>
-          )}
 
-          {token && loading && (
-            <div className="flex flex-col items-center gap-3 py-10 text-muted-foreground">
-              <Loader2 className="h-8 w-8 animate-spin" />
-              <p>Validando seu link…</p>
-            </div>
-          )}
-
-          {token && !loading && status && (status as any).error === "not_logged_in" && (
-            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-6 text-center">
-              <p className="mb-4 text-sm text-amber-100">
-                Você precisa entrar com Discord para resgatar.
-              </p>
-              <a
-                href={`/api/auth/discord/login?next=${encodeURIComponent(`/daily?token=${token}`)}`}
-                className="inline-flex items-center gap-2 rounded-xl bg-white px-5 py-2.5 text-sm font-semibold text-black hover:bg-white/90"
-              >
-                Entrar com Discord
-              </a>
-            </div>
-          )}
-
-
-          {token && !loading && status && (status as any).error && (status as any).error !== "not_logged_in" && (
-            <div className="rounded-2xl border border-red-500/20 bg-red-500/10 p-6 text-center text-sm text-red-200">
-              <p className="font-semibold">Não foi possível validar o link.</p>
-              <p className="mt-1 opacity-80">Motivo: {(status as any).error}</p>
-              <p className="mt-3 text-xs opacity-70">{errorMessage(status)}</p>
-            </div>
-          )}
-
-          {claimed && (
-            <div className="space-y-5">
-              <div className="rounded-2xl border border-emerald-400/30 bg-gradient-to-br from-emerald-500/20 to-green-500/10 p-6 text-center">
-                <Sparkles className="mx-auto mb-2 h-10 w-10 text-emerald-300" />
-                <p className="text-xs uppercase tracking-widest text-emerald-300/80">Resgatado!</p>
-                <p className="mt-2 font-display text-4xl font-black text-white">
-                  +{claimed.amount.toLocaleString("pt-BR")} {claimed.currency.emoji}
-                </p>
-                <p className="mt-1 text-sm text-emerald-200">
-                  Carteira: {claimed.wallet.toLocaleString("pt-BR")} {claimed.currency.name}
+            {/* Body states */}
+            {!token && (
+              <div className="rounded-2xl border-2 border-[#1B0E3B] bg-[#FFE0E5] p-6 text-center shadow-[0_4px_0_0_#1B0E3B]">
+                <Lock className="mx-auto mb-2 size-7 text-[#BE123C]" />
+                <p className="text-sm font-semibold text-[#1B0E3B]">
+                  Link inválido. Use{" "}
+                  <code className="rounded-md border border-[#1B0E3B] bg-white px-1.5 py-0.5 font-mono text-xs">
+                    /daily
+                  </code>{" "}
+                  no Discord pra gerar outro.
                 </p>
               </div>
-              <div className="grid grid-cols-3 gap-3 text-center text-xs">
-                <div className="rounded-xl border border-white/5 bg-white/5 p-3">
-                  <Flame className="mx-auto mb-1 h-4 w-4 text-orange-400" />
-                  <p className="text-muted-foreground">Streak</p>
-                  <p className="font-bold text-white">{claimed.streak} dias</p>
-                </div>
-                <div className="rounded-xl border border-white/5 bg-white/5 p-3">
-                  <TrendingUp className="mx-auto mb-1 h-4 w-4 text-emerald-400" />
-                  <p className="text-muted-foreground">Bônus</p>
-                  <p className="font-bold text-white">+{claimed.streakBonus}</p>
-                </div>
-                <div className="rounded-xl border border-white/5 bg-white/5 p-3">
-                  <Sparkles className="mx-auto mb-1 h-4 w-4 text-amber-400" />
-                  <p className="text-muted-foreground">Multi</p>
-                  <p className="font-bold text-white">
-                    {(claimed.vipMultiplier * claimed.premiumMultiplier).toFixed(1)}x
+            )}
+
+            {token && loading && (
+              <div className="flex flex-col items-center gap-3 py-12 text-[#5B4B7A]">
+                <Loader2 className="size-8 animate-spin text-[#7C3AED]" />
+                <p className="text-sm font-semibold">Validando seu link…</p>
+              </div>
+            )}
+
+            {token && !loading && status && (status as any).error === "not_logged_in" && (
+              <div className="rounded-2xl border-2 border-[#1B0E3B] bg-[#FFF3D1] p-6 text-center shadow-[0_4px_0_0_#1B0E3B]">
+                <p className="mb-4 text-sm font-semibold text-[#1B0E3B]">
+                  Precisa entrar com Discord pra resgatar.
+                </p>
+                <a
+                  href={`/api/auth/discord/login?next=${encodeURIComponent(`/daily?token=${token}`)}`}
+                  className="inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-[#7C3AED] px-5 py-2.5 text-sm font-extrabold uppercase tracking-wider text-white shadow-[0_4px_0_0_#1B0E3B] transition-transform hover:-translate-y-0.5"
+                >
+                  Entrar com Discord
+                </a>
+              </div>
+            )}
+
+            {token && !loading && status && (status as any).error && (status as any).error !== "not_logged_in" && (
+              <div className="rounded-2xl border-2 border-[#1B0E3B] bg-[#FFE0E5] p-6 text-center shadow-[0_4px_0_0_#1B0E3B]">
+                <p className="font-['Plus_Jakarta_Sans'] text-base font-extrabold text-[#BE123C]">
+                  Não foi possível validar o link.
+                </p>
+                <p className="mt-1 text-xs font-semibold uppercase tracking-widest text-[#5B4B7A]">
+                  Motivo: {(status as any).error}
+                </p>
+                <p className="mt-3 text-sm text-[#1B0E3B]">{errorMessage(status)}</p>
+              </div>
+            )}
+
+            {claimed && (
+              <div className="space-y-5">
+                <div className="rounded-2xl border-2 border-[#1B0E3B] bg-[#D6FBEC] p-6 text-center shadow-[0_5px_0_0_#1B0E3B]">
+                  <Sparkles className="mx-auto mb-2 size-10 text-[#047857]" />
+                  <p className="font-mono text-[10px] font-extrabold uppercase tracking-widest text-[#047857]">
+                    Resgatado!
+                  </p>
+                  <p className="mt-1 font-['Plus_Jakarta_Sans'] text-5xl font-extrabold text-[#1B0E3B]">
+                    +{claimed.amount.toLocaleString("pt-BR")} {claimed.currency.emoji}
+                  </p>
+                  <p className="mt-2 text-sm font-semibold text-[#047857]">
+                    Carteira: {claimed.wallet.toLocaleString("pt-BR")} {claimed.currency.name}
                   </p>
                 </div>
-              </div>
-              <div className="rounded-2xl border border-white/5 bg-black/30 p-4 text-center text-sm text-muted-foreground">
-                Próximo resgate em <Countdown to={claimed.nextClaimAt} />
-              </div>
-            </div>
-          )}
-
-          {!claimed && isStatus(status) && (
-            <div className="space-y-5">
-              <div className="rounded-2xl border border-white/5 bg-gradient-to-br from-amber-500/10 to-orange-500/5 p-6 text-center">
-                <p className="text-xs uppercase tracking-widest text-amber-300/80">
-                  Você vai receber
-                </p>
-                <p className="mt-2 font-display text-5xl font-black text-white">
-                  {status.amount.toLocaleString("pt-BR")} {status.currency.emoji}
-                </p>
-                <p className="mt-2 text-xs text-muted-foreground">
-                  Base {status.base} + bônus streak {status.streakBonus}
-                  {status.vipMultiplier > 1 && ` · 💎 VIP ${status.vipMultiplier}x`}
-                  {status.premiumMultiplier > 1 && ` · ✨ Premium ${status.premiumMultiplier}x`}
-                </p>
-              </div>
-
-              <div>
-                <p className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  <Flame className="h-3.5 w-3.5 text-orange-400" />
-                  Streak da semana
-                </p>
-                <StreakDots current={status.streak} projected={status.projectedStreak} />
-              </div>
-
-              {status.canClaim ? (
-                <Button
-                  size="lg"
-                  onClick={onClaim}
-                  disabled={claiming}
-                  className="w-full bg-gradient-to-r from-amber-400 to-orange-500 text-black hover:from-amber-300 hover:to-orange-400 disabled:opacity-50"
-                >
-                  {claiming ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Resgatando…
-                    </>
-                  ) : (
-                    <>
-                      <Gift className="mr-2 h-4 w-4" /> Resgatar agora
-                    </>
-                  )}
-                </Button>
-              ) : (
-                <div className="rounded-2xl border border-white/5 bg-black/30 p-4 text-center text-sm">
-                  <Lock className="mx-auto mb-2 h-5 w-5 text-muted-foreground" />
-                  <p className="text-muted-foreground">Você já resgatou hoje.</p>
-                  {status.nextClaimAt && (
-                    <p className="mt-1 text-foreground">
-                      Próximo em <Countdown to={status.nextClaimAt} />
-                    </p>
-                  )}
+                <div className="grid grid-cols-3 gap-3 text-center text-xs">
+                  <MiniStat icon={Flame} label="Streak" value={`${claimed.streak}d`} tone="coral" />
+                  <MiniStat icon={TrendingUp} label="Bônus" value={`+${claimed.streakBonus}`} tone="mint" />
+                  <MiniStat
+                    icon={Sparkles}
+                    label="Multi"
+                    value={`${(claimed.vipMultiplier * claimed.premiumMultiplier).toFixed(1)}x`}
+                    tone="sun"
+                  />
                 </div>
-              )}
+                <div className="rounded-2xl border-2 border-[#1B0E3B] bg-white p-4 text-center text-sm font-semibold shadow-[0_3px_0_0_#1B0E3B]">
+                  Próximo resgate em <Countdown to={claimed.nextClaimAt} />
+                </div>
+              </div>
+            )}
 
-              <p className="text-center text-xs text-muted-foreground/60">
-                Carteira atual: {status.wallet.toLocaleString("pt-BR")} {status.currency.name}
-              </p>
-            </div>
-          )}
+            {!claimed && isStatus(status) && (
+              <div className="space-y-5">
+                <div className="rounded-2xl border-2 border-[#1B0E3B] bg-[#FFF3D1] p-6 text-center shadow-[0_5px_0_0_#1B0E3B]">
+                  <p className="font-mono text-[10px] font-extrabold uppercase tracking-widest text-[#B45309]">
+                    Você vai receber
+                  </p>
+                  <p className="mt-1 font-['Plus_Jakarta_Sans'] text-6xl font-extrabold text-[#1B0E3B]">
+                    {status.amount.toLocaleString("pt-BR")} {status.currency.emoji}
+                  </p>
+                  <p className="mt-2 text-xs font-semibold text-[#5B4B7A]">
+                    Base {status.base} + streak {status.streakBonus}
+                    {status.vipMultiplier > 1 && ` · 💎 VIP ${status.vipMultiplier}x`}
+                    {status.premiumMultiplier > 1 && ` · ✨ Premium ${status.premiumMultiplier}x`}
+                  </p>
+                </div>
+
+                <div>
+                  <p className="mb-2 flex items-center gap-2 text-[11px] font-extrabold uppercase tracking-widest text-[#5B4B7A]">
+                    <Flame className="size-3.5 text-[#FB7185]" />
+                    Streak da semana
+                  </p>
+                  <StreakDots current={status.streak} projected={status.projectedStreak} />
+                </div>
+
+                {status.canClaim ? (
+                  <button
+                    type="button"
+                    onClick={onClaim}
+                    disabled={claiming}
+                    className="group relative w-full overflow-hidden rounded-full border-2 border-[#1B0E3B] bg-[#EC4899] px-6 py-4 text-base font-extrabold uppercase tracking-wider text-white shadow-[0_6px_0_0_#1B0E3B] transition-transform hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+                  >
+                    {claiming ? (
+                      <span className="inline-flex items-center justify-center gap-2">
+                        <Loader2 className="size-4 animate-spin" /> Resgatando…
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center justify-center gap-2">
+                        <Gift className="size-5" /> Resgatar agora
+                      </span>
+                    )}
+                  </button>
+                ) : (
+                  <div className="rounded-2xl border-2 border-[#1B0E3B] bg-white p-5 text-center shadow-[0_3px_0_0_#1B0E3B]">
+                    <Lock className="mx-auto mb-2 size-5 text-[#5B4B7A]" />
+                    <p className="text-sm font-semibold text-[#5B4B7A]">Você já resgatou hoje.</p>
+                    {status.nextClaimAt && (
+                      <p className="mt-1 text-sm text-[#1B0E3B]">
+                        Próximo em <Countdown to={status.nextClaimAt} />
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                <p className="text-center text-xs font-semibold text-[#5B4B7A]">
+                  Carteira atual: {status.wallet.toLocaleString("pt-BR")} {status.currency.name}
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground/50">
+        <p className="mt-6 text-center text-xs font-semibold text-[#5B4B7A]/70">
           Powered by Zenox · O link expira em 10 minutos
         </p>
       </div>
+    </div>
+  );
+}
+
+function MiniStat({
+  icon: Icon,
+  label,
+  value,
+  tone,
+}: {
+  icon: typeof Flame;
+  label: string;
+  value: string;
+  tone: "coral" | "mint" | "sun";
+}) {
+  const bg = tone === "coral" ? "bg-[#FFE0E5]" : tone === "mint" ? "bg-[#D6FBEC]" : "bg-[#FFF3D1]";
+  const text =
+    tone === "coral" ? "text-[#BE123C]" : tone === "mint" ? "text-[#047857]" : "text-[#B45309]";
+  return (
+    <div className={`rounded-2xl border-2 border-[#1B0E3B] ${bg} p-3 shadow-[0_3px_0_0_#1B0E3B]`}>
+      <Icon className={`mx-auto mb-1 size-4 ${text}`} />
+      <p className="text-[10px] font-extrabold uppercase tracking-widest text-[#5B4B7A]">{label}</p>
+      <p className="font-['Plus_Jakarta_Sans'] text-base font-extrabold text-[#1B0E3B]">{value}</p>
     </div>
   );
 }

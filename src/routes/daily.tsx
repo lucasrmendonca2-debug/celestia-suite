@@ -93,17 +93,29 @@ function DailyPage() {
       setLoading(false);
       return;
     }
+    let cancelled = false;
     setLoading(true);
     fetchStatus({ data: { token } })
-      .then((r) => setStatus(r as AnyStatus))
+      .then((r) => {
+        if (!cancelled) setStatus(r as AnyStatus);
+      })
       .catch((e) =>
-        setStatus({
-          error: "site_request_failed",
-          data: { message: e instanceof Error ? e.message : "Falha ao validar o link" },
-        }),
+        {
+          if (!cancelled) {
+            setStatus({
+              error: "site_request_failed",
+              data: { message: e instanceof Error ? e.message : "Falha ao validar o link" },
+            });
+          }
+        },
       )
-      .finally(() => setLoading(false));
-  }, [token, fetchStatus]);
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   async function onClaim() {
     if (!token) return;

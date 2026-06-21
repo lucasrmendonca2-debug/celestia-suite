@@ -591,9 +591,17 @@ function SocialPage() {
                       <code className="rounded bg-muted px-1 py-0.5">{r.reward_value}</code>
                       {r.remove_previous_roles && <span className="ml-2 text-xs text-amber-400">substitui anteriores</span>}
                     </div>
-                    <Button size="sm" variant="ghost" onClick={() => delRewardM.mutate(r.id)}>
-                      <Trash2 className="size-4" />
-                    </Button>
+                    <ConfirmDeleteButton
+                      onConfirm={() => delRewardM.mutate(r.id)}
+                      title="Remover recompensa?"
+                      description={`A recompensa de nível ${r.level} (${r.reward_type}) será removida.`}
+                      trigger={
+                        <Button size="sm" variant="ghost" aria-label="Excluir recompensa">
+                          <Trash2 className="size-4 text-destructive" />
+                        </Button>
+                      }
+                    />
+
                   </li>
                 ))}
               </ul>

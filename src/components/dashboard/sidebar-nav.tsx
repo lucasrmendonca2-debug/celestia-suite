@@ -146,49 +146,65 @@ export function SidebarNav({
                 it.activeKey && config ? Boolean((config as unknown as Record<string, unknown>)[it.activeKey]) : false;
               const locked = isPremiumItem && !isPremium && !active;
 
+              const commonInner = (
+                <>
+                  <Icon
+                    className={`size-4 shrink-0 ${
+                      isPremiumItem && (isPremium || active) ? "premium-icon" : ""
+                    }`}
+                  />
+                  <span className="flex-1 truncate">{it.label}</span>
+
+                  {isActiveModule && !active && (
+                    <span
+                      title="Módulo ativo"
+                      className="size-1.5 shrink-0 rounded-full bg-emerald-500 shadow-[0_0_6px_theme(colors.emerald.500)]"
+                    />
+                  )}
+
+                  {isPremiumItem && isPremium && (
+                    <span className="rounded-full bg-[var(--premium-gold)]/20 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[var(--premium-deep)]">
+                      on
+                    </span>
+                  )}
+
+                  {locked && (
+                    <Lock className="size-3 shrink-0 text-muted-foreground/70" />
+                  )}
+
+                  {it.soon && (
+                    <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-muted-foreground">
+                      em breve
+                    </span>
+                  )}
+                </>
+              );
+
               return (
                 <li key={it.to}>
-                  <Link
-                    to={href}
-                    onClick={onNavigate}
-                    className={`group flex items-center gap-2.5 rounded-md border px-3 py-2 text-sm transition ${
-                      active
-                        ? isPremiumItem
-                          ? "premium-link-active"
-                          : "border-[var(--cyber-line)] bg-primary/15 text-foreground shadow-[0_0_22px_-16px_var(--cyber-cyan)]"
-                        : "border-transparent text-muted-foreground hover:border-border/70 hover:bg-primary/10 hover:text-foreground"
-                    }`}
-                  >
-                    <Icon
-                      className={`size-4 shrink-0 ${
-                        isPremiumItem && (isPremium || active) ? "premium-icon" : ""
+                  {it.soon ? (
+                    <span
+                      aria-disabled="true"
+                      title="Em breve"
+                      className="group flex cursor-not-allowed items-center gap-2.5 rounded-md border border-transparent px-3 py-2 text-sm text-muted-foreground/70"
+                    >
+                      {commonInner}
+                    </span>
+                  ) : (
+                    <Link
+                      to={href}
+                      onClick={onNavigate}
+                      className={`group flex items-center gap-2.5 rounded-md border px-3 py-2 text-sm transition ${
+                        active
+                          ? isPremiumItem
+                            ? "premium-link-active"
+                            : "border-[var(--cyber-line)] bg-primary/15 text-foreground shadow-[0_0_22px_-16px_var(--cyber-cyan)]"
+                          : "border-transparent text-muted-foreground hover:border-border/70 hover:bg-primary/10 hover:text-foreground"
                       }`}
-                    />
-                    <span className="flex-1 truncate">{it.label}</span>
-
-                    {isActiveModule && !active && (
-                      <span
-                        title="Módulo ativo"
-                        className="size-1.5 shrink-0 rounded-full bg-emerald-500 shadow-[0_0_6px_theme(colors.emerald.500)]"
-                      />
-                    )}
-
-                    {isPremiumItem && isPremium && (
-                      <span className="rounded-full bg-[var(--premium-gold)]/20 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-[var(--premium-deep)]">
-                        on
-                      </span>
-                    )}
-
-                    {locked && (
-                      <Lock className="size-3 shrink-0 text-muted-foreground/70" />
-                    )}
-
-                    {it.soon && (
-                      <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] uppercase tracking-wider text-muted-foreground">
-                        em breve
-                      </span>
-                    )}
-                  </Link>
+                    >
+                      {commonInner}
+                    </Link>
+                  )}
                 </li>
               );
             })}

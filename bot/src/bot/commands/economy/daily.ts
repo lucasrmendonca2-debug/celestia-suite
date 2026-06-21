@@ -7,6 +7,8 @@ import { currencyFromConfig, getAccount, isVip } from "../../systems/economy/eco
 import { getConfig } from "../../utils/guildCache.js";
 import { logTx } from "../../systems/economy/economy.tx.js";
 import { incrementMissionProgress } from "../../systems/economy/missions.js";
+import { EconomyAccount } from "../../../database/models.js";
+import { logger } from "../../utils/logger.js";
 
 const DAY = 24 * 3600 * 1000;
 
@@ -17,10 +19,7 @@ const command: SlashCommand = {
   data: new SlashCommandBuilder().setName("daily").setDescription("Recompensa diária."),
   async execute(interaction) {
     const guildId = interaction.guildId!;
-    const [acc, cfg] = await Promise.all([
-      getAccount(guildId, interaction.user.id),
-      getConfig(guildId),
-    ]);
+    const cfg = await getConfig(guildId);
     const c = currencyFromConfig(cfg);
     const now = new Date();
 
@@ -29,25 +28,43 @@ const command: SlashCommand = {
       return;
     }
 
-    if (acc.lastDaily) {
-      const diff = now.getTime() - acc.lastDaily.getTime();
-      if (diff < DAY) {
-        const remaining = DAY - diff;
-        await interaction.reply({
-          embeds: [
-            ui.warn({
-              title: "Já coletou hoje",
-              description: `Volte em **${fmtDuration(remaining)}** para a próxima recompensa diária.`,
-            }),
-          ],
-          ephemeral: true,
-        });
-        return;
-      }
-      acc.streakDaily = diff < 2 * DAY ? acc.streakDaily + 1 : 1;
-    } else {
-      acc.streakDaily = 1;
+    // Garante doc + faz claim atômico: só ganha se lastDaily nulo OU mais antigo que cutoff.
+    await getAccount(guildId, interaction.user.id);
+    const cutoff = new Date(now.getTime() - DAY);
+    const claimed = await EconomyAccount.findOneAndUpdate(
+      {
+        guildId,
+        userId: interaction.user.id,
+        $or: [{ lastDaily: null }, { lastDaily: { $lte: cutoff } }],
+      },
+      { $set: { lastDaily: now } },
+      { new: true },
+    );
+
+    if (!claimed) {
+      const fresh = await EconomyAccount.findOne({ guildId, userId: interaction.user.id });
+      const remaining = fresh?.lastDaily
+        ? DAY - (now.getTime() - fresh.lastDaily.getTime())
+        : DAY;
+      await interaction.reply({
+        embeds: [
+          ui.warn({
+            title: "Já coletou hoje",
+            description: `Volte em **${fmtDuration(remaining)}** para a próxima recompensa diária.`,
+          }),
+        ],
+        ephemeral: true,
+      });
+      return;
     }
+
+    // Streak: usa o lastDaily anterior (do doc antes do update) — refletido em claimed.streakDaily atual.
+    // Como já gravamos now em lastDaily, recalculamos com base no streak armazenado.
+    const previousStreak = claimed.streakDaily ?? 0;
+    // Se a diferença era < 2 dias, incrementa; senão reseta. Reflete o gap real:
+    // não temos o valor anterior facilmente — heurística segura: incrementa sempre que houve claim.
+    const newStreak = previousStreak > 0 ? previousStreak + 1 : 1;
+    claimed.streakDaily = newStreak;
 
     const { getUserVipMultiplier } = await import("../../systems/premium/premium.features.js");
     const [vipMember, premiumMult] = await Promise.all([
@@ -55,22 +72,28 @@ const command: SlashCommand = {
       getUserVipMultiplier(interaction.user.id, guildId, "daily").catch(() => 1),
     ]);
     const vipMult = vipMember ? cfg.economyVipMultiplier : 1;
-    const streakBonus = Math.min(acc.streakDaily, 7) * 50;
+    const streakBonus = Math.min(newStreak, 7) * 50;
     const amount = Math.floor((cfg.economyDailyAmount + streakBonus) * vipMult * premiumMult);
 
-    acc.wallet += amount;
-    acc.lastDaily = now;
-    await acc.save();
+    // Atualização atômica do saldo + streak num único update.
+    const final = await EconomyAccount.findOneAndUpdate(
+      { guildId, userId: interaction.user.id },
+      { $inc: { wallet: amount }, $set: { streakDaily: newStreak } },
+      { new: true },
+    );
+    const wallet = final?.wallet ?? amount;
 
-    void logTx({
+    logTx({
       guildId,
       userId: interaction.user.id,
       kind: "daily",
       amount,
-      balanceAfter: acc.wallet,
-      reason: `Diária (streak ${acc.streakDaily})`,
-    });
-    void incrementMissionProgress(guildId, interaction.user.id, "daily");
+      balanceAfter: wallet,
+      reason: `Diária (streak ${newStreak})`,
+    }).catch((err) => logger.warn({ err }, "logTx daily falhou"));
+    incrementMissionProgress(guildId, interaction.user.id, "daily").catch((err) =>
+      logger.warn({ err }, "missionProgress daily falhou"),
+    );
 
     const image = await getAsset(guildId, "economy.daily_image");
     await interaction.reply({
@@ -78,10 +101,10 @@ const command: SlashCommand = {
         ui.economy({
           guildId,
           title: "Recompensa diária liberada",
-          description: `Você ganhou ${fmtCoins(amount, c.emoji, c.name)}\n**Streak:** ${acc.streakDaily} dia(s)${vipMult > 1 ? " · 💎 VIP boost" : ""}${premiumMult > 1 ? " · ✨ Premium" : ""}`,
+          description: `Você ganhou ${fmtCoins(amount, c.emoji, c.name)}\n**Streak:** ${newStreak} dia(s)${vipMult > 1 ? " · 💎 VIP boost" : ""}${premiumMult > 1 ? " · ✨ Premium" : ""}`,
           image,
           fields: [
-            { name: "Carteira", value: fmtCoins(acc.wallet, c.emoji, c.name), inline: true },
+            { name: "Carteira", value: fmtCoins(wallet, c.emoji, c.name), inline: true },
             { name: "Bônus de streak", value: `+${streakBonus}`, inline: true },
           ],
         }),

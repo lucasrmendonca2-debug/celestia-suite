@@ -55,12 +55,16 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Link
-            to="/entrar"
+          <a
+            href="/api/auth/discord/login"
+            onClick={(e) => {
+              e.preventDefault();
+              window.location.href = `/api/auth/discord/login?origin=${encodeURIComponent(window.location.origin)}`;
+            }}
             className="hidden rounded-full border-2 border-[#1B0E3B] bg-white px-4 py-2 text-sm font-bold text-[#1B0E3B] shadow-[0_3px_0_0_#1B0E3B] transition-transform hover:-translate-y-0.5 sm:inline-flex"
           >
             Entrar
-          </Link>
+          </a>
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}

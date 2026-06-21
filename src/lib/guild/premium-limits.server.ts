@@ -10,6 +10,8 @@ export const FREE_LIMITS: Record<string, number> = {
   "badges.custom": 5,
   "level.rewards": 5,
   "automations": 5,
+  "multipliers": 3,
+  "embeds.templates": 5,
 };
 
 async function getActiveGuildPlan(guildId: string) {
@@ -42,7 +44,7 @@ export async function getGuildLimit(guildId: string, key: string): Promise<numbe
 export async function enforceGuildLimit(
   guildId: string,
   key: string,
-  table: "ticket_categories" | "shop_items" | "badges" | "level_rewards",
+  table: "ticket_categories" | "shop_items" | "badges" | "level_rewards" | "guild_multipliers" | "embed_templates",
 ): Promise<void> {
   const limit = await getGuildLimit(guildId, key);
   if (limit <= 0) return;

@@ -54,7 +54,7 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
             expiresAt: Date.now() + token.expires_in * 1000,
           };
           const dest = session.data.postLoginRedirect;
-          const safeDest = dest && dest.startsWith("/") && !dest.startsWith("//") ? dest : "/dashboard";
+          const safeDest = dest && dest.startsWith("/") && !dest.startsWith("//") ? dest : "/servidores";
           return new Response(null, {
             status: 302,
             headers: {

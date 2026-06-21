@@ -10,7 +10,8 @@ const command: SlashCommand = {
   cooldown: 3,
   guildOnly: true,
   data: new SlashCommandBuilder()
-    .setName("pay")
+    .setName("pagar")
+    .setNameLocalizations({ "en-US": "pay" })
     .setDescription("Transfere moedas para outro membro.")
     .addUserOption((o) => o.setName("usuario").setDescription("Quem receberá").setRequired(true))
     .addIntegerOption((o) => o.setName("valor").setDescription("Quantidade").setRequired(true).setMinValue(1)),

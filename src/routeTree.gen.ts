@@ -48,7 +48,6 @@ import { Route as AuthenticatedDashboardSlugBoasVindasRouteImport } from './rout
 import { Route as AuthenticatedDashboardSlugBadgesRouteImport } from './routes/_authenticated/dashboard.$slug.badges'
 import { Route as AuthenticatedDashboardSlugAutomodRouteImport } from './routes/_authenticated/dashboard.$slug.automod'
 import { Route as AuthenticatedDashboardSlugAssetsRouteImport } from './routes/_authenticated/dashboard.$slug.assets'
-import { Route as AuthenticatedDashboardGuildIdSplatRouteImport } from './routes/_authenticated/dashboard.$guildId.$'
 
 const SuporteRoute = SuporteRouteImport.update({
   id: '/suporte',
@@ -268,12 +267,6 @@ const AuthenticatedDashboardSlugAssetsRoute =
     path: '/assets',
     getParentRoute: () => AuthenticatedDashboardSlugRoute,
   } as any)
-const AuthenticatedDashboardGuildIdSplatRoute =
-  AuthenticatedDashboardGuildIdSplatRouteImport.update({
-    id: '/dashboard/$guildId/$',
-    path: '/dashboard/$guildId/$',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -292,7 +285,6 @@ export interface FileRoutesByFullPath {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/public/bot-guild-presence': typeof ApiPublicBotGuildPresenceRoute
   '/dashboard/': typeof AuthenticatedDashboardIndexRoute
-  '/dashboard/$guildId/$': typeof AuthenticatedDashboardGuildIdSplatRoute
   '/dashboard/$slug/assets': typeof AuthenticatedDashboardSlugAssetsRoute
   '/dashboard/$slug/automod': typeof AuthenticatedDashboardSlugAutomodRoute
   '/dashboard/$slug/badges': typeof AuthenticatedDashboardSlugBadgesRoute
@@ -332,7 +324,6 @@ export interface FileRoutesByTo {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/public/bot-guild-presence': typeof ApiPublicBotGuildPresenceRoute
   '/dashboard': typeof AuthenticatedDashboardIndexRoute
-  '/dashboard/$guildId/$': typeof AuthenticatedDashboardGuildIdSplatRoute
   '/dashboard/$slug/assets': typeof AuthenticatedDashboardSlugAssetsRoute
   '/dashboard/$slug/automod': typeof AuthenticatedDashboardSlugAutomodRoute
   '/dashboard/$slug/badges': typeof AuthenticatedDashboardSlugBadgesRoute
@@ -375,7 +366,6 @@ export interface FileRoutesById {
   '/api/auth/logout': typeof ApiAuthLogoutRoute
   '/api/public/bot-guild-presence': typeof ApiPublicBotGuildPresenceRoute
   '/_authenticated/dashboard/': typeof AuthenticatedDashboardIndexRoute
-  '/_authenticated/dashboard/$guildId/$': typeof AuthenticatedDashboardGuildIdSplatRoute
   '/_authenticated/dashboard/$slug/assets': typeof AuthenticatedDashboardSlugAssetsRoute
   '/_authenticated/dashboard/$slug/automod': typeof AuthenticatedDashboardSlugAutomodRoute
   '/_authenticated/dashboard/$slug/badges': typeof AuthenticatedDashboardSlugBadgesRoute
@@ -418,7 +408,6 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/public/bot-guild-presence'
     | '/dashboard/'
-    | '/dashboard/$guildId/$'
     | '/dashboard/$slug/assets'
     | '/dashboard/$slug/automod'
     | '/dashboard/$slug/badges'
@@ -458,7 +447,6 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/public/bot-guild-presence'
     | '/dashboard'
-    | '/dashboard/$guildId/$'
     | '/dashboard/$slug/assets'
     | '/dashboard/$slug/automod'
     | '/dashboard/$slug/badges'
@@ -500,7 +488,6 @@ export interface FileRouteTypes {
     | '/api/auth/logout'
     | '/api/public/bot-guild-presence'
     | '/_authenticated/dashboard/'
-    | '/_authenticated/dashboard/$guildId/$'
     | '/_authenticated/dashboard/$slug/assets'
     | '/_authenticated/dashboard/$slug/automod'
     | '/_authenticated/dashboard/$slug/badges'
@@ -818,13 +805,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardSlugAssetsRouteImport
       parentRoute: typeof AuthenticatedDashboardSlugRoute
     }
-    '/_authenticated/dashboard/$guildId/$': {
-      id: '/_authenticated/dashboard/$guildId/$'
-      path: '/dashboard/$guildId/$'
-      fullPath: '/dashboard/$guildId/$'
-      preLoaderRoute: typeof AuthenticatedDashboardGuildIdSplatRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
   }
 }
 
@@ -903,7 +883,6 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminPremiumRoute: typeof AuthenticatedAdminPremiumRoute
   AuthenticatedDashboardSlugRoute: typeof AuthenticatedDashboardSlugRouteWithChildren
   AuthenticatedDashboardIndexRoute: typeof AuthenticatedDashboardIndexRoute
-  AuthenticatedDashboardGuildIdSplatRoute: typeof AuthenticatedDashboardGuildIdSplatRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -911,8 +890,6 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminPremiumRoute: AuthenticatedAdminPremiumRoute,
   AuthenticatedDashboardSlugRoute: AuthenticatedDashboardSlugRouteWithChildren,
   AuthenticatedDashboardIndexRoute: AuthenticatedDashboardIndexRoute,
-  AuthenticatedDashboardGuildIdSplatRoute:
-    AuthenticatedDashboardGuildIdSplatRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

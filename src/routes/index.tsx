@@ -23,15 +23,25 @@ import {
 import { Mascot } from "@/components/Mascot";
 import chibiPeek from "@/assets/mascot-chibi-peek.png";
 import chibiClimb1 from "@/assets/chibi-climb-1.png";
+import chibiClimb1a from "@/assets/chibi-climb-1a.png";
 import chibiClimb1b from "@/assets/chibi-climb-1b.png";
+import chibiClimb1c from "@/assets/chibi-climb-1c.png";
 import chibiClimb2 from "@/assets/chibi-climb-2.png";
+import chibiClimb2a from "@/assets/chibi-climb-2a.png";
 import chibiClimb2b from "@/assets/chibi-climb-2b.png";
+import chibiClimb2c from "@/assets/chibi-climb-2c.png";
 import chibiClimb3 from "@/assets/chibi-climb-3.png";
+import chibiClimb3a from "@/assets/chibi-climb-3a.png";
 import chibiClimb3b from "@/assets/chibi-climb-3b.png";
+import chibiClimb3c from "@/assets/chibi-climb-3c.png";
 import chibiClimb4 from "@/assets/chibi-climb-4.png";
+import chibiClimb4a from "@/assets/chibi-climb-4a.png";
 import chibiClimb4b from "@/assets/chibi-climb-4b.png";
+import chibiClimb4c from "@/assets/chibi-climb-4c.png";
 import chibiClimb5 from "@/assets/chibi-climb-5.png";
+import chibiClimb5a from "@/assets/chibi-climb-5a.png";
 import chibiClimb5b from "@/assets/chibi-climb-5b.png";
+import chibiClimb5c from "@/assets/chibi-climb-5c.png";
 import chibiClimb6 from "@/assets/chibi-climb-6.png";
 import paintEscape from "@/assets/mascot-paint-escape.png";
 import { SiteHeader, SiteFooter } from "@/components/site/SiteHeader";
@@ -503,19 +513,29 @@ function Landing() {
 
 const CLIMB_FRAMES = [
   chibiClimb1,
+  chibiClimb1a,
   chibiClimb1b,
+  chibiClimb1c,
   chibiClimb2,
+  chibiClimb2a,
   chibiClimb2b,
+  chibiClimb2c,
   chibiClimb3,
+  chibiClimb3a,
   chibiClimb3b,
+  chibiClimb3c,
   chibiClimb4,
+  chibiClimb4a,
   chibiClimb4b,
+  chibiClimb4c,
   chibiClimb5,
+  chibiClimb5a,
   chibiClimb5b,
+  chibiClimb5c,
   chibiClimb6,
 ];
-const FRAME_MS = 55; // ~18fps, ~600ms a escalada toda
-const IDLE_FRAMES = [10, 9, 10, 8]; // balança entre poses sentadas no topo
+const FRAME_MS = 33; // ~30fps, ~700ms a escalada inteira
+const IDLE_FRAMES = [20, 18, 20, 16]; // alterna entre poses sentadas no topo
 
 function PeekButton({
   href,

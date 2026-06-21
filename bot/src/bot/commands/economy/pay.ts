@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { ui } from "../../systems/ui/embed.factory.js";
 import { fmtCoins } from "../../utils/format.js";
-import { getAccount, getCurrency, removeWallet, addWallet } from "../../systems/economy/economy.js";
+import { getAccount, getCurrency, transferWallet } from "../../systems/economy/economy.js";
 import { classifyTarget, economyResponses, pick } from "../../systems/personality/index.js";
 
 const command: SlashCommand = {
@@ -33,15 +33,16 @@ const command: SlashCommand = {
       return;
     }
 
-    const ok = await removeWallet(guildId, interaction.user.id, amount);
-    if (!ok) {
+    const tx = await transferWallet(guildId, interaction.user.id, target.id, amount);
+    if (!tx.ok) {
+      const description =
+        tx.reason === "insufficient_funds" ? pick(economyResponses.noBalance) : "Não foi possível concluir a transferência agora.";
       await interaction.reply({
-        embeds: [ui.error({ title: "Saldo insuficiente", description: pick(economyResponses.noBalance) })],
+        embeds: [ui.error({ title: "Saldo insuficiente", description })],
         ephemeral: true,
       });
       return;
     }
-    await addWallet(guildId, target.id, amount);
     const c = await getCurrency(guildId);
     await interaction.reply({
       embeds: [

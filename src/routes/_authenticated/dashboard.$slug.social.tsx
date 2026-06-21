@@ -318,33 +318,33 @@ function SocialPage() {
           <Card title="Listas de ignorados">
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <Label>Canais ignorados (IDs separados por vírgula)</Label>
-                <Textarea
-                  value={ignoredChannelsStr}
-                  onChange={(e) => setS({ ...s, ignored_channel_ids: e.target.value })}
-                  placeholder="123456789012345678, 234567..."
-                  rows={3}
+                <Label>Canais ignorados</Label>
+                <MultiChannelSelect
+                  guildId={guildId}
+                  value={ignoredChannelIds}
+                  onChange={(ids) => setS({ ...s, ignored_channel_ids: ids })}
                 />
               </div>
               <div>
-                <Label>Cargos ignorados (IDs separados por vírgula)</Label>
-                <Textarea
-                  value={ignoredRolesStr}
-                  onChange={(e) => setS({ ...s, ignored_role_ids: e.target.value })}
-                  placeholder="123456789012345678"
-                  rows={3}
+                <Label>Cargos ignorados</Label>
+                <MultiRoleSelect
+                  guildId={guildId}
+                  value={ignoredRoleIds}
+                  onChange={(ids) => setS({ ...s, ignored_role_ids: ids })}
                 />
               </div>
             </div>
             <div className="grid gap-4 md:grid-cols-2">
               <div>
                 <Label>Canal de logs</Label>
-                <Input
-                  value={s.log_channel_id ?? ""}
-                  onChange={(e) => setS({ ...s, log_channel_id: e.target.value })}
-                  placeholder="ID do canal"
+                <ChannelSelect
+                  guildId={guildId}
+                  value={s.log_channel_id ?? null}
+                  onChange={(id) => setS({ ...s, log_channel_id: id })}
+                  placeholder="Selecione um canal"
                 />
               </div>
+
               <div>
                 <Label>Cor dos embeds</Label>
                 <Input

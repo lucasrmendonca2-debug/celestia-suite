@@ -39,7 +39,7 @@ const command: SlashCommand = {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guildId!;
 
-    if (sub === "send") {
+    if (sub === "enviar") {
       const channel = interaction.options.getChannel("canal", true) as TextChannel;
       const vars = { user: `<@${interaction.user.id}>`, server: interaction.guild!.name };
       const title = interaction.options.getString("titulo") ?? undefined;

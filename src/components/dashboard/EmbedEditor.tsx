@@ -259,7 +259,7 @@ export function EmbedPreview({ embed }: { embed: EmbedData }) {
       {embed.author?.name && (
         <div className="mb-1 flex items-center gap-1.5 text-xs text-white">
           {embed.author.icon_url && (
-            <img src={embed.author.icon_url} alt="" className="size-5 rounded-full" />
+            <img src={embed.author.icon_url} alt="" loading="lazy" decoding="async" className="size-5 rounded-full" />
           )}
           <span>{embed.author.name}</span>
         </div>
@@ -293,11 +293,11 @@ export function EmbedPreview({ embed }: { embed: EmbedData }) {
         </div>
       )}
       {embed.image && (
-        <img src={embed.image} alt="" className="mt-2 max-h-56 rounded-md" />
+        <img src={embed.image} alt="" loading="lazy" decoding="async" className="mt-2 max-h-56 rounded-md" />
       )}
       {embed.thumbnail && (
         <img
-          src={embed.thumbnail}
+          src={embed.thumbnail} loading="lazy" decoding="async"
           alt=""
           className="float-right ml-2 size-16 rounded-md"
         />
@@ -305,7 +305,7 @@ export function EmbedPreview({ embed }: { embed: EmbedData }) {
       {embed.footer?.text && (
         <div className="mt-2 flex items-center gap-1.5 text-[11px] text-[#949ba4]">
           {embed.footer.icon_url && (
-            <img src={embed.footer.icon_url} alt="" className="size-4 rounded-full" />
+            <img src={embed.footer.icon_url} alt="" loading="lazy" decoding="async" className="size-4 rounded-full" />
           )}
           <span>{embed.footer.text}</span>
         </div>

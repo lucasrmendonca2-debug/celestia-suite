@@ -39,7 +39,7 @@ const command: SlashCommand = {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guildId!;
 
-    if (sub === "start") {
+    if (sub === "iniciar") {
       const prize = interaction.options.getString("premio", true);
       const durationStr = interaction.options.getString("duracao", true);
       const ms = parseDuration(durationStr);

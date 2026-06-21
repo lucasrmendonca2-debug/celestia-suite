@@ -30,13 +30,13 @@
     "category": "economy"
   },
   {
-    "name": "daily",
-    "description": "Recompensa diária.",
+    "name": "depositar",
+    "description": "Deposita moedas no banco.",
     "category": "economy"
   },
   {
-    "name": "depositar",
-    "description": "Deposita moedas no banco.",
+    "name": "diario",
+    "description": "Resgate sua recompensa diária no site.",
     "category": "economy"
   },
   {
@@ -60,7 +60,7 @@
     "category": "economy"
   },
   {
-    "name": "pay",
+    "name": "pagar",
     "description": "Transfere moedas para outro membro.",
     "category": "economy"
   },
@@ -70,7 +70,7 @@
     "category": "economy"
   },
   {
-    "name": "rob",
+    "name": "roubar",
     "description": "Tenta roubar outro membro.",
     "category": "economy"
   },
@@ -125,13 +125,13 @@
     "category": "fun"
   },
   {
-    "name": "divorce",
-    "description": "Termina seu casamento 💔",
+    "name": "casar",
+    "description": "Pede alguém em casamento. 💍",
     "category": "interaction"
   },
   {
-    "name": "marry",
-    "description": "Pede alguém em casamento. 💍",
+    "name": "divorciar",
+    "description": "Termina seu casamento 💔",
     "category": "interaction"
   },
   {
@@ -190,6 +190,11 @@
     "category": "moderation"
   },
   {
+    "name": "avisar",
+    "description": "Adverte um usuário.",
+    "category": "moderation"
+  },
+  {
     "name": "ban",
     "description": "Bane um usuário do servidor (permanente ou temporário).",
     "category": "moderation"
@@ -200,11 +205,6 @@
     "category": "moderation"
   },
   {
-    "name": "clear",
-    "description": "Apaga mensagens recentes do canal.",
-    "category": "moderation"
-  },
-  {
     "name": "history",
     "description": "Mostra o histórico de moderação de um usuário.",
     "category": "moderation"
@@ -212,6 +212,11 @@
   {
     "name": "kick",
     "description": "Expulsa um usuário do servidor.",
+    "category": "moderation"
+  },
+  {
+    "name": "limpar",
+    "description": "Limpa mensagens com filtros avançados.",
     "category": "moderation"
   },
   {
@@ -237,11 +242,6 @@
   {
     "name": "note",
     "description": "Adiciona uma anotação interna sobre um usuário (não envia DM).",
-    "category": "moderation"
-  },
-  {
-    "name": "purge",
-    "description": "Limpa mensagens com filtros avançados.",
     "category": "moderation"
   },
   {
@@ -282,11 +282,6 @@
   {
     "name": "unmute",
     "description": "Remove o silenciamento de um usuário.",
-    "category": "moderation"
-  },
-  {
-    "name": "warn",
-    "description": "Adverte um usuário.",
     "category": "moderation"
   },
   {

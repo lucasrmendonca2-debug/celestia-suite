@@ -16,7 +16,8 @@ const command: SlashCommand = {
     .setDescription("Comandos customizados do servidor (prefixo !)")
     .addSubcommand((s) =>
       s
-        .setName("add")
+        .setName("adicionar")
+        .setNameLocalizations({ "en-US": "add" })
         .setDescription("Adiciona/atualiza um comando")
         .addStringOption((o) => o.setName("nome").setDescription("Nome (sem !)").setRequired(true))
         .addStringOption((o) => o.setName("resposta").setDescription("Resposta — use {user}, {server}, {channel}").setRequired(true))
@@ -24,13 +25,13 @@ const command: SlashCommand = {
         .addBooleanOption((o) => o.setName("apagar_trigger").setDescription("Apagar mensagem que disparou")),
     )
     .addSubcommand((s) =>
-      s.setName("remove").setDescription("Remove um comando").addStringOption((o) => o.setName("nome").setDescription("Nome").setRequired(true)),
+      s.setName("remover").setNameLocalizations({ "en-US": "remove" }).setDescription("Remove um comando").addStringOption((o) => o.setName("nome").setDescription("Nome").setRequired(true)),
     )
-    .addSubcommand((s) => s.setName("list").setDescription("Lista todos")),
+    .addSubcommand((s) => s.setName("listar").setNameLocalizations({ "en-US": "list" }).setDescription("Lista todos")),
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guildId!;
-    if (sub === "add") {
+    if (sub === "adicionar") {
       const name = interaction.options.getString("nome", true).toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 32);
       if (!name) {
         await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Nome inválido" })], ephemeral: true });
@@ -55,7 +56,7 @@ const command: SlashCommand = {
         { upsert: true, setDefaultsOnInsert: true },
       );
       await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Comando salvo", description: `Use **!${name}** no chat.` })], ephemeral: true });
-    } else if (sub === "remove") {
+    } else if (sub === "remover") {
       const name = interaction.options.getString("nome", true).toLowerCase();
       await CustomCommand.deleteOne({ guildId, name });
       await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Removido" })], ephemeral: true });

@@ -14,7 +14,8 @@ const command: SlashCommand = {
     .setDescription("Editor de embeds avançado.")
     .addSubcommand((s) =>
       s
-        .setName("send")
+        .setName("enviar")
+        .setNameLocalizations({ "en-US": "send" })
         .setDescription("Envia um embed em um canal")
         .addChannelOption((o) => o.setName("canal").setDescription("Canal").addChannelTypes(ChannelType.GuildText).setRequired(true))
         .addStringOption((o) => o.setName("descricao").setDescription("Descrição (use {server}, {user})").setRequired(true))
@@ -27,17 +28,18 @@ const command: SlashCommand = {
     )
     .addSubcommand((s) =>
       s
-        .setName("send-template")
+        .setName("enviar-modelo")
+        .setNameLocalizations({ "en-US": "send-template" })
         .setDescription("Envia um template salvo")
         .addStringOption((o) => o.setName("nome").setDescription("Nome").setRequired(true))
         .addChannelOption((o) => o.setName("canal").setDescription("Canal").addChannelTypes(ChannelType.GuildText).setRequired(true)),
     )
-    .addSubcommand((s) => s.setName("templates").setDescription("Lista templates salvos")),
+    .addSubcommand((s) => s.setName("modelos").setNameLocalizations({ "en-US": "templates" }).setDescription("Lista templates salvos")),
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guildId!;
 
-    if (sub === "send") {
+    if (sub === "enviar") {
       const channel = interaction.options.getChannel("canal", true) as TextChannel;
       const vars = { user: `<@${interaction.user.id}>`, server: interaction.guild!.name };
       const title = interaction.options.getString("titulo") ?? undefined;
@@ -67,7 +69,7 @@ const command: SlashCommand = {
       return;
     }
 
-    if (sub === "send-template") {
+    if (sub === "enviar-modelo") {
       const name = interaction.options.getString("nome", true);
       const channel = interaction.options.getChannel("canal", true) as TextChannel;
       const t = await EmbedTemplate.findOne({ guildId, name });
@@ -87,7 +89,7 @@ const command: SlashCommand = {
       return;
     }
 
-    if (sub === "templates") {
+    if (sub === "modelos") {
       const list = await EmbedTemplate.find({ guildId }).limit(25);
       await interaction.reply({
         embeds: [brandEmbed({ title: "🎨 Templates de Embed", description: list.length ? list.map((t) => `• **${t.name}**`).join("\n") : "Nenhum." })],

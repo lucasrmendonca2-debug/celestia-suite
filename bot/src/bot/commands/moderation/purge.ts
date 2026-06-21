@@ -11,7 +11,8 @@ const command: SlashCommand = {
   cooldown: 5,
   guildOnly: true,
   data: new SlashCommandBuilder()
-    .setName("purge")
+    .setName("limpar")
+    .setNameLocalizations({ "en-US": "purge" })
     .setDescription("Limpa mensagens com filtros avançados.")
     .addIntegerOption((o) =>
       o.setName("quantidade").setDescription("1-100").setRequired(true).setMinValue(1).setMaxValue(100),

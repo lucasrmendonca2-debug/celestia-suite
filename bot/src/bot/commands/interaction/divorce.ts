@@ -7,7 +7,10 @@ const command: SlashCommand = {
   category: "interaction",
   cooldown: 5,
   guildOnly: true,
-  data: new SlashCommandBuilder().setName("divorce").setDescription("Termina seu casamento 💔"),
+  data: new SlashCommandBuilder()
+    .setName("divorciar")
+    .setNameLocalizations({ "en-US": "divorce" })
+    .setDescription("Termina seu casamento 💔"),
   async execute(interaction) {
     const m = await Marriage.findOne({
       status: "MARRIED",

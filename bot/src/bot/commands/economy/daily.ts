@@ -21,7 +21,8 @@ const command: SlashCommand = {
   cooldown: 3,
   guildOnly: true,
   data: new SlashCommandBuilder()
-    .setName("daily")
+    .setName("diario")
+    .setNameLocalizations({ "en-US": "daily" })
     .setDescription("Resgate sua recompensa diária no site."),
   async execute(interaction) {
     const guildId = interaction.guildId!;

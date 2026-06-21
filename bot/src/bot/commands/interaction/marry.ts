@@ -8,7 +8,8 @@ const command: SlashCommand = {
   cooldown: 5,
   guildOnly: true,
   data: new SlashCommandBuilder()
-    .setName("marry")
+    .setName("casar")
+    .setNameLocalizations({ "en-US": "marry" })
     .setDescription("Pede alguém em casamento. 💍")
     .addUserOption((o) => o.setName("usuario").setDescription("Sua cara-metade").setRequired(true)),
   async execute(interaction) {

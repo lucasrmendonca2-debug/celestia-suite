@@ -21,10 +21,11 @@ const command: SlashCommand = {
   data: new SlashCommandBuilder()
     .setName("loja").setNameLocalizations({"en-US":"shop"})
     .setDescription("Loja do servidor.")
-    .addSubcommand((s) => s.setName("list").setDescription("Lista itens"))
+    .addSubcommand((s) => s.setName("listar").setNameLocalizations({ "en-US": "list" }).setDescription("Lista itens"))
     .addSubcommand((s) =>
       s
-        .setName("add")
+        .setName("adicionar")
+        .setNameLocalizations({ "en-US": "add" })
         .setDescription("Staff: adiciona item")
         .addStringOption((o) => o.setName("nome").setDescription("Nome").setRequired(true))
         .addIntegerOption((o) => o.setName("preco").setDescription("Preço").setRequired(true).setMinValue(0))
@@ -34,13 +35,15 @@ const command: SlashCommand = {
     )
     .addSubcommand((s) =>
       s
-        .setName("remove")
+        .setName("remover")
+        .setNameLocalizations({ "en-US": "remove" })
         .setDescription("Staff: remove item")
         .addStringOption((o) => o.setName("nome").setDescription("Nome").setRequired(true)),
     )
     .addSubcommand((s) =>
       s
-        .setName("buy")
+        .setName("comprar")
+        .setNameLocalizations({ "en-US": "buy" })
         .setDescription("Compra um item")
         .addStringOption((o) => o.setName("nome").setDescription("Nome").setRequired(true))
         .addIntegerOption((o) => o.setName("quantidade").setDescription("Qtd").setMinValue(1)),
@@ -55,11 +58,11 @@ const command: SlashCommand = {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guildId!;
     const c = await getCurrency(guildId);
-    if (sub === "list" || sub === "buy" || sub === "rotacao" || sub === "rotacionar") {
+    if (sub === "listar" || sub === "comprar" || sub === "rotacao" || sub === "rotacionar") {
       await syncDashboardShopItems(guildId);
     }
 
-    if (sub === "list") {
+    if (sub === "listar") {
       const [items, rotation] = await Promise.all([
         ShopItem.find({ guildId, enabled: true }).limit(25),
         ensureRotation(guildId),
@@ -87,7 +90,7 @@ const command: SlashCommand = {
             title: "🛒 Loja do servidor",
             description: items.length
               ? lines.join("\n\n")
-              : "Nenhum item na loja ainda. Staff: use `/loja add`.",
+              : "Nenhum item na loja ainda. Staff: use `/loja adicionar`.",
             footer: expires
               ? `Rotação reseta em <t:${Math.floor(new Date(expires).getTime() / 1000)}:R>`
               : undefined,
@@ -101,7 +104,7 @@ const command: SlashCommand = {
       const rotation = await ensureRotation(guildId);
       if (!rotation.length) {
         await interaction.reply({
-          embeds: [brandEmbed({ kind: "info", title: "Sem rotação ativa", description: "Adicione itens com `/loja add` primeiro." })],
+          embeds: [brandEmbed({ kind: "info", title: "Sem rotação ativa", description: "Adicione itens com `/loja adicionar` primeiro." })],
           ephemeral: true,
         });
         return;
@@ -158,7 +161,7 @@ const command: SlashCommand = {
     }
 
 
-    if (sub === "add") {
+    if (sub === "adicionar") {
       if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
         await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem permissão" })], ephemeral: true });
         return;
@@ -177,7 +180,7 @@ const command: SlashCommand = {
       return;
     }
 
-    if (sub === "remove") {
+    if (sub === "remover") {
       if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
         await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem permissão" })], ephemeral: true });
         return;
@@ -188,7 +191,7 @@ const command: SlashCommand = {
       return;
     }
 
-    if (sub === "buy") {
+    if (sub === "comprar") {
       const name = interaction.options.getString("nome", true);
       const qty = interaction.options.getInteger("quantidade") ?? 1;
       const item = await ShopItem.findOne({ guildId, name, enabled: true });

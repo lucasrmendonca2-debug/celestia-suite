@@ -621,7 +621,7 @@ function GeneralTab({
       <WebhookCard guildId={guildId} cfg={form} />
 
       <div className="sticky bottom-4 z-10 rounded-xl border border-border bg-card/80 p-3 shadow-2xl backdrop-blur supports-[backdrop-filter]:bg-card/60">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="grid grid-cols-1 items-center gap-3 sm:flex sm:flex-wrap sm:justify-between">
           <p className="text-xs text-muted-foreground">
             💡 Salve antes de <strong>enviar</strong> ou <strong>editar</strong> o painel.
           </p>

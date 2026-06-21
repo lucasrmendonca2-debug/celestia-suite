@@ -227,7 +227,7 @@ function PermissionsPage() {
                         : "color-mix(in oklab, var(--card) 80%, transparent)",
                     }}
                   >
-                    <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+                    <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 sm:flex sm:flex-wrap sm:justify-between">
                       <div className="flex items-center gap-2">
                         <span
                           className="size-3 rounded-full ring-2 ring-background"

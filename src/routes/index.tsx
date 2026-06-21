@@ -513,19 +513,29 @@ function Landing() {
 
 const CLIMB_FRAMES = [
   chibiClimb1,
+  chibiClimb1a,
   chibiClimb1b,
+  chibiClimb1c,
   chibiClimb2,
+  chibiClimb2a,
   chibiClimb2b,
+  chibiClimb2c,
   chibiClimb3,
+  chibiClimb3a,
   chibiClimb3b,
+  chibiClimb3c,
   chibiClimb4,
+  chibiClimb4a,
   chibiClimb4b,
+  chibiClimb4c,
   chibiClimb5,
+  chibiClimb5a,
   chibiClimb5b,
+  chibiClimb5c,
   chibiClimb6,
 ];
-const FRAME_MS = 55; // ~18fps, ~600ms a escalada toda
-const IDLE_FRAMES = [10, 9, 10, 8]; // balança entre poses sentadas no topo
+const FRAME_MS = 33; // ~30fps, ~700ms a escalada inteira
+const IDLE_FRAMES = [20, 18, 20, 16]; // alterna entre poses sentadas no topo
 
 function PeekButton({
   href,

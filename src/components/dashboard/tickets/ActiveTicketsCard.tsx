@@ -8,6 +8,7 @@ import {
   deleteActiveTicket,
 } from "@/lib/guild/tickets.functions";
 import { Button } from "@/components/ui/button";
+import { ChannelBadge } from "@/components/dashboard/DiscordBadges";
 
 export function ActiveTicketsCard({ guildId }: { guildId: string }) {
   const list = useServerFn(listOpenTickets);

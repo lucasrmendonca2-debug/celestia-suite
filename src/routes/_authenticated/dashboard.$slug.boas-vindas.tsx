@@ -12,6 +12,7 @@ import {
 } from "@/lib/guild/guild.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
 import { ChannelSelect } from "@/components/dashboard/selectors/ChannelSelect";
+import { DiscordMessagePreview } from "@/components/dashboard/DiscordMessagePreview";
 import { SaveBar } from "@/components/dashboard/SaveBar";
 import {
   AuroraSection,
@@ -207,28 +208,17 @@ function WelcomePage() {
             />
           </AuroraField>
 
-          {/* Live preview */}
-          <div
-            className="rounded-xl border border-[color:color-mix(in_oklab,var(--aurora-pink)_30%,var(--border))] bg-[color:color-mix(in_oklab,var(--aurora-pink)_6%,var(--card))] p-4"
-          >
+          {/* Live preview — Discord style */}
+          <div className="mt-3">
             <div className="mb-2 flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
               <Eye className="size-3" /> Pré-visualização
             </div>
-            {form.welcome_embed_enabled ? (
-              <div className="flex gap-3">
-                <div
-                  className="w-1 shrink-0 rounded-full"
-                  style={{ background: form.welcome_embed_color }}
-                />
-                <div className="text-sm leading-relaxed">
-                  {renderPreview(form.welcome_message, guild.name)}
-                </div>
-              </div>
-            ) : (
-              <div className="text-sm leading-relaxed">
-                {renderPreview(form.welcome_message, guild.name)}
-              </div>
-            )}
+            <DiscordMessagePreview
+              content={renderPreview(form.welcome_message, guild.name)}
+              embed={form.welcome_embed_enabled}
+              embedColor={form.welcome_embed_color}
+              botName={guild.name}
+            />
           </div>
         </AuroraSection>
 

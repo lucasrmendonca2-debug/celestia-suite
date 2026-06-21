@@ -22,6 +22,7 @@ import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedServidoresRouteImport } from './routes/_authenticated/servidores'
+import { Route as AuthenticatedDevLogsRouteImport } from './routes/_authenticated/dev-logs'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as ApiPublicBotGuildPresenceRouteImport } from './routes/api/public/bot-guild-presence'
 import { Route as ApiAuthLogoutRouteImport } from './routes/api/auth/logout'
@@ -114,6 +115,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedServidoresRoute = AuthenticatedServidoresRouteImport.update({
   id: '/servidores',
   path: '/servidores',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedDevLogsRoute = AuthenticatedDevLogsRouteImport.update({
+  id: '/dev-logs',
+  path: '/dev-logs',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedDashboardIndexRoute =
@@ -299,6 +305,7 @@ export interface FileRoutesByFullPath {
   '/recursos': typeof RecursosRoute
   '/status': typeof StatusRoute
   '/suporte': typeof SuporteRoute
+  '/dev-logs': typeof AuthenticatedDevLogsRoute
   '/servidores': typeof AuthenticatedServidoresRoute
   '/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/dashboard/$slug': typeof AuthenticatedDashboardSlugRouteWithChildren
@@ -342,6 +349,7 @@ export interface FileRoutesByTo {
   '/recursos': typeof RecursosRoute
   '/status': typeof StatusRoute
   '/suporte': typeof SuporteRoute
+  '/dev-logs': typeof AuthenticatedDevLogsRoute
   '/servidores': typeof AuthenticatedServidoresRoute
   '/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/g/$guildId': typeof AuthenticatedGGuildIdRouteWithChildren
@@ -386,6 +394,7 @@ export interface FileRoutesById {
   '/recursos': typeof RecursosRoute
   '/status': typeof StatusRoute
   '/suporte': typeof SuporteRoute
+  '/_authenticated/dev-logs': typeof AuthenticatedDevLogsRoute
   '/_authenticated/servidores': typeof AuthenticatedServidoresRoute
   '/_authenticated/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/_authenticated/dashboard/$slug': typeof AuthenticatedDashboardSlugRouteWithChildren
@@ -431,6 +440,7 @@ export interface FileRouteTypes {
     | '/recursos'
     | '/status'
     | '/suporte'
+    | '/dev-logs'
     | '/servidores'
     | '/admin/premium'
     | '/dashboard/$slug'
@@ -474,6 +484,7 @@ export interface FileRouteTypes {
     | '/recursos'
     | '/status'
     | '/suporte'
+    | '/dev-logs'
     | '/servidores'
     | '/admin/premium'
     | '/g/$guildId'
@@ -517,6 +528,7 @@ export interface FileRouteTypes {
     | '/recursos'
     | '/status'
     | '/suporte'
+    | '/_authenticated/dev-logs'
     | '/_authenticated/servidores'
     | '/_authenticated/admin/premium'
     | '/_authenticated/dashboard/$slug'
@@ -659,6 +671,13 @@ declare module '@tanstack/react-router' {
       path: '/servidores'
       fullPath: '/servidores'
       preLoaderRoute: typeof AuthenticatedServidoresRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dev-logs': {
+      id: '/_authenticated/dev-logs'
+      path: '/dev-logs'
+      fullPath: '/dev-logs'
+      preLoaderRoute: typeof AuthenticatedDevLogsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dashboard/': {
@@ -951,6 +970,7 @@ const AuthenticatedGGuildIdRouteWithChildren =
   )
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedDevLogsRoute: typeof AuthenticatedDevLogsRoute
   AuthenticatedServidoresRoute: typeof AuthenticatedServidoresRoute
   AuthenticatedAdminPremiumRoute: typeof AuthenticatedAdminPremiumRoute
   AuthenticatedDashboardSlugRoute: typeof AuthenticatedDashboardSlugRouteWithChildren
@@ -959,6 +979,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedDevLogsRoute: AuthenticatedDevLogsRoute,
   AuthenticatedServidoresRoute: AuthenticatedServidoresRoute,
   AuthenticatedAdminPremiumRoute: AuthenticatedAdminPremiumRoute,
   AuthenticatedDashboardSlugRoute: AuthenticatedDashboardSlugRouteWithChildren,

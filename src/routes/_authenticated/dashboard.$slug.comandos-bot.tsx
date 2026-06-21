@@ -24,7 +24,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import { MultiRoleSelect } from "@/components/dashboard/selectors/MultiRoleSelect";
 import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard/$slug/comandos-bot")({
   loader: async ({ context, params }) => {

@@ -1,4 +1,5 @@
 import { useServerFn } from "@tanstack/react-start";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Trash2, Inbox } from "lucide-react";

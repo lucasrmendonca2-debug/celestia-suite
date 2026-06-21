@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { useServerFn } from "@tanstack/react-start";
 import {
   useMutation,

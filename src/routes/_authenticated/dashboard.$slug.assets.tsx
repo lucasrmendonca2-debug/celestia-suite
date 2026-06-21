@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Copy, Plus, RefreshCw, Trash2, ExternalLink, Palette, Image as ImageIcon, Sparkles } from "lucide-react";

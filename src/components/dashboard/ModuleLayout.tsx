@@ -60,9 +60,10 @@ export function ModuleLayout({
             <span className="text-foreground">{title}</span>
           </nav>
 
-          <header className="aurora-panel mb-6 flex items-start justify-between gap-4 p-5 sm:p-6">
-            <div className="flex items-start gap-4">
-              <div className="relative flex size-12 items-center justify-center rounded-2xl text-foreground"
+          <header className="aurora-panel mb-6 grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3 p-5 sm:gap-4 sm:p-6">
+            <div className="flex min-w-0 items-start gap-3 sm:gap-4">
+              <div
+                className="relative flex size-11 shrink-0 items-center justify-center rounded-2xl text-foreground sm:size-12"
                 style={{
                   background:
                     "linear-gradient(135deg, color-mix(in oklab, var(--aurora-lavender) 35%, transparent), color-mix(in oklab, var(--aurora-pink) 25%, transparent))",
@@ -72,16 +73,22 @@ export function ModuleLayout({
               >
                 <Icon className="size-5" />
               </div>
-              <div>
-                <h1 className="font-display text-xl font-bold tracking-tight sm:text-2xl">
+              <div className="min-w-0">
+                <h1 className="font-display truncate text-lg font-bold tracking-tight sm:text-2xl">
                   {title}
                 </h1>
                 {description && (
-                  <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+                  <p className="mt-1 text-xs text-muted-foreground sm:text-sm">
+                    {description}
+                  </p>
                 )}
               </div>
             </div>
-            {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
+            {actions && (
+              <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
+                {actions}
+              </div>
+            )}
           </header>
 
           {children}

@@ -94,6 +94,7 @@ function CommandsPage() {
       use_embed: !!r.embed,
       embed: r.embed ?? EMPTY.embed,
       enabled: r.enabled,
+      required_roles: Array.isArray(r.required_roles) ? r.required_roles : [],
     });
 
   const save = useMutation({
@@ -106,7 +107,8 @@ function CommandsPage() {
           description: selected.description,
           response_text: selected.use_embed ? null : selected.response_text,
           embed: selected.use_embed ? selected.embed : null,
-          required_roles: [],
+          required_roles: selected.required_roles,
+
           enabled: selected.enabled,
         },
       }),

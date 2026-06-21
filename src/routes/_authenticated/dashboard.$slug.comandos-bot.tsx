@@ -55,6 +55,7 @@ interface CmdForm {
   use_embed: boolean;
   embed: EmbedData;
   enabled: boolean;
+  required_roles: string[];
 }
 
 const EMPTY: CmdForm = {
@@ -64,7 +65,9 @@ const EMPTY: CmdForm = {
   use_embed: false,
   embed: { color: "#5865F2", description: "Olá, mundo!" },
   enabled: true,
+  required_roles: [],
 };
+
 
 function CommandsPage() {
   const { user } = Route.useLoaderData();

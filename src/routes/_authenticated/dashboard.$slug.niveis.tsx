@@ -221,16 +221,13 @@ function LevelingPage() {
               label="Canal de level up"
               hint="Vazio = envia no mesmo canal da mensagem que subiu de nível."
             >
-              <Input
-                placeholder="ID do canal"
-                value={form.level_up_channel_id ?? ""}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    level_up_channel_id: e.target.value.trim() || null,
-                  })
-                }
+              <ChannelSelect
+                guildId={guildId}
+                value={form.level_up_channel_id ?? null}
+                onChange={(id) => setForm({ ...form, level_up_channel_id: id })}
+                placeholder="Selecione um canal"
               />
+
             </AuroraField>
             <AuroraField
               label="Texto enviado"

@@ -288,11 +288,14 @@ function LevelingPage() {
                 value={newLevel}
                 onChange={(e) => setNewLevel(e.target.value)}
               />
-              <Input
-                placeholder="ID do cargo"
-                value={newRoleId}
-                onChange={(e) => setNewRoleId(e.target.value.trim())}
+              <RoleSelect
+                guildId={guildId}
+                value={newRoleId || null}
+                onChange={(id) => setNewRoleId(id ?? "")}
+                excludeManaged
+                placeholder="Selecione um cargo"
               />
+
               <Button
                 onClick={() => addReward.mutate()}
                 disabled={!newLevel || !newRoleId || addReward.isPending}

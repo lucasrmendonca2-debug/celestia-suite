@@ -807,22 +807,34 @@ function SwitchRow({
   desc,
   checked,
   onChange,
+  disabled,
+  badge,
 }: {
   title: string;
   desc?: string;
   checked: boolean;
   onChange: (v: boolean) => void;
+  disabled?: boolean;
+  badge?: string;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 rounded-lg border border-border bg-background/40 p-4">
+    <div className={`flex items-center justify-between gap-4 rounded-lg border border-border bg-background/40 p-4 ${disabled ? "opacity-60" : ""}`}>
       <div>
-        <Label className="text-sm font-medium">{title}</Label>
+        <div className="flex items-center gap-2">
+          <Label className="text-sm font-medium">{title}</Label>
+          {badge && (
+            <span className="rounded-md border border-amber-500/40 bg-amber-500/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-amber-300">
+              {badge}
+            </span>
+          )}
+        </div>
         {desc && <p className="text-xs text-muted-foreground">{desc}</p>}
       </div>
-      <Switch checked={checked} onCheckedChange={onChange} />
+      <Switch checked={checked} onCheckedChange={onChange} disabled={disabled} />
     </div>
   );
 }
+
 
 function emptyToNull(v: string | null | undefined) {
   if (v === null || v === undefined) return null;

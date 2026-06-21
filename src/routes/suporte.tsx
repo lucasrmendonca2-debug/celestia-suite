@@ -8,6 +8,12 @@ export const Route = createFileRoute("/suporte")({
     meta: [
       { title: "Suporte & FAQ — Zenox" },
       { name: "description", content: "Tire dúvidas, leia o FAQ e fale com a equipe do Zenox." },
+      { property: "og:title", content: "Suporte & FAQ — Zenox" },
+      { property: "og:description", content: "Tire dúvidas, leia o FAQ e fale com a equipe do Zenox." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+      { name: "twitter:title", content: "Suporte & FAQ — Zenox" },
+      { name: "twitter:description", content: "Tire dúvidas, leia o FAQ e fale com a equipe do Zenox." },
     ],
   }),
   component: Suporte,

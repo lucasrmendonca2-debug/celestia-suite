@@ -74,13 +74,14 @@ function oauthStateSecret(): string {
   return process.env.SESSION_SECRET ?? "dev-only-secret-please-change-32+chars";
 }
 
-export function createOAuthState(): string {
-  const payload = Buffer.from(JSON.stringify({ nonce: crypto.randomUUID(), iat: Date.now() })).toString("base64url");
+export function createOAuthState(): { state: string; nonce: string } {
+  const nonce = crypto.randomUUID();
+  const payload = Buffer.from(JSON.stringify({ nonce, iat: Date.now() })).toString("base64url");
   const signature = createHmac("sha256", oauthStateSecret()).update(payload).digest("base64url");
-  return `${payload}.${signature}`;
+  return { state: `${payload}.${signature}`, nonce };
 }
 
-export function verifyOAuthState(state: string): boolean {
+export function verifyOAuthState(state: string, expectedNonce?: string | null): boolean {
   const [payload, signature] = state.split(".");
   if (!payload || !signature) return false;
   const expected = createHmac("sha256", oauthStateSecret()).update(payload).digest("base64url");
@@ -89,12 +90,17 @@ export function verifyOAuthState(state: string): boolean {
   if (givenBuffer.length !== expectedBuffer.length || !timingSafeEqual(givenBuffer, expectedBuffer)) return false;
 
   try {
-    const data = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as { iat?: number };
-    return typeof data.iat === "number" && Date.now() - data.iat < 10 * 60 * 1000;
+    const data = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as { iat?: number; nonce?: string };
+    if (typeof data.iat !== "number" || Date.now() - data.iat >= 10 * 60 * 1000) return false;
+    if (!expectedNonce || !data.nonce) return false;
+    const a = Buffer.from(data.nonce);
+    const b = Buffer.from(expectedNonce);
+    return a.length === b.length && timingSafeEqual(a, b);
   } catch {
     return false;
   }
 }
+
 
 function safeBrowserOrigin(origin: string | null): string | null {
   if (!origin) return null;

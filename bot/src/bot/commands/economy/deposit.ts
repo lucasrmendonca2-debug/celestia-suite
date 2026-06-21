@@ -18,7 +18,8 @@ const command: SlashCommand = {
     const raw = interaction.options.getString("valor", true);
     const acc = await getAccount(guildId, interaction.user.id);
     const max = Math.max(0, acc.bankCap - acc.bank);
-    const amount = raw === "all" ? Math.min(acc.wallet, max) : Math.max(0, Number(raw) | 0);
+    const parsed = raw === "all" ? Math.min(acc.wallet, max) : Math.trunc(Number(raw));
+    const amount = Number.isFinite(parsed) && parsed > 0 ? Math.max(0, parsed) : 0;
     if (!amount || amount > acc.wallet) {
       await interaction.reply({
         embeds: [ui.error({ title: "Valor inválido", description: "Verifique seu saldo na carteira e tente novamente." })],

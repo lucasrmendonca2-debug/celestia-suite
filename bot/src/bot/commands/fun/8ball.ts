@@ -14,7 +14,7 @@ const command: SlashCommand = {
   data: new SlashCommandBuilder()
     .setName("8ball")
     .setDescription("Faça uma pergunta para a bola mágica 🎱.")
-    .addStringOption((o) => o.setName("pergunta").setDescription("Sua pergunta").setRequired(true)),
+    .addStringOption((o) => o.setName("pergunta").setDescription("Sua pergunta").setRequired(true).setMaxLength(1000)),
   async execute(interaction) {
     const q = interaction.options.getString("pergunta", true);
     const r = RESPOSTAS[Math.floor(Math.random() * RESPOSTAS.length)]!;

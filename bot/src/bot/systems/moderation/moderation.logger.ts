@@ -23,6 +23,7 @@ const ACTION_LABELS: Record<PunishmentType, string> = {
   LOCK: "Canal trancado",
   UNLOCK: "Canal destrancado",
   SLOWMODE: "Slowmode",
+  NICKNAME: "Apelido alterado",
 };
 
 export function actionLabel(type: PunishmentType) {

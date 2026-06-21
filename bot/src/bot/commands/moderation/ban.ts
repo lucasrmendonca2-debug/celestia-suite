@@ -52,7 +52,7 @@ const command: SlashCommand = {
 
     const author = await guild.members.fetch(interaction.user.id);
     const durationSec = parseDurationSeconds(interaction.options.getString("duracao"));
-    const capability = durationSec ? "can_ban" : "can_ban";
+    const capability = "can_ban";
     if (!(await hasModCapability(author, capability))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para banir." })],

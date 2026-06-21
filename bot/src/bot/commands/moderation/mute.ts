@@ -93,6 +93,22 @@ const command: SlashCommand = {
       });
     }
 
+    // Pré-validação ANTES de criar caso / mandar DM, pra não deixar caso fantasma.
+    if (config.mute_role_id) {
+      const roleExists = await guild.roles.fetch(config.mute_role_id).catch(() => null);
+      if (!roleExists) {
+        return interaction.reply({
+          embeds: [brandEmbed({ kind: "error", title: "Cargo de mute não encontrado." })],
+          ephemeral: true,
+        });
+      }
+    } else if (!member.moderatable) {
+      return interaction.reply({
+        embeds: [brandEmbed({ kind: "error", title: "Não consigo silenciar (hierarquia)." })],
+        ephemeral: true,
+      });
+    }
+
     await interaction.deferReply();
     const expiresAt = new Date(Date.now() + durationSec * 1000);
     const modCase = await createCase({
@@ -121,18 +137,10 @@ const command: SlashCommand = {
 
     if (config.mute_role_id) {
       const role = await guild.roles.fetch(config.mute_role_id).catch(() => null);
-      if (!role) {
-        return interaction.editReply({
-          embeds: [brandEmbed({ kind: "error", title: "Cargo de mute não encontrado." })],
-        });
+      if (role) {
+        await member.roles.add(role, `[${interaction.user.tag}] ${reason ?? "mute"}`);
       }
-      await member.roles.add(role, `[${interaction.user.tag}] ${reason ?? "mute"}`);
     } else {
-      if (!member.moderatable) {
-        return interaction.editReply({
-          embeds: [brandEmbed({ kind: "error", title: "Não consigo silenciar (hierarquia)." })],
-        });
-      }
       await member.timeout(Math.min(durationSec, MAX_TIMEOUT) * 1000, `[${interaction.user.tag}] ${reason ?? "mute"}`);
     }
 

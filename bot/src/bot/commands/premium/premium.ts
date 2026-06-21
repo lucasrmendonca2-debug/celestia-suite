@@ -111,6 +111,7 @@ const command: SlashCommand = {
             image: banner,
           }),
         ],
+        ephemeral: true,
       });
     }
   },

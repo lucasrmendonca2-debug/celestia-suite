@@ -67,7 +67,7 @@ const command: SlashCommand = {
     });
     await postModerationLog({
       guild,
-      type: "WARN",
+      type: "NICKNAME",
       target: user,
       moderator: interaction.user,
       reason: `Apelido: \`${oldNick}\` → \`${nick ?? "(reset)"}\``,

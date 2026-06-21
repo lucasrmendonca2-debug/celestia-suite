@@ -12,7 +12,8 @@ export type PunishmentType =
   | "UNLOCK"
   | "SLOWMODE"
   | "UNBAN"
-  | "UNMUTE";
+  | "UNMUTE"
+  | "NICKNAME";
 
 export interface ModerationConfig {
   guild_id: string;

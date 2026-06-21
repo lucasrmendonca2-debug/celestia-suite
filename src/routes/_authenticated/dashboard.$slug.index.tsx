@@ -73,11 +73,11 @@ function GuildOverviewPage() {
 
   const checklist = [
     { key: "bot", ok: overview.bot.present, label: "Bot presente no servidor", to: null, cta: "" },
-    { key: "logs", ok: overview.config.logsChannelSet, label: "Canal de logs configurado", to: `/g/${guild.id}/logs`, cta: "Configurar" },
-    { key: "welcome", ok: overview.config.welcomeEnabled && overview.config.welcomeChannelSet, label: "Boas-vindas ativas", to: `/g/${guild.id}/boas-vindas`, cta: "Configurar" },
-    { key: "tickets", ok: overview.config.ticketsEnabled && overview.config.ticketsConfigured, label: "Tickets configurados", to: `/g/${guild.id}/tickets`, cta: "Configurar" },
-    { key: "moderation", ok: overview.config.moderationConfigured, label: "Moderação ativada", to: `/g/${guild.id}/moderacao`, cta: "Configurar" },
-    { key: "economy", ok: overview.config.economyEnabled, label: "Economia ativada", to: `/g/${guild.id}/economia`, cta: "Configurar" },
+    { key: "logs", ok: overview.config.logsChannelSet, label: "Canal de logs configurado", to: `/dashboard/${slug}/logs`, cta: "Configurar" },
+    { key: "welcome", ok: overview.config.welcomeEnabled && overview.config.welcomeChannelSet, label: "Boas-vindas ativas", to: `/dashboard/${slug}/boas-vindas`, cta: "Configurar" },
+    { key: "tickets", ok: overview.config.ticketsEnabled && overview.config.ticketsConfigured, label: "Tickets configurados", to: `/dashboard/${slug}/tickets`, cta: "Configurar" },
+    { key: "moderation", ok: overview.config.moderationConfigured, label: "Moderação ativada", to: `/dashboard/${slug}/moderacao`, cta: "Configurar" },
+    { key: "economy", ok: overview.config.economyEnabled, label: "Economia ativada", to: `/dashboard/${slug}/economia`, cta: "Configurar" },
     { key: "permissions", ok: overview.bot.isAdmin || missing.length === 0, label: "Permissões do bot ok", to: null, cta: "" },
   ];
 
@@ -287,12 +287,12 @@ function GuildOverviewPage() {
               <p className="text-xs text-muted-foreground">Toda alteração é lida ao vivo pelo bot.</p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <QuickAction to={`/g/${guild.id}/boas-vindas`} icon={Sparkles} tone="lavender" title="Boas-vindas" desc="Mensagem e embed para novos." />
-              <QuickAction to={`/g/${guild.id}/logs`} icon={ScrollText} tone="cyan" title="Logs" desc="Tudo que acontece no servidor." />
-              <QuickAction to={`/g/${guild.id}/tickets`} icon={Ticket} tone="pink" title="Tickets" desc="Painel de atendimento." />
-              <QuickAction to={`/g/${guild.id}/moderacao`} icon={Shield} tone="mint" title="Moderação" desc="Warns, mutes, kicks e bans." />
-              <QuickAction to={`/g/${guild.id}/economia`} icon={Coins} tone="peach" title="Economia" desc="Moeda, daily, work, loja." />
-              <QuickAction to={`/g/${guild.id}/social`} icon={TrendingUp} tone="lavender" title="Social & Level" desc="XP, ranking, recompensas." />
+              <QuickAction to={`/dashboard/${slug}/boas-vindas`} icon={Sparkles} tone="lavender" title="Boas-vindas" desc="Mensagem e embed para novos." />
+              <QuickAction to={`/dashboard/${slug}/logs`} icon={ScrollText} tone="cyan" title="Logs" desc="Tudo que acontece no servidor." />
+              <QuickAction to={`/dashboard/${slug}/tickets`} icon={Ticket} tone="pink" title="Tickets" desc="Painel de atendimento." />
+              <QuickAction to={`/dashboard/${slug}/moderacao`} icon={Shield} tone="mint" title="Moderação" desc="Warns, mutes, kicks e bans." />
+              <QuickAction to={`/dashboard/${slug}/economia`} icon={Coins} tone="peach" title="Economia" desc="Moeda, daily, work, loja." />
+              <QuickAction to={`/dashboard/${slug}/social`} icon={TrendingUp} tone="lavender" title="Social & Level" desc="XP, ranking, recompensas." />
             </div>
           </section>
         </main>

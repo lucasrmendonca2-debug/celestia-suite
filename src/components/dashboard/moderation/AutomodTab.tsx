@@ -370,3 +370,64 @@ function ToggleRow({
     </div>
   );
 }
+
+function BlacklistEditor({
+  words,
+  onChange,
+}: {
+  words: string[];
+  onChange: (v: string[]) => void;
+}) {
+  const [draft, setDraft] = useState("");
+  const add = () => {
+    const parts = draft.split(/[\n,]/).map((x) => x.trim().toLowerCase()).filter(Boolean);
+    if (!parts.length) return;
+    const next = Array.from(new Set([...words, ...parts]));
+    onChange(next);
+    setDraft("");
+  };
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-1.5 rounded-lg border border-border/50 bg-background/40 p-3 min-h-[60px]">
+        {words.length === 0 && (
+          <span className="text-xs text-muted-foreground italic">Nenhuma palavra filtrada.</span>
+        )}
+        {words.map((w) => (
+          <span
+            key={w}
+            className="inline-flex items-center gap-1 rounded-full border border-rose-500/40 bg-rose-500/10 px-2.5 py-1 text-xs font-medium text-rose-300"
+          >
+            {w}
+            <button
+              type="button"
+              onClick={() => onChange(words.filter((x) => x !== w))}
+              className="rounded-full p-0.5 hover:bg-rose-500/20"
+              aria-label={`Remover ${w}`}
+            >
+              <X className="size-3" />
+            </button>
+          </span>
+        ))}
+      </div>
+      <div className="flex gap-2">
+        <Input
+          placeholder="Adicionar palavra(s) — separe por vírgula"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              add();
+            }
+          }}
+        />
+        <Button type="button" variant="outline" onClick={add} disabled={!draft.trim()}>
+          <Plus className="mr-1 size-4" /> Adicionar
+        </Button>
+      </div>
+      <div className="text-xs text-muted-foreground">
+        {words.length} palavra{words.length === 1 ? "" : "s"} na blacklist
+      </div>
+    </div>
+  );
+}

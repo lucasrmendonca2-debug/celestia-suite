@@ -1,63 +1,62 @@
-## Escopo proposto
+# Plano — consertar erros e plugar dados reais
 
-O projeto tem 22 páginas no dashboard + páginas públicas. Refazer "tudo do zero" é grande — proponho fazer em fases, validando cada uma antes de continuar.
+Quatro frentes, em ordem de impacto. Posso fazer tudo numa sequência de mensagens; cada bloco abaixo é uma etapa entregável.
 
-### Fase 1 — Reestruturação de rotas (URLs bonitas)
-Renomear arquivos para URLs mais limpas:
+## 1. Erro "Missing Supabase environment variable(s)"
 
-```
-ANTES                                         DEPOIS
-/dashboard/$guildId                       →   /g/$guildId
-/dashboard/$guildId/moderation            →   /g/$guildId/moderacao
-/dashboard/$guildId/automod               →   /g/$guildId/automod
-/dashboard/$guildId/autorole              →   /g/$guildId/cargo-automatico
-/dashboard/$guildId/welcome               →   /g/$guildId/boas-vindas
-/dashboard/$guildId/leveling              →   /g/$guildId/niveis
-/dashboard/$guildId/economy               →   /g/$guildId/economia
-/dashboard/$guildId/tickets               →   /g/$guildId/tickets
-/dashboard/$guildId/logs                  →   /g/$guildId/logs
-/dashboard/$guildId/embeds                →   /g/$guildId/embeds
-/dashboard/$guildId/community             →   /g/$guildId/comunidade
-/dashboard/$guildId/social                →   /g/$guildId/social
-/dashboard/$guildId/seasons               →   /g/$guildId/temporadas
-/dashboard/$guildId/achievements          →   /g/$guildId/conquistas
-/dashboard/$guildId/badges                →   /g/$guildId/badges
-/dashboard/$guildId/reaction-roles        →   /g/$guildId/cargos-reacao
-/dashboard/$guildId/commands              →   /g/$guildId/comandos
-/dashboard/$guildId/assets                →   /g/$guildId/assets
-/dashboard/$guildId/premium               →   /g/$guildId/premium
-/dashboard/$guildId/permissoes            →   /g/$guildId/permissoes
-/dashboard                                →   /servidores
-/admin/premium                            →   /admin/premium (mantém)
-/login                                    →   /entrar
-/comandos                                 →   /comandos (mantém)
-```
+**Sintoma:** tela "Algo deu errado" no preview e no publicado ao abrir `/g/<guildId>`. A mensagem cita `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY`.
 
-Atualizo todos os `<Link>`, redirects e o sidebar.
+**Causa:** o loader server-side de `g.$guildId.tsx` puxa `requireUser`/`listMyGuilds`/`checkBotInGuild`, que em algum ponto importam o browser client (`src/integrations/supabase/client.ts`). Esse client lança o erro acima quando `import.meta.env.VITE_*` e `process.env.SUPABASE_*` não são alcançados pelo worker (caso típico no build publicado / SSR onde só os bare `SUPABASE_URL` estão garantidos).
 
-### Fase 2 — Layout/shell do dashboard novo
-Reescrevo do zero:
-- `src/components/dashboard/DashboardShell.tsx` — sidebar Aurora + topbar com mascote
-- `src/components/dashboard/GuildSidebar.tsx` — navegação agrupada (Moderação / Engajamento / Economia / Avançado)
-- Loading state com mascote pixel girando
-- Error boundary com mascote triste + botão "tentar de novo"
-- 404 com mascote do mapa
+**Correção:**
+- Garantir que toda leitura server-side use o cliente server (`requireSupabaseAuth` ou um client publishable server-local), nunca o browser client.
+- Caçar imports indevidos do `@/integrations/supabase/client` dentro de `*.functions.ts` / `*.server.ts` e trocar.
+- Acrescentar fallback no `client.ts` para também aceitar `SUPABASE_URL`/`SUPABASE_PUBLISHABLE_KEY` sem prefixo `VITE_` durante SSR, de forma defensiva.
 
-### Fase 3 — Páginas do dashboard
-Reescrever as 22 páginas é muito trabalho. Proponho:
-- **Reescrever do zero**: index (overview), moderação, boas-vindas, níveis, economia, tickets — as 6 mais usadas
-- **Apenas re-skin** (manter lógica, trocar visual pra Aurora): as outras 16
+## 2. URL do dashboard por slug
 
-### Fase 4 — Polimento
-- Mascote onipresente (peek button, hover easter eggs)
-- Animações aurora nas transições
-- SEO em todas as rotas públicas
+**Hoje:** `/g/722253176283070506` (snowflake do Discord).
+**Quero:** `/dashboard/<slug>` derivado do nome do servidor (ex: `meu-servidor-legal`), e o resto do dashboard sob esse slug (`/dashboard/<slug>/moderacao`, `/economia`, etc).
 
----
+**Como:**
+- Criar `slug` derivado de `guild.name` (kebab-case + sufixo curto do guildId pra evitar colisão, ex: `meu-servidor-legal-3070506`).
+- Mover/renomear os arquivos `src/routes/_authenticated/g.$guildId.*` para `dashboard.$slug.*`.
+- Resolver `slug → guildId` no loader do layout consultando a lista de guilds do usuário; redirecionar para `/servidores` em slug inválido.
+- Atualizar todos os `<Link>` (sidebar, topbar, página de servidores) para a nova rota.
+- Manter um redirect de `/g/$guildId` → novo formato pra não quebrar links antigos.
 
-## Confirmações antes de começar
+## 3. Botão "Entrar" do header
 
-1. **URLs em português** (`/servidores`, `/moderacao`) ou manter em inglês (`/servers`, `/moderation`)?
-2. **Manter redirects** das URLs antigas (`/dashboard/...` → `/g/...`) pra não quebrar links já compartilhados?
-3. **Fase 3**: ok com 6 reescritas + 16 re-skins, ou quer todas reescritas do zero (vai consumir bem mais)?
-4. Começo já pela **Fase 1** ou prefere ajustar o plano?
+**Hoje:** o `Link` do header só leva para `/entrar`, que exibe outra tela com o botão real. O usuário descreve isso como "não funciona".
+
+**Correção:** transformar o "Entrar" do header (desktop + menu mobile) num `<a>` que dispara o OAuth do Discord direto, igual ao botão da landing (`/api/auth/discord/login?origin=...`). Mantém `/entrar` como página de fallback.
+
+## 4. Dados reais na landing pública
+
+**Páginas:** `/` (home), `/recursos`, `/comandos`, `/premium`, `/status`, `/docs`, `/blog`, `/suporte`.
+
+**Plano:**
+- **Home (`/`):** trocar números chumbados (`+12k servidores`, `+90 comandos`, etc.) por dados reais lidos via server function:
+  - servidores: `count` de `bot_guild_presence` onde `present = true`.
+  - comandos: contar arquivos em `bot/src/bot/commands/**/*.ts` em build time (geramos um JSON), ou hardcode revisado com o número real (~XX comandos).
+  - uptime / latência: ler de `bot_guild_presence` (heartbeat mais recente) ou da tabela de presence; se não houver dado, esconder o card em vez de mostrar fake.
+- **`/comandos`:** gerar a lista a partir do diretório `bot/src/bot/commands/**` (script Node em build, gera `src/data/commands.json`) e renderizar agrupado por categoria. Some o mesmo número usado na home.
+- **`/recursos`:** revisar copy pra refletir só os módulos que existem mesmo no bot (cruzar com `bot/src/bot/systems/` e tabelas do Supabase). Remover funções inexistentes.
+- **`/premium`:** ler planos de `premium_plans` (tabela já existe) via server fn pública; mostrar nome, preço, features. Esconder a página/CTA se a tabela vier vazia.
+- **`/status`:** trocar mock por dados de `bot_guild_presence` (último heartbeat, guilds online).
+- **`/docs`, `/blog`, `/suporte`:** confirmar com você o que deve aparecer — hoje são mocks. Sugiro deixar `/docs` com índice estático real (links pros recursos), `/blog` escondido até ter post real, `/suporte` com link de convite real do servidor de suporte.
+
+## Ordem de execução proposta
+
+1. Etapa 1 (env error) — destrava o dashboard.
+2. Etapa 3 (botão Entrar) — fix rápido.
+3. Etapa 2 (slug nas URLs) — refactor médio.
+4. Etapa 4 (dados reais) — quebrada por página, posso fazer home + comandos + premium + status numa rodada e o resto depois.
+
+## Perguntas que preciso travar antes da etapa 4
+
+- `/blog`: tem posts reais em algum lugar (Notion, Markdown no repo, CMS)? Se não, posso esconder do header até ter conteúdo?
+- `/suporte`: qual o link de convite do servidor de suporte oficial?
+- Slug: tudo bem usar `nome-do-servidor-<sufixo>` ou prefere outro padrão?
+
+Aprova esse plano? Se sim, começo pela etapa 1.

@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { UserBadge } from "@/components/dashboard/DiscordBadges";
 
 const ACTION_COLORS: Record<string, string> = {
   BAN: "bg-red-500/20 text-red-300",

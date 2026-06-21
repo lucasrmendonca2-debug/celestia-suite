@@ -278,14 +278,18 @@ function CommandsPage() {
 
           {selected.id && (
             <div className="flex justify-end">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => del.mutate(selected.id!)}
-              >
-                <Trash2 className="mr-1.5 size-4" />
-                Excluir comando
-              </Button>
+              <ConfirmDeleteButton
+                onConfirm={() => del.mutate(selected.id!)}
+                title="Excluir comando?"
+                description={`O comando "/${selected.name}" será removido permanentemente.`}
+                trigger={
+                  <Button variant="ghost" size="sm">
+                    <Trash2 className="mr-1.5 size-4" />
+                    Excluir comando
+                  </Button>
+                }
+              />
+
             </div>
           )}
         </div>

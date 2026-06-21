@@ -208,16 +208,22 @@ function Editor({
 
       <div className="mt-6 flex items-center justify-between">
         {p.id ? (
-          <Button
-            variant="ghost"
-            className="gap-2 text-destructive hover:text-destructive"
+          <ConfirmDeleteButton
+            onConfirm={() => deleting.mutate()}
+            title="Apagar essa permissão?"
+            description="O cargo perderá o acesso configurado para tickets."
             disabled={deleting.isPending}
-            onClick={() => {
-              if (confirm("Apagar essa permissão?")) deleting.mutate();
-            }}
-          >
-            <Trash2 className="size-4" /> Apagar
-          </Button>
+            trigger={
+              <Button
+                variant="ghost"
+                className="gap-2 text-destructive hover:text-destructive"
+                disabled={deleting.isPending}
+              >
+                <Trash2 className="size-4" /> Apagar
+              </Button>
+            }
+          />
+
         ) : (
           <span />
         )}

@@ -254,13 +254,16 @@ function DailyPage() {
 
             {claimed && (
               <div className="space-y-5">
-                <div className="rounded-2xl border-2 border-[#1B0E3B] bg-[#D6FBEC] p-6 text-center shadow-[0_5px_0_0_#1B0E3B]">
-                  <Sparkles className="mx-auto mb-2 size-10 text-[#047857]" />
+                <div className="relative overflow-hidden rounded-2xl border-2 border-[#1B0E3B] bg-[#D6FBEC] p-6 text-center shadow-[0_5px_0_0_#1B0E3B]">
+                  <Confetti />
+                  <Sparkles className="coin-pop mx-auto mb-2 size-10 text-[#047857]" />
                   <p className="font-mono text-[10px] font-extrabold uppercase tracking-widest text-[#047857]">
                     Resgatado!
                   </p>
-                  <p className="mt-1 font-['Plus_Jakarta_Sans'] text-5xl font-extrabold text-[#1B0E3B]">
-                    +{claimed.amount.toLocaleString("pt-BR")} {claimed.currency.emoji}
+                  <p className="mt-1 flex items-baseline justify-center gap-2 font-['Plus_Jakarta_Sans'] text-5xl font-extrabold text-[#1B0E3B]">
+                    <span>+</span>
+                    <RollingNumber target={claimed.amount} />
+                    <span className="text-4xl">{claimed.currency.emoji}</span>
                   </p>
                   <p className="mt-2 text-sm font-semibold text-[#047857]">
                     Carteira: {claimed.wallet.toLocaleString("pt-BR")} {claimed.currency.name}

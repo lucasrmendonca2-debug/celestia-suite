@@ -140,6 +140,11 @@ function EconomyPage() {
     queryKey: ["economy-missions", guildId],
     queryFn: () => listEconomyMissions({ data: { guildId } }),
   });
+  const { data: multipliers } = useSuspenseQuery({
+    queryKey: ["multipliers", guildId],
+    queryFn: () => listMultipliers({ data: { guildId } }),
+  });
+
 
   const save = useMutation({
     mutationFn: () =>

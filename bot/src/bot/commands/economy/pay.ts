@@ -33,15 +33,16 @@ const command: SlashCommand = {
       return;
     }
 
-    const ok = await removeWallet(guildId, interaction.user.id, amount);
-    if (!ok) {
+    const tx = await transferWallet(guildId, interaction.user.id, target.id, amount);
+    if (!tx.ok) {
+      const description =
+        tx.reason === "insufficient_funds" ? pick(economyResponses.noBalance) : "Não foi possível concluir a transferência agora.";
       await interaction.reply({
-        embeds: [ui.error({ title: "Saldo insuficiente", description: pick(economyResponses.noBalance) })],
+        embeds: [ui.error({ title: "Saldo insuficiente", description })],
         ephemeral: true,
       });
       return;
     }
-    await addWallet(guildId, target.id, amount);
     const c = await getCurrency(guildId);
     await interaction.reply({
       embeds: [

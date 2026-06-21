@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -345,16 +346,22 @@ function CategoryEditor({
 
         <div className="mt-6 flex items-center justify-between">
           {c.id ? (
-            <Button
-              variant="ghost"
-              className="gap-2 text-destructive hover:text-destructive"
+            <ConfirmDeleteButton
+              onConfirm={() => deleting.mutate()}
+              title={`Apagar categoria "${c.name}"?`}
+              description="Tickets já abertos nessa categoria não serão removidos."
               disabled={deleting.isPending}
-              onClick={() => {
-                if (confirm(`Apagar categoria "${c.name}"?`)) deleting.mutate();
-              }}
-            >
-              <Trash2 className="size-4" /> Apagar
-            </Button>
+              trigger={
+                <Button
+                  variant="ghost"
+                  className="gap-2 text-destructive hover:text-destructive"
+                  disabled={deleting.isPending}
+                >
+                  <Trash2 className="size-4" /> Apagar
+                </Button>
+              }
+            />
+
           ) : (
             <span />
           )}

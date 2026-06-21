@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Copy, Plus, RefreshCw, Trash2, ExternalLink, Palette, Image as ImageIcon, Sparkles } from "lucide-react";
@@ -311,16 +312,24 @@ function AssetCard({
         </label>
         <div className="flex gap-2">
           {row && (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-destructive hover:text-destructive"
-              onClick={onRemove}
-            >
-              <Trash2 className="mr-1 size-3.5" />
-              Remover
-            </Button>
+            <ConfirmDeleteButton
+              onConfirm={onRemove}
+              title="Remover este asset?"
+              description="A personalização visual voltará ao padrão."
+              confirmLabel="Remover"
+              trigger={
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="mr-1 size-3.5" />
+                  Remover
+                </Button>
+              }
+            />
           )}
+
           <Button
             size="sm"
             disabled={!url || !dirty || saving}

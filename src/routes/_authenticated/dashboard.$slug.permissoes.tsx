@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { useServerFn } from "@tanstack/react-start";
 import {
   useMutation,
@@ -258,16 +259,24 @@ function PermissionsPage() {
                             {p.label}
                           </Button>
                         ))}
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          className="h-7 w-7 text-destructive"
-                          onClick={() => remove.mutate(row.role_id)}
+                        <ConfirmDeleteButton
+                          onConfirm={() => remove.mutate(row.role_id)}
+                          title="Remover permissões deste cargo?"
+                          description="O cargo perderá todas as permissões de dashboard configuradas."
                           disabled={remove.isPending}
-                          aria-label="Remover"
-                        >
-                          <Trash2 className="size-3.5" />
-                        </Button>
+                          trigger={
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-7 w-7 text-destructive"
+                              disabled={remove.isPending}
+                              aria-label="Remover"
+                            >
+                              <Trash2 className="size-3.5" />
+                            </Button>
+                          }
+                        />
+
                       </div>
                     </div>
 

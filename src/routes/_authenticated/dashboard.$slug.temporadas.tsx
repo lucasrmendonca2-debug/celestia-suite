@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -242,9 +243,17 @@ function SeasonsPage() {
                         <Play className="size-4" />
                       </Button>
                     )}
-                    <Button size="icon" variant="ghost" onClick={() => del.mutate(s.id)} title="Remover">
-                      <Trash2 className="size-4 text-destructive" />
-                    </Button>
+                    <ConfirmDeleteButton
+                      onConfirm={() => del.mutate(s.id)}
+                      title={`Apagar temporada "${s.name}"?`}
+                      description="Todos os dados desta temporada serão removidos."
+                      trigger={
+                        <Button size="icon" variant="ghost" title="Remover" aria-label="Remover temporada">
+                          <Trash2 className="size-4 text-destructive" />
+                        </Button>
+                      }
+                    />
+
                   </div>
                 </div>
                 {selected === s.id && <SeasonLeaderboard guildId={guildId} seasonId={s.id} />}

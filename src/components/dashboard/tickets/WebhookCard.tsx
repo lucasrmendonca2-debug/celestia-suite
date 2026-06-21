@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -140,20 +141,25 @@ export function WebhookCard({ guildId, cfg }: { guildId: string; cfg: Cfg }) {
               <Save className="size-4" />
               {updating.isPending ? "Salvando…" : "Salvar personalização"}
             </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className="gap-2 text-destructive hover:text-destructive"
+            <ConfirmDeleteButton
+              onConfirm={() => deleting.mutate()}
+              title="Apagar webhook?"
+              description="O painel volta a ser enviado pelo bot."
+              confirmLabel="Apagar webhook"
               disabled={deleting.isPending}
-              onClick={() => {
-                if (confirm("Apagar o webhook? O painel volta a ser enviado pelo bot.")) {
-                  deleting.mutate();
-                }
-              }}
-            >
-              <Trash2 className="size-4" /> Apagar webhook
-            </Button>
+              trigger={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="gap-2 text-destructive hover:text-destructive"
+                  disabled={deleting.isPending}
+                >
+                  <Trash2 className="size-4" /> Apagar webhook
+                </Button>
+              }
+            />
           </>
+
         ) : (
           <Button
             type="button"

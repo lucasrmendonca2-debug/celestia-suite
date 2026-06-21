@@ -89,7 +89,7 @@ const command: SlashCommand = {
       return;
     }
 
-    if (sub === "templates") {
+    if (sub === "modelos") {
       const list = await EmbedTemplate.find({ guildId }).limit(25);
       await interaction.reply({
         embeds: [brandEmbed({ title: "🎨 Templates de Embed", description: list.length ? list.map((t) => `• **${t.name}**`).join("\n") : "Nenhum." })],

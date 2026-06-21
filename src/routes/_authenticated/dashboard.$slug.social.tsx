@@ -300,9 +300,10 @@ function SocialPage() {
             <Row label="Reputação">
               <Switch checked={s.reputation_enabled} onCheckedChange={(v) => setS({ ...s, reputation_enabled: v })} />
             </Row>
-            <Row label="Conquistas (Pass 2)">
-              <Switch checked={s.achievements_enabled} onCheckedChange={(v) => setS({ ...s, achievements_enabled: v })} />
+            <Row label="Conquistas (em breve)">
+              <Switch checked={false} disabled />
             </Row>
+
           </Card>
 
           <Card title="Listas de ignorados">
@@ -561,9 +562,9 @@ function SocialPage() {
                   <SelectContent>
                     <SelectItem value="role">Cargo</SelectItem>
                     <SelectItem value="coins">Moedas</SelectItem>
-                    <SelectItem value="badge">Badge (pass 2)</SelectItem>
                     <SelectItem value="title">Título</SelectItem>
                   </SelectContent>
+
                 </Select>
               </Field>
               <Field label={newReward.reward_type === "role" ? "ID do cargo" : newReward.reward_type === "coins" ? "Quantidade" : "Valor"}>

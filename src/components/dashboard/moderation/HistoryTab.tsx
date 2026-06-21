@@ -136,8 +136,8 @@ export function HistoryTab({ guildId }: { guildId: string }) {
         </Button>
       </div>
 
-      <div className="overflow-hidden rounded-lg border bg-background/40">
-        <table className="w-full text-sm">
+      <div className="overflow-x-auto rounded-lg border bg-background/40">
+        <table className="w-full min-w-[760px] text-sm">
           <thead className="bg-muted/30 text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="px-3 py-2 text-left">#</th>

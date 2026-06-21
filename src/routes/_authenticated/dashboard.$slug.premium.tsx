@@ -26,7 +26,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
 import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
+
 
 const REDEEM_REASONS: Record<string, string> = {
   not_found: "Código não encontrado.",

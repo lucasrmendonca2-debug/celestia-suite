@@ -125,11 +125,9 @@ export function makeDiscordCallbackUri(request: Request, browserOrigin?: string 
   const explicitRedirectUri = process.env.DISCORD_REDIRECT_URI?.trim();
   if (explicitRedirectUri) return explicitRedirectUri;
 
+  // Always prefer the actual browser origin (published domain, custom domain, preview, localhost).
   const browserSafeOrigin = safeBrowserOrigin(browserOrigin ?? null);
-  const origin = isLocalOrigin(browserSafeOrigin)
-    ? browserSafeOrigin
-    : safeBrowserOrigin(DEFAULT_DISCORD_ORIGIN);
-  if (origin) return `${origin}${DISCORD_CALLBACK_PATH}`;
+  if (browserSafeOrigin) return `${browserSafeOrigin}${DISCORD_CALLBACK_PATH}`;
 
   const requestUrl = new URL(request.url);
   const forwarded = request.headers.get("forwarded") ?? "";
@@ -149,7 +147,12 @@ export function makeDiscordCallbackUri(request: Request, browserOrigin?: string 
     ? "http"
     : request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim() || forwardedProto || refererUrl?.protocol.replace(":", "") || "https";
 
-  return `${protocol}://${host}${DISCORD_CALLBACK_PATH}`;
+  const computed = `${protocol}://${host}${DISCORD_CALLBACK_PATH}`;
+  if (/^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)/.test(computed)) {
+    const fallback = safeBrowserOrigin(DEFAULT_DISCORD_ORIGIN);
+    if (fallback) return `${fallback}${DISCORD_CALLBACK_PATH}`;
+  }
+  return computed;
 }
 
 export function shouldIncludeDiscordRedirectUri(redirectUri: string): boolean {

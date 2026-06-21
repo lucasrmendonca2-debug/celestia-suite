@@ -44,6 +44,9 @@ import {
 } from "@/components/ui/tabs";
 import type { LucideIcon } from "lucide-react";
 import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
+import { ChannelSelect } from "@/components/dashboard/selectors/ChannelSelect";
+import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
+import { ChannelBadge, RoleBadge } from "@/components/dashboard/DiscordBadges";
 
 export const Route = createFileRoute("/_authenticated/dashboard/$slug/logs")({
   loader: async ({ context, params }) => {

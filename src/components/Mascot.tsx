@@ -1,7 +1,6 @@
 import { useId } from "react";
 import hero from "@/assets/mascot-hero.png.asset.json";
 import error from "@/assets/mascot-error.png.asset.json";
-import notFound from "@/assets/mascot-404.png.asset.json";
 import sleeping from "@/assets/mascot-sleeping.png.asset.json";
 import celebrate from "@/assets/mascot-celebrate.png.asset.json";
 import loading from "@/assets/mascot-loading.png.asset.json";
@@ -10,7 +9,7 @@ import original from "@/assets/zenox-mascot.png.asset.json";
 const SOURCES = {
   hero,
   error,
-  "404": notFound,
+  "404": hero,
   sleeping,
   celebrate,
   loading,

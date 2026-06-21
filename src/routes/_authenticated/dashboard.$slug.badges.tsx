@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { DashboardErrorBoundary, DashboardNotFound } from "@/components/dashboard/RouteBoundaries";
 import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
@@ -82,6 +83,8 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/badges")({
     return { guildId, user };
   },
   component: BadgesPage,
+  errorComponent: ({ error, reset }) => <DashboardErrorBoundary error={error as Error} reset={reset} />,
+  notFoundComponent: () => <DashboardNotFound />,
 });
 
 interface BadgeForm {

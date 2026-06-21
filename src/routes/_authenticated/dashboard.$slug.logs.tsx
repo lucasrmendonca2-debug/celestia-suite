@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { DashboardErrorBoundary, DashboardNotFound } from "@/components/dashboard/RouteBoundaries";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
@@ -64,6 +65,8 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/logs")({
     return { guildId, user, config };
   },
   component: LogsPage,
+  errorComponent: ({ error, reset }) => <DashboardErrorBoundary error={error as Error} reset={reset} />,
+  notFoundComponent: () => <DashboardNotFound />,
 });
 
 type Tone = "lavender" | "pink" | "cyan" | "mint" | "peach";

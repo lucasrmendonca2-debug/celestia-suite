@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { DashboardErrorBoundary, DashboardNotFound } from "@/components/dashboard/RouteBoundaries";
 import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -61,6 +62,8 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/permissoes
     return { guildId, user };
   },
   component: PermissionsPage,
+  errorComponent: ({ error, reset }) => <DashboardErrorBoundary error={error as Error} reset={reset} />,
+  notFoundComponent: () => <DashboardNotFound />,
 });
 
 function PermissionsPage() {

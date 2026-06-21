@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { DashboardErrorBoundary, DashboardNotFound } from "@/components/dashboard/RouteBoundaries";
 import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -41,6 +42,8 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/assets")({
     return { guildId, user };
   },
   component: AssetsPage,
+  errorComponent: ({ error, reset }) => <DashboardErrorBoundary error={error as Error} reset={reset} />,
+  notFoundComponent: () => <DashboardNotFound />,
 });
 
 const MODULES: AssetModule[] = [

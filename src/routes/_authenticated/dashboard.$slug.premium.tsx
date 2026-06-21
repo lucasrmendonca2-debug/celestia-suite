@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { DashboardErrorBoundary, DashboardNotFound } from "@/components/dashboard/RouteBoundaries";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -58,6 +59,8 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/premium")(
     return { guildId, user };
   },
   component: PremiumPage,
+  errorComponent: ({ error, reset }) => <DashboardErrorBoundary error={error as Error} reset={reset} />,
+  notFoundComponent: () => <DashboardNotFound />,
 });
 
 function fmtDate(iso: string | null | undefined): string {

@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
@@ -26,7 +27,6 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { requireUser, listMyGuilds } from "@/lib/auth/auth.functions";
 import {
-import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
   getCommunityConfig,
   updateCommunityConfig,
   listGuildPolls,

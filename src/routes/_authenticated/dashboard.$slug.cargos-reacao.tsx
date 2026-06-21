@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -20,7 +21,6 @@ import { Mascot } from "@/components/Mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
-import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
   Select,
   SelectContent,
   SelectItem,

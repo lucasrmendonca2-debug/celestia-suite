@@ -12,16 +12,20 @@ import {
   ShoppingBag,
   Target,
   Briefcase,
+  Zap,
 } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getEconomyConfig,
   listEconomyMissions,
+  listMultipliers,
   listShopItems,
   removeEconomyMission,
+  removeMultiplier,
   removeShopItem,
   updateEconomyConfig,
   upsertEconomyMission,
+  upsertMultiplier,
   upsertShopItem,
 } from "@/lib/guild/modules.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
@@ -40,7 +44,8 @@ import {
 import { Mascot } from "@/components/Mascot";
 import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
-import { RoleBadge } from "@/components/dashboard/DiscordBadges";
+import { ChannelSelect } from "@/components/dashboard/selectors/ChannelSelect";
+import { RoleBadge, ChannelBadge } from "@/components/dashboard/DiscordBadges";
 
 const MISSION_KIND_LABELS: Record<string, { label: string; emoji: string }> = {
   daily: { label: "Diária", emoji: "🌅" },
@@ -72,6 +77,10 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/economia")
       queryKey: ["economy-missions", guildId],
       queryFn: () => listEconomyMissions({ data: { guildId: guildId } }),
     });
+    await context.queryClient.ensureQueryData({
+      queryKey: ["multipliers", guildId],
+      queryFn: () => listMultipliers({ data: { guildId: guildId } }),
+    });
     return { guildId, user, config };
   },
   component: EconomyPage,
@@ -94,6 +103,8 @@ function EconomyPage() {
   const removeItem = useServerFn(removeShopItem);
   const upsertMission = useServerFn(upsertEconomyMission);
   const removeMission = useServerFn(removeEconomyMission);
+  const upsertMult = useServerFn(upsertMultiplier);
+  const removeMult = useServerFn(removeMultiplier);
 
   const [form, setForm] = useState<any>(config);
   const [item, setItem] = useState({
@@ -113,6 +124,14 @@ function EconomyPage() {
     sort_order: 1,
   });
 
+  const [mult, setMult] = useState({
+    kind: "xp" as "xp" | "coin",
+    target_type: "role" as "role" | "channel",
+    target_id: "",
+    multiplier: 2,
+    label: "",
+  });
+
   const { data: shop } = useSuspenseQuery({
     queryKey: ["shop", guildId],
     queryFn: () => listShopItems({ data: { guildId } }),
@@ -121,6 +140,11 @@ function EconomyPage() {
     queryKey: ["economy-missions", guildId],
     queryFn: () => listEconomyMissions({ data: { guildId } }),
   });
+  const { data: multipliers } = useSuspenseQuery({
+    queryKey: ["multipliers", guildId],
+    queryFn: () => listMultipliers({ data: { guildId } }),
+  });
+
 
   const save = useMutation({
     mutationFn: () =>
@@ -197,6 +221,33 @@ function EconomyPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["economy-missions", guildId] }),
   });
 
+  const addMult = useMutation({
+    mutationFn: () =>
+      upsertMult({
+        data: {
+          guildId,
+          kind: mult.kind,
+          target_type: mult.target_type,
+          target_id: mult.target_id,
+          multiplier: Number(mult.multiplier),
+          label: mult.label || null,
+          active: true,
+        },
+      }),
+    onSuccess: () => {
+      setMult({ ...mult, target_id: "", label: "" });
+      qc.invalidateQueries({ queryKey: ["multipliers", guildId] });
+      toast.success("Multiplicador salvo. ⚡");
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+
+  const deleteMult = useMutation({
+    mutationFn: (id: string) => removeMult({ data: { guildId, id } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["multipliers", guildId] }),
+  });
+
+
   return (
     <ModuleLayout
       guildId={guildId}
@@ -241,6 +292,7 @@ function EconomyPage() {
           <TabsTrigger value="config">Configuração</TabsTrigger>
           <TabsTrigger value="shop">Loja ({shop.length})</TabsTrigger>
           <TabsTrigger value="missions">Missões ({missions.length})</TabsTrigger>
+          <TabsTrigger value="multipliers">Multiplicadores ({multipliers.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="config" className="mt-4 space-y-4">
@@ -534,6 +586,151 @@ function EconomyPage() {
                       description={`A missão "${m.title}" será removida permanentemente.`}
                     />
 
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </TabsContent>
+
+        <TabsContent value="multipliers" className="mt-4 space-y-4">
+          <AuroraSection title="Novo multiplicador" icon={Zap} tone="cyan">
+            <p className="mb-3 text-xs text-muted-foreground">
+              Dê um boost de XP ou moedas para um cargo específico (ex: VIP ganha 2x)
+              ou para mensagens enviadas em um canal.
+            </p>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <AuroraField label="Tipo de boost">
+                <select
+                  value={mult.kind}
+                  onChange={(e) => setMult({ ...mult, kind: e.target.value as any })}
+                  className="h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
+                >
+                  <option value="xp">⭐ XP</option>
+                  <option value="coin">💰 Moedas</option>
+                </select>
+              </AuroraField>
+              <AuroraField label="Aplicar em">
+                <select
+                  value={mult.target_type}
+                  onChange={(e) =>
+                    setMult({
+                      ...mult,
+                      target_type: e.target.value as any,
+                      target_id: "",
+                    })
+                  }
+                  className="h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
+                >
+                  <option value="role">Cargo</option>
+                  <option value="channel">Canal</option>
+                </select>
+              </AuroraField>
+              <AuroraField
+                label={mult.target_type === "role" ? "Cargo" : "Canal"}
+              >
+                {mult.target_type === "role" ? (
+                  <RoleSelect
+                    guildId={guildId}
+                    value={mult.target_id || null}
+                    onChange={(id) => setMult({ ...mult, target_id: id ?? "" })}
+                    excludeManaged
+                  />
+                ) : (
+                  <ChannelSelect
+                    guildId={guildId}
+                    value={mult.target_id || null}
+                    onChange={(id) => setMult({ ...mult, target_id: id ?? "" })}
+                  />
+                )}
+              </AuroraField>
+              <AuroraField label="Multiplicador (ex: 2 = dobro)">
+                <Input
+                  type="number"
+                  step="0.25"
+                  min={0}
+                  max={100}
+                  value={mult.multiplier}
+                  onChange={(e) =>
+                    setMult({ ...mult, multiplier: Number(e.target.value) })
+                  }
+                />
+              </AuroraField>
+              <AuroraField label="Rótulo (opcional)">
+                <Input
+                  value={mult.label}
+                  placeholder="Ex: Booster, Evento de fim de semana"
+                  onChange={(e) => setMult({ ...mult, label: e.target.value })}
+                />
+              </AuroraField>
+            </div>
+            <div className="flex justify-end">
+              <Button
+                onClick={() => addMult.mutate()}
+                disabled={!mult.target_id || addMult.isPending}
+              >
+                <Plus className="mr-1.5 size-4" /> Adicionar
+              </Button>
+            </div>
+          </AuroraSection>
+
+          <div className="aurora-panel overflow-hidden">
+            {multipliers.length === 0 ? (
+              <div className="flex flex-col items-center gap-3 p-10 text-center">
+                <Mascot variant="sleeping" size={72} />
+                <p className="text-sm text-muted-foreground">
+                  Nenhum multiplicador ativo. Adicione um boost acima!
+                </p>
+              </div>
+            ) : (
+              <ul className="divide-y divide-border/60">
+                {multipliers.map((mp) => (
+                  <li
+                    key={mp.id}
+                    className="flex items-center justify-between gap-4 px-5 py-3 transition hover:bg-[color:color-mix(in_oklab,var(--aurora-cyan)_6%,transparent)]"
+                  >
+                    <div className="flex min-w-0 flex-1 items-center gap-3">
+                      <span
+                        className="flex size-10 items-center justify-center rounded-xl text-lg"
+                        style={{
+                          background:
+                            "color-mix(in oklab, var(--aurora-cyan) 25%, transparent)",
+                        }}
+                      >
+                        {mp.kind === "xp" ? "⭐" : "💰"}
+                      </span>
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-display rounded-md bg-[color:color-mix(in_oklab,var(--aurora-cyan)_25%,transparent)] px-2 py-0.5 text-sm font-bold">
+                            {mp.multiplier}×
+                          </span>
+                          <span className="text-sm font-medium">
+                            {mp.kind === "xp" ? "XP" : "Moedas"}
+                          </span>
+                          {mp.label && (
+                            <span className="text-xs text-muted-foreground">
+                              · {mp.label}
+                            </span>
+                          )}
+                        </div>
+                        <div className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <span>em</span>
+                          {mp.target_type === "role" ? (
+                            <RoleBadge guildId={guildId} roleId={mp.target_id} />
+                          ) : (
+                            <ChannelBadge
+                              guildId={guildId}
+                              channelId={mp.target_id}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <ConfirmDeleteButton
+                      onConfirm={() => deleteMult.mutate(mp.id)}
+                      title="Remover multiplicador?"
+                      description="O boost será desativado imediatamente."
+                    />
                   </li>
                 ))}
               </ul>

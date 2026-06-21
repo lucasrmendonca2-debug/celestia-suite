@@ -765,6 +765,89 @@ export const removeEconomyMission = createServerFn({ method: "POST" })
   });
 
 // ============================================================
+// MULTIPLIERS (XP/Coin boosts por cargo ou canal)
+// ============================================================
+export const listMultipliers = createServerFn({ method: "GET" })
+  .inputValidator((d: { guildId: string }) =>
+    z.object({ guildId: guildIdSchema }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { data: rows, error } = await (sb as any)
+      .from("guild_multipliers")
+      .select("*")
+      .eq("guild_id", data.guildId)
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return (rows ?? []) as Array<{
+      id: string;
+      guild_id: string;
+      kind: "xp" | "coin";
+      target_type: "role" | "channel";
+      target_id: string;
+      multiplier: number;
+      label: string | null;
+      active: boolean;
+      created_at: string;
+      updated_at: string;
+    }>;
+  });
+
+const MultiplierInput = z.object({
+  guildId: guildIdSchema,
+  id: z.string().uuid().optional(),
+  kind: z.enum(["xp", "coin"]),
+  target_type: z.enum(["role", "channel"]),
+  target_id: snowflake,
+  multiplier: z.number().min(0).max(100),
+  label: z.string().max(80).nullable().optional(),
+  active: z.boolean().default(true),
+});
+
+export const upsertMultiplier = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) => MultiplierInput.parse(d))
+  .handler(async ({ data }) => {
+    const userId = await perm(data.guildId);
+    const sb = await admin();
+    const payload: any = {
+      guild_id: data.guildId,
+      kind: data.kind,
+      target_type: data.target_type,
+      target_id: data.target_id,
+      multiplier: data.multiplier,
+      label: data.label ?? null,
+      active: data.active,
+      created_by: userId,
+    };
+    if (data.id) payload.id = data.id;
+    const { error } = await (sb as any)
+      .from("guild_multipliers")
+      .upsert(payload, {
+        onConflict: data.id ? "id" : "guild_id,kind,target_type,target_id",
+      });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const removeMultiplier = createServerFn({ method: "POST" })
+  .inputValidator((d: unknown) =>
+    z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    await perm(data.guildId);
+    const sb = await admin();
+    const { error } = await (sb as any)
+      .from("guild_multipliers")
+      .delete()
+      .eq("id", data.id)
+      .eq("guild_id", data.guildId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+
+// ============================================================
 // MOD CASES (read-only no dashboard)
 // ============================================================
 export const listModCases = createServerFn({ method: "GET" })

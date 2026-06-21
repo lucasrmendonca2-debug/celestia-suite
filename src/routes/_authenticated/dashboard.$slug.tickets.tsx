@@ -458,16 +458,21 @@ function GeneralTab({
         />
         <SwitchRow
           title="Gerar transcript ao fechar"
-          desc="Próxima fase: anexa o transcript no canal de logs."
-          checked={form.transcript_enabled}
-          onChange={(v) => setForm({ ...form, transcript_enabled: v })}
+          desc="Em breve: anexará o transcript no canal de logs. Funcionalidade ainda não disponível no bot."
+          checked={false}
+          onChange={() => {}}
+          disabled
+          badge="Em breve"
         />
         <SwitchRow
           title="Pedir avaliação de atendimento"
-          desc="Próxima fase: o usuário avalia o atendimento de 1 a 5 estrelas."
-          checked={form.rating_enabled}
-          onChange={(v) => setForm({ ...form, rating_enabled: v })}
+          desc="Em breve: o usuário avaliará o atendimento de 1 a 5 estrelas. Funcionalidade ainda não disponível no bot."
+          checked={false}
+          onChange={() => {}}
+          disabled
+          badge="Em breve"
         />
+
       </SectionCard>
 
       <SectionCard

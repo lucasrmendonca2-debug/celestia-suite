@@ -10,6 +10,8 @@ export const FREE_LIMITS: Record<string, number> = {
   "badges.custom": 5,
   "level.rewards": 5,
   "automations": 5,
+  "multipliers": 3,
+  "embeds.templates": 5,
 };
 
 async function getActiveGuildPlan(guildId: string) {

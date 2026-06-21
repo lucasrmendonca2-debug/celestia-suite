@@ -90,9 +90,11 @@ export function PermissionsTab({ guildId }: { guildId: string }) {
               onClick={() => setEditing(p)}
               className="flex items-center justify-between rounded-lg border border-border bg-card/40 p-3 text-left transition hover:border-primary/40 hover:bg-card/60"
             >
-              <div>
-                <p className="font-mono text-xs text-muted-foreground">{p.role_id}</p>
-                <p className="text-sm font-medium">
+              <div className="min-w-0">
+                <div className="mb-1">
+                  <RoleBadge guildId={p.guild_id} roleId={p.role_id} />
+                </div>
+                <p className="text-xs text-muted-foreground">
                   nível: <span className="font-mono">{p.access_level}</span>
                 </p>
               </div>

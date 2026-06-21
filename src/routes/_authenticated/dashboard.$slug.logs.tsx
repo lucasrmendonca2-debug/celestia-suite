@@ -43,6 +43,7 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs";
 import type { LucideIcon } from "lucide-react";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 
 export const Route = createFileRoute("/_authenticated/dashboard/$slug/logs")({
   loader: async ({ context, params }) => {
@@ -51,12 +52,13 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/logs")({
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     const config = await context.queryClient.ensureQueryData({
-      queryKey: ["logs", params.guildId],
-      queryFn: () => getLogsConfig({ data: { guildId: params.guildId } }),
+      queryKey: ["logs", guildId],
+      queryFn: () => getLogsConfig({ data: { guildId: guildId } }),
     });
-    return { user, config };
+    return { guildId, user, config };
   },
   component: LogsPage,
 });
@@ -170,7 +172,7 @@ const CATEGORIES: Category[] = [
 
 function LogsPage() {
   const { user, config } = Route.useLoaderData();
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const updateFn = useServerFn(updateLogsConfig);
   const qc = useQueryClient();
   const [form, setForm] = useState<Record<string, unknown>>(config as Record<string, unknown>);

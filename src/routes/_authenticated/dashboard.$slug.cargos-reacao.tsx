@@ -20,6 +20,7 @@ import { Mascot } from "@/components/Mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
   Select,
   SelectContent,
   SelectItem,
@@ -36,12 +37,13 @@ export const Route = createFileRoute(
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     await context.queryClient.ensureQueryData({
-      queryKey: ["rr", params.guildId],
-      queryFn: () => listReactionRoles({ data: { guildId: params.guildId } }),
+      queryKey: ["rr", guildId],
+      queryFn: () => listReactionRoles({ data: { guildId: guildId } }),
     });
-    return { user };
+    return { guildId, user };
   },
   component: ReactionRolesPage,
 });
@@ -55,7 +57,7 @@ const MODE_LABEL: Record<string, string> = {
 
 function ReactionRolesPage() {
   const { user } = Route.useLoaderData();
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const qc = useQueryClient();
   const { data: rows } = useSuspenseQuery({
     queryKey: ["rr", guildId],

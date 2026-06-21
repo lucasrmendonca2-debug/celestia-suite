@@ -28,6 +28,7 @@ import {
 } from "@/components/dashboard/aurora-ui";
 import { Mascot } from "@/components/Mascot";
 import { Trophy, Zap, Users, Crown, Medal, Award } from "lucide-react";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 
 
 export const Route = createFileRoute("/_authenticated/dashboard/$slug/niveis")({
@@ -37,27 +38,28 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/niveis")({
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     const config = await context.queryClient.ensureQueryData({
-      queryKey: ["leveling", params.guildId],
-      queryFn: () => getLevelingConfig({ data: { guildId: params.guildId } }),
+      queryKey: ["leveling", guildId],
+      queryFn: () => getLevelingConfig({ data: { guildId: guildId } }),
     });
     await context.queryClient.ensureQueryData({
-      queryKey: ["level-rewards", params.guildId],
-      queryFn: () => listLevelRewards({ data: { guildId: params.guildId } }),
+      queryKey: ["level-rewards", guildId],
+      queryFn: () => listLevelRewards({ data: { guildId: guildId } }),
     });
     await context.queryClient.ensureQueryData({
-      queryKey: ["leaderboard", params.guildId],
-      queryFn: () => getLeaderboard({ data: { guildId: params.guildId } }),
+      queryKey: ["leaderboard", guildId],
+      queryFn: () => getLeaderboard({ data: { guildId: guildId } }),
     });
-    return { user, config };
+    return { guildId, user, config };
   },
   component: LevelingPage,
 });
 
 function LevelingPage() {
   const { user, config } = Route.useLoaderData();
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const qc = useQueryClient();
   const updateFn = useServerFn(updateLevelingConfig);
   const addRewardFn = useServerFn(addLevelReward);

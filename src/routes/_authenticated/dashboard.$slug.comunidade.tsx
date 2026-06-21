@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { requireUser, listMyGuilds } from "@/lib/auth/auth.functions";
 import {
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
   getCommunityConfig,
   updateCommunityConfig,
   listGuildPolls,
@@ -41,12 +42,13 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/comunidade
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     await context.queryClient.ensureQueryData({
-      queryKey: ["community-config", params.guildId],
-      queryFn: () => getCommunityConfig({ data: { guildId: params.guildId } }),
+      queryKey: ["community-config", guildId],
+      queryFn: () => getCommunityConfig({ data: { guildId: guildId } }),
     });
-    return { user };
+    return { guildId, user };
   },
   component: CommunityPage,
   errorComponent: ({ error }) => (
@@ -81,7 +83,7 @@ const STATUS_TONE: Record<string, "mint" | "peach" | "pink" | "cyan" | "lavender
 };
 
 function CommunityPage() {
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const { user } = Route.useLoaderData();
 
   return (

@@ -21,6 +21,7 @@ import {
 import { Mascot } from "@/components/Mascot";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 
 export const Route = createFileRoute("/_authenticated/dashboard/$slug/boas-vindas")({
   loader: async ({ context, params }) => {
@@ -29,13 +30,15 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/boas-vinda
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    const guild = guilds.find((g) => g.id === params.guildId);
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
+    const guild = guilds.find((g) => g.id === guildId);
     if (!guild) throw notFound();
     const config = await context.queryClient.ensureQueryData({
-      queryKey: ["guild-config", params.guildId],
-      queryFn: () => getGuildConfig({ data: { guildId: params.guildId } }),
+      queryKey: ["guild-config", guildId],
+      queryFn: () => getGuildConfig({ data: { guildId: guildId } }),
     });
-    return { user, guild, config };
+    return { guildId, user, guild, config };
   },
   component: WelcomePage,
   notFoundComponent: () => (

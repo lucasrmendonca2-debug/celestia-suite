@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
   Select,
   SelectContent,
   SelectItem,
@@ -71,12 +72,13 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/badges")({
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     await context.queryClient.ensureQueryData({
-      queryKey: ["badges", params.guildId],
-      queryFn: () => listBadges({ data: { guildId: params.guildId } }),
+      queryKey: ["badges", guildId],
+      queryFn: () => listBadges({ data: { guildId: guildId } }),
     });
-    return { user };
+    return { guildId, user };
   },
   component: BadgesPage,
 });
@@ -106,7 +108,7 @@ const EMPTY: BadgeForm = {
 
 function BadgesPage() {
   const { user } = Route.useLoaderData();
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const qc = useQueryClient();
 
   const save = useServerFn(upsertBadge);

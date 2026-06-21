@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { AuroraSection, AuroraStatCard } from "@/components/dashboard/aurora-ui";
 import { Mascot } from "@/components/Mascot";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 
 export const Route = createFileRoute("/_authenticated/dashboard/$slug/cargo-automatico")({
   loader: async ({ context, params }) => {
@@ -30,19 +31,20 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/cargo-auto
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     await context.queryClient.ensureQueryData({
-      queryKey: ["autoroles", params.guildId],
-      queryFn: () => listAutoroles({ data: { guildId: params.guildId } }),
+      queryKey: ["autoroles", guildId],
+      queryFn: () => listAutoroles({ data: { guildId: guildId } }),
     });
-    return { user };
+    return { guildId, user };
   },
   component: AutorolePage,
 });
 
 function AutorolePage() {
   const { user } = Route.useLoaderData();
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const qc = useQueryClient();
   const { data: rows } = useSuspenseQuery({
     queryKey: ["autoroles", guildId],

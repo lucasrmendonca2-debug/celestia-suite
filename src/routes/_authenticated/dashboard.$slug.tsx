@@ -4,6 +4,7 @@ import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import { checkBotInGuild } from "@/lib/guild/bot-presence.functions";
 import { Mascot } from "@/components/Mascot";
 import { MagicLoader } from "@/components/MagicLoader";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 
 export const Route = createFileRoute("/_authenticated/dashboard/$slug")({
   loader: async ({ context, params }) => {
@@ -12,16 +13,18 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug")({
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    const guild = guilds.find((g) => g.id === params.guildId);
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
+    const guild = guilds.find((g) => g.id === guildId);
     if (!guild) throw notFound();
 
     const presence = await context.queryClient.ensureQueryData({
-      queryKey: ["bot-presence", params.guildId],
-      queryFn: () => checkBotInGuild({ data: { guildId: params.guildId } }),
+      queryKey: ["bot-presence", guildId],
+      queryFn: () => checkBotInGuild({ data: { guildId: guildId } }),
       staleTime: 0,
     });
 
-    return { user, guild, presence };
+    return { guildId, user, guild, presence };
   },
   pendingComponent: () => <MagicLoader label="Convocando o Zenox…" />,
   component: GuildLayout,

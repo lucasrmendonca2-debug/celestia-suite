@@ -37,6 +37,7 @@ import {
   AuroraField,
 } from "@/components/dashboard/aurora-ui";
 import { Mascot } from "@/components/Mascot";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 
 export const Route = createFileRoute("/_authenticated/dashboard/$slug/economia")({
   loader: async ({ context, params }) => {
@@ -45,20 +46,21 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/economia")
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     const config = await context.queryClient.ensureQueryData({
-      queryKey: ["economy", params.guildId],
-      queryFn: () => getEconomyConfig({ data: { guildId: params.guildId } }),
+      queryKey: ["economy", guildId],
+      queryFn: () => getEconomyConfig({ data: { guildId: guildId } }),
     });
     await context.queryClient.ensureQueryData({
-      queryKey: ["shop", params.guildId],
-      queryFn: () => listShopItems({ data: { guildId: params.guildId } }),
+      queryKey: ["shop", guildId],
+      queryFn: () => listShopItems({ data: { guildId: guildId } }),
     });
     await context.queryClient.ensureQueryData({
-      queryKey: ["economy-missions", params.guildId],
-      queryFn: () => listEconomyMissions({ data: { guildId: params.guildId } }),
+      queryKey: ["economy-missions", guildId],
+      queryFn: () => listEconomyMissions({ data: { guildId: guildId } }),
     });
-    return { user, config };
+    return { guildId, user, config };
   },
   component: EconomyPage,
   errorComponent: ({ error }) => (
@@ -73,7 +75,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/economia")
 
 function EconomyPage() {
   const { user, config } = Route.useLoaderData();
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
   const qc = useQueryClient();
   const updateFn = useServerFn(updateEconomyConfig);
   const upsertItem = useServerFn(upsertShopItem);

@@ -36,6 +36,7 @@ import { RatingsTab } from "@/components/dashboard/tickets/RatingsTab";
 import { ChannelPicker, RolePicker } from "@/components/dashboard/tickets/DiscordPickers";
 import { AuroraStatCard } from "@/components/dashboard/aurora-ui";
 import { Mascot } from "@/components/Mascot";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 
 
 export const Route = createFileRoute("/_authenticated/dashboard/$slug/tickets")({
@@ -45,18 +46,19 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/tickets")(
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    if (!guilds.find((g) => g.id === params.guildId)) throw notFound();
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
     const [config, stats] = await Promise.all([
       context.queryClient.ensureQueryData({
-        queryKey: ["ticket-config", params.guildId],
-        queryFn: () => getTicketConfig({ data: { guildId: params.guildId } }),
+        queryKey: ["ticket-config", guildId],
+        queryFn: () => getTicketConfig({ data: { guildId: guildId } }),
       }),
       context.queryClient.ensureQueryData({
-        queryKey: ["ticket-stats", params.guildId],
-        queryFn: () => getTicketStats({ data: { guildId: params.guildId } }),
+        queryKey: ["ticket-stats", guildId],
+        queryFn: () => getTicketStats({ data: { guildId: guildId } }),
       }),
     ]);
-    return { user, config, stats };
+    return { guildId, user, config, stats };
   },
   errorComponent: ({ error }) => (
     <div className="p-8">
@@ -83,7 +85,7 @@ const TABS = [
 
 function TicketsPage() {
   const { user, config, stats } = Route.useLoaderData();
-  const { guildId } = Route.useParams();
+  const { guildId } = Route.useLoaderData();
 
   return (
     <ModuleLayout

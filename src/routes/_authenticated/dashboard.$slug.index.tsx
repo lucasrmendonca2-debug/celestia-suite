@@ -22,6 +22,7 @@ import { getGuildOverview } from "@/lib/guild/overview.functions";
 import { DashboardSidebar } from "@/components/dashboard/DashboardSidebar";
 import { DashboardTopbar } from "@/components/dashboard/DashboardTopbar";
 import { Mascot } from "@/components/Mascot";
+import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 
 export const Route = createFileRoute("/_authenticated/dashboard/$slug/")({
   loader: async ({ context, params }) => {
@@ -30,14 +31,16 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/")({
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
     });
-    const guild = guilds.find((g) => g.id === params.guildId);
+    const guildId = resolveGuildIdFromSlug(params.slug, guilds);
+    if (!guildId) throw notFound();
+    const guild = guilds.find((g) => g.id === guildId);
     if (!guild) throw notFound();
     await context.queryClient.ensureQueryData({
-      queryKey: ["guild-overview", params.guildId],
-      queryFn: () => getGuildOverview({ data: { guildId: params.guildId } }),
+      queryKey: ["guild-overview", guildId],
+      queryFn: () => getGuildOverview({ data: { guildId: guildId } }),
       staleTime: 30_000,
     });
-    return { user, guild };
+    return { guildId, user, guild };
   },
   component: GuildOverviewPage,
 });

@@ -161,7 +161,7 @@ const command: SlashCommand = {
     }
 
 
-    if (sub === "add") {
+    if (sub === "adicionar") {
       if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
         await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem permissão" })], ephemeral: true });
         return;

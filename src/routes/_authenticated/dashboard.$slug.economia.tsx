@@ -39,6 +39,17 @@ import {
 } from "@/components/dashboard/aurora-ui";
 import { Mascot } from "@/components/Mascot";
 import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
+import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
+import { RoleBadge } from "@/components/dashboard/DiscordBadges";
+
+const MISSION_KIND_LABELS: Record<string, { label: string; emoji: string }> = {
+  daily: { label: "Diária", emoji: "🌅" },
+  work: { label: "Trabalho", emoji: "💼" },
+  shop_spend: { label: "Gasto na loja", emoji: "🛍️" },
+  crime: { label: "Crime", emoji: "🦹" },
+  rob: { label: "Roubo", emoji: "💸" },
+  messages: { label: "Mensagens", emoji: "💬" },
+};
 
 export const Route = createFileRoute("/_authenticated/dashboard/$slug/economia")({
   loader: async ({ context, params }) => {
@@ -310,10 +321,13 @@ function EconomyPage() {
                   onChange={(e) => setItem({ ...item, price: Number(e.target.value) })}
                 />
               </AuroraField>
-              <AuroraField label="ID do cargo entregue">
-                <Input
-                  value={item.role_id}
-                  onChange={(e) => setItem({ ...item, role_id: e.target.value.trim() })}
+              <AuroraField label="Cargo entregue na compra">
+                <RoleSelect
+                  guildId={guildId}
+                  value={item.role_id || null}
+                  onChange={(id) => setItem({ ...item, role_id: id ?? "" })}
+                  excludeManaged
+                  placeholder="Selecione um cargo"
                 />
               </AuroraField>
               <AuroraField label="Descrição">
@@ -364,9 +378,14 @@ function EconomyPage() {
                             {s.description}
                           </p>
                         )}
-                        <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
-                          cargo: {s.role_id ?? "—"}
-                        </p>
+                        <div className="mt-1 flex items-center gap-1.5">
+                          <span className="text-[10px] text-muted-foreground">Entrega:</span>
+                          {s.role_id ? (
+                            <RoleBadge guildId={guildId} roleId={s.role_id} />
+                          ) : (
+                            <span className="text-[10px] text-muted-foreground">—</span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <span className="font-display rounded-lg bg-[color:color-mix(in_oklab,var(--aurora-peach)_25%,transparent)] px-3 py-1.5 text-sm font-bold">
@@ -406,12 +425,11 @@ function EconomyPage() {
                   onChange={(e) => setMission({ ...mission, kind: e.target.value })}
                   className="h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
                 >
-                  <option value="daily">Daily</option>
-                  <option value="work">Work</option>
-                  <option value="shop_spend">Gasto na loja</option>
-                  <option value="crime">Crime</option>
-                  <option value="rob">Roubo</option>
-                  <option value="messages">Mensagens</option>
+                  {Object.entries(MISSION_KIND_LABELS).map(([k, v]) => (
+                    <option key={k} value={k}>
+                      {v.emoji} {v.label}
+                    </option>
+                  ))}
                 </select>
               </AuroraField>
               <AuroraField label="Meta">
@@ -488,11 +506,25 @@ function EconomyPage() {
                       <div className="min-w-0">
                         <p className="text-sm font-medium">
                           {m.title}{" "}
-                          <span className="text-xs text-muted-foreground">/{m.slug}</span>
+                          <span className="font-mono text-[10px] text-muted-foreground">
+                            /{m.slug}
+                          </span>
+                          {!m.active && (
+                            <span className="ml-2 rounded-md bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                              pausada
+                            </span>
+                          )}
                         </p>
-                        <p className="text-xs text-muted-foreground">
-                          {m.kind} · meta {m.goal} · {form.currency_emoji}{" "}
-                          {Number(m.reward).toLocaleString("pt-BR")}
+                        <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                          <span>
+                            {MISSION_KIND_LABELS[m.kind]?.emoji ?? "🎯"}{" "}
+                            {MISSION_KIND_LABELS[m.kind]?.label ?? m.kind}
+                          </span>
+                          <span>· meta {m.goal}</span>
+                          <span>
+                            · recompensa {form.currency_emoji}{" "}
+                            {Number(m.reward).toLocaleString("pt-BR")}
+                          </span>
                         </p>
                       </div>
                     </div>

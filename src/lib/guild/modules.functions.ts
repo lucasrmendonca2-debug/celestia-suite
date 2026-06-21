@@ -982,6 +982,10 @@ export const upsertEmbedTemplate = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const userId = await perm(data.guildId);
     const sb = await admin();
+    if (!data.id) {
+      const { enforceGuildLimit } = await import("./premium-limits.server");
+      await enforceGuildLimit(data.guildId, "embeds.templates", "embed_templates");
+    }
     const { error } = await sb.from("embed_templates").upsert(
       {
         id: data.id,

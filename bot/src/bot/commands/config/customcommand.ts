@@ -31,7 +31,7 @@ const command: SlashCommand = {
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guildId!;
-    if (sub === "add") {
+    if (sub === "adicionar") {
       const name = interaction.options.getString("nome", true).toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 32);
       if (!name) {
         await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Nome inválido" })], ephemeral: true });

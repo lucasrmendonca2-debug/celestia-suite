@@ -155,8 +155,11 @@ export function makeDiscordCallbackUri(request: Request, browserOrigin?: string 
   return computed;
 }
 
-export function shouldIncludeDiscordRedirectUri(redirectUri: string): boolean {
-  return isLocalOrigin(redirectUri);
+export function shouldIncludeDiscordRedirectUri(_redirectUri: string): boolean {
+  // Always send redirect_uri so Discord redirects back to the host that initiated login
+  // (published domain, custom domain, preview, or localhost) instead of falling back to
+  // the first redirect URI registered in the Discord application.
+  return true;
 }
 
 export function buildAuthorizeUrl(state: string, redirectUri?: string | null): string {

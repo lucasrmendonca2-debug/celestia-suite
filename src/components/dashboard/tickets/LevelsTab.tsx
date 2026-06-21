@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RoleBadge } from "@/components/dashboard/DiscordBadges";
 
 type Level = Awaited<ReturnType<typeof listAccessLevels>>[number];
 

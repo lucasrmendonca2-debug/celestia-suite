@@ -103,6 +103,63 @@ export type Database = {
         }
         Relationships: []
       }
+      app_error_logs: {
+        Row: {
+          count: number
+          created_at: string
+          fingerprint: string | null
+          guild_id: string | null
+          id: string
+          last_seen_at: string
+          level: string
+          message: string
+          metadata: Json | null
+          resolved: boolean
+          route: string | null
+          source: string
+          stack: string | null
+          user_agent: string | null
+          user_id: string | null
+          user_tag: string | null
+        }
+        Insert: {
+          count?: number
+          created_at?: string
+          fingerprint?: string | null
+          guild_id?: string | null
+          id?: string
+          last_seen_at?: string
+          level: string
+          message: string
+          metadata?: Json | null
+          resolved?: boolean
+          route?: string | null
+          source: string
+          stack?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          user_tag?: string | null
+        }
+        Update: {
+          count?: number
+          created_at?: string
+          fingerprint?: string | null
+          guild_id?: string | null
+          id?: string
+          last_seen_at?: string
+          level?: string
+          message?: string
+          metadata?: Json | null
+          resolved?: boolean
+          route?: string | null
+          source?: string
+          stack?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+          user_tag?: string | null
+        }
+        Relationships: []
+      }
       automod_config: {
         Row: {
           anti_caps_enabled: boolean

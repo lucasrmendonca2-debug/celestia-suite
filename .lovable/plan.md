@@ -1,100 +1,59 @@
 ## Objetivo
+Melhorar o dashboard de forma substancial, corrigir bugs (especialmente Permissões), enriquecer Boas-vindas/Autorole/Cargos por reação, Economia e Moderação, manter o estilo Paint em todo dashboard com o mascote Zenox espalhado em poses contextuais, e adicionar uma aba interna `/dev-logs` (admin) capturando todos os erros para eu ler.
 
-1. Mover o resgate do `/daily` para uma página dedicada do site (estilo Loritta).
-2. Melhorar UX, funcionalidades e robustez de **todos** os comandos do bot.
-3. Expandir o dashboard com Economia, Moderação, Níveis e Analytics.
-
-Vou entregar em **3 fases** para não estourar contexto. Esta plan cobre a Fase 1 em detalhe; 2 e 3 ficam como roadmap.
+Como o escopo é gigante, vou entregar em **fases** dentro deste mesmo plano. Cada fase é independente e testável — você pode pausar a qualquer momento.
 
 ---
 
-## FASE 1 — Daily no site + base de UX dos comandos (esta entrega)
+### Fase 1 — Infra de logs internos + correções rápidas
+1. **Tabela `app_error_logs`** (migration) com RLS:
+   - colunas: `id`, `created_at`, `level` (error/warn/info), `source` (client/server/serverfn), `message`, `stack`, `route`, `user_id`, `user_tag`, `guild_id`, `metadata` jsonb, `user_agent`.
+   - SELECT só pra admin (via `has_role` se já existir, senão lista whitelist em `app_admins`).
+   - INSERT liberado pra `authenticated` (rate-limit por trigger simples).
+2. **Server fn `logAppError`** + helper `reportError(err, ctx)` no client.
+3. **Hook global no `__root.tsx`**: window.onerror, unhandledrejection, e patch no `console.error` que envia pro backend (debounced, dedup por message+stack).
+4. **Wrapper em todos os server fns críticos** (try/catch → logAppError → rethrow).
+5. **Rota `/dev-logs`** (dentro de `_authenticated/`) — visível só pra admin:
+   - tabela paginada, filtros (level, source, rota, intervalo, busca), expand pra ver stack/metadata, botão "marcar resolvido", botão "limpar antigos".
+6. **Correção da aba Permissões** — investigar bug atual (provavelmente roles não persistindo / áreas não validando), fixar.
 
-### 1.1 Página `/daily` dedicada (fora do dashboard)
+### Fase 2 — Overview turbinada
+- Cards: membros online/total, msgs/24h, comandos usados/24h, tickets abertos, casos de mod abertos, economia circulante.
+- Gráfico de atividade (linhas) últimos 7/30 dias.
+- Atalhos rápidos pros módulos mais usados.
+- "Saúde do servidor": módulos ativos, alertas (ex: log channel não configurado).
+- Mascote Zenox em pose "analista" no canto.
 
-Nova rota pública `src/routes/daily.tsx`:
-- Layout próprio (não usa shell do dashboard), tema escuro com o gradiente do site.
-- Aceita `?token=<jwt>` vindo do bot.
-- Se não logado: botão "Entrar com Discord" preservando o token.
-- Se logado e token válido: mostra card com streak atual (🔥 X dias), recompensa do dia, multiplicador premium, calendário visual da semana, botão grande "Resgatar agora".
-- Pós-resgate: confetti + mostra próximo resgate disponível (countdown em tempo real).
-- Se já resgatou: estado bloqueado com countdown.
+### Fase 3 — Boas-vindas / Autorole / Cargos por reação
+- **Boas-vindas**: editor com preview ao vivo, variáveis ({user}, {server}, {memberCount}), suporte a embed + imagem custom + mensagem privada opcional, agendamento (delay), múltiplos templates com A/B.
+- **Autorole**: cargos diferentes para humanos/bots, delay, cargo "verificado" condicional, restauração de cargos ao retornar.
+- **Cargos por reação**: builder visual de painel, modo único/múltiplo/toggle, limites por usuário, expira, integração com botões (não só reações).
 
-### 1.2 Backend do daily
+### Fase 4 — Economia
+- Editor de loja com imagens, estoque, requisitos (nível/cargo), itens consumíveis vs permanentes.
+- Sistema de missões (diárias/semanais) editável.
+- Multiplicadores por cargo, canal, horário.
+- Rotação automática de loja (já existe tabela) — UI completa.
+- Daily com streaks configuráveis e bônus por marco.
 
-Server functions em `src/lib/daily.functions.ts`:
-- `createDailyToken({ guildId, userId })` — gera JWT curto (10 min) assinado com `SESSION_SECRET`, contém `userId` + `guildId`.
-- `getDailyStatus({ token })` — valida token, retorna `{ streak, nextAmount, canClaim, nextClaimAt, premiumMultiplier }`.
-- `claimDaily({ token })` — atômico via `findOneAndUpdate` com cutoff (já refatorado no AUDIT). Aplica streak, salva, retorna recompensa final.
+### Fase 5 — Moderação avançada
+- Automod: regras por gatilho (spam, caps, links, convites, palavras, menções, anexos) com thresholds + ações em escada (avisar→mutar→kick→ban).
+- Histórico filtrável + edição/revogação de casos.
+- Appeals: UI pra revisar.
+- Permissões granulares por comando de mod.
 
-Reaproveita a lógica atômica já existente no `bot/src/bot/commands/economy/daily.ts` — extrai para `bot/src/shared/daily.ts` e o site importa via wrapper Node compatível (chamada HTTP interna do bot, ou conexão Mongo direta do site via `MONGO_URI`).
-
-**Decisão técnica:** o site conecta direto no MongoDB (mesmo padrão que outras telas do dashboard já usam), evitando dependência do bot estar online.
-
-### 1.3 Comando `/daily` reescrito
-
-`bot/src/bot/commands/economy/daily.ts`:
-- Não credita mais direto. Gera token via helper compartilhado.
-- Responde com embed estilizado: avatar do bot, descrição "Resgate sua recompensa diária no site!", mostra streak atual e próximo bônus.
-- Botão `ButtonBuilder` link → `https://zenoxbot.lovable.app/daily?token=...`.
-- Botão secundário "Ver minha economia" → `/saldo`.
-- Se já resgatou hoje: embed vermelho com countdown.
-
-### 1.4 Padronização visual de embeds (base reutilizável)
-
-Novo `bot/src/bot/lib/embeds.ts`:
-- `successEmbed(title, desc)` — verde `#22c55e`
-- `errorEmbed(title, desc)` — vermelho `#ef4444`
-- `warnEmbed`, `infoEmbed`, `economyEmbed`, `modEmbed`, `levelEmbed`, `funEmbed` — cada categoria com cor própria
-- Footer padrão com nome do bot + timestamp
-- Helper `confirmButtons(idYes, idNo)` para confirmações inline
-
-Migra os 4 comandos mais usados (`/daily`, `/saldo`, `/work`, `/rank`) para usar esses helpers como prova de conceito. Demais comandos migrados na Fase 2.
-
-### 1.5 MessageFlags.Ephemeral migration
-
-Substituir todos os `ephemeral: true` (deprecated no discord.js v14.16+) por `flags: MessageFlags.Ephemeral` em todos os comandos — fix linear, ~50 lugares.
-
-### 1.6 Race conditions restantes do AUDIT
-
-- `/rob`: atomic `updateOne` no alvo com filtro de saldo
-- `/shop` compra: atomic decrement de `stock` com filtro `{ stock: { $gte: qty } }`
-- `/kick`: passa a gerar `mod_case` igual `/ban` e `/mute`
+### Fase 6 — Mascote Zenox contextual
+- Gerar ~8 poses no estilo Paint da home (não iguais): "analista" (overview), "policial" (mod), "carteiro" (boas-vindas), "comerciante" (economia), "detetive" (logs), "festeiro" (daily), "engenheiro" (configs), "fantasma triste" (404/erro).
+- Componente `<ZenoxHere variant="..." />` que escolhe pose conforme a página.
 
 ---
 
-## FASE 2 — Melhoria sistêmica dos comandos (roadmap)
+### Detalhes técnicos
+- Logs: tabela em Lovable Cloud, RLS `has_role('admin')` pra SELECT.
+- Captura client: patch único em `__root.tsx`, batching de 1s.
+- Captura server: middleware global `errorMiddleware` já existe em `src/start.ts` — adicionar `logAppError` lá antes de rethrow.
+- Permissões: ler `dashboard_permissions` + testar fluxo atual antes de mexer.
+- Imagens do mascote: `imagegen` premium, paleta `#7C3AED #F472B6 #FBBF24 #34D399`, contorno preto grosso, mesmo traço da home.
 
-- Aplicar embed helpers a **todos** os comandos restantes (categorizados)
-- Adicionar autocomplete em comandos com itens dinâmicos (shop, missions, badges)
-- Rate-limit por usuário (cooldown maps com TTL) em comandos custosos
-- Comandos novos: `/work` (com mini-jobs), `/crime` (risco/recompensa), `/leaderboard` interativo com paginação por botões, `/perfil` redesenhado com card canvas
-- Error wrapper global: try/catch em todo handler, log estruturado + resposta amigável
-
-## FASE 3 — Expansão do dashboard (roadmap)
-
-- **Economia**: editor de loja (CRUD com upload de imagem), missões com cron preview, config do daily (valor base, streak bonus, premium 2x), tabela de transações com filtros
-- **Moderação**: timeline de casos com filtros, botão revogar/editar punição, editor de automod (slider de severidade, regex tester), blacklist com import CSV
-- **Níveis**: editor de fórmula XP com preview gráfico, recompensas por nível drag-and-drop, multiplicadores por canal/role
-- **Analytics**: dashboard com Recharts — comandos mais usados (7d/30d), membros ativos, economia circulante, novos casos de moderação
-
----
-
-## Arquivos da Fase 1
-
-Criar:
-- `src/routes/daily.tsx`
-- `src/lib/daily.functions.ts`
-- `src/components/daily/DailyCard.tsx`
-- `src/components/daily/StreakCalendar.tsx`
-- `bot/src/bot/lib/embeds.ts`
-- `bot/src/shared/daily-token.ts` (assinar/verificar JWT compartilhado com site)
-
-Editar:
-- `bot/src/bot/commands/economy/daily.ts` (vira "link to site")
-- `bot/src/bot/commands/economy/saldo.ts`, `work.ts`, `rob.ts`, `shop.ts`
-- `bot/src/bot/commands/level/rank.ts`
-- `bot/src/bot/commands/moderation/kick.ts` (gerar mod_case)
-- Todos os comandos com `ephemeral: true` → `flags: MessageFlags.Ephemeral`
-
-Posso começar pela Fase 1 agora?
+### Pergunta antes de começar
+Posso começar pela **Fase 1 (logs + fix Permissões)** agora? Ela destrava as outras porque qualquer bug nas próximas fases já cai no `/dev-logs` e eu leio direto. Confirma "vai" que eu emendo.

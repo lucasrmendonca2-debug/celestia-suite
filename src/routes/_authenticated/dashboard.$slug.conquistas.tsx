@@ -12,6 +12,7 @@ import {
   upsertAchievement,
 } from "@/lib/guild/badges.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -257,13 +258,17 @@ function AchievementsPage() {
                       >
                         Editar
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => delM.mutate(a.id)}
-                      >
-                        <Trash2 className="size-4" />
-                      </Button>
+                      <ConfirmDeleteButton
+                        onConfirm={() => delM.mutate(a.id)}
+                        title="Remover conquista?"
+                        description={`A conquista "${a.title}" será apagada.`}
+                        trigger={
+                          <Button size="sm" variant="ghost" aria-label="Excluir conquista">
+                            <Trash2 className="size-4 text-destructive" />
+                          </Button>
+                        }
+                      />
+
                     </div>
                   </li>
                 );

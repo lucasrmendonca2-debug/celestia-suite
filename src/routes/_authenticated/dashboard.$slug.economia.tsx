@@ -25,6 +25,7 @@ import {
   upsertShopItem,
 } from "@/lib/guild/modules.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -371,13 +372,12 @@ function EconomyPage() {
                     <span className="font-display rounded-lg bg-[color:color-mix(in_oklab,var(--aurora-peach)_25%,transparent)] px-3 py-1.5 text-sm font-bold">
                       {form.currency_emoji} {s.price.toLocaleString("pt-BR")}
                     </span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => deleteItem.mutate(s.id)}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
+                    <ConfirmDeleteButton
+                      onConfirm={() => deleteItem.mutate(s.id)}
+                      title="Remover item da loja?"
+                      description={`O item "${s.name}" será removido permanentemente.`}
+                    />
+
                   </li>
                 ))}
               </ul>
@@ -496,13 +496,12 @@ function EconomyPage() {
                         </p>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => deleteMission.mutate(m.id)}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
+                    <ConfirmDeleteButton
+                      onConfirm={() => deleteMission.mutate(m.id)}
+                      title="Remover missão?"
+                      description={`A missão "${m.title}" será removida permanentemente.`}
+                    />
+
                   </li>
                 ))}
               </ul>

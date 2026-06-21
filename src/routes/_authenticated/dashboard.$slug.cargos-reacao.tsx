@@ -12,6 +12,7 @@ import {
   removeReactionRole,
 } from "@/lib/guild/modules.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import {
   AuroraSection,
   AuroraStatCard,
@@ -232,9 +233,12 @@ function ReactionRolesPage() {
                       </p>
                     </div>
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => remove.mutate(r.id)}>
-                    <Trash2 className="size-4" />
-                  </Button>
+                  <ConfirmDeleteButton
+                    onConfirm={() => remove.mutate(r.id)}
+                    title="Remover cargo por reação?"
+                    description="A regra será apagada e a reação parará de atribuir o cargo."
+                  />
+
                 </li>
               ))}
             </ul>

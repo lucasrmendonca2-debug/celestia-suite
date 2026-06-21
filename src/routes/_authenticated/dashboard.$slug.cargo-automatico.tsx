@@ -11,6 +11,7 @@ import {
   removeAutorole,
 } from "@/lib/guild/modules.functions";
 import { ModuleLayout } from "@/components/dashboard/ModuleLayout";
+import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { Button } from "@/components/ui/button";
 import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
 import {
@@ -156,9 +157,12 @@ function AutorolePage() {
                       </p>
                     </div>
                   </div>
-                  <Button variant="ghost" size="icon" onClick={() => remove.mutate(r.id)}>
-                    <Trash2 className="size-4" />
-                  </Button>
+                  <ConfirmDeleteButton
+                    onConfirm={() => remove.mutate(r.id)}
+                    title="Remover cargo automático?"
+                    description="Novos membros não receberão mais esse cargo automaticamente."
+                  />
+
                 </li>
               ))}
             </ul>

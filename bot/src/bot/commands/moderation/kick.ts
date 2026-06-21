@@ -98,6 +98,16 @@ const command: SlashCommand = {
       type: "KICK",
       reason,
     });
+    await createCase({
+      guildId: guild.id,
+      userId: user.id,
+      userTag: user.tag,
+      moderatorId: interaction.user.id,
+      moderatorTag: interaction.user.tag,
+      action: "KICK",
+      reason,
+      source: "BOT",
+    }).catch((err) => logger.warn({ err }, "createCase KICK falhou"));
     await logModerationEvent({
       guildId: guild.id,
       userId: user.id,

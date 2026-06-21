@@ -312,16 +312,24 @@ function AssetCard({
         </label>
         <div className="flex gap-2">
           {row && (
-            <Button
-              size="sm"
-              variant="ghost"
-              className="text-destructive hover:text-destructive"
-              onClick={onRemove}
-            >
-              <Trash2 className="mr-1 size-3.5" />
-              Remover
-            </Button>
+            <ConfirmDeleteButton
+              onConfirm={onRemove}
+              title="Remover este asset?"
+              description="A personalização visual voltará ao padrão."
+              confirmLabel="Remover"
+              trigger={
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-destructive hover:text-destructive"
+                >
+                  <Trash2 className="mr-1 size-3.5" />
+                  Remover
+                </Button>
+              }
+            />
           )}
+
           <Button
             size="sm"
             disabled={!url || !dirty || saving}

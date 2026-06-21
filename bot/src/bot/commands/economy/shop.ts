@@ -58,11 +58,11 @@ const command: SlashCommand = {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guildId!;
     const c = await getCurrency(guildId);
-    if (sub === "list" || sub === "buy" || sub === "rotacao" || sub === "rotacionar") {
+    if (sub === "listar" || sub === "comprar" || sub === "rotacao" || sub === "rotacionar") {
       await syncDashboardShopItems(guildId);
     }
 
-    if (sub === "list") {
+    if (sub === "listar") {
       const [items, rotation] = await Promise.all([
         ShopItem.find({ guildId, enabled: true }).limit(25),
         ensureRotation(guildId),

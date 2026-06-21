@@ -1,0 +1,377 @@
+[
+  {
+    "name": "automod",
+    "description": "Configura o AutoMod do servidor.",
+    "category": "config"
+  },
+  {
+    "name": "comando",
+    "description": "Comandos customizados do servidor (prefixo !)",
+    "category": "config"
+  },
+  {
+    "name": "config",
+    "description": "Configurações do bot neste servidor.",
+    "category": "config"
+  },
+  {
+    "name": "embed",
+    "description": "Editor de embeds avançado.",
+    "category": "config"
+  },
+  {
+    "name": "logs",
+    "description": "Configuração e auditoria do sistema de logs.",
+    "category": "config"
+  },
+  {
+    "name": "crime",
+    "description": "Cometa um crime arriscado por dinheiro 🤫",
+    "category": "economy"
+  },
+  {
+    "name": "daily",
+    "description": "Recompensa diária.",
+    "category": "economy"
+  },
+  {
+    "name": "depositar",
+    "description": "Deposita moedas no banco.",
+    "category": "economy"
+  },
+  {
+    "name": "economia",
+    "description": "Hub de economia: streak, rankings e histórico.",
+    "category": "economy"
+  },
+  {
+    "name": "inventario",
+    "description": "Mostra seu inventário.",
+    "category": "economy"
+  },
+  {
+    "name": "loja",
+    "description": "Loja do servidor.",
+    "category": "economy"
+  },
+  {
+    "name": "missoes",
+    "description": "Missões diárias do servidor.",
+    "category": "economy"
+  },
+  {
+    "name": "pay",
+    "description": "Transfere moedas para outro membro.",
+    "category": "economy"
+  },
+  {
+    "name": "ranking",
+    "description": "Ranking de riqueza do servidor.",
+    "category": "economy"
+  },
+  {
+    "name": "rob",
+    "description": "Tenta roubar outro membro.",
+    "category": "economy"
+  },
+  {
+    "name": "sacar",
+    "description": "Saca moedas do banco.",
+    "category": "economy"
+  },
+  {
+    "name": "saldo",
+    "description": "Vê seu saldo (carteira + banco).",
+    "category": "economy"
+  },
+  {
+    "name": "trabalhar",
+    "description": "Trabalha para ganhar moedas.",
+    "category": "economy"
+  },
+  {
+    "name": "enquete",
+    "description": "Sistema de enquetes do servidor.",
+    "category": "events"
+  },
+  {
+    "name": "sorteio",
+    "description": "Sistema de sorteios.",
+    "category": "events"
+  },
+  {
+    "name": "8ball",
+    "description": "Faça uma pergunta para a bola mágica 🎱.",
+    "category": "fun"
+  },
+  {
+    "name": "avatar",
+    "description": "Mostra o avatar de um usuário.",
+    "category": "fun"
+  },
+  {
+    "name": "dados",
+    "description": "Rola um dado.",
+    "category": "fun"
+  },
+  {
+    "name": "meme",
+    "description": "Mostra um meme aleatório.",
+    "category": "fun"
+  },
+  {
+    "name": "moeda",
+    "description": "Joga uma moeda — cara ou coroa.",
+    "category": "fun"
+  },
+  {
+    "name": "divorce",
+    "description": "Termina seu casamento 💔",
+    "category": "interaction"
+  },
+  {
+    "name": "marry",
+    "description": "Pede alguém em casamento. 💍",
+    "category": "interaction"
+  },
+  {
+    "name": "ship",
+    "description": "Calcula a compatibilidade entre duas pessoas.",
+    "category": "interaction"
+  },
+  {
+    "name": "usuario",
+    "description": "Alvo",
+    "category": "interaction"
+  },
+  {
+    "name": "conquistas",
+    "description": "Veja conquistas do servidor e seu progresso.",
+    "category": "level"
+  },
+  {
+    "name": "level",
+    "description": "Administração do sistema de level.",
+    "category": "level"
+  },
+  {
+    "name": "levelreward",
+    "description": "Configura cargos por nível.",
+    "category": "level"
+  },
+  {
+    "name": "rank",
+    "description": "Mostra seu rank card visual.",
+    "category": "level"
+  },
+  {
+    "name": "temporada",
+    "description": "Veja informações da temporada de XP ativa.",
+    "category": "level"
+  },
+  {
+    "name": "toplevel",
+    "description": "Ranking de níveis do servidor.",
+    "category": "level"
+  },
+  {
+    "name": "toprep",
+    "description": "Ranking de reputação do servidor.",
+    "category": "level"
+  },
+  {
+    "name": "apelacoes",
+    "description": "Gerencia apelações de punições.",
+    "category": "moderation"
+  },
+  {
+    "name": "apelar",
+    "description": "Abre um pedido de revisão para uma punição sua.",
+    "category": "moderation"
+  },
+  {
+    "name": "ban",
+    "description": "Bane um usuário do servidor (permanente ou temporário).",
+    "category": "moderation"
+  },
+  {
+    "name": "case",
+    "description": "Mostra os detalhes de um caso de moderação.",
+    "category": "moderation"
+  },
+  {
+    "name": "clear",
+    "description": "Apaga mensagens recentes do canal.",
+    "category": "moderation"
+  },
+  {
+    "name": "history",
+    "description": "Mostra o histórico de moderação de um usuário.",
+    "category": "moderation"
+  },
+  {
+    "name": "kick",
+    "description": "Expulsa um usuário do servidor.",
+    "category": "moderation"
+  },
+  {
+    "name": "lock",
+    "description": "Tranca o canal atual (impede @everyone de enviar mensagens).",
+    "category": "moderation"
+  },
+  {
+    "name": "modstats",
+    "description": "Estatísticas de moderação dos últimos 30 dias.",
+    "category": "moderation"
+  },
+  {
+    "name": "mute",
+    "description": "Silencia um usuário (timeout ou cargo de mute).",
+    "category": "moderation"
+  },
+  {
+    "name": "nickname",
+    "description": "Altera o apelido de um usuário.",
+    "category": "moderation"
+  },
+  {
+    "name": "note",
+    "description": "Adiciona uma anotação interna sobre um usuário (não envia DM).",
+    "category": "moderation"
+  },
+  {
+    "name": "purge",
+    "description": "Limpa mensagens com filtros avançados.",
+    "category": "moderation"
+  },
+  {
+    "name": "reason",
+    "description": "Edita o motivo de um caso de moderação.",
+    "category": "moderation"
+  },
+  {
+    "name": "removewarn",
+    "description": "Remove uma advertência específica.",
+    "category": "moderation"
+  },
+  {
+    "name": "slowmode",
+    "description": "Define o slowmode do canal atual em segundos.",
+    "category": "moderation"
+  },
+  {
+    "name": "tempban",
+    "description": "Bane temporariamente (desbanimento automático).",
+    "category": "moderation"
+  },
+  {
+    "name": "tempmute",
+    "description": "Silencia temporariamente (atalho para /mute com duração).",
+    "category": "moderation"
+  },
+  {
+    "name": "unban",
+    "description": "Remove o banimento de um usuário.",
+    "category": "moderation"
+  },
+  {
+    "name": "unlock",
+    "description": "Destranca o canal atual.",
+    "category": "moderation"
+  },
+  {
+    "name": "unmute",
+    "description": "Remove o silenciamento de um usuário.",
+    "category": "moderation"
+  },
+  {
+    "name": "warn",
+    "description": "Adverte um usuário.",
+    "category": "moderation"
+  },
+  {
+    "name": "warns",
+    "description": "Lista as advertências ativas de um usuário.",
+    "category": "moderation"
+  },
+  {
+    "name": "admin-premium",
+    "description": "Painel administrativo premium (apenas dono).",
+    "category": "premium"
+  },
+  {
+    "name": "premium",
+    "description": "Sistema Premium do servidor.",
+    "category": "premium"
+  },
+  {
+    "name": "vip",
+    "description": "Sistema VIP de usuário.",
+    "category": "premium"
+  },
+  {
+    "name": "ticket",
+    "description": "Sistema de tickets do Zenox.",
+    "category": "tickets"
+  },
+  {
+    "name": "anuncio",
+    "description": "Cria um anúncio formatado.",
+    "category": "utility"
+  },
+  {
+    "name": "badges",
+    "description": "Badges/conquistas do servidor.",
+    "category": "utility"
+  },
+  {
+    "name": "botinfo",
+    "description": "Informações sobre o Zenox.",
+    "category": "utility"
+  },
+  {
+    "name": "central",
+    "description": "Sua central: level, saldo, daily, tickets, reputação, badges e VIP.",
+    "category": "utility"
+  },
+  {
+    "name": "help",
+    "description": "Central de ajuda interativa do Zenox.",
+    "category": "utility"
+  },
+  {
+    "name": "lembrete",
+    "description": "Cria um lembrete pessoal.",
+    "category": "utility"
+  },
+  {
+    "name": "perfil",
+    "description": "Perfil social do servidor.",
+    "category": "utility"
+  },
+  {
+    "name": "ping",
+    "description": "Mostra a latência do bot.",
+    "category": "utility"
+  },
+  {
+    "name": "rep",
+    "description": "Reputação social.",
+    "category": "utility"
+  },
+  {
+    "name": "serverinfo",
+    "description": "Informações deste servidor.",
+    "category": "utility"
+  },
+  {
+    "name": "sugestao",
+    "description": "Sistema de sugestões do servidor.",
+    "category": "utility"
+  },
+  {
+    "name": "userinfo",
+    "description": "Mostra informações de um usuário.",
+    "category": "utility"
+  }
+]

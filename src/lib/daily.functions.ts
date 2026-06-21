@@ -14,9 +14,12 @@ async function callBot(path: string, body: any) {
   }
   const secret = process.env.BOT_API_SECRET;
   if (!secret) return { error: "bot_secret_missing" as const };
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
   try {
     const res = await fetch(`${base}${path}`, {
       method: "POST",
+      signal: controller.signal,
       headers: {
         "content-type": "application/json",
         "x-bot-secret": secret,
@@ -27,7 +30,12 @@ async function callBot(path: string, body: any) {
     if (!res.ok) return { error: data?.error ?? `http_${res.status}`, data };
     return data;
   } catch (e: any) {
-    return { error: "fetch_failed" as const, message: e?.message };
+    return {
+      error: e?.name === "AbortError" ? ("bot_timeout" as const) : ("fetch_failed" as const),
+      message: e?.message,
+    };
+  } finally {
+    clearTimeout(timeout);
   }
 }
 

@@ -411,22 +411,25 @@ function PremiumPage() {
           >
             <div className="grid gap-3 sm:grid-cols-2">
               <AuroraField label="Cargo VIP (usuário)" htmlFor="vipRole">
-                <Input
-                  id="vipRole"
-                  placeholder="123456789012345678"
-                  value={vipRoleId}
-                  onChange={(e) => setVipRoleId(e.target.value)}
+                <RoleSelect
+                  guildId={guildId}
+                  value={vipRoleId || null}
+                  onChange={(id) => setVipRoleId(id ?? "")}
+                  excludeManaged
+                  placeholder="Selecione o cargo VIP"
                 />
               </AuroraField>
               <AuroraField label="Cargo Premium (servidor)" htmlFor="premiumRole">
-                <Input
-                  id="premiumRole"
-                  placeholder="123456789012345678"
-                  value={premiumRoleId}
-                  onChange={(e) => setPremiumRoleId(e.target.value)}
+                <RoleSelect
+                  guildId={guildId}
+                  value={premiumRoleId || null}
+                  onChange={(id) => setPremiumRoleId(id ?? "")}
+                  excludeManaged
+                  placeholder="Selecione o cargo Premium"
                 />
               </AuroraField>
             </div>
+
             <div className="flex justify-end pt-2">
               <Button onClick={() => saveConfig.mutate()} disabled={saveConfig.isPending}>
                 {saveConfig.isPending ? "Salvando..." : "Salvar configuração"}

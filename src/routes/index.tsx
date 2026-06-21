@@ -23,10 +23,15 @@ import {
 import { Mascot } from "@/components/Mascot";
 import chibiPeek from "@/assets/mascot-chibi-peek.png";
 import chibiClimb1 from "@/assets/chibi-climb-1.png";
+import chibiClimb1b from "@/assets/chibi-climb-1b.png";
 import chibiClimb2 from "@/assets/chibi-climb-2.png";
+import chibiClimb2b from "@/assets/chibi-climb-2b.png";
 import chibiClimb3 from "@/assets/chibi-climb-3.png";
+import chibiClimb3b from "@/assets/chibi-climb-3b.png";
 import chibiClimb4 from "@/assets/chibi-climb-4.png";
+import chibiClimb4b from "@/assets/chibi-climb-4b.png";
 import chibiClimb5 from "@/assets/chibi-climb-5.png";
+import chibiClimb5b from "@/assets/chibi-climb-5b.png";
 import chibiClimb6 from "@/assets/chibi-climb-6.png";
 import paintEscape from "@/assets/mascot-paint-escape.png";
 import { SiteHeader, SiteFooter } from "@/components/site/SiteHeader";
@@ -497,15 +502,20 @@ function Landing() {
 /* ---------- Pieces ---------- */
 
 const CLIMB_FRAMES = [
-  chibiClimb1, // mão + cabeça surgindo
-  chibiClimb2, // duas mãos no topo
-  chibiClimb3, // se puxando, suando
-  chibiClimb4, // tronco fora, apoiado
-  chibiClimb5, // sentado peeking
-  chibiClimb6, // sentado relaxado acenando
+  chibiClimb1,
+  chibiClimb1b,
+  chibiClimb2,
+  chibiClimb2b,
+  chibiClimb3,
+  chibiClimb3b,
+  chibiClimb4,
+  chibiClimb4b,
+  chibiClimb5,
+  chibiClimb5b,
+  chibiClimb6,
 ];
-const FRAME_MS = 110; // ~9fps, ~660ms a escalada toda
-const IDLE_FRAMES = [5, 4, 5, 4]; // balança entre poses sentadas depois
+const FRAME_MS = 55; // ~18fps, ~600ms a escalada toda
+const IDLE_FRAMES = [10, 9, 10, 8]; // balança entre poses sentadas no topo
 
 function PeekButton({
   href,

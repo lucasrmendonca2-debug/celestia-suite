@@ -23,7 +23,8 @@ const command: SlashCommand = {
   cooldown: 3,
   guildOnly: true,
   data: new SlashCommandBuilder()
-    .setName("warn")
+    .setName("avisar")
+    .setNameLocalizations({ "en-US": "warn" })
     .setDescription("Adverte um usuário.")
     .addUserOption((o) => o.setName("usuario").setDescription("Usuário").setRequired(true))
     .addStringOption((o) => o.setName("motivo").setDescription("Motivo").setRequired(true))

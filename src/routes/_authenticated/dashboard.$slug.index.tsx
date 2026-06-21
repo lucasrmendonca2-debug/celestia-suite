@@ -539,3 +539,16 @@ function QuickAction({
     </Link>
   );
 }
+
+function InsightLine({ ok, text }: { ok: boolean; text: string }) {
+  return (
+    <li className="flex items-start gap-2">
+      {ok ? (
+        <CheckCircle2 className="mt-0.5 size-3.5 shrink-0 text-emerald-500" />
+      ) : (
+        <Clock className="mt-0.5 size-3.5 shrink-0 text-amber-500" />
+      )}
+      <span className={ok ? "text-foreground/90" : "text-foreground"}>{text}</span>
+    </li>
+  );
+}

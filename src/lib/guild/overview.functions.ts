@@ -236,7 +236,7 @@ export const getGuildOverview = createServerFn({ method: "GET" })
         .from("mod_cases")
         .select("id", { count: "exact", head: true })
         .eq("guild_id", data.guildId)
-        .eq("status", "active"),
+        .eq("active", true),
       supabaseAdmin
         .from("warnings")
         .select("id", { count: "exact", head: true })

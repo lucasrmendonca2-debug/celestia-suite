@@ -39,6 +39,17 @@ import {
 } from "@/components/dashboard/aurora-ui";
 import { Mascot } from "@/components/Mascot";
 import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
+import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
+import { RoleBadge } from "@/components/dashboard/DiscordBadges";
+
+const MISSION_KIND_LABELS: Record<string, { label: string; emoji: string }> = {
+  daily: { label: "Diária", emoji: "🌅" },
+  work: { label: "Trabalho", emoji: "💼" },
+  shop_spend: { label: "Gasto na loja", emoji: "🛍️" },
+  crime: { label: "Crime", emoji: "🦹" },
+  rob: { label: "Roubo", emoji: "💸" },
+  messages: { label: "Mensagens", emoji: "💬" },
+};
 
 export const Route = createFileRoute("/_authenticated/dashboard/$slug/economia")({
   loader: async ({ context, params }) => {

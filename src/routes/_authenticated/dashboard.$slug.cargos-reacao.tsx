@@ -18,6 +18,9 @@ import {
   AuroraStatCard,
   AuroraField,
 } from "@/components/dashboard/aurora-ui";
+import { ChannelSelect } from "@/components/dashboard/selectors/ChannelSelect";
+import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
+import { RoleBadge, ChannelBadge } from "@/components/dashboard/DiscordBadges";
 import { Mascot } from "@/components/Mascot";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -138,18 +141,19 @@ function ReactionRolesPage() {
       <div className="space-y-4">
         <AuroraSection title="Adicionar nova" icon={Plus} tone="peach">
           <div className="grid gap-3 sm:grid-cols-2">
-            <AuroraField label="ID do canal">
-              <Input
-                value={form.channel_id}
-                onChange={(e) => setForm({ ...form, channel_id: e.target.value.trim() })}
-                placeholder="123456789012345678"
+            <AuroraField label="Canal" hint="Onde está a mensagem-alvo.">
+              <ChannelSelect
+                guildId={guildId}
+                value={form.channel_id || null}
+                onChange={(id) => setForm({ ...form, channel_id: id ?? "" })}
               />
             </AuroraField>
-            <AuroraField label="ID da mensagem">
+            <AuroraField label="ID da mensagem" hint="Clique direito → Copiar ID da mensagem">
               <Input
                 value={form.message_id}
                 onChange={(e) => setForm({ ...form, message_id: e.target.value.trim() })}
                 placeholder="123456789012345678"
+                className="font-mono"
               />
             </AuroraField>
             <AuroraField label="Emoji" hint="Unicode (🎉) ou customizado <:nome:id>">
@@ -159,11 +163,12 @@ function ReactionRolesPage() {
                 placeholder="🎉"
               />
             </AuroraField>
-            <AuroraField label="ID do cargo">
-              <Input
-                value={form.role_id}
-                onChange={(e) => setForm({ ...form, role_id: e.target.value.trim() })}
-                placeholder="123456789012345678"
+            <AuroraField label="Cargo" hint="O cargo que será atribuído na reação.">
+              <RoleSelect
+                guildId={guildId}
+                value={form.role_id || null}
+                onChange={(id) => setForm({ ...form, role_id: id ?? "" })}
+                excludeManaged
               />
             </AuroraField>
             <AuroraField label="Modo">

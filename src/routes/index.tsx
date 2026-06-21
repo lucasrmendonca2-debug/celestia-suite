@@ -510,15 +510,14 @@ function Landing() {
 /* ---------- Pieces ---------- */
 
 const CLIMB_FRAMES = [
-  chibiClimb1, // mão + cabeça surgindo
   chibiClimb2, // duas mãos no topo
   chibiClimb3, // se puxando, suando
   chibiClimb4, // tronco fora, apoiado
   chibiClimb5, // sentado peeking
   chibiClimb6, // sentado relaxado acenando
 ];
-const FRAME_MS = 110; // ~9fps, ~660ms a escalada toda
-const IDLE_FRAMES = [5, 4, 5, 4]; // balança entre poses sentadas depois
+const FRAME_MS = 110; // ~9fps
+const IDLE_FRAMES = [4, 3, 4, 3]; // idle entre poses sentadas (indices em CLIMB_FRAMES)
 
 function PeekButton({
   href,

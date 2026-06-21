@@ -5,7 +5,7 @@ import { LogOut, Menu } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeProvider";
 import { PremiumBadge } from "@/components/premium/PremiumBadge";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { Mascot, MascotPeek } from "@/components/Mascot";
+import { Mascot } from "@/components/Mascot";
 import { SidebarNav } from "./sidebar-nav";
 
 function avatarUrl(u: CurrentUser): string {

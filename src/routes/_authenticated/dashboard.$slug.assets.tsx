@@ -292,7 +292,7 @@ function AssetCard({
           className="flex-1"
         />
         {url && (
-          <Button asChild variant="outline" size="icon" title="Abrir URL">
+          <Button asChild variant="outline" size="icon" title="Abrir URL" aria-label="Abrir URL em nova aba">
             <a href={url} target="_blank" rel="noreferrer">
               <ExternalLink className="size-4" />
             </a>

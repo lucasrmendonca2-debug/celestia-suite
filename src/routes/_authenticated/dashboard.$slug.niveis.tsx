@@ -252,27 +252,22 @@ function LevelingPage() {
           </AuroraSection>
 
           <AuroraSection title="Exceções" icon={Users} tone="cyan">
-            <AuroraField label="Canais sem XP (IDs)">
-              <Textarea
-                rows={2}
-                className="font-mono text-xs"
-                value={(form.no_xp_channels ?? []).join("\n")}
-                onChange={(e) =>
-                  setForm({ ...form, no_xp_channels: parseList(e.target.value) })
-                }
+            <AuroraField label="Canais sem XP">
+              <MultiChannelSelect
+                guildId={guildId}
+                value={form.no_xp_channels ?? []}
+                onChange={(ids) => setForm({ ...form, no_xp_channels: ids })}
               />
             </AuroraField>
-            <AuroraField label="Cargos sem XP (IDs)">
-              <Textarea
-                rows={2}
-                className="font-mono text-xs"
-                value={(form.no_xp_roles ?? []).join("\n")}
-                onChange={(e) =>
-                  setForm({ ...form, no_xp_roles: parseList(e.target.value) })
-                }
+            <AuroraField label="Cargos sem XP">
+              <MultiRoleSelect
+                guildId={guildId}
+                value={form.no_xp_roles ?? []}
+                onChange={(ids) => setForm({ ...form, no_xp_roles: ids })}
               />
             </AuroraField>
           </AuroraSection>
+
 
           <AuroraSection title="Recompensas" icon={Trophy} tone="lavender">
             <AuroraSwitchRow

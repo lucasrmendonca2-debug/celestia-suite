@@ -666,7 +666,25 @@ function SocialPage() {
                               <span className="text-muted-foreground">{i + 1}</span>
                             )}
                           </td>
-                          <td className="p-2 font-medium">{r.username ?? r.user_id}</td>
+                          <td className="p-2">
+                            <div className="flex items-center gap-2">
+                              {r.avatar_url ? (
+                                <img
+                                  src={r.avatar_url}
+                                  alt=""
+                                  width={24}
+                                  height={24}
+                                  className="size-6 rounded-full ring-1 ring-border/40"
+                                  loading="lazy"
+                                />
+                              ) : (
+                                <span className="size-6 rounded-full bg-muted" />
+                              )}
+                              <span className="font-medium">
+                                {r.display_name ?? r.username ?? r.user_id}
+                              </span>
+                            </div>
+                          </td>
                           <td className="p-2">{r.level}</td>
                           <td className="p-2">{Number(r.total_xp).toLocaleString("pt-BR")}</td>
                           <td className="p-2 text-muted-foreground">{r.messages_count}</td>

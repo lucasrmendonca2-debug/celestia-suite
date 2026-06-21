@@ -33,8 +33,8 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
         const { createSessionSetCookie, getSession } = await import("@/lib/auth/session.server");
 
         const session = await getSession();
-        if (!verifyOAuthState(state)) {
-          return htmlError("State inválido ou expirado (mais de 10min). Faça login de novo.", 400);
+        if (!verifyOAuthState(state, session.data.oauthStateNonce)) {
+          return htmlError("State inválido, expirado ou já usado. Faça login de novo.", 400);
         }
 
         try {
@@ -50,9 +50,11 @@ export const Route = createFileRoute("/api/auth/discord/callback")({
             accessToken: token.access_token,
             refreshToken: token.refresh_token,
             oauthRedirectUri: undefined,
+            oauthStateNonce: undefined,
             postLoginRedirect: undefined,
             expiresAt: Date.now() + token.expires_in * 1000,
           };
+
           const dest = session.data.postLoginRedirect;
           const safeDest = dest && dest.startsWith("/") && !dest.startsWith("//") ? dest : "/servidores";
           return new Response(null, {

@@ -108,7 +108,7 @@ function PremiumPage() {
         toast.error(REDEEM_REASONS[result.reason] ?? "Não foi possível resgatar.");
         return;
       }
-      toast.success(`Plano ${result.plan.name} ativado!`);
+      toast.success(`Plano ${result.plan?.name ?? "premium"} ativado!`);
       setCode("");
       qc.invalidateQueries({ queryKey: ["premium-status", guildId] });
       qc.invalidateQueries({ queryKey: ["premium-audit", guildId] });

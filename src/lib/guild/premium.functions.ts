@@ -112,66 +112,33 @@ export const redeemGuildCode = createServerFn({ method: "POST" })
     const sb = await admin();
     const code = data.code.trim().toUpperCase();
 
-    const { data: row } = await sb
-      .from("premium_activation_codes")
-      .select("*")
-      .eq("code", code)
-      .maybeSingle();
-
-    if (!row) return { ok: false as const, reason: "not_found" as const };
-    if (!row.active) return { ok: false as const, reason: "inactive" as const };
-    if (row.expires_at && new Date(row.expires_at) < new Date())
-      return { ok: false as const, reason: "expired" as const };
-    if (row.used_count >= row.max_uses) return { ok: false as const, reason: "exhausted" as const };
-    if (row.type !== "GUILD_PREMIUM") return { ok: false as const, reason: "plan_mismatch" as const };
-
-    const { data: plan } = await sb.from("premium_plans").select("*").eq("id", row.plan_id).maybeSingle();
-    if (!plan || !plan.active) return { ok: false as const, reason: "inactive" as const };
-
-    const durationDays = row.duration_days ?? plan.duration_days ?? null;
-    const expiresAt = durationDays
-      ? new Date(Date.now() + durationDays * 86_400_000).toISOString()
-      : null;
-
-    // cancela ativas duplicadas
-    await sb
-      .from("premium_subscriptions")
-      .update({ status: "CANCELLED", cancelled_at: new Date().toISOString() })
-      .eq("type", "GUILD_PREMIUM")
-      .eq("guild_id", data.guildId)
-      .eq("status", "ACTIVE");
-
-    const { data: sub, error: subErr } = await sb
-      .from("premium_subscriptions")
-      .insert({
-        type: "GUILD_PREMIUM",
-        plan_id: plan.id,
-        guild_id: data.guildId,
-        status: "ACTIVE",
-        starts_at: new Date().toISOString(),
-        expires_at: expiresAt,
-        source: "code",
-        notes: `code:${row.code}`,
-      })
-      .select("*")
-      .maybeSingle();
-    if (subErr || !sub) throw new Error(subErr?.message ?? "Falha ao ativar premium.");
-
-    await sb.from("premium_activation_codes").update({ used_count: row.used_count + 1 }).eq("id", row.id);
-    await sb.from("premium_activations").insert({
-      code_id: row.id,
-      guild_id: data.guildId,
-      subscription_id: sub.id,
+    // RPC atômica (lock + validação + insert em uma única transação)
+    const { data: result, error } = await sb.rpc("redeem_guild_premium_code", {
+      _code: code,
+      _guild_id: data.guildId,
     });
-    await sb.from("premium_audit_log").insert({
-      action: "code.redeem.dashboard",
-      target_guild_id: data.guildId,
-      plan_id: plan.id,
-      details: { codeId: row.id },
-    });
+
+    if (error) throw new Error(error.message);
+
+    const r = (result ?? {}) as {
+      ok?: boolean;
+      reason?: "not_found" | "inactive" | "expired" | "exhausted" | "plan_mismatch";
+      subscription_id?: string;
+      plan_id?: string;
+    };
+
+    if (!r.ok) {
+      return { ok: false as const, reason: (r.reason ?? "not_found") as NonNullable<typeof r.reason> };
+    }
+
+    const [{ data: plan }, { data: sub }] = await Promise.all([
+      sb.from("premium_plans").select("*").eq("id", r.plan_id!).maybeSingle(),
+      sb.from("premium_subscriptions").select("*").eq("id", r.subscription_id!).maybeSingle(),
+    ]);
 
     return { ok: true as const, plan, subscription: sub };
   });
+
 
 /**
  * Snapshot do uso/benefícios premium da guild + VIP do usuário logado.

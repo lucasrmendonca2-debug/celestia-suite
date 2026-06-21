@@ -16,9 +16,11 @@ export interface ZenoxSession {
   accessToken?: string;
   refreshToken?: string;
   oauthRedirectUri?: string;
+  oauthStateNonce?: string;
   postLoginRedirect?: string;
   expiresAt?: number; // epoch ms
 }
+
 
 
 const COOKIE_NAME = "zenox_session";

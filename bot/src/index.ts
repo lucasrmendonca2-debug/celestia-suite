@@ -55,7 +55,7 @@ async function bootstrap() {
   const shutdown = async (sig: string) => {
     logger.info({ sig }, "Encerrando bot...");
     await client.destroy();
-    await disconnectDatabase();
+
     process.exit(0);
   };
   process.on("SIGINT", () => void shutdown("SIGINT"));

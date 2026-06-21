@@ -77,6 +77,10 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/economia")
       queryKey: ["economy-missions", guildId],
       queryFn: () => listEconomyMissions({ data: { guildId: guildId } }),
     });
+    await context.queryClient.ensureQueryData({
+      queryKey: ["multipliers", guildId],
+      queryFn: () => listMultipliers({ data: { guildId: guildId } }),
+    });
     return { guildId, user, config };
   },
   component: EconomyPage,

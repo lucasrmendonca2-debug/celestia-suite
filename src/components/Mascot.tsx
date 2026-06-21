@@ -55,7 +55,7 @@ export function Mascot({
           id={id}
         />
       )}
-      <img
+      <img loading="lazy" decoding="async"
         src={src}
         alt={alt}
         width={size}
@@ -78,7 +78,7 @@ export function MascotPeek({ size = 84 }: { size?: number }) {
       style={{ width: size, height: size }}
       aria-hidden
     >
-      <img
+      <img loading="lazy" decoding="async"
         src={SOURCES.hero.url}
         alt=""
         className="size-full object-contain object-bottom"

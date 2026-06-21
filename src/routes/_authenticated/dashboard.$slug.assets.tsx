@@ -270,7 +270,7 @@ function AssetCard({
               boxShadow: "inset 0 1px 0 color-mix(in oklab, white 25%, transparent)",
             }}
           >
-            <img
+            <img loading="lazy" decoding="async"
               src={url}
               alt=""
               className="size-full object-cover"

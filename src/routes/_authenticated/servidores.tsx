@@ -190,7 +190,7 @@ function ServerPicker() {
                       />
                       <div className="relative">
                         {g.iconUrl ? (
-                          <img
+                          <img loading="lazy" decoding="async"
                             src={g.iconUrl}
                             alt=""
                             className="size-14 shrink-0 rounded-2xl border-2 border-[#1B0E3B]"

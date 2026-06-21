@@ -84,7 +84,7 @@ export function DashboardTopbar({
             </p>
             <p className="text-xs text-muted-foreground">@{user.username}</p>
           </div>
-          <img
+          <img loading="lazy" decoding="async"
             src={avatarUrl(user)}
             alt={user.username}
             className="relative z-10 size-9 shrink-0 rounded-full ring-2 ring-[color-mix(in_oklab,var(--aurora-lavender)_50%,transparent)]"

@@ -117,7 +117,7 @@ function GuildOverviewPage() {
             <div className="relative flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex min-w-0 items-center gap-5">
                 {displayIcon ? (
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={displayIcon}
                     alt=""
                     className="size-20 shrink-0 rounded-3xl ring-2 ring-[color-mix(in_oklab,var(--aurora-lavender)_55%,transparent)]"

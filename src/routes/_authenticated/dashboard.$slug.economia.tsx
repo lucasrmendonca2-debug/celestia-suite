@@ -496,13 +496,12 @@ function EconomyPage() {
                         </p>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => deleteMission.mutate(m.id)}
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
+                    <ConfirmDeleteButton
+                      onConfirm={() => deleteMission.mutate(m.id)}
+                      title="Remover missão?"
+                      description={`A missão "${m.title}" será removida permanentemente.`}
+                    />
+
                   </li>
                 ))}
               </ul>

@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type MouseEvent } from "react";
+import { getPublicStats } from "@/lib/public-stats.functions";
 import {
   Shield,
   Ticket,

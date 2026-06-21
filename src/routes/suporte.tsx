@@ -100,6 +100,7 @@ function ChannelCard({
   desc,
   cta,
   to,
+  href,
 }: {
   icon: typeof MessageCircle;
   color: string;
@@ -108,6 +109,7 @@ function ChannelCard({
   desc: string;
   cta: string;
   to?: string;
+  href?: string;
 }) {
   const inner = (
     <>
@@ -126,11 +128,19 @@ function ChannelCard({
   );
   const className =
     "block rounded-3xl border-2 border-[#1B0E3B] bg-white p-6 shadow-[0_5px_0_0_#1B0E3B] transition-transform hover:-translate-y-1";
-  return to ? (
-    <Link to={to} className={className}>
-      {inner}
-    </Link>
-  ) : (
-    <div className={className}>{inner}</div>
-  );
+  if (href) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer" className={className}>
+        {inner}
+      </a>
+    );
+  }
+  if (to) {
+    return (
+      <Link to={to} className={className}>
+        {inner}
+      </Link>
+    );
+  }
+  return <div className={className}>{inner}</div>;
 }

@@ -44,7 +44,8 @@ import {
 import { Mascot } from "@/components/Mascot";
 import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
-import { RoleBadge } from "@/components/dashboard/DiscordBadges";
+import { ChannelSelect } from "@/components/dashboard/selectors/ChannelSelect";
+import { RoleBadge, ChannelBadge } from "@/components/dashboard/DiscordBadges";
 
 const MISSION_KIND_LABELS: Record<string, { label: string; emoji: string }> = {
   daily: { label: "Diária", emoji: "🌅" },

@@ -178,10 +178,26 @@ function WelcomePage() {
           <AuroraField
             label="Texto enviado"
             htmlFor="msg"
-            hint="Variáveis disponíveis: {user}, {server}, {count}"
+            hint="Clique nas etiquetas pra inserir variáveis dinâmicas no cursor."
           >
+            <div className="mb-2 flex flex-wrap gap-1.5">
+              {VARIABLES.map((v) => (
+                <button
+                  key={v.token}
+                  type="button"
+                  onClick={() => insertVariable(v.token)}
+                  className="group inline-flex items-center gap-1.5 rounded-full border border-[color:color-mix(in_oklab,var(--aurora-pink)_35%,var(--border))] bg-[color:color-mix(in_oklab,var(--aurora-pink)_8%,var(--card))] px-2.5 py-1 text-xs font-medium transition hover:scale-[1.03] hover:border-[color:var(--aurora-pink)] hover:bg-[color:color-mix(in_oklab,var(--aurora-pink)_18%,var(--card))]"
+                  title={`Inserir ${v.token}`}
+                >
+                  <Plus className="size-3 text-[color:var(--aurora-pink)] transition group-hover:rotate-90" />
+                  <span className="font-mono">{v.token}</span>
+                  <span className="text-[10px] text-muted-foreground">{v.label}</span>
+                </button>
+              ))}
+            </div>
             <Textarea
               id="msg"
+              ref={textareaRef}
               rows={4}
               value={form.welcome_message}
               onChange={(e) =>

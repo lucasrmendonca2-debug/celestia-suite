@@ -180,7 +180,7 @@ const command: SlashCommand = {
       return;
     }
 
-    if (sub === "remove") {
+    if (sub === "remover") {
       if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
         await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem permissão" })], ephemeral: true });
         return;

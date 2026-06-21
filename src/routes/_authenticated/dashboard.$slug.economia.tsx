@@ -378,9 +378,14 @@ function EconomyPage() {
                             {s.description}
                           </p>
                         )}
-                        <p className="mt-0.5 font-mono text-[10px] text-muted-foreground">
-                          cargo: {s.role_id ?? "—"}
-                        </p>
+                        <div className="mt-1 flex items-center gap-1.5">
+                          <span className="text-[10px] text-muted-foreground">Entrega:</span>
+                          {s.role_id ? (
+                            <RoleBadge guildId={guildId} roleId={s.role_id} />
+                          ) : (
+                            <span className="text-[10px] text-muted-foreground">—</span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <span className="font-display rounded-lg bg-[color:color-mix(in_oklab,var(--aurora-peach)_25%,transparent)] px-3 py-1.5 text-sm font-bold">

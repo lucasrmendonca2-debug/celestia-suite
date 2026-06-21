@@ -67,10 +67,29 @@ function WelcomePage() {
 
   const [form, setForm] = useState<WelcomeConfig>(config);
   const [baseline, setBaseline] = useState<WelcomeConfig>(config);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const dirty = useMemo(
     () => JSON.stringify(form) !== JSON.stringify(baseline),
     [form, baseline],
   );
+
+  const insertVariable = (token: string) => {
+    const el = textareaRef.current;
+    const current = form.welcome_message ?? "";
+    if (!el) {
+      setForm({ ...form, welcome_message: current + token });
+      return;
+    }
+    const start = el.selectionStart ?? current.length;
+    const end = el.selectionEnd ?? current.length;
+    const next = current.slice(0, start) + token + current.slice(end);
+    setForm({ ...form, welcome_message: next });
+    requestAnimationFrame(() => {
+      el.focus();
+      const pos = start + token.length;
+      el.setSelectionRange(pos, pos);
+    });
+  };
 
   const mutation = useMutation({
     mutationFn: (next: WelcomeConfig) =>

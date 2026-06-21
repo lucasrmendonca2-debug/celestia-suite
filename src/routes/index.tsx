@@ -200,14 +200,26 @@ function Landing() {
                 <span className="ml-2 font-mono text-[10px] text-[#1B0E3B]">untitled.bmp</span>
               </div>
               {/* Canvas */}
-              <div className="paint-canvas relative aspect-square bg-white">
+              <div className="paint-canvas paint-shake relative aspect-square overflow-hidden bg-white">
                 <img
                   src={paintEscape}
                   alt="Zenox tentando sair da tela"
-                  className="absolute inset-0 size-full object-contain p-4"
+                  className="paint-punch absolute inset-0 size-full object-contain p-4"
                 />
                 {/* Crack lines suggesting glass */}
-                <span aria-hidden className="paint-crack pointer-events-none absolute inset-0" />
+                <span aria-hidden className="paint-crack paint-flash pointer-events-none absolute inset-0" />
+                {/* POW! impact burst */}
+                <span
+                  aria-hidden
+                  className="paint-pow pointer-events-none absolute left-[18%] top-[58%] z-10 select-none font-['Plus_Jakarta_Sans'] text-2xl font-black tracking-tight"
+                  style={{
+                    color: "#FBBF24",
+                    WebkitTextStroke: "2px #1B0E3B",
+                    textShadow: "3px 3px 0 #1B0E3B",
+                  }}
+                >
+                  POW!
+                </span>
               </div>
 
               <FloatingBadge className="-left-4 top-12 -rotate-6" tone="sun">

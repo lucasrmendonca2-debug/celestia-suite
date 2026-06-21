@@ -252,7 +252,21 @@ function CommandsPage() {
               checked={selected.enabled}
               onChange={(v) => setSelected({ ...selected, enabled: v })}
             />
+            <div className="space-y-1.5 pt-2">
+              <Label>Cargos obrigatórios (opcional)</Label>
+              <p className="text-xs text-muted-foreground">
+                Se preenchido, apenas membros com pelo menos um desses cargos podem usar o comando.
+              </p>
+              <MultiRoleSelect
+                guildId={guildId}
+                value={selected.required_roles}
+                onChange={(ids) => setSelected({ ...selected, required_roles: ids })}
+                excludeManaged
+                placeholder="Restringir a cargos…"
+              />
+            </div>
           </AuroraSection>
+
 
           <AuroraSection title="Resposta" icon={Terminal} tone="cyan">
             <Tabs

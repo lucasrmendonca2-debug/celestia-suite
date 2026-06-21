@@ -18,9 +18,12 @@ import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ChannelSelect } from "@/components/dashboard/selectors/ChannelSelect";
+import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
+import { MultiRoleSelect } from "@/components/dashboard/selectors/MultiRoleSelect";
+
 import {
   AuroraSection,
   AuroraStatCard,

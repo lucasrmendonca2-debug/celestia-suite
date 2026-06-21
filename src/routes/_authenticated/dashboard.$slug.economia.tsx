@@ -425,12 +425,11 @@ function EconomyPage() {
                   onChange={(e) => setMission({ ...mission, kind: e.target.value })}
                   className="h-10 w-full rounded-md border border-input bg-card px-3 text-sm"
                 >
-                  <option value="daily">Daily</option>
-                  <option value="work">Work</option>
-                  <option value="shop_spend">Gasto na loja</option>
-                  <option value="crime">Crime</option>
-                  <option value="rob">Roubo</option>
-                  <option value="messages">Mensagens</option>
+                  {Object.entries(MISSION_KIND_LABELS).map(([k, v]) => (
+                    <option key={k} value={k}>
+                      {v.emoji} {v.label}
+                    </option>
+                  ))}
                 </select>
               </AuroraField>
               <AuroraField label="Meta">

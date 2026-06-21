@@ -414,3 +414,17 @@ const announcementSchema = new Schema(
 );
 export const Announcement = model("Announcement", announcementSchema);
 
+
+/* ---------------- Daily Token (site bridge) ---------------- */
+const dailyTokenSchema = new Schema(
+  {
+    token: { type: String, required: true, unique: true, index: true },
+    guildId: { type: String, required: true },
+    userId: { type: String, required: true },
+    expiresAt: { type: Date, required: true, index: true },
+  },
+  { timestamps: true },
+);
+// TTL: Mongo limpa tokens expirados automaticamente.
+dailyTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+export const DailyToken = model("DailyToken", dailyTokenSchema);

@@ -270,9 +270,17 @@ function BadgesPage() {
                         >
                           Editar
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => delM.mutate(b.id)}>
-                          <Trash2 className="size-4" />
-                        </Button>
+                        <ConfirmDeleteButton
+                          onConfirm={() => delM.mutate(b.id)}
+                          title="Remover badge?"
+                          description={`O badge "${b.name}" será apagado.`}
+                          trigger={
+                            <Button size="sm" variant="ghost" aria-label="Excluir badge">
+                              <Trash2 className="size-4 text-destructive" />
+                            </Button>
+                          }
+                        />
+
                       </div>
                     </li>
                   );

@@ -194,8 +194,8 @@ export function startHttpServer() {
     logger.warn("BOT_API_SECRET ausente — HTTP bridge não será iniciado");
     return;
   }
-  const port = Number(env.BOT_HTTP_PORT ?? 3001);
-  const server = http.createServer(async (req, res) => {
+  const ports = [...new Set([Number(env.BOT_HTTP_PORT ?? 3001), 8080])];
+  const handler = async (req: http.IncomingMessage, res: http.ServerResponse) => {
     if (req.method === "OPTIONS") return send(res, 204, {});
     if (req.method !== "POST") return send(res, 405, { error: "method not allowed" });
     const secret = req.headers["x-bot-secret"];
@@ -208,8 +208,12 @@ export function startHttpServer() {
       logger.error({ err, url: req.url }, "HTTP bridge erro");
       return send(res, 500, { error: "internal", message: err?.message });
     }
-  });
-  server.listen(port, "0.0.0.0", () => {
-    logger.info({ port }, "🌐 HTTP bridge ativo");
-  });
+  };
+  for (const port of ports) {
+    const server = http.createServer(handler);
+    server.on("error", (err) => logger.error({ err, port }, "HTTP bridge falhou ao iniciar"));
+    server.listen(port, "0.0.0.0", () => {
+      logger.info({ port }, "🌐 HTTP bridge ativo");
+    });
+  }
 }

@@ -38,9 +38,10 @@ export function ConfirmDeleteButton({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         {trigger ?? (
-          <Button variant="ghost" size="icon" disabled={disabled} aria-label="Excluir">
+          <Button variant="ghost" size="icon" disabled={disabled} aria-label="Excluir" className="min-h-11 min-w-11 sm:min-h-9 sm:min-w-9">
             <Trash2 className="size-4 text-destructive" />
           </Button>
+
         )}
       </AlertDialogTrigger>
       <AlertDialogContent>

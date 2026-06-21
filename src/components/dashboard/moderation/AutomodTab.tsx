@@ -249,15 +249,12 @@ export function AutomodTab({ guildId, initial }: AutomodTabProps) {
 
       <SectionCard title="Filtros de Palavras">
         <Label className="text-sm">Blacklist de palavras</Label>
-        <p className="mt-1 mb-2 text-xs text-muted-foreground">
-          Palavras que o AutoMod deve filtrar. Uma por linha ou separadas por vírgula.
+        <p className="mt-1 mb-3 text-xs text-muted-foreground">
+          Palavras que o AutoMod deve filtrar. Clique no × para remover.
         </p>
-        <Textarea
-          rows={4}
-          value={(form.blacklist_words ?? []).join("\n")}
-          onChange={(e) =>
-            setForm({ ...form, blacklist_words: parseList(e.target.value) })
-          }
+        <BlacklistEditor
+          words={form.blacklist_words ?? []}
+          onChange={(v) => setForm({ ...form, blacklist_words: v })}
         />
       </SectionCard>
 

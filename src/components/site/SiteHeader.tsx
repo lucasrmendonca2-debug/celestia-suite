@@ -129,7 +129,6 @@ export function SiteFooter() {
         <FooterCol
           title="Comunidade"
           links={[
-            { to: "/blog", label: "Blog" },
             { to: "/docs", label: "Documentação" },
             { to: "/suporte", label: "Suporte" },
             { to: "/servidores", label: "Dashboard" },

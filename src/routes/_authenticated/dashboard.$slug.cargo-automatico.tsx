@@ -22,6 +22,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { AuroraSection, AuroraStatCard } from "@/components/dashboard/aurora-ui";
+import { RoleBadge } from "@/components/dashboard/DiscordBadges";
 import { Mascot } from "@/components/Mascot";
 import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 
@@ -141,19 +142,19 @@ function AutorolePage() {
                   key={r.id}
                   className="flex items-center justify-between gap-3 py-3 transition first:pt-0 last:pb-0"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex min-w-0 items-center gap-3">
                     <span
-                      className="flex size-9 items-center justify-center rounded-xl"
+                      className="flex size-9 shrink-0 items-center justify-center rounded-xl"
                       style={{
                         background: `color-mix(in oklab, var(--aurora-${r.target === "bot" ? "cyan" : "lavender"}) 25%, transparent)`,
                       }}
                     >
                       {r.target === "bot" ? <Bot className="size-4" /> : <Users className="size-4" />}
                     </span>
-                    <div>
-                      <p className="font-mono text-sm">{r.role_id}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {r.target === "bot" ? "Aplicado a bots" : "Aplicado a membros"}
+                    <div className="min-w-0">
+                      <RoleBadge guildId={guildId} roleId={r.role_id} />
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {r.target === "bot" ? "Aplicado a bots ao entrar" : "Aplicado a membros ao entrar"}
                       </p>
                     </div>
                   </div>

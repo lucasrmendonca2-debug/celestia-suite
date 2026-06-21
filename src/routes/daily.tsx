@@ -96,6 +96,12 @@ function DailyPage() {
     setLoading(true);
     fetchStatus({ data: { token } })
       .then((r) => setStatus(r as AnyStatus))
+      .catch((e) =>
+        setStatus({
+          error: "site_request_failed",
+          data: { message: e instanceof Error ? e.message : "Falha ao validar o link" },
+        }),
+      )
       .finally(() => setLoading(false));
   }, [token, fetchStatus]);
 
@@ -108,8 +114,15 @@ function DailyPage() {
       setClaimed(r as DailyClaimDTO);
     } else {
       // re-pull status to show countdown if already claimed elsewhere
-      const s = await fetchStatus({ data: { token } });
-      setStatus(s as AnyStatus);
+      try {
+        const s = await fetchStatus({ data: { token } });
+        setStatus(s as AnyStatus);
+      } catch (e) {
+        setStatus({
+          error: "site_request_failed",
+          data: { message: e instanceof Error ? e.message : "Falha ao validar o link" },
+        });
+      }
     }
   }
 

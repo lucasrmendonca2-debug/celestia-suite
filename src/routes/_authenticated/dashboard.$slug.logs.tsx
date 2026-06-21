@@ -369,6 +369,8 @@ function LogsPage() {
 function IgnoreList({
   label,
   k,
+  kind,
+  guildId,
   form,
   set,
   icon,
@@ -376,46 +378,81 @@ function IgnoreList({
 }: {
   label: string;
   k: string;
+  kind: "channel" | "role" | "user";
+  guildId: string;
   form: Record<string, unknown>;
   set: (k: string, v: unknown) => void;
   icon: LucideIcon;
   tone: Tone;
 }) {
   const list = (form[k] as string[] | undefined) ?? [];
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState<string>("");
+
+  const add = (id: string | null) => {
+    if (!id || !/^\d{5,32}$/.test(id)) return toast.error("ID inválido");
+    if (list.includes(id)) return;
+    set(k, [...list, id]);
+    setDraft("");
+  };
+  const remove = (id: string) => set(k, list.filter((x) => x !== id));
+
   return (
     <AuroraSection title={label} icon={icon} tone={tone}>
       <div className="flex gap-2">
-        <Input
-          placeholder="ID (snowflake)"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value.trim())}
-        />
-        <Button
-          variant="outline"
-          onClick={() => {
-            if (!/^\d{5,32}$/.test(draft)) return toast.error("ID inválido");
-            if (list.includes(draft)) return;
-            set(k, [...list, draft]);
-            setDraft("");
-          }}
-        >
-          Adicionar
-        </Button>
+        {kind === "channel" ? (
+          <div className="flex-1">
+            <ChannelSelect
+              guildId={guildId}
+              value={draft || null}
+              onChange={(v) => add(v)}
+              placeholder="Selecione um canal para ignorar"
+            />
+          </div>
+        ) : kind === "role" ? (
+          <div className="flex-1">
+            <RoleSelect
+              guildId={guildId}
+              value={draft || null}
+              onChange={(v) => add(v)}
+              placeholder="Selecione um cargo para ignorar"
+            />
+          </div>
+        ) : (
+          <>
+            <Input
+              placeholder="ID do usuário"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value.trim())}
+            />
+            <Button variant="outline" onClick={() => add(draft)}>
+              Adicionar
+            </Button>
+          </>
+        )}
       </div>
-      <div className="flex flex-wrap gap-2">
+      <div className="mt-2 flex flex-wrap gap-2">
         {list.length === 0 && (
           <span className="text-xs text-muted-foreground">Nenhum.</span>
         )}
         {list.map((id) => (
-          <Badge
+          <button
             key={id}
-            variant="outline"
-            className="cursor-pointer hover:bg-destructive/10"
-            onClick={() => set(k, list.filter((x) => x !== id))}
+            type="button"
+            onClick={() => remove(id)}
+            className="group inline-flex items-center gap-1 rounded-md border border-border bg-background/40 px-1.5 py-0.5 transition hover:border-destructive/60 hover:bg-destructive/10"
+            title="Remover"
           >
-            {id} ✕
-          </Badge>
+            {kind === "channel" ? (
+              <ChannelBadge guildId={guildId} channelId={id} />
+            ) : kind === "role" ? (
+              <RoleBadge guildId={guildId} roleId={id} />
+            ) : (
+              <span className="font-mono text-xs">{id}</span>
+            )}
+            <span className="text-xs text-muted-foreground group-hover:text-destructive">
+              ✕
+            </span>
+          </button>
         ))}
       </div>
     </AuroraSection>

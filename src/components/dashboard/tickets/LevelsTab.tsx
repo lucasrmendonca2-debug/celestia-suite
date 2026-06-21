@@ -178,16 +178,22 @@ function Editor({
 
       <div className="mt-6 flex items-center justify-between">
         {l.id ? (
-          <Button
-            variant="ghost"
-            className="gap-2 text-destructive hover:text-destructive"
+          <ConfirmDeleteButton
+            onConfirm={() => deleting.mutate()}
+            title={`Apagar nível "${l.name}"?`}
+            description="Membros podem perder o acesso configurado por esse nível."
             disabled={deleting.isPending}
-            onClick={() => {
-              if (confirm(`Apagar nível "${l.name}"?`)) deleting.mutate();
-            }}
-          >
-            <Trash2 className="size-4" /> Apagar
-          </Button>
+            trigger={
+              <Button
+                variant="ghost"
+                className="gap-2 text-destructive hover:text-destructive"
+                disabled={deleting.isPending}
+              >
+                <Trash2 className="size-4" /> Apagar
+              </Button>
+            }
+          />
+
         ) : (
           <span />
         )}

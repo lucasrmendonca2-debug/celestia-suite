@@ -198,12 +198,33 @@ export function EmbedEditor({ value, onChange }: Props) {
         </div>
       </div>
 
-      {/* Preview */}
-      <div className="rounded-2xl border border-border bg-[#313338] p-4">
-        <p className="mb-2 text-[10px] uppercase tracking-wider text-white/40">
-          Preview
+      {/* Preview — Discord-style */}
+      <div className="space-y-2">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+          Pré-visualização
         </p>
-        <EmbedPreview embed={value} />
+        <div className="rounded-2xl border border-border bg-[#313338] p-4">
+          <div className="flex gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-indigo-500/90">
+              <Bot className="size-5 text-white" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline gap-2">
+                <span className="font-semibold text-white">Zenox</span>
+                <span className="inline-flex items-center gap-1 rounded-sm bg-indigo-500 px-1.5 py-[1px] text-[10px] font-bold uppercase leading-none text-white">
+                  <svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M7.4 11.17L4.22 8l-1.05 1.05L7.4 13.3l8.4-8.42-1.06-1.05z" />
+                  </svg>
+                  APP
+                </span>
+                <span className="text-xs text-[#949ba4]">Hoje</span>
+              </div>
+              <div className="mt-1">
+                <EmbedPreview embed={value} />
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

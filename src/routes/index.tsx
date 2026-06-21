@@ -233,7 +233,11 @@ function Landing() {
       {/* STATS */}
       <section className="px-4 py-8 md:px-6">
         <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 md:grid-cols-4">
-          {stats.map((s) => {
+          {[
+            { v: commandsLabel, l: "comandos", tone: "purple" as Tone },
+            { v: serversLabel, l: "servidores", tone: "pink" as Tone },
+            ...staticStats,
+          ].map((s) => {
             const t = TONE[s.tone];
             return (
               <div

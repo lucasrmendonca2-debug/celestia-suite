@@ -164,14 +164,20 @@ export function HistoryTab({ guildId }: { guildId: string }) {
                 <td className="px-3 py-2">
                   <Badge className={ACTION_COLORS[r.action] ?? ""}>{r.action}</Badge>
                 </td>
-                <td className="px-3 py-2 font-mono text-xs">
-                  {r.user_tag ?? r.user_id}
+                <td className="px-3 py-2">
+                  <UserBadge userId={r.user_id} userTag={r.user_tag} />
                 </td>
-                <td className="px-3 py-2 font-mono text-xs">
-                  {r.moderator_tag ?? r.moderator_id}
+                <td className="px-3 py-2">
+                  <UserBadge userId={r.moderator_id} userTag={r.moderator_tag} />
                 </td>
-                <td className="px-3 py-2 max-w-[280px] truncate" title={r.reason ?? ""}>
-                  {r.reason || <span className="text-muted-foreground">—</span>}
+                <td className="px-3 py-2 max-w-[280px]" title={r.reason ?? ""}>
+                  {r.reason ? (
+                    <span className="inline-block max-w-full truncate rounded-md border border-border/50 bg-muted/30 px-2 py-1 text-xs">
+                      {r.reason}
+                    </span>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
                 </td>
                 <td className="px-3 py-2 text-xs text-muted-foreground">
                   {new Date(r.created_at).toLocaleString()}

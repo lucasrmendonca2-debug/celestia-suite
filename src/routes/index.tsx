@@ -174,7 +174,7 @@ function Landing() {
                 ))}
               </div>
               <span>
-                <strong className="text-[#1B0E3B]">+12.000</strong> servidores ativos esse mês
+                <strong className="text-[#1B0E3B]">{serversLabel}</strong> servidores conectados
               </span>
             </div>
           </div>

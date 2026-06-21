@@ -235,13 +235,14 @@ function SeasonsPage() {
                       <Trophy className="mr-1 size-3.5" /> Ranking
                     </Button>
                     {s.is_active ? (
-                      <Button size="icon" variant="ghost" onClick={() => end.mutate(s.id)} title="Encerrar">
+                      <Button size="icon" variant="ghost" onClick={() => end.mutate(s.id)} title="Encerrar" aria-label="Encerrar temporada">
                         <Square className="size-4" />
                       </Button>
                     ) : (
-                      <Button size="icon" variant="ghost" onClick={() => toggle.mutate({ id: s.id, active: true })} title="Ativar">
+                      <Button size="icon" variant="ghost" onClick={() => toggle.mutate({ id: s.id, active: true })} title="Ativar" aria-label="Ativar temporada">
                         <Play className="size-4" />
                       </Button>
+
                     )}
                     <ConfirmDeleteButton
                       onConfirm={() => del.mutate(s.id)}

@@ -42,7 +42,7 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/boas-vinda
   },
   component: WelcomePage,
   notFoundComponent: () => (
-    <div className="flex min-h-screen items-center justify-center bg-background text-center">
+    <div className="flex min-h-dvh items-center justify-center bg-background text-center">
       <p className="text-muted-foreground">Servidor não encontrado.</p>
     </div>
   ),

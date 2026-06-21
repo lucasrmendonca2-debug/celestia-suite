@@ -18,7 +18,7 @@ import { Mascot } from "@/components/Mascot";
 
 function NotFoundComponent() {
   return (
-    <div className="aurora-shell flex min-h-screen items-center justify-center px-4">
+    <div className="aurora-shell flex min-h-dvh items-center justify-center px-4">
       <div className="relative z-10 max-w-md text-center">
         <div className="mb-2 flex justify-center">
           <Mascot variant="404" size={140} glow />
@@ -51,7 +51,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   }, [error]);
 
   return (
-    <div className="aurora-shell flex min-h-screen items-center justify-center px-4">
+    <div className="aurora-shell flex min-h-dvh items-center justify-center px-4">
       <div className="relative z-10 max-w-md text-center">
         <h1 className="font-display text-2xl font-bold text-foreground">
           Essa página tropeçou

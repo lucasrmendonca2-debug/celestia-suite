@@ -108,7 +108,7 @@ function Landing() {
   const serversLabel = data.servers > 0 ? formatCount(data.servers) : "Novo";
   const commandsLabel = `${data.commands}+`;
   return (
-    <div className="min-h-screen overflow-hidden bg-[#FBF7FF] font-['Inter'] text-[#1B0E3B] selection:bg-[#7C3AED] selection:text-white">
+    <div className="min-h-dvh overflow-hidden bg-[#FBF7FF] font-['Inter'] text-[#1B0E3B] selection:bg-[#7C3AED] selection:text-white">
       {/* Floating shapes */}
       <BgBlobs />
 

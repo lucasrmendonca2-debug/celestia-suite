@@ -21,7 +21,7 @@ export const Route = createFileRoute("/_authenticated/servidores")({
   },
   component: ServerPicker,
   errorComponent: ({ error, reset }) => (
-    <div className="aurora-shell flex min-h-screen flex-col items-center justify-center gap-4 p-6 text-foreground">
+    <div className="aurora-shell flex min-h-dvh flex-col items-center justify-center gap-4 p-6 text-foreground">
       <Mascot variant="error" size={140} glow />
       <h1 className="font-display text-xl font-bold">Falha ao carregar o dashboard</h1>
       <pre className="aurora-panel max-w-2xl whitespace-pre-wrap p-4 text-xs text-muted-foreground">
@@ -59,7 +59,7 @@ function ServerPicker() {
   const ownerCount = guilds.filter((g) => g.owner).length;
 
   return (
-    <div className="aurora-shell min-h-screen text-foreground">
+    <div className="aurora-shell min-h-dvh text-foreground">
       <DashboardTopbar
         user={user}
         title="Seus servidores"

@@ -99,7 +99,7 @@ function AdminPremiumPage() {
   });
 
   return (
-    <div className="aurora-shell min-h-screen text-foreground">
+    <div className="aurora-shell min-h-dvh text-foreground">
       <main className="relative z-10 container mx-auto max-w-6xl space-y-6 p-4 sm:p-6">
         {/* Hero */}
         <section className="aurora-panel relative overflow-hidden p-5 sm:p-7">

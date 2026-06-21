@@ -506,11 +506,25 @@ function EconomyPage() {
                       <div className="min-w-0">
                         <p className="text-sm font-medium">
                           {m.title}{" "}
-                          <span className="text-xs text-muted-foreground">/{m.slug}</span>
+                          <span className="font-mono text-[10px] text-muted-foreground">
+                            /{m.slug}
+                          </span>
+                          {!m.active && (
+                            <span className="ml-2 rounded-md bg-muted px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted-foreground">
+                              pausada
+                            </span>
+                          )}
                         </p>
-                        <p className="text-xs text-muted-foreground">
-                          {m.kind} · meta {m.goal} · {form.currency_emoji}{" "}
-                          {Number(m.reward).toLocaleString("pt-BR")}
+                        <p className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                          <span>
+                            {MISSION_KIND_LABELS[m.kind]?.emoji ?? "🎯"}{" "}
+                            {MISSION_KIND_LABELS[m.kind]?.label ?? m.kind}
+                          </span>
+                          <span>· meta {m.goal}</span>
+                          <span>
+                            · recompensa {form.currency_emoji}{" "}
+                            {Number(m.reward).toLocaleString("pt-BR")}
+                          </span>
                         </p>
                       </div>
                     </div>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Save, ShieldAlert } from "lucide-react";
+import { Save, ShieldAlert, X, Plus } from "lucide-react";
 import { updateAutomodConfig } from "@/lib/guild/modules.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

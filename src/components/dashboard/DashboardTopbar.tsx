@@ -90,14 +90,15 @@ export function DashboardTopbar({
             className="relative z-10 size-9 shrink-0 rounded-full ring-2 ring-[color-mix(in_oklab,var(--aurora-lavender)_50%,transparent)]"
           />
         </div>
-        <Link
-          to="/api/auth/logout"
-          reloadDocument
-          className="relative z-10 inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-border/50 bg-card/60 px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-[color-mix(in_oklab,var(--aurora-pink)_40%,transparent)] hover:bg-[color-mix(in_oklab,var(--aurora-pink)_15%,transparent)] hover:text-foreground sm:px-3"
-        >
-          <LogOut className="size-3.5" />
-          <span className="hidden sm:inline">Sair</span>
-        </Link>
+        <form method="post" action="/api/auth/logout">
+          <button
+            type="submit"
+            className="relative z-10 inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-border/50 bg-card/60 px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition hover:border-[color-mix(in_oklab,var(--aurora-pink)_40%,transparent)] hover:bg-[color-mix(in_oklab,var(--aurora-pink)_15%,transparent)] hover:text-foreground sm:px-3"
+          >
+            <LogOut className="size-3.5" />
+            <span className="hidden sm:inline">Sair</span>
+          </button>
+        </form>
       </div>
     </header>
   );

@@ -23,6 +23,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ChannelSelect } from "@/components/dashboard/selectors/ChannelSelect";
 import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
 import { MultiRoleSelect } from "@/components/dashboard/selectors/MultiRoleSelect";
+import { MultiChannelSelect } from "@/components/dashboard/selectors/MultiChannelSelect";
+
 
 import {
   AuroraSection,

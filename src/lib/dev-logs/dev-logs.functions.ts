@@ -79,6 +79,8 @@ export const logAppError = createServerFn({ method: "POST" })
     }
   });
 
+type Json = string | number | boolean | null | { [k: string]: Json } | Json[];
+
 export interface AppErrorRow {
   id: string;
   created_at: string;
@@ -95,7 +97,7 @@ export interface AppErrorRow {
   fingerprint: string | null;
   count: number;
   resolved: boolean;
-  metadata: unknown;
+  metadata: Json;
 }
 
 const ListInput = z.object({

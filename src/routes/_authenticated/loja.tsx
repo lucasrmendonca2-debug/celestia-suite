@@ -73,11 +73,14 @@ const RARITY_RING: Record<string, string> = {
 
 const TYPE_TABS = [
   { id: "all", label: "Tudo", icon: Sparkles },
+  { id: "daily", label: "Ofertas do Dia", icon: Sparkles },
+  { id: "seasonal", label: "Temporada", icon: Sparkles },
   { id: "banner", label: "Banners", icon: Shirt },
   { id: "frame", label: "Molduras", icon: Palette },
   { id: "sticker", label: "Stickers", icon: Sticker },
   { id: "effect", label: "Efeitos", icon: Wand2 },
 ] as const;
+
 
 const RARITY_ORDER = ["legendary", "epic", "rare", "common", "seasonal"];
 

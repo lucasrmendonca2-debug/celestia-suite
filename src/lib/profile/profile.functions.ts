@@ -306,3 +306,66 @@ export const purchaseProfileCosmetic = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return result as { ok: boolean; reason?: string; price_paid?: number; new_balance?: number };
   });
+
+export interface ShopItemDTO extends CosmeticDTO {
+  price_coins: number;
+  price_premium: number;
+  vip_only: boolean;
+}
+
+export interface ShopCatalogDTO {
+  cosmetics: ShopItemDTO[];
+  ownedIds: string[];
+  wallets: WalletDTO[];
+  totalBalance: number;
+}
+
+export const getShopCatalog = createServerFn({ method: "GET" }).handler(
+  async (): Promise<ShopCatalogDTO> => {
+    const user = await requireSessionUser();
+
+    const { data: cosmetics, error: cosErr } = await supabaseAdmin
+      .from("profile_cosmetics")
+      .select(
+        "id, type, slug, name, description, rarity, image_url, preview_url, collection, price_coins, price_premium, vip_only",
+      )
+      .eq("active", true)
+      .order("sort_order", { ascending: true });
+    if (cosErr) throw new Error(cosErr.message);
+
+    const { data: owned } = await supabaseAdmin
+      .from("user_cosmetics")
+      .select("cosmetic_id")
+      .eq("user_id", user.id);
+
+    const { data: walletsRaw } = await supabaseAdmin
+      .from("user_economy")
+      .select("guild_id, balance")
+      .eq("user_id", user.id)
+      .order("balance", { ascending: false });
+
+    const guildIds = (walletsRaw ?? []).map((w) => w.guild_id);
+    const guildsMap: Record<string, { name: string | null; icon: string | null }> = {};
+    if (guildIds.length > 0) {
+      const { data: gd } = await supabaseAdmin
+        .from("bot_guild_presence")
+        .select("guild_id, name, icon")
+        .in("guild_id", guildIds);
+      for (const g of gd ?? []) guildsMap[g.guild_id] = { name: g.name, icon: g.icon };
+    }
+    const wallets: WalletDTO[] = (walletsRaw ?? []).map((w) => ({
+      guild_id: w.guild_id,
+      guild_name: guildsMap[w.guild_id]?.name ?? null,
+      guild_icon: guildsMap[w.guild_id]?.icon ?? null,
+      balance: Number(w.balance ?? 0),
+    }));
+
+    return {
+      cosmetics: (cosmetics ?? []) as ShopItemDTO[],
+      ownedIds: (owned ?? []).map((o) => o.cosmetic_id),
+      wallets,
+      totalBalance: wallets.reduce((a, w) => a + w.balance, 0),
+    };
+  },
+);
+

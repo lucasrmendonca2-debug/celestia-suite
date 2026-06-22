@@ -13,7 +13,6 @@ import { Route as SuporteRouteImport } from './routes/suporte'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as RecursosRouteImport } from './routes/recursos'
 import { Route as PremiumRouteImport } from './routes/premium'
-import { Route as LojaRouteImport } from './routes/loja'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as DocsRouteImport } from './routes/docs'
@@ -25,6 +24,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedServidoresRouteImport } from './routes/_authenticated/servidores'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
+import { Route as AuthenticatedLojaRouteImport } from './routes/_authenticated/loja'
 import { Route as AuthenticatedDevLogsRouteImport } from './routes/_authenticated/dev-logs'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as ApiPublicBotGuildPresenceRouteImport } from './routes/api/public/bot-guild-presence'
@@ -79,11 +79,6 @@ const PremiumRoute = PremiumRouteImport.update({
   path: '/premium',
   getParentRoute: () => rootRouteImport,
 } as any)
-const LojaRoute = LojaRouteImport.update({
-  id: '/loja',
-  path: '/loja',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -136,6 +131,11 @@ const AuthenticatedServidoresRoute = AuthenticatedServidoresRouteImport.update({
 const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedLojaRoute = AuthenticatedLojaRouteImport.update({
+  id: '/loja',
+  path: '/loja',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedDevLogsRoute = AuthenticatedDevLogsRouteImport.update({
@@ -341,12 +341,12 @@ export interface FileRoutesByFullPath {
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
-  '/loja': typeof LojaRoute
   '/premium': typeof PremiumRoute
   '/recursos': typeof RecursosRoute
   '/status': typeof StatusRoute
   '/suporte': typeof SuporteRoute
   '/dev-logs': typeof AuthenticatedDevLogsRoute
+  '/loja': typeof AuthenticatedLojaRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/servidores': typeof AuthenticatedServidoresRoute
   '/admin/premium': typeof AuthenticatedAdminPremiumRoute
@@ -391,12 +391,12 @@ export interface FileRoutesByTo {
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
-  '/loja': typeof LojaRoute
   '/premium': typeof PremiumRoute
   '/recursos': typeof RecursosRoute
   '/status': typeof StatusRoute
   '/suporte': typeof SuporteRoute
   '/dev-logs': typeof AuthenticatedDevLogsRoute
+  '/loja': typeof AuthenticatedLojaRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/servidores': typeof AuthenticatedServidoresRoute
   '/admin/premium': typeof AuthenticatedAdminPremiumRoute
@@ -442,12 +442,12 @@ export interface FileRoutesById {
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
-  '/loja': typeof LojaRoute
   '/premium': typeof PremiumRoute
   '/recursos': typeof RecursosRoute
   '/status': typeof StatusRoute
   '/suporte': typeof SuporteRoute
   '/_authenticated/dev-logs': typeof AuthenticatedDevLogsRoute
+  '/_authenticated/loja': typeof AuthenticatedLojaRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/servidores': typeof AuthenticatedServidoresRoute
   '/_authenticated/admin/premium': typeof AuthenticatedAdminPremiumRoute
@@ -494,12 +494,12 @@ export interface FileRouteTypes {
     | '/docs'
     | '/entrar'
     | '/login'
-    | '/loja'
     | '/premium'
     | '/recursos'
     | '/status'
     | '/suporte'
     | '/dev-logs'
+    | '/loja'
     | '/perfil'
     | '/servidores'
     | '/admin/premium'
@@ -544,12 +544,12 @@ export interface FileRouteTypes {
     | '/docs'
     | '/entrar'
     | '/login'
-    | '/loja'
     | '/premium'
     | '/recursos'
     | '/status'
     | '/suporte'
     | '/dev-logs'
+    | '/loja'
     | '/perfil'
     | '/servidores'
     | '/admin/premium'
@@ -594,12 +594,12 @@ export interface FileRouteTypes {
     | '/docs'
     | '/entrar'
     | '/login'
-    | '/loja'
     | '/premium'
     | '/recursos'
     | '/status'
     | '/suporte'
     | '/_authenticated/dev-logs'
+    | '/_authenticated/loja'
     | '/_authenticated/perfil'
     | '/_authenticated/servidores'
     | '/_authenticated/admin/premium'
@@ -646,7 +646,6 @@ export interface RootRouteChildren {
   DocsRoute: typeof DocsRoute
   EntrarRoute: typeof EntrarRoute
   LoginRoute: typeof LoginRoute
-  LojaRoute: typeof LojaRoute
   PremiumRoute: typeof PremiumRoute
   RecursosRoute: typeof RecursosRoute
   StatusRoute: typeof StatusRoute
@@ -689,13 +688,6 @@ declare module '@tanstack/react-router' {
       path: '/premium'
       fullPath: '/premium'
       preLoaderRoute: typeof PremiumRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/loja': {
-      id: '/loja'
-      path: '/loja'
-      fullPath: '/loja'
-      preLoaderRoute: typeof LojaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -773,6 +765,13 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof AuthenticatedPerfilRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/loja': {
+      id: '/_authenticated/loja'
+      path: '/loja'
+      fullPath: '/loja'
+      preLoaderRoute: typeof AuthenticatedLojaRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dev-logs': {
@@ -1091,6 +1090,7 @@ const AuthenticatedGGuildIdRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedDevLogsRoute: typeof AuthenticatedDevLogsRoute
+  AuthenticatedLojaRoute: typeof AuthenticatedLojaRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedServidoresRoute: typeof AuthenticatedServidoresRoute
   AuthenticatedAdminPremiumRoute: typeof AuthenticatedAdminPremiumRoute
@@ -1101,6 +1101,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDevLogsRoute: AuthenticatedDevLogsRoute,
+  AuthenticatedLojaRoute: AuthenticatedLojaRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedServidoresRoute: AuthenticatedServidoresRoute,
   AuthenticatedAdminPremiumRoute: AuthenticatedAdminPremiumRoute,
@@ -1123,7 +1124,6 @@ const rootRouteChildren: RootRouteChildren = {
   DocsRoute: DocsRoute,
   EntrarRoute: EntrarRoute,
   LoginRoute: LoginRoute,
-  LojaRoute: LojaRoute,
   PremiumRoute: PremiumRoute,
   RecursosRoute: RecursosRoute,
   StatusRoute: StatusRoute,

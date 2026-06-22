@@ -10,10 +10,7 @@ import { Msg } from "../utils/messages.js";
 import { checkPermissions, denyWith } from "../guards/permissions.js";
 import { consumeCooldown } from "../guards/cooldown.js";
 import { checkCommandPermission } from "../guards/commandPermissions.js";
-import {
-  getActiveUserSubscription,
-  getActiveGuildSubscription,
-} from "../systems/premium/premium.service.js";
+import { isUserVip, isGuildPremium } from "../systems/premium/premium.check.js";
 import { ensureGuild, ensureUser } from "../utils/guildCache.js";
 import { handleTicketButton, handleTicketSelect } from "../systems/tickets/handlers.js";
 import { handleGiveawayButton } from "../systems/giveaway/giveaway.js";
@@ -99,11 +96,9 @@ const event: BotEvent<"interactionCreate"> = {
       // Só consulta premium se algum gate exigir (otimização para caminho quente).
       const needsVip = cmd.vipOnly === true;
       const needsPremiumGuild = cmd.premiumGuildOnly === true;
-      const vipPromise = needsVip
-        ? getActiveUserSubscription(ix.user.id).then((s) => !!s).catch(() => false)
-        : Promise.resolve(false);
+      const vipPromise = needsVip ? isUserVip(ix.user.id) : Promise.resolve(false);
       const premiumGuildPromise = needsPremiumGuild && ix.guildId
-        ? getActiveGuildSubscription(ix.guildId).then((s) => !!s).catch(() => false)
+        ? isGuildPremium(ix.guildId)
         : Promise.resolve(false);
 
       const [isVip, isPremiumGuild, cd] = await Promise.all([

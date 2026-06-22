@@ -227,6 +227,7 @@ function PerfilPage() {
   const [accent, setAccent] = useState(profile.loadout.accent_color);
   const [savingMeta, setSavingMeta] = useState(false);
   const [tab, setTab] = useState<string>("all");
+  const [cardVersion, setCardVersion] = useState(() => Date.now());
 
   const equippedIds = useMemo(() => {
     const set = new Set<string>();

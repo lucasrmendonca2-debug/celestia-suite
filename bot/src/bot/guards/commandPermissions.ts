@@ -109,10 +109,17 @@ export async function checkCommandPermission(
 
   if (perm.staff_only && !args.isStaff)
     return { ok: false, reason: "Esse comando é restrito à staff." };
-  if (perm.vip_only && !args.isVip)
-    return { ok: false, reason: "Esse comando é exclusivo para usuários VIP." };
-  if (perm.premium_guild_only && !args.isPremiumGuild)
-    return { ok: false, reason: "Esse comando exige servidor com plano premium ativo." };
+
+  // Premium/VIP gates podem vir do DB mesmo que o cmd não declare.
+  // Resolvemos lazy se o flag não estiver pré-computado.
+  if (perm.vip_only) {
+    const ok = args.isVip || (await (await import("../systems/premium/premium.check.js")).isUserVip(interaction.user.id));
+    if (!ok) return { ok: false, reason: "Esse comando é exclusivo para usuários VIP." };
+  }
+  if (perm.premium_guild_only) {
+    const ok = args.isPremiumGuild || (await (await import("../systems/premium/premium.check.js")).isGuildPremium(interaction.guildId));
+    if (!ok) return { ok: false, reason: "Esse comando exige servidor com plano premium ativo." };
+  }
 
   return { ok: true, cooldownOverride: perm.cooldown_override };
 }

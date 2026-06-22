@@ -240,7 +240,7 @@ export const equipCosmetic = createServerFn({ method: "POST" })
     const column = SLOT_COLUMN[slot];
     const { error } = await supabaseAdmin
       .from("user_profile_loadout")
-      .upsert({ user_id: user.id, [column]: data.cosmeticId });
+      .upsert({ user_id: user.id, [column]: data.cosmeticId } as any);
     if (error) throw new Error(error.message);
     return { ok: true, slot, cosmeticId: data.cosmeticId };
   });
@@ -269,7 +269,7 @@ export const unequipCosmetic = createServerFn({ method: "POST" })
     const column = SLOT_COLUMN[data.slot];
     const { error } = await supabaseAdmin
       .from("user_profile_loadout")
-      .upsert({ user_id: user.id, [column]: null });
+      .upsert({ user_id: user.id, [column]: null } as any);
     if (error) throw new Error(error.message);
     return { ok: true, slot: data.slot };
   });
@@ -288,7 +288,7 @@ export const updateProfileMeta = createServerFn({ method: "POST" })
       if (!/^#[0-9a-fA-F]{6}$/.test(hex)) throw new Error("invalid_color");
       patch.accent_color = hex;
     }
-    const { error } = await supabaseAdmin.from("user_profile_loadout").upsert(patch);
+    const { error } = await supabaseAdmin.from("user_profile_loadout").upsert(patch as any);
     if (error) throw new Error(error.message);
     return { ok: true };
   });

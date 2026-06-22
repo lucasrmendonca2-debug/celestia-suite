@@ -142,9 +142,46 @@ export const BANNERS: CosmeticPrompt[] = [
         "Studio Ghibli soft watercolor anime style, peach and lavender summer dusk light, the character resting his chin on folded arms at an open window with white curtains flowing, gentle breeze lifting his hair, eyes half-closed dreamy and content, NO sunglasses, a small black cat curled beside him on the sill, rolling green hills outside"),
       c("banner-zenox-pixel-arcade", "Pixel Arcade", "Zenox jogando arcade em pixel art 16-bit", "rare",
         "crisp 16-bit pixel art in a Studio Pixel / Streets of Rage 2 style with limited vibrant palette, the character seen from a 3/4 back angle hunched intensely over a glowing CRT arcade cabinet covered in neon decals, joystick gripped, mouth open in a shocked excited gasp, sunglasses pushed up on his head, dim purple arcade room with chunky pixel light beams"),
+
+      // ---- Batch 2: extra anime / pop references --------------------------
+      c("banner-zenox-manhwa-rooftop", "Caçador Solitário", "Zenox em telhado sob aurora roxa estilo manhwa", "epic",
+        "modern Korean manhwa digital painting style with crisp lighting and cinematic depth, the character standing on a Seoul rooftop at night facing away over his shoulder, purple aurora and stars above, dagger glinting with violet shadow energy, hoodie hood up"),
+      c("banner-zenox-onepiece-pirate", "Capitão das Marés", "Zenox capitão pirata em caravela ao amanhecer", "rare",
+        "One Piece inspired anime style with bold outlines and bright tropical colors, the character as a young pirate captain on the bow of a caravel, red captain coat over the hoodie, straw hat tipped back, hand raised pointing forward with a huge grin, turquoise ocean and sunrise sky behind"),
+      c("banner-zenox-jjk-sorcerer", "Feiticeiro das Maldições", "Zenox feiticeiro com energia amaldiçoada violeta", "legendary",
+        "Jujutsu Kaisen anime style with sharp linework and dramatic lighting, the character standing in a dark Tokyo street with crackling violet cursed energy swirling around his right hand, hoodie collar up, intense focused half-smile"),
+      c("banner-zenox-ninja-leap", "Salto Shinobi", "Zenox shinobi saltando entre árvores ao luar", "epic",
+        "Naruto inspired anime style, the character mid-leap across moonlit forest tree branches at dusk, headband across forehead, holding a kunai, cyan chakra glow, dynamic motion lines, dramatic low angle"),
+      c("banner-zenox-berserk-warrior", "Espadachim Sombrio", "Zenox guerreiro com espada gigante em cenário sombrio", "legendary",
+        "Berserk inspired dark fantasy ink-heavy manga style, the character as a young black-armored warrior dragging a massive slab sword behind him, tattered black cloak billowing, raven flying overhead, blood-orange stormy sky"),
+      c("banner-zenox-mecha-pilot", "Piloto Mecha", "Zenox piloto dentro de cockpit estilo Evangelion", "legendary",
+        "Evangelion inspired semi-realistic anime style, the character inside an entry-plug cockpit wearing a sleek black-and-cyan plug suit, holding control sticks, orange LCL glow and holographic HUD reflections on his face, focused intense expression"),
+      c("banner-zenox-vaporwave-skate", "Vapor Skate", "Zenox de skate em estética vaporwave 80s", "rare",
+        "pure 80s vaporwave / synthwave aesthetic, the character riding a skateboard wearing a magenta-and-cyan retro windbreaker over the hoodie, square sunglasses on face, sunset gradient sky from magenta to cyan, chrome palm trees, neon grid floor"),
+      c("banner-zenox-burton-gothic", "Noite Gótica", "Zenox em cenário gótico estilo Tim Burton", "epic",
+        "Tim Burton gothic illustration style with exaggerated proportions and spiral linework, the character standing in a moonlit graveyard with crooked tombstones, holding a glowing jack-o'-lantern, deep purple twilight sky, swirling fog"),
+
+      // ---- Batch 3: more anime + art history ------------------------------
+      c("banner-zenox-aot-scout", "Esquadrão de Reconhecimento", "Zenox como soldado dos titãs com manobra 3D", "legendary",
+        "Attack on Titan inspired anime style with gritty linework and cinematic golden-hour light, the character mid-flight between massive stone walls in ODM 3D maneuver gear, green Survey Corps cape billowing, twin blades drawn, intense determined expression"),
+      c("banner-zenox-persona-phantom", "Ladrão Fantasma", "Zenox em estilo Persona 5 com máscara branca", "legendary",
+        "Persona 5 graphic style with sharp angular flat shading, bold red and black halftones, the character in a sleek black trench coat over the hoodie, white domino mask pushed up on forehead, leather gloves, confident smirk, comic-burst red background"),
+      c("banner-zenox-mononoke-forest", "Espírito da Floresta", "Zenox em floresta ancestral com kodamas", "epic",
+        "Princess Mononoke / Studio Ghibli hand-painted watercolor style, lush ancient mossy forest at dawn, small white kodama spirits floating around the character as he stands calmly with a wooden staff, expression of quiet wonder"),
+      c("banner-zenox-monster-trainer", "Treinador de Monstros", "Zenox treinador lançando esfera energética", "rare",
+        "bright cheerful pokemon-style anime (legally distinct, no franchise logos), the character in a red baseball cap and backpack throwing a glowing red-and-white energy orb with an excited grin, green grass route with distant mountains, sparkle particles"),
+      c("banner-zenox-gunslinger", "Pistoleiro do Deserto", "Zenox pistoleiro anime ao pôr do sol", "epic",
+        "Trigun inspired wild west gunslinger anime style, the character in a long red duster coat with high collar, square sunglasses on face, twirling a silver revolver, golden desert sunset behind, dramatic backlight, confident smirk"),
+      c("banner-zenox-tron-grid", "Grade Digital", "Zenox em estética Tron com light cycle", "epic",
+        "Tron / digital grid aesthetic, cyan electroluminescent circuit lines on the character's hoodie, riding a glowing light cycle with cyan trail, deep black void with neon grid horizon, holographic hex particles"),
+      c("banner-zenox-renaissance", "Retrato Renascentista", "Zenox em pintura a óleo renascentista", "legendary",
+        "Renaissance oil painting in the style of Caravaggio with dramatic chiaroscuro, the character in rich dark velvet doublet with subtle hooded cowl, holding a single white lily, contemplative half-smile, dark wood-paneled background, visible canvas texture"),
+      c("banner-zenox-laputa-clouds", "Castelo nos Céus", "Zenox flutuando entre nuvens estilo Castle in the Sky", "epic",
+        "Hayao Miyazaki Castle in the Sky aesthetic, the character floating peacefully in a sea of fluffy golden-hour clouds, arms spread, glowing levitation crystal pendant, distant floating sky-island with green spires, soft pastel watercolor"),
     ];
   })(),
 ];
+
 
 
 // =========================================================================

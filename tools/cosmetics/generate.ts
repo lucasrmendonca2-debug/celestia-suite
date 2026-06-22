@@ -288,7 +288,7 @@ async function main() {
   const t0 = Date.now();
   const counts = { done: 0, skipped: 0, failed: 0 };
 
-  const CONCURRENCY = 4;
+  const CONCURRENCY = 1;
   for (let i = 0; i < queue.length; i += CONCURRENCY) {
     const batch = queue.slice(i, i + CONCURRENCY);
     const results = await Promise.all(batch.map((item) => processOne(item)));

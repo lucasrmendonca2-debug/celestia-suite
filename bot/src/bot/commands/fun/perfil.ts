@@ -66,7 +66,7 @@ async function handleVer(ix: ChatInputCommandInteraction, targetId: string) {
           ? "Esse perfil ainda está cru. Compre cosméticos em `/perfil loja` pra personalizar."
           : "Visual do perfil renderizado com os cosméticos equipados.",
         fields,
-        image: { url: cardUrl },
+        image: cardUrl,
       }),
     ],
   });

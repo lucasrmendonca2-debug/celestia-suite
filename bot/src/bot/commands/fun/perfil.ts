@@ -55,6 +55,9 @@ async function handleVer(ix: ChatInputCommandInteraction, targetId: string) {
     fields.push({ name: "Bio", value: loadout.bio });
   }
 
+  const appUrl = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://zenoxbot.lovable.app";
+  const cardUrl = `${appUrl.replace(/\/$/, "")}/api/public/profile/${targetId}/card.svg?v=${Date.now()}`;
+
   return ix.editReply({
     embeds: [
       ui.social({
@@ -63,10 +66,12 @@ async function handleVer(ix: ChatInputCommandInteraction, targetId: string) {
           ? "Esse perfil ainda está cru. Compre cosméticos em `/perfil loja` pra personalizar."
           : "Visual do perfil renderizado com os cosméticos equipados.",
         fields,
+        image: { url: cardUrl },
       }),
     ],
   });
 }
+
 
 async function handleLoja(ix: ChatInputCommandInteraction) {
   const type = (ix.options.getString("tipo") ?? "banner") as CosmeticType;

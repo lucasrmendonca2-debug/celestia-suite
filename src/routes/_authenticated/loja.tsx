@@ -305,19 +305,20 @@ function LojaPage() {
         </div>
 
         <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="grid w-full grid-cols-5 sm:w-auto sm:inline-flex">
+          <TabsList className="flex w-full flex-wrap h-auto gap-1 sm:inline-flex sm:w-auto">
             {TYPE_TABS.map((t) => {
               const Icon = t.icon;
               const n = counts[t.id] ?? 0;
               return (
                 <TabsTrigger key={t.id} value={t.id} className="gap-1.5">
                   <Icon className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">{t.label}</span>
+                  <span>{t.label}</span>
                   <span className="text-[10px] text-muted-foreground">{n}</span>
                 </TabsTrigger>
               );
             })}
           </TabsList>
+
 
           <TabsContent value={tab} className="mt-6">
             {filtered.length === 0 ? (

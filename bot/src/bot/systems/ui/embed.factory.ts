@@ -63,6 +63,7 @@ function achievement(opts: { name: string; description: string; icon?: string })
     description: opts.description,
     thumbnail: opts.icon,
   });
+}
 
 // ===== Async helper para puxar assets de uma key =====
 async function withAsset(

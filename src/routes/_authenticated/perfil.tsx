@@ -249,6 +249,7 @@ function PerfilPage() {
       await equipFn({ data: { cosmeticId } });
       toast.success("Equipado!");
       qc.invalidateQueries({ queryKey: ["my-profile"] });
+      setCardVersion(Date.now());
     } catch (e: any) {
       toast.error(e?.message ?? "Falha ao equipar");
     }
@@ -259,6 +260,7 @@ function PerfilPage() {
       await unequipFn({ data: { slot, cosmeticId } });
       toast.success("Desequipado");
       qc.invalidateQueries({ queryKey: ["my-profile"] });
+      setCardVersion(Date.now());
     } catch (e: any) {
       toast.error(e?.message ?? "Falha ao desequipar");
     }
@@ -270,6 +272,7 @@ function PerfilPage() {
       await updateMetaFn({ data: { bio, accentColor: accent } });
       toast.success("Perfil atualizado");
       qc.invalidateQueries({ queryKey: ["my-profile"] });
+      setCardVersion(Date.now());
     } catch (e: any) {
       toast.error(e?.message ?? "Falha ao salvar");
     } finally {

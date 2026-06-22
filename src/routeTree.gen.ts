@@ -13,6 +13,7 @@ import { Route as SuporteRouteImport } from './routes/suporte'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as RecursosRouteImport } from './routes/recursos'
 import { Route as PremiumRouteImport } from './routes/premium'
+import { Route as LojaRouteImport } from './routes/loja'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as DocsRouteImport } from './routes/docs'
@@ -72,6 +73,11 @@ const RecursosRoute = RecursosRouteImport.update({
 const PremiumRoute = PremiumRouteImport.update({
   id: '/premium',
   path: '/premium',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaRoute = LojaRouteImport.update({
+  id: '/loja',
+  path: '/loja',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -308,6 +314,7 @@ export interface FileRoutesByFullPath {
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
+  '/loja': typeof LojaRoute
   '/premium': typeof PremiumRoute
   '/recursos': typeof RecursosRoute
   '/status': typeof StatusRoute
@@ -353,6 +360,7 @@ export interface FileRoutesByTo {
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
+  '/loja': typeof LojaRoute
   '/premium': typeof PremiumRoute
   '/recursos': typeof RecursosRoute
   '/status': typeof StatusRoute
@@ -399,6 +407,7 @@ export interface FileRoutesById {
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
+  '/loja': typeof LojaRoute
   '/premium': typeof PremiumRoute
   '/recursos': typeof RecursosRoute
   '/status': typeof StatusRoute
@@ -446,6 +455,7 @@ export interface FileRouteTypes {
     | '/docs'
     | '/entrar'
     | '/login'
+    | '/loja'
     | '/premium'
     | '/recursos'
     | '/status'
@@ -491,6 +501,7 @@ export interface FileRouteTypes {
     | '/docs'
     | '/entrar'
     | '/login'
+    | '/loja'
     | '/premium'
     | '/recursos'
     | '/status'
@@ -536,6 +547,7 @@ export interface FileRouteTypes {
     | '/docs'
     | '/entrar'
     | '/login'
+    | '/loja'
     | '/premium'
     | '/recursos'
     | '/status'
@@ -583,6 +595,7 @@ export interface RootRouteChildren {
   DocsRoute: typeof DocsRoute
   EntrarRoute: typeof EntrarRoute
   LoginRoute: typeof LoginRoute
+  LojaRoute: typeof LojaRoute
   PremiumRoute: typeof PremiumRoute
   RecursosRoute: typeof RecursosRoute
   StatusRoute: typeof StatusRoute
@@ -623,6 +636,13 @@ declare module '@tanstack/react-router' {
       path: '/premium'
       fullPath: '/premium'
       preLoaderRoute: typeof PremiumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja': {
+      id: '/loja'
+      path: '/loja'
+      fullPath: '/loja'
+      preLoaderRoute: typeof LojaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -1019,6 +1039,7 @@ const rootRouteChildren: RootRouteChildren = {
   DocsRoute: DocsRoute,
   EntrarRoute: EntrarRoute,
   LoginRoute: LoginRoute,
+  LojaRoute: LojaRoute,
   PremiumRoute: PremiumRoute,
   RecursosRoute: RecursosRoute,
   StatusRoute: StatusRoute,

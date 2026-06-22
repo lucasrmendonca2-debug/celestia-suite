@@ -37,8 +37,11 @@ function fmtPrice(coins: number, isOffer?: boolean, discount = 20): string {
 }
 
 async function handleVer(ix: ChatInputCommandInteraction, targetId: string) {
-  const loadout = await getUserLoadout(targetId);
-  const inventory = await getUserInventory(targetId);
+  await ix.deferReply();
+  const [loadout, inventory] = await Promise.all([
+    getUserLoadout(targetId),
+    getUserInventory(targetId),
+  ]);
   const totalItems = inventory.length;
 
   const fields: { name: string; value: string; inline?: boolean }[] = [
@@ -52,7 +55,7 @@ async function handleVer(ix: ChatInputCommandInteraction, targetId: string) {
     fields.push({ name: "Bio", value: loadout.bio });
   }
 
-  return ix.reply({
+  return ix.editReply({
     embeds: [
       ui.social({
         title: `Perfil de ${targetId === ix.user.id ? "você" : `<@${targetId}>`}`,

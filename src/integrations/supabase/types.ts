@@ -961,6 +961,45 @@ export type Database = {
         }
         Relationships: []
       }
+      economy_tuning_state: {
+        Row: {
+          avg_balance_current: number
+          avg_balance_last_week: number
+          created_at: string
+          daily_reward_multiplier: number
+          expires_at: string | null
+          guild_id: string
+          last_tuned_at: string
+          shop_price_multiplier: number
+          state: string
+          updated_at: string
+        }
+        Insert: {
+          avg_balance_current?: number
+          avg_balance_last_week?: number
+          created_at?: string
+          daily_reward_multiplier?: number
+          expires_at?: string | null
+          guild_id: string
+          last_tuned_at?: string
+          shop_price_multiplier?: number
+          state?: string
+          updated_at?: string
+        }
+        Update: {
+          avg_balance_current?: number
+          avg_balance_last_week?: number
+          created_at?: string
+          daily_reward_multiplier?: number
+          expires_at?: string | null
+          guild_id?: string
+          last_tuned_at?: string
+          shop_price_multiplier?: number
+          state?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       embed_templates: {
         Row: {
           created_at: string
@@ -1123,6 +1162,45 @@ export type Database = {
           welcome_embed_enabled?: boolean
           welcome_enabled?: boolean
           welcome_message?: string
+        }
+        Relationships: []
+      }
+      guild_insights: {
+        Row: {
+          created_at: string
+          delivered: boolean
+          delivered_at: string | null
+          description: string | null
+          guild_id: string
+          id: string
+          kind: string
+          metrics: Json
+          severity: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          delivered?: boolean
+          delivered_at?: string | null
+          description?: string | null
+          guild_id: string
+          id?: string
+          kind: string
+          metrics?: Json
+          severity?: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          delivered?: boolean
+          delivered_at?: string | null
+          description?: string | null
+          guild_id?: string
+          id?: string
+          kind?: string
+          metrics?: Json
+          severity?: string
+          title?: string
         }
         Relationships: []
       }
@@ -3702,6 +3780,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_mission_profile: {
+        Row: {
+          completed_count: number
+          created_at: string
+          difficulty_score: number
+          failed_count: number
+          guild_id: string
+          last_completed_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_count?: number
+          created_at?: string
+          difficulty_score?: number
+          failed_count?: number
+          guild_id: string
+          last_completed_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_count?: number
+          created_at?: string
+          difficulty_score?: number
+          failed_count?: number
+          guild_id?: string
+          last_completed_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_missions: {
         Row: {
           claimed_at: string | null
@@ -4005,6 +4116,10 @@ export type Database = {
         }
         Returns: Json
       }
+      detect_guild_milestones: {
+        Args: { _guild_id: string; _member_count: number }
+        Returns: Json
+      }
       economy_credit_wallet: {
         Args: { _amount: number; _guild_id: string; _user_id: string }
         Returns: Json
@@ -4022,6 +4137,8 @@ export type Database = {
         }
         Returns: Json
       }
+      generate_daily_missions: { Args: { _guild_id: string }; Returns: Json }
+      generate_guild_insights: { Args: { _guild_id: string }; Returns: Json }
       get_public_stats: {
         Args: never
         Returns: {
@@ -4037,6 +4154,7 @@ export type Database = {
       }
       rotate_daily_cosmetics: { Args: { _force?: boolean }; Returns: Json }
       snapshot_weekly_ranking: { Args: { _guild_id: string }; Returns: Json }
+      tune_guild_economy: { Args: { _guild_id: string }; Returns: Json }
     }
     Enums: {
       automation_kind:

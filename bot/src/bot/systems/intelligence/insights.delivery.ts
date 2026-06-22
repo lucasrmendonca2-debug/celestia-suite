@@ -1,8 +1,6 @@
 /**
- * Entrega insights gerados pela camada de inteligência (guild_insights)
- * para o canal de logs configurado em cada servidor. Marca como delivered=true.
- *
- * Também entrega marcos (guild_milestones) e ajustes de economia.
+ * Entrega insights e marcos gerados pela camada de inteligência
+ * para canais configurados em cada servidor. Marca como entregues.
  */
 import { Client } from "discord.js";
 import { supabase } from "../../../database/supabase.js";
@@ -58,9 +56,9 @@ export async function deliverPendingInsights(client: Client) {
 export async function deliverPendingMilestones(client: Client) {
   const { data: milestones, error } = await supabase
     .from("guild_milestones")
-    .select("id, guild_id, kind, value, metadata, celebrated_at")
-    .is("celebrated_at", null)
-    .order("achieved_at", { ascending: true })
+    .select("id, guild_id, milestone_type, milestone_value, metadata")
+    .eq("announced", false)
+    .order("reached_at", { ascending: true })
     .limit(20);
 
   if (error) {
@@ -73,19 +71,26 @@ export async function deliverPendingMilestones(client: Client) {
     if (!guild) continue;
 
     const cfg = await getConfig(ms.guild_id).catch(() => null);
-    const channelId = cfg?.announcementsChannelId ?? cfg?.welcomeChannelId;
-    if (!channelId) continue;
+    const channelId = cfg?.welcomeChannelId;
+    if (!channelId) {
+      await supabase.from("guild_milestones").update({ announced: true }).eq("id", ms.id);
+      continue;
+    }
 
     const channel = guild.channels.cache.get(channelId);
-    if (!channel?.isTextBased()) continue;
+    if (!channel?.isTextBased()) {
+      await supabase.from("guild_milestones").update({ announced: true }).eq("id", ms.id);
+      continue;
+    }
 
+    const value = Number(ms.milestone_value);
     const title =
-      ms.kind === "anniversary"
-        ? `🎂 ${ms.value} ano(s) de servidor!`
-        : `🎉 ${ms.value.toLocaleString("pt-BR")} membros!`;
+      ms.milestone_type === "anniversary"
+        ? `🎂 ${value} ano(s) de servidor!`
+        : `🎉 ${value.toLocaleString("pt-BR")} membros!`;
 
     const description =
-      ms.kind === "anniversary"
+      ms.milestone_type === "anniversary"
         ? "Obrigado a todos que fazem parte dessa comunidade."
         : "Bem-vindos a todos os novos membros — vamos juntos.";
 
@@ -93,9 +98,6 @@ export async function deliverPendingMilestones(client: Client) {
       .send({ embeds: [ui.celebration({ title, description })] })
       .catch((err) => logger.error({ err }, "milestone send falhou"));
 
-    await supabase
-      .from("guild_milestones")
-      .update({ celebrated_at: new Date().toISOString() })
-      .eq("id", ms.id);
+    await supabase.from("guild_milestones").update({ announced: true }).eq("id", ms.id);
   }
 }

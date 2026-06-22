@@ -6,6 +6,9 @@ import { sendLog } from "./logs/sender.js";
 import { brandEmbed } from "../utils/embed.js";
 import { endGiveaway } from "./giveaway/giveaway.js";
 import { tickPremiumExpirations } from "./premium/premium.expiration.js";
+import { deliverPendingInsights, deliverPendingMilestones } from "./intelligence/insights.delivery.js";
+
+let intelligenceTickCounter = 0;
 
 const INTERVAL_MS = 30_000;
 
@@ -61,6 +64,18 @@ async function tick(client: Client) {
   await tickPremiumExpirations(client).catch((err) =>
     logger.error({ err }, "tickPremiumExpirations falhou"),
   );
+
+  // Camada de inteligência: a cada 10 ticks (~5 min) entrega insights/marcos pendentes
+  intelligenceTickCounter++;
+  if (intelligenceTickCounter >= 10) {
+    intelligenceTickCounter = 0;
+    await deliverPendingInsights(client).catch((err) =>
+      logger.error({ err }, "deliverPendingInsights falhou"),
+    );
+    await deliverPendingMilestones(client).catch((err) =>
+      logger.error({ err }, "deliverPendingMilestones falhou"),
+    );
+  }
 
   // Lembretes a entregar
   const reminders = await Reminder.find({ delivered: false, remindAt: { $lte: now } }).limit(50);

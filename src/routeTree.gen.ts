@@ -58,6 +58,7 @@ import { Route as AuthenticatedDashboardSlugCargoAutomaticoRouteImport } from '.
 import { Route as AuthenticatedDashboardSlugBoasVindasRouteImport } from './routes/_authenticated/dashboard.$slug.boas-vindas'
 import { Route as AuthenticatedDashboardSlugBadgesRouteImport } from './routes/_authenticated/dashboard.$slug.badges'
 import { Route as AuthenticatedDashboardSlugAssetsRouteImport } from './routes/_authenticated/dashboard.$slug.assets'
+import { Route as ApiPublicProfileUserIdCardDotsvgRouteImport } from './routes/api/public/profile/$userId/card[.]svg'
 
 const SuporteRoute = SuporteRouteImport.update({
   id: '/suporte',
@@ -331,6 +332,12 @@ const AuthenticatedDashboardSlugAssetsRoute =
     path: '/assets',
     getParentRoute: () => AuthenticatedDashboardSlugRoute,
   } as any)
+const ApiPublicProfileUserIdCardDotsvgRoute =
+  ApiPublicProfileUserIdCardDotsvgRouteImport.update({
+    id: '/api/public/profile/$userId/card.svg',
+    path: '/api/public/profile/$userId/card.svg',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -381,6 +388,7 @@ export interface FileRoutesByFullPath {
   '/api/public/cron/guild-insights': typeof ApiPublicCronGuildInsightsRoute
   '/api/public/cron/weekly-ranking': typeof ApiPublicCronWeeklyRankingRoute
   '/dashboard/$slug/': typeof AuthenticatedDashboardSlugIndexRoute
+  '/api/public/profile/$userId/card.svg': typeof ApiPublicProfileUserIdCardDotsvgRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -430,6 +438,7 @@ export interface FileRoutesByTo {
   '/api/public/cron/guild-insights': typeof ApiPublicCronGuildInsightsRoute
   '/api/public/cron/weekly-ranking': typeof ApiPublicCronWeeklyRankingRoute
   '/dashboard/$slug': typeof AuthenticatedDashboardSlugIndexRoute
+  '/api/public/profile/$userId/card.svg': typeof ApiPublicProfileUserIdCardDotsvgRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -482,6 +491,7 @@ export interface FileRoutesById {
   '/api/public/cron/guild-insights': typeof ApiPublicCronGuildInsightsRoute
   '/api/public/cron/weekly-ranking': typeof ApiPublicCronWeeklyRankingRoute
   '/_authenticated/dashboard/$slug/': typeof AuthenticatedDashboardSlugIndexRoute
+  '/api/public/profile/$userId/card.svg': typeof ApiPublicProfileUserIdCardDotsvgRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -534,6 +544,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/guild-insights'
     | '/api/public/cron/weekly-ranking'
     | '/dashboard/$slug/'
+    | '/api/public/profile/$userId/card.svg'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -583,6 +594,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/guild-insights'
     | '/api/public/cron/weekly-ranking'
     | '/dashboard/$slug'
+    | '/api/public/profile/$userId/card.svg'
   id:
     | '__root__'
     | '/'
@@ -634,6 +646,7 @@ export interface FileRouteTypes {
     | '/api/public/cron/guild-insights'
     | '/api/public/cron/weekly-ranking'
     | '/_authenticated/dashboard/$slug/'
+    | '/api/public/profile/$userId/card.svg'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -658,6 +671,7 @@ export interface RootRouteChildren {
   ApiPublicCronDailyMissionsRoute: typeof ApiPublicCronDailyMissionsRoute
   ApiPublicCronGuildInsightsRoute: typeof ApiPublicCronGuildInsightsRoute
   ApiPublicCronWeeklyRankingRoute: typeof ApiPublicCronWeeklyRankingRoute
+  ApiPublicProfileUserIdCardDotsvgRoute: typeof ApiPublicProfileUserIdCardDotsvgRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1005,6 +1019,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardSlugAssetsRouteImport
       parentRoute: typeof AuthenticatedDashboardSlugRoute
     }
+    '/api/public/profile/$userId/card.svg': {
+      id: '/api/public/profile/$userId/card.svg'
+      path: '/api/public/profile/$userId/card.svg'
+      fullPath: '/api/public/profile/$userId/card.svg'
+      preLoaderRoute: typeof ApiPublicProfileUserIdCardDotsvgRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -1136,6 +1157,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicCronDailyMissionsRoute: ApiPublicCronDailyMissionsRoute,
   ApiPublicCronGuildInsightsRoute: ApiPublicCronGuildInsightsRoute,
   ApiPublicCronWeeklyRankingRoute: ApiPublicCronWeeklyRankingRoute,
+  ApiPublicProfileUserIdCardDotsvgRoute: ApiPublicProfileUserIdCardDotsvgRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

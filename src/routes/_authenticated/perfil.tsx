@@ -227,6 +227,7 @@ function PerfilPage() {
   const [accent, setAccent] = useState(profile.loadout.accent_color);
   const [savingMeta, setSavingMeta] = useState(false);
   const [tab, setTab] = useState<string>("all");
+  const [cardVersion, setCardVersion] = useState(() => Date.now());
 
   const equippedIds = useMemo(() => {
     const set = new Set<string>();
@@ -248,6 +249,7 @@ function PerfilPage() {
       await equipFn({ data: { cosmeticId } });
       toast.success("Equipado!");
       qc.invalidateQueries({ queryKey: ["my-profile"] });
+      setCardVersion(Date.now());
     } catch (e: any) {
       toast.error(e?.message ?? "Falha ao equipar");
     }
@@ -258,6 +260,7 @@ function PerfilPage() {
       await unequipFn({ data: { slot, cosmeticId } });
       toast.success("Desequipado");
       qc.invalidateQueries({ queryKey: ["my-profile"] });
+      setCardVersion(Date.now());
     } catch (e: any) {
       toast.error(e?.message ?? "Falha ao desequipar");
     }
@@ -269,6 +272,7 @@ function PerfilPage() {
       await updateMetaFn({ data: { bio, accentColor: accent } });
       toast.success("Perfil atualizado");
       qc.invalidateQueries({ queryKey: ["my-profile"] });
+      setCardVersion(Date.now());
     } catch (e: any) {
       toast.error(e?.message ?? "Falha ao salvar");
     } finally {
@@ -300,6 +304,38 @@ function PerfilPage() {
           {/* Coluna esquerda: preview + equipados + customização */}
           <div className="space-y-6">
             <ProfilePreviewCard profile={profile} />
+
+            <Card>
+              <CardHeader className="flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-base">Card público (embed Discord)</CardTitle>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    const url = `${window.location.origin}/api/public/profile/${profile.user.id}/card.svg`;
+                    void navigator.clipboard.writeText(url);
+                    toast.success("URL copiada");
+                  }}
+                >
+                  Copiar URL
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-hidden rounded-lg border border-border/60 bg-muted">
+                  <img
+                    key={cardVersion}
+                    src={`/api/public/profile/${profile.user.id}/card.svg?v=${cardVersion}`}
+                    alt="Preview do card público"
+                    className="block h-auto w-full"
+                  />
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Esta imagem é usada no embed do <code>/perfil</code> no Discord.
+                  Atualiza automaticamente quando você equipa/desequipa.
+                </p>
+              </CardContent>
+            </Card>
+
 
             <Card>
               <CardHeader>

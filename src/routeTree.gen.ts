@@ -13,6 +13,7 @@ import { Route as SuporteRouteImport } from './routes/suporte'
 import { Route as StatusRouteImport } from './routes/status'
 import { Route as RecursosRouteImport } from './routes/recursos'
 import { Route as PremiumRouteImport } from './routes/premium'
+import { Route as LojaRouteImport } from './routes/loja'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as DocsRouteImport } from './routes/docs'
@@ -30,6 +31,8 @@ import { Route as AuthenticatedGGuildIdRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedDashboardSlugRouteImport } from './routes/_authenticated/dashboard.$slug'
 import { Route as AuthenticatedAdminPremiumRouteImport } from './routes/_authenticated/admin.premium'
 import { Route as AuthenticatedDashboardSlugIndexRouteImport } from './routes/_authenticated/dashboard.$slug.index'
+import { Route as ApiPublicCronWeeklyRankingRouteImport } from './routes/api/public/cron/weekly-ranking'
+import { Route as ApiPublicCronCosmeticRotationRouteImport } from './routes/api/public/cron/cosmetic-rotation'
 import { Route as ApiAuthDiscordLoginRouteImport } from './routes/api/auth/discord/login'
 import { Route as ApiAuthDiscordCallbackRouteImport } from './routes/api/auth/discord/callback'
 import { Route as AuthenticatedGGuildIdSplatRouteImport } from './routes/_authenticated/g.$guildId.$'
@@ -70,6 +73,11 @@ const RecursosRoute = RecursosRouteImport.update({
 const PremiumRoute = PremiumRouteImport.update({
   id: '/premium',
   path: '/premium',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LojaRoute = LojaRouteImport.update({
+  id: '/loja',
+  path: '/loja',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -160,6 +168,18 @@ const AuthenticatedDashboardSlugIndexRoute =
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedDashboardSlugRoute,
+  } as any)
+const ApiPublicCronWeeklyRankingRoute =
+  ApiPublicCronWeeklyRankingRouteImport.update({
+    id: '/api/public/cron/weekly-ranking',
+    path: '/api/public/cron/weekly-ranking',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicCronCosmeticRotationRoute =
+  ApiPublicCronCosmeticRotationRouteImport.update({
+    id: '/api/public/cron/cosmetic-rotation',
+    path: '/api/public/cron/cosmetic-rotation',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const ApiAuthDiscordLoginRoute = ApiAuthDiscordLoginRouteImport.update({
   id: '/api/auth/discord/login',
@@ -294,6 +314,7 @@ export interface FileRoutesByFullPath {
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
+  '/loja': typeof LojaRoute
   '/premium': typeof PremiumRoute
   '/recursos': typeof RecursosRoute
   '/status': typeof StatusRoute
@@ -327,6 +348,8 @@ export interface FileRoutesByFullPath {
   '/g/$guildId/$': typeof AuthenticatedGGuildIdSplatRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
+  '/api/public/cron/cosmetic-rotation': typeof ApiPublicCronCosmeticRotationRoute
+  '/api/public/cron/weekly-ranking': typeof ApiPublicCronWeeklyRankingRoute
   '/dashboard/$slug/': typeof AuthenticatedDashboardSlugIndexRoute
 }
 export interface FileRoutesByTo {
@@ -337,6 +360,7 @@ export interface FileRoutesByTo {
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
+  '/loja': typeof LojaRoute
   '/premium': typeof PremiumRoute
   '/recursos': typeof RecursosRoute
   '/status': typeof StatusRoute
@@ -369,6 +393,8 @@ export interface FileRoutesByTo {
   '/g/$guildId/$': typeof AuthenticatedGGuildIdSplatRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
+  '/api/public/cron/cosmetic-rotation': typeof ApiPublicCronCosmeticRotationRoute
+  '/api/public/cron/weekly-ranking': typeof ApiPublicCronWeeklyRankingRoute
   '/dashboard/$slug': typeof AuthenticatedDashboardSlugIndexRoute
 }
 export interface FileRoutesById {
@@ -381,6 +407,7 @@ export interface FileRoutesById {
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
   '/login': typeof LoginRoute
+  '/loja': typeof LojaRoute
   '/premium': typeof PremiumRoute
   '/recursos': typeof RecursosRoute
   '/status': typeof StatusRoute
@@ -414,6 +441,8 @@ export interface FileRoutesById {
   '/_authenticated/g/$guildId/$': typeof AuthenticatedGGuildIdSplatRoute
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
+  '/api/public/cron/cosmetic-rotation': typeof ApiPublicCronCosmeticRotationRoute
+  '/api/public/cron/weekly-ranking': typeof ApiPublicCronWeeklyRankingRoute
   '/_authenticated/dashboard/$slug/': typeof AuthenticatedDashboardSlugIndexRoute
 }
 export interface FileRouteTypes {
@@ -426,6 +455,7 @@ export interface FileRouteTypes {
     | '/docs'
     | '/entrar'
     | '/login'
+    | '/loja'
     | '/premium'
     | '/recursos'
     | '/status'
@@ -459,6 +489,8 @@ export interface FileRouteTypes {
     | '/g/$guildId/$'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
+    | '/api/public/cron/cosmetic-rotation'
+    | '/api/public/cron/weekly-ranking'
     | '/dashboard/$slug/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -469,6 +501,7 @@ export interface FileRouteTypes {
     | '/docs'
     | '/entrar'
     | '/login'
+    | '/loja'
     | '/premium'
     | '/recursos'
     | '/status'
@@ -501,6 +534,8 @@ export interface FileRouteTypes {
     | '/g/$guildId/$'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
+    | '/api/public/cron/cosmetic-rotation'
+    | '/api/public/cron/weekly-ranking'
     | '/dashboard/$slug'
   id:
     | '__root__'
@@ -512,6 +547,7 @@ export interface FileRouteTypes {
     | '/docs'
     | '/entrar'
     | '/login'
+    | '/loja'
     | '/premium'
     | '/recursos'
     | '/status'
@@ -545,6 +581,8 @@ export interface FileRouteTypes {
     | '/_authenticated/g/$guildId/$'
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
+    | '/api/public/cron/cosmetic-rotation'
+    | '/api/public/cron/weekly-ranking'
     | '/_authenticated/dashboard/$slug/'
   fileRoutesById: FileRoutesById
 }
@@ -557,6 +595,7 @@ export interface RootRouteChildren {
   DocsRoute: typeof DocsRoute
   EntrarRoute: typeof EntrarRoute
   LoginRoute: typeof LoginRoute
+  LojaRoute: typeof LojaRoute
   PremiumRoute: typeof PremiumRoute
   RecursosRoute: typeof RecursosRoute
   StatusRoute: typeof StatusRoute
@@ -565,6 +604,8 @@ export interface RootRouteChildren {
   ApiPublicBotGuildPresenceRoute: typeof ApiPublicBotGuildPresenceRoute
   ApiAuthDiscordCallbackRoute: typeof ApiAuthDiscordCallbackRoute
   ApiAuthDiscordLoginRoute: typeof ApiAuthDiscordLoginRoute
+  ApiPublicCronCosmeticRotationRoute: typeof ApiPublicCronCosmeticRotationRoute
+  ApiPublicCronWeeklyRankingRoute: typeof ApiPublicCronWeeklyRankingRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -595,6 +636,13 @@ declare module '@tanstack/react-router' {
       path: '/premium'
       fullPath: '/premium'
       preLoaderRoute: typeof PremiumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/loja': {
+      id: '/loja'
+      path: '/loja'
+      fullPath: '/loja'
+      preLoaderRoute: typeof LojaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -715,6 +763,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/dashboard/$slug/'
       preLoaderRoute: typeof AuthenticatedDashboardSlugIndexRouteImport
       parentRoute: typeof AuthenticatedDashboardSlugRoute
+    }
+    '/api/public/cron/weekly-ranking': {
+      id: '/api/public/cron/weekly-ranking'
+      path: '/api/public/cron/weekly-ranking'
+      fullPath: '/api/public/cron/weekly-ranking'
+      preLoaderRoute: typeof ApiPublicCronWeeklyRankingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/cron/cosmetic-rotation': {
+      id: '/api/public/cron/cosmetic-rotation'
+      path: '/api/public/cron/cosmetic-rotation'
+      fullPath: '/api/public/cron/cosmetic-rotation'
+      preLoaderRoute: typeof ApiPublicCronCosmeticRotationRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/api/auth/discord/login': {
       id: '/api/auth/discord/login'
@@ -977,6 +1039,7 @@ const rootRouteChildren: RootRouteChildren = {
   DocsRoute: DocsRoute,
   EntrarRoute: EntrarRoute,
   LoginRoute: LoginRoute,
+  LojaRoute: LojaRoute,
   PremiumRoute: PremiumRoute,
   RecursosRoute: RecursosRoute,
   StatusRoute: StatusRoute,
@@ -985,6 +1048,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicBotGuildPresenceRoute: ApiPublicBotGuildPresenceRoute,
   ApiAuthDiscordCallbackRoute: ApiAuthDiscordCallbackRoute,
   ApiAuthDiscordLoginRoute: ApiAuthDiscordLoginRoute,
+  ApiPublicCronCosmeticRotationRoute: ApiPublicCronCosmeticRotationRoute,
+  ApiPublicCronWeeklyRankingRoute: ApiPublicCronWeeklyRankingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

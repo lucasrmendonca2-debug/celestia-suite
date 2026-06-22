@@ -24,6 +24,7 @@ import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedServidoresRouteImport } from './routes/_authenticated/servidores'
+import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedDevLogsRouteImport } from './routes/_authenticated/dev-logs'
 import { Route as AuthenticatedDashboardIndexRouteImport } from './routes/_authenticated/dashboard.index'
 import { Route as ApiPublicBotGuildPresenceRouteImport } from './routes/api/public/bot-guild-presence'
@@ -130,6 +131,11 @@ const IndexRoute = IndexRouteImport.update({
 const AuthenticatedServidoresRoute = AuthenticatedServidoresRouteImport.update({
   id: '/servidores',
   path: '/servidores',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
+  id: '/perfil',
+  path: '/perfil',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedDevLogsRoute = AuthenticatedDevLogsRouteImport.update({
@@ -341,6 +347,7 @@ export interface FileRoutesByFullPath {
   '/status': typeof StatusRoute
   '/suporte': typeof SuporteRoute
   '/dev-logs': typeof AuthenticatedDevLogsRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
   '/servidores': typeof AuthenticatedServidoresRoute
   '/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/dashboard/$slug': typeof AuthenticatedDashboardSlugRouteWithChildren
@@ -390,6 +397,7 @@ export interface FileRoutesByTo {
   '/status': typeof StatusRoute
   '/suporte': typeof SuporteRoute
   '/dev-logs': typeof AuthenticatedDevLogsRoute
+  '/perfil': typeof AuthenticatedPerfilRoute
   '/servidores': typeof AuthenticatedServidoresRoute
   '/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/g/$guildId': typeof AuthenticatedGGuildIdRouteWithChildren
@@ -440,6 +448,7 @@ export interface FileRoutesById {
   '/status': typeof StatusRoute
   '/suporte': typeof SuporteRoute
   '/_authenticated/dev-logs': typeof AuthenticatedDevLogsRoute
+  '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/servidores': typeof AuthenticatedServidoresRoute
   '/_authenticated/admin/premium': typeof AuthenticatedAdminPremiumRoute
   '/_authenticated/dashboard/$slug': typeof AuthenticatedDashboardSlugRouteWithChildren
@@ -491,6 +500,7 @@ export interface FileRouteTypes {
     | '/status'
     | '/suporte'
     | '/dev-logs'
+    | '/perfil'
     | '/servidores'
     | '/admin/premium'
     | '/dashboard/$slug'
@@ -540,6 +550,7 @@ export interface FileRouteTypes {
     | '/status'
     | '/suporte'
     | '/dev-logs'
+    | '/perfil'
     | '/servidores'
     | '/admin/premium'
     | '/g/$guildId'
@@ -589,6 +600,7 @@ export interface FileRouteTypes {
     | '/status'
     | '/suporte'
     | '/_authenticated/dev-logs'
+    | '/_authenticated/perfil'
     | '/_authenticated/servidores'
     | '/_authenticated/admin/premium'
     | '/_authenticated/dashboard/$slug'
@@ -754,6 +766,13 @@ declare module '@tanstack/react-router' {
       path: '/servidores'
       fullPath: '/servidores'
       preLoaderRoute: typeof AuthenticatedServidoresRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/perfil': {
+      id: '/_authenticated/perfil'
+      path: '/perfil'
+      fullPath: '/perfil'
+      preLoaderRoute: typeof AuthenticatedPerfilRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/dev-logs': {
@@ -1072,6 +1091,7 @@ const AuthenticatedGGuildIdRouteWithChildren =
 
 interface AuthenticatedRouteChildren {
   AuthenticatedDevLogsRoute: typeof AuthenticatedDevLogsRoute
+  AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedServidoresRoute: typeof AuthenticatedServidoresRoute
   AuthenticatedAdminPremiumRoute: typeof AuthenticatedAdminPremiumRoute
   AuthenticatedDashboardSlugRoute: typeof AuthenticatedDashboardSlugRouteWithChildren
@@ -1081,6 +1101,7 @@ interface AuthenticatedRouteChildren {
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedDevLogsRoute: AuthenticatedDevLogsRoute,
+  AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedServidoresRoute: AuthenticatedServidoresRoute,
   AuthenticatedAdminPremiumRoute: AuthenticatedAdminPremiumRoute,
   AuthenticatedDashboardSlugRoute: AuthenticatedDashboardSlugRouteWithChildren,

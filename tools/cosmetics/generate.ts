@@ -55,26 +55,36 @@ const saveProgress = () => writeFileSync(PROGRESS_FILE, JSON.stringify(progress,
 // 1) Image generation
 // -----------------------------------------------------------------------------
 async function generateImage(prompt: string): Promise<Buffer> {
-  const res = await fetch(`${GATEWAY}/v1/images/generations`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${LOVABLE_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "google/gemini-3.1-flash-image-preview",
-      messages: [{ role: "user", content: prompt }],
-      modalities: ["image", "text"],
-    }),
-  });
-  if (!res.ok) {
-    const t = await res.text();
-    throw new Error(`image gen ${res.status}: ${t.slice(0, 200)}`);
+  let lastErr = "";
+  for (let attempt = 1; attempt <= 5; attempt++) {
+    const res = await fetch(`${GATEWAY}/v1/images/generations`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3.1-flash-image-preview",
+        messages: [{ role: "user", content: prompt }],
+        modalities: ["image", "text"],
+      }),
+    });
+    if (res.status === 429) {
+      const wait = Math.min(60_000, 5_000 * 2 ** (attempt - 1));
+      console.log(`    [429] backoff ${wait / 1000}s (attempt ${attempt}/5)`);
+      await new Promise((r) => setTimeout(r, wait));
+      continue;
+    }
+    if (!res.ok) {
+      const t = await res.text();
+      throw new Error(`image gen ${res.status}: ${t.slice(0, 200)}`);
+    }
+    const json = (await res.json()) as { data?: Array<{ b64_json?: string }> };
+    const b64 = json.data?.[0]?.b64_json;
+    if (!b64) throw new Error(`image gen: no b64_json (${JSON.stringify(json).slice(0, 200)})`);
+    return Buffer.from(b64, "base64");
   }
-  const json = (await res.json()) as { data?: Array<{ b64_json?: string }> };
-  const b64 = json.data?.[0]?.b64_json;
-  if (!b64) throw new Error(`image gen: no b64_json (${JSON.stringify(json).slice(0, 200)})`);
-  return Buffer.from(b64, "base64");
+  throw new Error(`image gen: rate-limited after 5 attempts (${lastErr})`);
 }
 
 // -----------------------------------------------------------------------------

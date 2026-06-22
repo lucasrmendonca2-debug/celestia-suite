@@ -301,8 +301,7 @@ async function main() {
   console.log(`=== resumo (${dt}s) ===`);
   console.log(`done: ${counts.done}  skipped: ${counts.skipped}  failed: ${counts.failed}`);
   if (Object.keys(progress.failed).length) {
-    console.log("failed slugs:");
-    for (const [k, v] of Object.entries(progress.failed)) console.log(`  - ${k}: ${v.slice(0, 100)}`);
+    console.log(`failed total: ${Object.keys(progress.failed).length} (ver /tmp/cosmetics-gen/progress.json)`);
   }
 }
 

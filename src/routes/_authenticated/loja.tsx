@@ -219,8 +219,9 @@ function LojaPage() {
     setBuying(true);
     try {
       const res = await purchaseFn({
-        data: { cosmeticId: buyTarget.id, guildId: buyGuild },
+        data: { cosmeticId: buyTarget.id, guildId: buyGuild, useDiscount: dailySet.has(buyTarget.id) },
       });
+
       if (!res.ok) {
         toast.error(`Não foi possível comprar: ${res.reason ?? "erro"}`);
       } else {

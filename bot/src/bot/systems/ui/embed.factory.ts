@@ -42,6 +42,28 @@ function build(kind: ModuleKind, opts: BaseOpts): EmbedBuilder {
   return e;
 }
 
+// Variantes novas adicionadas em Fase 4 (personalidade).
+function celebration(opts: BaseOpts): EmbedBuilder {
+  return build("social", {
+    ...opts,
+    title: opts.title ? `${EMOJI.sparkle} ${opts.title}` : `${EMOJI.sparkle} Boa!`,
+  });
+}
+
+function tip(opts: { title?: string; description: string }): EmbedBuilder {
+  return build("info", {
+    title: opts.title ? `${EMOJI.info} ${opts.title}` : `${EMOJI.info} Dica rápida`,
+    description: opts.description,
+  });
+}
+
+function achievement(opts: { name: string; description: string; icon?: string }): EmbedBuilder {
+  return build("social", {
+    title: `${EMOJI.achievement} Conquista desbloqueada — ${opts.name}`,
+    description: opts.description,
+    thumbnail: opts.icon,
+  });
+
 // ===== Async helper para puxar assets de uma key =====
 async function withAsset(
   guildId: string | null,
@@ -207,6 +229,11 @@ export const ui = {
   admin(opts: BaseOpts): EmbedBuilder {
     return build("default", { ...opts, title: opts.title ? `${EMOJI.gear} ${opts.title}` : undefined });
   },
+
+  // ----- Variantes de personalidade (Fase 4) -----
+  celebration,
+  tip,
+  achievement,
 
   // ----- Async helpers (quando precisar resolver asset agora) -----
   async resolveAsset(guildId: string | null, key: AssetKey): Promise<string | undefined> {

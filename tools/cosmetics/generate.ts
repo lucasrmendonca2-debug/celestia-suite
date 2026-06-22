@@ -278,9 +278,12 @@ async function main() {
   const t0 = Date.now();
   const counts = { done: 0, skipped: 0, failed: 0 };
 
-  for (const item of queue) {
-    const r = await processOne(item);
-    counts[r]++;
+  const CONCURRENCY = 4;
+  for (let i = 0; i < queue.length; i += CONCURRENCY) {
+    const batch = queue.slice(i, i + CONCURRENCY);
+    const results = await Promise.all(batch.map((item) => processOne(item)));
+    for (const r of results) counts[r]++;
+    console.log(`-- progresso: ${i + batch.length}/${queue.length}  done=${counts.done} skipped=${counts.skipped} failed=${counts.failed}`);
   }
 
   const dt = ((Date.now() - t0) / 1000).toFixed(1);

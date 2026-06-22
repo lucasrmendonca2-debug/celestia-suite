@@ -58,10 +58,11 @@ const command: SlashCommand = {
     const guildId = interaction.guildId!;
 
     if (sub === "ver") {
+      await interaction.deferReply();
       const target = interaction.options.getUser("usuario") ?? interaction.user;
       if (target.id === interaction.client.user.id) {
         const client = interaction.client;
-        await interaction.reply({
+        await interaction.editReply({
           embeds: [
             brandEmbed({
               title: `🤖 ${client.user?.username ?? "Bot"}`,
@@ -77,22 +78,22 @@ const command: SlashCommand = {
         return;
       }
       if (target.bot) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "info", description: "Esse é outro bot. Ele não tem perfil social por aqui. 🤖" })], ephemeral: true });
+        await interaction.editReply({ embeds: [brandEmbed({ kind: "info", description: "Esse é outro bot. Ele não tem perfil social por aqui. 🤖" })] });
         return;
       }
-      const profile = await getProfile(guildId, target.id);
-      if (target.id !== interaction.user.id) {
-        await incrementProfileViews(guildId, target.id);
-      }
-      const badges = await listUserBadges(guildId, target.id);
-      const total = await countUserBadges(guildId, target.id);
+      const [profile, badges, total] = await Promise.all([
+        getProfile(guildId, target.id),
+        listUserBadges(guildId, target.id),
+        countUserBadges(guildId, target.id),
+      ]);
+      if (target.id !== interaction.user.id) void incrementProfileViews(guildId, target.id);
       const featured = badges
         .filter((b) => profile.selected_badges.includes(b.code))
         .slice(0, 3)
         .map((b) => `${b.emoji} **${b.name}**`)
         .join(" • ") || `_${pick(socialResponses.noBadges)}_`;
 
-      await interaction.reply({
+      await interaction.editReply({
         embeds: [
           brandEmbed({
             title: `👤 ${profile.title || target.username}`,

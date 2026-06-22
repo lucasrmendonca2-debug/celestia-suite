@@ -114,6 +114,7 @@ export type Database = {
           id: string
           message_id: string | null
           scheduled_at: string | null
+          sent: boolean | null
           sent_at: string | null
           updated_at: string
         }
@@ -127,6 +128,7 @@ export type Database = {
           id?: string
           message_id?: string | null
           scheduled_at?: string | null
+          sent?: boolean | null
           sent_at?: string | null
           updated_at?: string
         }
@@ -140,6 +142,7 @@ export type Database = {
           id?: string
           message_id?: string | null
           scheduled_at?: string | null
+          sent?: boolean | null
           sent_at?: string | null
           updated_at?: string
         }
@@ -2394,6 +2397,7 @@ export type Database = {
       }
       premium_subscriptions: {
         Row: {
+          active: boolean | null
           cancelled_at: string | null
           created_at: string
           created_by: string | null
@@ -2410,6 +2414,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          active?: boolean | null
           cancelled_at?: string | null
           created_at?: string
           created_by?: string | null
@@ -2426,6 +2431,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          active?: boolean | null
           cancelled_at?: string | null
           created_at?: string
           created_by?: string | null

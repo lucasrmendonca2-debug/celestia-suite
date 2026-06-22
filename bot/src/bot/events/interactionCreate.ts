@@ -10,6 +10,10 @@ import { Msg } from "../utils/messages.js";
 import { checkPermissions, denyWith } from "../guards/permissions.js";
 import { consumeCooldown } from "../guards/cooldown.js";
 import { checkCommandPermission } from "../guards/commandPermissions.js";
+import {
+  getActiveUserSubscription,
+  getActiveGuildSubscription,
+} from "../systems/premium/premium.service.js";
 import { ensureGuild, ensureUser } from "../utils/guildCache.js";
 import { handleTicketButton, handleTicketSelect } from "../systems/tickets/handlers.js";
 import { handleGiveawayButton } from "../systems/giveaway/giveaway.js";
@@ -87,20 +91,46 @@ const event: BotEvent<"interactionCreate"> = {
           ? await ix.guild.members.fetch(ix.user.id).catch(() => null)
           : null);
 
-      // Permissões por comando + cooldown em paralelo (eram serial).
+      // Permissões por comando + cooldown + premium em paralelo.
       const cooldownPreemptive = cmd.cooldown && ix.guildId
         ? consumeCooldown(ix, cmd.data.name, cmd.cooldown)
         : Promise.resolve({ ok: true as const });
-      const [cmdPerm, cd] = await Promise.all([
-        checkCommandPermission(ix, {
-          member,
-          channelId: ix.channelId,
-          isStaff: member?.permissions.has("ManageGuild") ?? false,
-          isVip: false, // TODO: integrar com sistema VIP no Pass D
-          isPremiumGuild: false, // TODO: integrar com premium_guild_config
-        }),
+
+      // Só consulta premium se algum gate exigir (otimização para caminho quente).
+      const needsVip = cmd.vipOnly === true;
+      const needsPremiumGuild = cmd.premiumGuildOnly === true;
+      const vipPromise = needsVip
+        ? getActiveUserSubscription(ix.user.id).then((s) => !!s).catch(() => false)
+        : Promise.resolve(false);
+      const premiumGuildPromise = needsPremiumGuild && ix.guildId
+        ? getActiveGuildSubscription(ix.guildId).then((s) => !!s).catch(() => false)
+        : Promise.resolve(false);
+
+      const [isVip, isPremiumGuild, cd] = await Promise.all([
+        vipPromise,
+        premiumGuildPromise,
         cooldownPreemptive,
       ]);
+
+      // Gates declarativos no SlashCommand (vipOnly / premiumGuildOnly / staffOnly).
+      const isStaff = member?.permissions.has("ManageGuild") ?? false;
+      if (cmd.vipOnly && !isVip) {
+        return denyWith(ix, "Esse comando é exclusivo para usuários VIP. Use `/vip beneficios` para saber mais.");
+      }
+      if (cmd.premiumGuildOnly && !isPremiumGuild) {
+        return denyWith(ix, "Esse comando exige que o servidor tenha Premium ativo. Use `/premium beneficios`.");
+      }
+      if (cmd.staffOnly && !isStaff) {
+        return denyWith(ix, "Esse comando é restrito à staff do servidor.");
+      }
+
+      const cmdPerm = await checkCommandPermission(ix, {
+        member,
+        channelId: ix.channelId,
+        isStaff,
+        isVip,
+        isPremiumGuild,
+      });
 
       if (!cmdPerm.ok) return denyWith(ix, cmdPerm.reason);
 

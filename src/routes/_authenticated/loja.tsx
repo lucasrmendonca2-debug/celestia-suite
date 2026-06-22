@@ -73,11 +73,14 @@ const RARITY_RING: Record<string, string> = {
 
 const TYPE_TABS = [
   { id: "all", label: "Tudo", icon: Sparkles },
+  { id: "daily", label: "Ofertas do Dia", icon: Sparkles },
+  { id: "seasonal", label: "Temporada", icon: Sparkles },
   { id: "banner", label: "Banners", icon: Shirt },
   { id: "frame", label: "Molduras", icon: Palette },
   { id: "sticker", label: "Stickers", icon: Sticker },
   { id: "effect", label: "Efeitos", icon: Wand2 },
 ] as const;
+
 
 const RARITY_ORDER = ["legendary", "epic", "rare", "common", "seasonal"];
 
@@ -168,10 +171,20 @@ function LojaPage() {
 
   const ownedSet = useMemo(() => new Set(catalog.ownedIds), [catalog.ownedIds]);
 
+  const dailySet = useMemo(
+    () => new Set([...catalog.dailyOfferIds, ...catalog.rarePickIds]),
+    [catalog.dailyOfferIds, catalog.rarePickIds],
+  );
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return catalog.cosmetics
-      .filter((c) => (tab === "all" ? true : c.type === tab))
+      .filter((c) => {
+        if (tab === "all") return true;
+        if (tab === "daily") return dailySet.has(c.id);
+        if (tab === "seasonal") return c.rarity === "seasonal" || c.collection !== null;
+        return c.type === tab;
+      })
       .filter((c) => (rarityFilter === "all" ? true : c.rarity === rarityFilter))
       .filter((c) =>
         showOwned === "missing" ? !ownedSet.has(c.id) : true,
@@ -186,21 +199,29 @@ function LojaPage() {
         (a, b) =>
           RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity),
       );
-  }, [catalog.cosmetics, tab, rarityFilter, showOwned, ownedSet, query]);
+  }, [catalog.cosmetics, tab, rarityFilter, showOwned, ownedSet, query, dailySet]);
 
   const counts = useMemo(() => {
-    const m: Record<string, number> = { all: catalog.cosmetics.length };
+    const m: Record<string, number> = {
+      all: catalog.cosmetics.length,
+      daily: catalog.cosmetics.filter((c) => dailySet.has(c.id)).length,
+      seasonal: catalog.cosmetics.filter(
+        (c) => c.rarity === "seasonal" || c.collection !== null,
+      ).length,
+    };
     for (const c of catalog.cosmetics) m[c.type] = (m[c.type] ?? 0) + 1;
     return m;
-  }, [catalog.cosmetics]);
+  }, [catalog.cosmetics, dailySet]);
+
 
   async function confirmPurchase() {
     if (!buyTarget || !buyGuild) return;
     setBuying(true);
     try {
       const res = await purchaseFn({
-        data: { cosmeticId: buyTarget.id, guildId: buyGuild },
+        data: { cosmeticId: buyTarget.id, guildId: buyGuild, useDiscount: dailySet.has(buyTarget.id) },
       });
+
       if (!res.ok) {
         toast.error(`Não foi possível comprar: ${res.reason ?? "erro"}`);
       } else {
@@ -285,19 +306,20 @@ function LojaPage() {
         </div>
 
         <Tabs value={tab} onValueChange={setTab}>
-          <TabsList className="grid w-full grid-cols-5 sm:w-auto sm:inline-flex">
+          <TabsList className="flex w-full flex-wrap h-auto gap-1 sm:inline-flex sm:w-auto">
             {TYPE_TABS.map((t) => {
               const Icon = t.icon;
               const n = counts[t.id] ?? 0;
               return (
                 <TabsTrigger key={t.id} value={t.id} className="gap-1.5">
                   <Icon className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">{t.label}</span>
+                  <span>{t.label}</span>
                   <span className="text-[10px] text-muted-foreground">{n}</span>
                 </TabsTrigger>
               );
             })}
           </TabsList>
+
 
           <TabsContent value={tab} className="mt-6">
             {filtered.length === 0 ? (

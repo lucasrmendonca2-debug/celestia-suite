@@ -318,7 +318,11 @@ export interface ShopCatalogDTO {
   ownedIds: string[];
   wallets: WalletDTO[];
   totalBalance: number;
+  dailyOfferIds: string[];
+  rarePickIds: string[];
+  discountPercent: number;
 }
+
 
 export const getShopCatalog = createServerFn({ method: "GET" }).handler(
   async (): Promise<ShopCatalogDTO> => {
@@ -360,12 +364,23 @@ export const getShopCatalog = createServerFn({ method: "GET" }).handler(
       balance: Number(w.balance ?? 0),
     }));
 
+    const today = new Date().toISOString().slice(0, 10);
+    const { data: rotation } = await supabaseAdmin
+      .from("cosmetic_rotations")
+      .select("daily_offers, rare_picks, discount_percent")
+      .eq("rotation_date", today)
+      .maybeSingle();
+
     return {
       cosmetics: (cosmetics ?? []) as ShopItemDTO[],
       ownedIds: (owned ?? []).map((o) => o.cosmetic_id),
       wallets,
       totalBalance: wallets.reduce((a, w) => a + w.balance, 0),
+      dailyOfferIds: (rotation?.daily_offers ?? []) as string[],
+      rarePickIds: (rotation?.rare_picks ?? []) as string[],
+      discountPercent: rotation?.discount_percent ?? 0,
     };
   },
 );
+
 

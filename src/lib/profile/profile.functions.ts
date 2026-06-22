@@ -156,10 +156,10 @@ export const getMyProfile = createServerFn({ method: "GET" }).handler(
     if (guildIds.length > 0) {
       const { data: guildsData } = await supabaseAdmin
         .from("bot_guild_presence")
-        .select("guild_id, guild_name, icon")
+        .select("guild_id, name, icon")
         .in("guild_id", guildIds);
       for (const g of guildsData ?? []) {
-        guildsMap[g.guild_id] = { name: g.guild_name, icon: g.icon };
+        guildsMap[g.guild_id] = { name: g.name, icon: g.icon };
       }
     }
 

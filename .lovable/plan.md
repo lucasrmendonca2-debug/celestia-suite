@@ -1,129 +1,70 @@
-## Fase 5 — Sistemas automáticos inovadores + Loja de Perfil com imagens
+## Decisão técnica: NÃO usar satori + @resvg/resvg-wasm
 
-Objetivo: dar **identidade própria** ao Zenox com sistemas que rodam sozinhos no fundo (sem o usuário pedir) e introduzir uma **economia visual real** — perfil com banners/decorações que o usuário compra, equipa e alterna, com arte gerada por IA.
+Testei mentalmente esta combinação várias vezes no runtime Cloudflare Workers do TanStack Start e ela é **instável demais para produção**:
 
----
+- `@resvg/resvg-wasm` precisa carregar o `.wasm` em runtime. No Worker do TSS (Vite + workerd), o asset `.wasm` precisa ser embedado no bundle — vários relatos de `WebAssembly.compile failed` ou `Cannot find module` em build de produção (funciona em dev, quebra em prod).
+- `satori` exige carregar fontes (TTF/OTF) como `ArrayBuffer` em runtime. No Worker não há filesystem confiável; precisa `fetch()` da fonte a cada request (lento) ou inlinar como base64 (bundle gigante).
+- Mesmo funcionando, gerar PNG raster em cada request num Worker custa CPU (limite de 10–50ms grátis) — o Discord cacheia a URL, mas o primeiro hit pode estourar.
 
-### Parte A — Sistemas automáticos inovadores (Fase 5 original)
+## Solução adotada: **SVG nativo + cache no Storage**
 
-**A1. Temporadas dinâmicas (Season Engine)**
-Já existem tabelas `level_seasons` e `level_season_users`. Falta o **motor automático**:
-- `pg_cron` diário que: encerra temporada vencida, distribui recompensas top-10 (cargos, moeda, badge sazonal), abre próxima temporada com tema rotativo.
-- Tema da temporada (ex: "Inverno do Dragão", "Verão Cyberpunk") define banner do leaderboard, cor de embed e item raro exclusivo na loja.
-- Anúncio automático em canal configurável com embed celebrativo (`ui.celebration`).
+O Discord renderiza `image/svg+xml` perfeitamente em embeds quando servido com o content-type correto e dimensões fixas no atributo. SVG nos dá:
 
-**A2. Missões dinâmicas inteligentes (Mission Generator)**
-A tabela `economy_missions` existe mas é estática. Adicionar:
-- Geração diária automática de 3 missões por servidor, baseadas no **comportamento real** do servidor (canais mais ativos, comandos mais usados nos últimos 7d via `economy_transactions`).
-- Dificuldade adaptativa: usuário que sempre completa ganha missões mais difíceis (e recompensa maior); novato ganha missões fáceis de onboarding.
-- Missões semanais épicas com recompensa = item raro da loja.
+- **Zero dependências novas** — só `Response` com string.
+- **Vetorial** — escala perfeito em qualquer DPI.
+- **Tipografia via `<text>`** — sem precisar embedar fontes; usamos `font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"` (Discord renderiza com fontes do sistema dele).
+- **Imagens** (avatar, banner, frame, stickers) entram como `<image href="...">` apontando para URLs já públicas do Discord CDN / nossos assets.
 
-**A3. Alertas inteligentes (Insight Engine)**
-Sistema novo que detecta padrões e envia insights ao canal de logs/admin:
-- "📈 Atividade subiu 40% essa semana — pico às 21h"
-- "⚠️ 3 membros saíram após receber warn — considere revisar tom da moderação"
-- "🔥 Comando `/pagar` cresceu 200% — economia esquentando"
-- "💎 5 membros do servidor compraram VIP esse mês"
-- Roda via `pg_cron` semanal, lê `economy_transactions`, `mod_cases`, `bot_guild_presence`.
+Se mais tarde quiser PNG raster mesmo, dá pra rodar `satori + resvg` numa **Edge Function Supabase** (Deno, suporta WASM nativamente) chamada a partir do mesmo endpoint TSS — mas começamos com SVG porque resolve 100% do caso de uso (embed Discord).
 
-**A4. Ranking semanal automático**
-- `pg_cron` toda segunda 9h: posta top-5 da semana (XP, moeda, reputação, mensagens) no canal configurado.
-- Embed com avatares, medalhas, comparativo vs semana anterior (↑/↓).
-- Quem ficou em 1º ganha cargo temporário "Destaque da Semana" (7 dias).
+## Arquitetura
 
-**A5. Aniversários e marcos**
-- Detecta automaticamente: aniversário do servidor, 100/500/1000 membros, X mensagens totais.
-- Dispara embed `ui.celebration` + opcional drop de moeda pra todos online.
+```text
+GET /api/public/profile/:userId/card.svg
+  ├─ supabaseAdmin: lê user_profile_loadout + profile_cosmetics + user_economy + level_users
+  ├─ resolve avatar do Discord (cdn.discordapp.com)
+  ├─ monta SVG 800×400 com banner, frame, avatar, nome, XP bar, bio, coins, rep, stickers
+  └─ retorna SVG com Cache-Control: public, max-age=300, s-maxage=300
 
-**A6. Auto-tuning de economia**
-- Se inflação detectada (saldo médio > 2x da semana anterior), aumenta custos da loja em 10%.
-- Se deflação (todo mundo quebrado), aumenta payout de `/diario` em 20% por 3 dias.
-- Tudo logado em `economy_transactions` com tipo `auto_balance`.
+GET /dashboard/perfil — adiciona <ProfileCardPreview /> que faz <img src="/api/public/profile/{me}/card.svg?t={Date.now()}" />
+```
 
----
+## Arquivos a criar/editar
 
-### Parte B — Loja de Perfil com imagens (novo, inspirado na Loritta)
+1. **`src/lib/profile/card-svg.server.ts`** (novo) — função `buildProfileCardSvg(data)` pura: recebe dados resolvidos, retorna string SVG. Inclui escape de XML, layout responsivo, gradientes, barra de XP, área de stickers.
 
-**Conceito:** o usuário tem um `/perfil` visual gerado como imagem (card). Pode comprar banners, frames, badges, efeitos no site (dashboard) ou no Discord, equipá-los e o card se monta dinamicamente. Itens raros rodam por temporada.
+2. **`src/lib/profile/card-data.server.ts`** (novo) — função `loadProfileCardData(userId)` que faz 1 query agregada via `supabaseAdmin`: loadout + cosméticos equipados + saldo total + nível/XP + username/avatar (busca username em `social_profiles` ou Discord API se necessário; fallback "Usuário"). Cache em memória de 60s.
 
-**B1. Schema novo (migration)**
-- `profile_cosmetics` — catálogo global (id, tipo: `banner|frame|sticker|effect|background_pattern`, slug, name, description, rarity: `common|rare|epic|legendary|seasonal`, price_coins, price_premium, image_url do asset CDN, season_id nullable, available_from/until, active).
-- `user_cosmetics` — inventário (user_id, cosmetic_id, acquired_at, source: `shop|drop|gift|seasonal`).
-- `user_profile_loadout` — o que está equipado (user_id, banner_id, frame_id, sticker_ids[], effect_id, accent_color, bio text 200char).
-- `cosmetic_drops` — drops aleatórios em eventos (cosmetic_id, guild_id nullable, expires_at, claimed_by nullable).
+3. **`src/routes/api/public/profile/$userId/card[.]svg.ts`** (novo) — server route que valida `userId` (regex `^\d{17,20}$`), chama as duas funções acima, retorna `Response(svg, { headers: { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Cache-Control': 'public, max-age=300, s-maxage=300, immutable' } })`. Em erro, retorna SVG fallback (não JSON — o Discord precisa de imagem).
 
-Grants + RLS conforme padrão (authenticated CRUD próprio; service_role full; anon SELECT no catálogo público).
+4. **`src/routes/_authenticated/perfil.tsx`** (editar) — adicionar card "Preview do Card Público" na coluna direita acima do inventário, mostrando `<img src="/api/public/profile/{me.id}/card.svg?v={hash}" />` com botão "Copiar URL" para usar no Discord.
 
-**B2. Geração de arte por IA (pipeline)**
-- Script admin no dashboard: "Gerar nova coleção de cosméticos" → gera N banners (1500x500), frames (transparent PNG), stickers (512x512 transparent) com temas variados.
-- Banners gerados via `imagegen--generate_image` quality `standard`, salvos no bucket `profile-cosmetics` (Storage público).
-- Pasta organizada por temporada: `cosmetics/winter-2026/banner-aurora.png`.
-- Asset URLs imutáveis (Lovable Assets ou Supabase Storage público).
-- Coleção inicial: 12 banners (4 commons, 4 rares, 3 epics, 1 legendary), 8 frames, 20 stickers.
+5. **`bot/src/bot/commands/fun/perfil.ts`** (editar — opcional, mas pedido) — no embed do `/perfil`, setar `.setImage(\`${process.env.APP_URL}/api/public/profile/${target.id}/card.svg\`)`.
 
-**B3. Loja no site (dashboard)**
-- Nova rota `_authenticated/loja.tsx` (loja pessoal, não por servidor) com tabs: Banners / Frames / Stickers / Efeitos / **Temporada**.
-- Cards com preview da arte, raridade colorida (legendary = dourado animado), preço em 🪙 ou 💎.
-- Filtro por raridade, "só meus", "ofertas da semana".
-- Botão Comprar → server fn `purchaseCosmetic` (debita coins via RPC atômica, insere `user_cosmetics`, retorna preview).
-- Aba "Meu Perfil" pra equipar/desequipar com preview ao vivo do card final.
+## Cache
 
-**B4. Loja no Discord**
-- `/perfil` → mostra o card renderizado (imagem).
-- `/perfil loja` → menu paginado com botões de compra.
-- `/perfil equipar <slot> <item>` → autocomplete só com itens do inventário.
-- `/perfil preview <usuario>` → vê perfil de outro.
+Estratégia em 3 camadas (sem precisar Storage):
 
-**B5. Rotação automática (o ponto-chave)**
-- A loja **rotaciona** itens em destaque a cada 24h (sistema novo `cosmetic_rotation`):
-  - 6 "ofertas do dia" com preço reduzido (-20%).
-  - 2 itens raros aparecem só por 24h, depois somem por 30 dias.
-- Itens **sazonais** só aparecem durante a temporada ativa; depois ficam "vault" (não compráveis até a próxima edição daquele tema).
-- `pg_cron` diário 0h gera nova rotação automaticamente.
-- No card de perfil, **stickers equipados se alternam** visualmente (até 3 stickers, mostrados em rotação no canvas).
+1. **Memória do Worker** (`Map<userId, {svg, expiresAt}>`, TTL 60s) — bom para hits seguidos no mesmo isolate.
+2. **HTTP**: `Cache-Control: public, max-age=300, s-maxage=300` — CDN do Cloudflare faz o cache pesado.
+3. **Bypass via querystring**: `?v=timestamp` quando o usuário muda o loadout no dashboard (invalida o cache do browser pra ele ver o preview atualizado).
 
-**B6. Renderização do card de perfil**
-- Server fn `renderProfileCard({ userId })` retorna imagem PNG composta:
-  - Background (banner equipado)
-  - Avatar com frame
-  - Stickers nos cantos
-  - Nome + nível + barra de XP + bio
-  - Acento de cor escolhido
-- Usar `@napi-rs/canvas` ou similar compatível com Workers? **Alternativa segura para edge**: gerar via HTML→imagem usando `satori` + `resvg-wasm` (pure JS/WASM, funciona em Cloudflare Workers).
-- Resultado servido em `/api/public/profile/:userId/card.png` com cache 5min.
-- Discord embed usa `.setImage(url)` apontando pra essa rota.
+Storage só seria necessário se quiséssemos PNGs pré-renderizados — fica como evolução futura.
 
-**B7. Drops e eventos**
-- Subir de nível X tem chance de dropar cosmético comum.
-- Top-1 da temporada ganha legendary exclusivo daquela edição.
-- Comprar VIP libera 1 cosmético epic gratuito + acesso a "tom" exclusivo.
-- Eventos sazonais (Natal, Junho, Halloween) ativam coleção temática automática.
+## Segurança
 
----
+- Endpoint público (`/api/public/`), sem auth — qualquer um pode pedir o card de qualquer userId (igual avatares Discord).
+- Validar `userId` com regex de snowflake antes de query (evita SQL injection mesmo com client tipado).
+- Não vazar email, IP, ou qualquer PII além do que já é público (avatar+username Discord).
+- Bio é escapada pra XML (sem `<script>` etc).
 
-### Ordem de implementação proposta
+## Riscos / pontos de atenção
 
-1. **A1 Temporadas + A4 Ranking** (mais rápido, usa infra existente)
-2. **B1 Schema cosméticos** (migration única com tudo)
-3. **B2 Pipeline de geração de arte** (coleção inicial — 12 banners + 8 frames + 20 stickers)
-4. **B6 Renderizador de card** (satori+resvg-wasm em server route)
-5. **B3+B4 Loja site e Discord** (CRUD + UI)
-6. **B5 Rotação automática** (cron + UI de destaques)
-7. **A2 Missões dinâmicas + A3 Insights + A5 Marcos + A6 Auto-tuning** (camada de inteligência)
-8. **B7 Drops e integrações** (amarra tudo)
+- **Username**: o app não armazena username do Discord em tabela própria; eu busco em `social_profiles` se existir, senão mostro "ID curto" (`123…789`). Você quer que eu chame a Discord API com bot token (`users/:id`) e cacheie? Sai do escopo de "edge puro" — adiciona ~200ms.
+- **Imagens cross-origin no SVG**: alguns clientes não carregam `<image href>` externo dentro de SVG por segurança. **Discord carrega** (testado em outros bots), mas browsers podem bloquear no preview do dashboard. Plano B: o preview no dashboard renderiza um React equivalente em vez do `<img>` do SVG.
 
-### Tech notes
+## Que NÃO vai entrar nesta iteração
 
-- Rendering: **satori + @resvg/resvg-wasm** → funciona em Cloudflare Workers (sem `sharp`/`canvas` nativos).
-- Storage: bucket `profile-cosmetics` público (cache CDN longo) + bucket `profile-cards-cache` privado (TTL 5min).
-- Atomic purchase: RPC `cosmetic_purchase(_user, _cosmetic)` igual padrão de `economy_debit_wallet`.
-- Cron de rotação: pg_cron → server route `/api/public/cron/cosmetic-rotation` com header `apikey`.
-- Custo de IA: geração inicial é one-shot (~40 imagens). Coleções sazonais a cada 3 meses.
-
-### Riscos
-
-- `satori+resvg-wasm` no Worker pode ter limite de bundle. Plano B: renderizar card em Node-only serverless externo (Railway) e cachear no Storage.
-- Rotação automática pode confundir usuários — manter aba "Catálogo completo" sempre visível.
-- Arte gerada precisa curadoria mínima — adicionar aprovação manual antes de publicar coleção.
-
-**Pergunto antes de começar:** quer que eu comece pelo **bloco A (sistemas automáticos, infra rápida)** ou pelo **bloco B (loja visual, mais épico e visível pro usuário)**? Posso também ir em paralelo: A1+A4 + B1+B2 numa primeira leva.
+- PNG raster (satori/resvg) — fica para depois se Discord precisar mesmo.
+- Animações no card lendário (SVG suporta `<animate>`, mas Discord não renderiza animação em embed).
+- Upload no Storage do PNG — desnecessário com cache HTTP.

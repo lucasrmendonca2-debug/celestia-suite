@@ -302,6 +302,38 @@ function PerfilPage() {
             <ProfilePreviewCard profile={profile} />
 
             <Card>
+              <CardHeader className="flex-row items-center justify-between space-y-0">
+                <CardTitle className="text-base">Card público (embed Discord)</CardTitle>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    const url = `${window.location.origin}/api/public/profile/${profile.user.id}/card.svg`;
+                    void navigator.clipboard.writeText(url);
+                    toast.success("URL copiada");
+                  }}
+                >
+                  Copiar URL
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <div className="overflow-hidden rounded-lg border border-border/60 bg-muted">
+                  <img
+                    key={cardVersion}
+                    src={`/api/public/profile/${profile.user.id}/card.svg?v=${cardVersion}`}
+                    alt="Preview do card público"
+                    className="block h-auto w-full"
+                  />
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Esta imagem é usada no embed do <code>/perfil</code> no Discord.
+                  Atualiza automaticamente quando você equipa/desequipa.
+                </p>
+              </CardContent>
+            </Card>
+
+
+            <Card>
               <CardHeader>
                 <CardTitle className="text-base">Equipado</CardTitle>
               </CardHeader>

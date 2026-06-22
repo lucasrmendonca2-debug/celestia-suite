@@ -171,10 +171,20 @@ function LojaPage() {
 
   const ownedSet = useMemo(() => new Set(catalog.ownedIds), [catalog.ownedIds]);
 
+  const dailySet = useMemo(
+    () => new Set([...catalog.dailyOfferIds, ...catalog.rarePickIds]),
+    [catalog.dailyOfferIds, catalog.rarePickIds],
+  );
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return catalog.cosmetics
-      .filter((c) => (tab === "all" ? true : c.type === tab))
+      .filter((c) => {
+        if (tab === "all") return true;
+        if (tab === "daily") return dailySet.has(c.id);
+        if (tab === "seasonal") return c.rarity === "seasonal" || c.collection !== null;
+        return c.type === tab;
+      })
       .filter((c) => (rarityFilter === "all" ? true : c.rarity === rarityFilter))
       .filter((c) =>
         showOwned === "missing" ? !ownedSet.has(c.id) : true,
@@ -189,13 +199,20 @@ function LojaPage() {
         (a, b) =>
           RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity),
       );
-  }, [catalog.cosmetics, tab, rarityFilter, showOwned, ownedSet, query]);
+  }, [catalog.cosmetics, tab, rarityFilter, showOwned, ownedSet, query, dailySet]);
 
   const counts = useMemo(() => {
-    const m: Record<string, number> = { all: catalog.cosmetics.length };
+    const m: Record<string, number> = {
+      all: catalog.cosmetics.length,
+      daily: catalog.cosmetics.filter((c) => dailySet.has(c.id)).length,
+      seasonal: catalog.cosmetics.filter(
+        (c) => c.rarity === "seasonal" || c.collection !== null,
+      ).length,
+    };
     for (const c of catalog.cosmetics) m[c.type] = (m[c.type] ?? 0) + 1;
     return m;
-  }, [catalog.cosmetics]);
+  }, [catalog.cosmetics, dailySet]);
+
 
   async function confirmPurchase() {
     if (!buyTarget || !buyGuild) return;

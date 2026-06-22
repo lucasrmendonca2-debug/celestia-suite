@@ -107,38 +107,45 @@ export const BANNERS: CosmeticPrompt[] = [
   mk("banner", "banner-tempo-quantico", "Fluxo Quântico", "Linhas de energia abstratas em movimento", "epic", "abstract flowing quantum energy lines in violet and gold, dynamic light streaks, futuristic"),
 
   // ---- Character banners (Zenox mascot) -----------------------------------
-  // Mascote: chibi cartoon boy, messy black hair with bangs, light brown skin,
-  // big expressive brown eyes, square dark sunglasses (varied: on face / pushed
-  // up on forehead / in hand / off), playful mischievous friendly vibe.
+  // Mascote Zenox: menino jovem (~10-14 anos visual), cabelo PRETO BAGUNÇADO
+  // com franja farta, pele MORENA / light brown, olhos castanhos grandes e
+  // expressivos, moletom/hoodie ESCURO (preto ou cinza grafite). Óculos
+  // quadrados pretos são OPCIONAIS — podem estar no rosto, na cabeça, na mão,
+  // pendurados no colarinho, ou nem aparecer. Personalidade: travesso,
+  // engraçado, expressivo, natural (não pose rígida de mascote). Pode aparecer
+  // em qualquer estilo de arte, qualquer proporção (chibi, realista, anime,
+  // sumi-ê, pixel art) — o que importa é a IDENTIDADE: cabelo preto bagunçado
+  // + pele morena + moletom escuro + vibe expressiva.
   ...(() => {
     const CHAR =
-      "the Zenox mascot — a stylized chibi cartoon boy with messy black hair and bangs, light brown skin, big expressive brown eyes, square black sunglasses (can be worn, pushed up on the forehead, held in hand, or off), playful mischievous friendly expression";
+      "the Zenox mascot character: a young boy with messy black hair and thick bangs, light brown / tan skin, big expressive brown eyes, wearing a dark hoodie (black or graphite). Square black sunglasses are OPTIONAL — they can be on his face, pushed up on his head, hanging from the collar, held in one hand, or completely absent. Personality is mischievous, expressive, natural, full of life — never a stiff mascot pose";
     const BASE =
-      "ultra wide cinematic profile banner, no text, no watermark, no logo, balanced horizontal composition, character placed off-center leaving negative space for avatar/name overlay, sharp focus, professional illustration, aspect ratio 3:1";
+      "ultra wide cinematic profile banner, no text, no watermark, no logo, balanced horizontal composition, character placed off-center leaving negative space on one side for avatar and name overlay, intact anatomy, professional illustration, aspect ratio 3:1";
     const c = (slug: string, name: string, desc: string, rarity: Rarity, theme: string): CosmeticPrompt => ({
       slug, name, description: desc, rarity, type: "banner", price: RARITY_PRICE[rarity],
       prompt: `${theme}. ${CHAR}. ${BASE}`,
     });
     return [
-      c("banner-zenox-sumie-cerejeira", "Tinta e Cerejeira", "Mascote em estilo sumi-ê sob cerejeira em flor", "epic",
-        "traditional Japanese sumi-e ink painting style on aged washi paper, loose expressive black brush strokes with subtle pink cherry blossom petals, mascot sitting cross-legged under a sakura tree branch holding a calligraphy brush, sunglasses pushed up on forehead, minimalist composition, lots of empty paper space"),
-      c("banner-zenox-sumie-samurai", "Samurai de Nanquim", "Mascote samurai em sumi-ê dinâmico", "legendary",
-        "dynamic sumi-e ink wash painting, fierce ink splashes, mascot as a young samurai in flowing hakama with a katana mid-draw, dramatic black ink strokes on cream rice paper, single red hanko seal in the corner, no sunglasses, intense brave pose"),
-      c("banner-zenox-cosplay-ninja", "Ninja da Folha", "Mascote cosplay de ninja com bandana e jaqueta laranja", "rare",
-        "vibrant shounen anime style inspired by Naruto, mascot wearing a black-and-orange ninja jacket and a metal forehead protector with a leaf swirl symbol, crouched on a tree branch at sunset, hand sign pose, sunglasses tucked into collar, cel-shaded with bold outlines"),
-      c("banner-zenox-cosplay-saiyajin", "Guerreiro Dourado", "Mascote como saiyajin com cabelo dourado e aura", "legendary",
-        "explosive Dragon Ball anime style, mascot in an orange gi with blue belt and wristbands, hair transformed into spiky glowing golden Super Saiyan, electric blue aura, rocky battlefield with debris floating, dramatic low angle, no sunglasses, fierce determined face"),
-      c("banner-zenox-cosplay-kimono", "Caçador de Kimono", "Mascote cosplay de caçador com kimono xadrez", "epic",
-        "Demon Slayer inspired anime style, mascot wearing a black-and-green checkered haori over a dark uniform, holding a katana with a colored gradient blade, standing in a snowy bamboo forest at night, moonlight rim light, sunglasses hooked on collar, calm focused expression"),
-      c("banner-zenox-cyberpunk-neon", "Neon Shibuya", "Mascote em rua de Tokyo cyberpunk", "epic",
-        "cyberpunk anime cinematic style, mascot walking through a rainy neon-lit Tokyo alley, holographic billboards in pink and cyan reflecting in puddles, oversized translucent tech jacket with glowing seams, hands in pockets, sunglasses worn with neon reflections in the lenses, atmospheric haze"),
-      c("banner-zenox-mecha-cockpit", "Piloto Mecha", "Mascote pilotando um mecha em cidade futurista", "legendary",
-        "anime mecha cockpit scene, mascot as a young pilot in a tight white-and-red flight suit inside a glowing cockpit, semi-transparent holographic HUD panels around him showing diagrams, neon city through the canopy at night, focused gamer grin, sunglasses pushed up on forehead"),
-      c("banner-zenox-ghibli-broom", "Voo de Verão", "Mascote voando numa vassoura ao por do sol estilo Ghibli", "rare",
-        "Studio Ghibli watercolor anime style, soft pastel sky in peach and lavender at sunset, mascot flying joyfully on an old wooden broom over rolling green hills and a small village, hair and oversized hoodie fluttering in the wind, sunglasses dangling from one hand, dreamy nostalgic mood"),
+      c("banner-zenox-sumie-cerejeira", "Tinta e Cerejeira", "Zenox meditando sob cerejeira em sumi-ê", "epic",
+        "traditional Japanese sumi-e ink painting on aged washi paper, loose expressive black brush strokes with sparse pink cherry blossom petals carried by wind, the character sitting cross-legged under a sakura branch holding a calligraphy brush mid-stroke, eyes calmly closed, NO sunglasses visible, single red hanko seal in a corner, vast empty paper space"),
+      c("banner-zenox-sumie-koi", "Lago dos Carpas", "Zenox brincando com carpas em sumi-ê", "rare",
+        "minimalist sumi-e ink wash on cream paper, two koi carp swirling in suggested water, the character leaning over the pond from one side with a wide surprised laugh, one hand reaching toward the fish, hair flowing, ink splashes, no sunglasses, asymmetric composition with massive negative space"),
+      c("banner-zenox-anime-shounen-run", "Corrida do Herói", "Zenox correndo em estilo shounen dinâmico", "rare",
+        "vibrant 90s shounen anime cel-shaded style with bold black outlines and motion lines, the character sprinting full speed toward the viewer through a sunset cityscape, hoodie sleeves flapping, mouth open in a fierce determined yell, sunglasses pushed up on his forehead, dynamic low angle, speed streaks"),
+      c("banner-zenox-anime-cosplay-saiyajin", "Aura Dourada", "Zenox em cosplay de saiyajin com aura", "legendary",
+        "explosive Dragon Ball Z anime style, the character wearing an orange gi with blue belt and wristbands, his messy black hair transformed into spiky glowing golden Super Saiyan hair, crackling electric blue aura around him, rocky battlefield with floating debris, dramatic low angle wide composition, no sunglasses, fierce wide-eyed scream pose"),
+      c("banner-zenox-anime-cosplay-kimono", "Caçador de Kimono", "Zenox cosplay caçador em floresta de bambu", "epic",
+        "Demon Slayer inspired anime style with crisp linework and watercolor shading, the character wearing a black-and-green checkered haori over a dark uniform, gripping a katana with a violet gradient blade lowered at his side, standing calmly in a moonlit snowy bamboo forest, breath visible in cold air, sunglasses hooked on his collar, serious focused half-smile"),
+      c("banner-zenox-cyberpunk-neon", "Beco Neon", "Zenox em beco de Tokyo cyberpunk chuvoso", "epic",
+        "cyberpunk anime cinematic style heavy on neon reflections and rain, the character standing in a rainy Tokyo back alley flooded with pink and cyan holographic signage, oversized translucent tech hoodie with glowing seams, one hand in pocket the other holding up the square sunglasses to peek over them with a smug smirk, neon glow on his cheek, atmospheric haze and bokeh"),
+      c("banner-zenox-ghibli-window", "Sonho de Verão", "Zenox olhando pela janela em estilo Ghibli", "rare",
+        "Studio Ghibli soft watercolor anime style, peach and lavender summer dusk light, the character resting his chin on folded arms at an open window with white curtains flowing, gentle breeze lifting his hair, eyes half-closed dreamy and content, NO sunglasses, a small black cat curled beside him on the sill, rolling green hills outside"),
+      c("banner-zenox-pixel-arcade", "Pixel Arcade", "Zenox jogando arcade em pixel art 16-bit", "rare",
+        "crisp 16-bit pixel art in a Studio Pixel / Streets of Rage 2 style with limited vibrant palette, the character seen from a 3/4 back angle hunched intensely over a glowing CRT arcade cabinet covered in neon decals, joystick gripped, mouth open in a shocked excited gasp, sunglasses pushed up on his head, dim purple arcade room with chunky pixel light beams"),
     ];
   })(),
 ];
+
 
 // =========================================================================
 // 50 FRAMES — bordas circulares ornamentadas, centro vazio (transparente)

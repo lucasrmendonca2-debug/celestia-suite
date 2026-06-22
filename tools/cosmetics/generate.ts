@@ -141,6 +141,7 @@ async function visionScore(b64: string, criterion: string, requirement: string):
 async function tripleQA(img: Buffer, item: CosmeticPrompt): Promise<{ passed: number; reasons: string[] }> {
   const b64 = img.toString("base64");
 
+  const isCharBanner = item.type === "banner" && item.slug.startsWith("banner-zenox-");
   const checks: Array<[string, string]> = [
     [
       "no_text_or_watermark",
@@ -152,8 +153,11 @@ async function tripleQA(img: Buffer, item: CosmeticPrompt): Promise<{ passed: nu
         ? "The image must be a circular decorative frame/ring with an EMPTY hole in the center (at least 50% of the canvas in the middle must be empty/transparent/plain so an avatar fits). The decoration must form a clean ring shape."
         : item.type === "sticker"
           ? "The image must show a SINGLE clearly-defined icon/object centered on a plain background. No clutter, no multiple objects, no broken/distorted anatomy."
-          : "The image must be a clean horizontal banner with balanced composition, no broken artifacts, no distorted elements, no faces or human figures.",
+          : isCharBanner
+            ? "The image must be a clean horizontal banner featuring ONE clearly drawn mascot character (chibi boy with messy black hair, light brown skin, big brown eyes, optional square sunglasses) placed off-center so the rest of the canvas can hold an avatar/name overlay. Anatomy must be intact (no extra limbs, no melted face, no broken hands). No duplicate characters."
+            : "The image must be a clean horizontal banner with balanced composition, no broken artifacts, no distorted elements, no faces or human figures.",
     ],
+
     [
       "thematic_fit",
       `The image must clearly depict: "${item.description}". Pass only if the main subject matches this theme.`,

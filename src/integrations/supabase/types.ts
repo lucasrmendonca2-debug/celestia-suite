@@ -202,6 +202,30 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_events: {
+        Row: {
+          created_at: string
+          guild_id: string | null
+          id: string
+          kind: Database["public"]["Enums"]["automation_kind"]
+          payload: Json
+        }
+        Insert: {
+          created_at?: string
+          guild_id?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["automation_kind"]
+          payload?: Json
+        }
+        Update: {
+          created_at?: string
+          guild_id?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["automation_kind"]
+          payload?: Json
+        }
+        Relationships: []
+      }
       automod_config: {
         Row: {
           anti_caps_enabled: boolean
@@ -616,6 +640,96 @@ export type Database = {
           expires_at?: string
           guild_id?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      cosmetic_drops: {
+        Row: {
+          channel_id: string | null
+          claim_count: number
+          claimed_at: string | null
+          claimed_by: string | null
+          cosmetic_id: string
+          expires_at: string
+          guild_id: string | null
+          id: string
+          max_claims: number
+          message_id: string | null
+          spawned_at: string
+          trigger_event: string | null
+        }
+        Insert: {
+          channel_id?: string | null
+          claim_count?: number
+          claimed_at?: string | null
+          claimed_by?: string | null
+          cosmetic_id: string
+          expires_at: string
+          guild_id?: string | null
+          id?: string
+          max_claims?: number
+          message_id?: string | null
+          spawned_at?: string
+          trigger_event?: string | null
+        }
+        Update: {
+          channel_id?: string | null
+          claim_count?: number
+          claimed_at?: string | null
+          claimed_by?: string | null
+          cosmetic_id?: string
+          expires_at?: string
+          guild_id?: string | null
+          id?: string
+          max_claims?: number
+          message_id?: string | null
+          spawned_at?: string
+          trigger_event?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cosmetic_drops_cosmetic_id_fkey"
+            columns: ["cosmetic_id"]
+            isOneToOne: false
+            referencedRelation: "cosmetic_shop_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cosmetic_drops_cosmetic_id_fkey"
+            columns: ["cosmetic_id"]
+            isOneToOne: false
+            referencedRelation: "profile_cosmetics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cosmetic_rotations: {
+        Row: {
+          created_at: string
+          daily_offers: string[]
+          discount_percent: number
+          id: string
+          metadata: Json
+          rare_picks: string[]
+          rotation_date: string
+        }
+        Insert: {
+          created_at?: string
+          daily_offers?: string[]
+          discount_percent?: number
+          id?: string
+          metadata?: Json
+          rare_picks?: string[]
+          rotation_date: string
+        }
+        Update: {
+          created_at?: string
+          daily_offers?: string[]
+          discount_percent?: number
+          id?: string
+          metadata?: Json
+          rare_picks?: string[]
+          rotation_date?: string
         }
         Relationships: []
       }
@@ -1135,6 +1249,36 @@ export type Database = {
           user_update?: boolean
           voice_channel_id?: string | null
           voice_state_update?: boolean
+        }
+        Relationships: []
+      }
+      guild_milestones: {
+        Row: {
+          announced: boolean
+          guild_id: string
+          id: string
+          metadata: Json
+          milestone_type: string
+          milestone_value: number
+          reached_at: string
+        }
+        Insert: {
+          announced?: boolean
+          guild_id: string
+          id?: string
+          metadata?: Json
+          milestone_type: string
+          milestone_value: number
+          reached_at?: string
+        }
+        Update: {
+          announced?: boolean
+          guild_id?: string
+          id?: string
+          metadata?: Json
+          milestone_type?: string
+          milestone_value?: number
+          reached_at?: string
         }
         Relationships: []
       }
@@ -2228,6 +2372,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      profile_cosmetics: {
+        Row: {
+          active: boolean
+          available_from: string | null
+          available_until: string | null
+          collection: string | null
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string
+          metadata: Json
+          name: string
+          preview_url: string | null
+          price_coins: number
+          price_premium: number
+          rarity: Database["public"]["Enums"]["cosmetic_rarity"]
+          season_id: string | null
+          slug: string
+          sort_order: number
+          type: Database["public"]["Enums"]["cosmetic_type"]
+          updated_at: string
+          vip_only: boolean
+        }
+        Insert: {
+          active?: boolean
+          available_from?: string | null
+          available_until?: string | null
+          collection?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url: string
+          metadata?: Json
+          name: string
+          preview_url?: string | null
+          price_coins?: number
+          price_premium?: number
+          rarity?: Database["public"]["Enums"]["cosmetic_rarity"]
+          season_id?: string | null
+          slug: string
+          sort_order?: number
+          type: Database["public"]["Enums"]["cosmetic_type"]
+          updated_at?: string
+          vip_only?: boolean
+        }
+        Update: {
+          active?: boolean
+          available_from?: string | null
+          available_until?: string | null
+          collection?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string
+          metadata?: Json
+          name?: string
+          preview_url?: string | null
+          price_coins?: number
+          price_premium?: number
+          rarity?: Database["public"]["Enums"]["cosmetic_rarity"]
+          season_id?: string | null
+          slug?: string
+          sort_order?: number
+          type?: Database["public"]["Enums"]["cosmetic_type"]
+          updated_at?: string
+          vip_only?: boolean
+        }
+        Relationships: []
       }
       punishments: {
         Row: {
@@ -3405,6 +3618,51 @@ export type Database = {
           },
         ]
       }
+      user_cosmetics: {
+        Row: {
+          acquired_at: string
+          cosmetic_id: string
+          gifted_by: string | null
+          id: string
+          metadata: Json
+          source: Database["public"]["Enums"]["cosmetic_source"]
+          user_id: string
+        }
+        Insert: {
+          acquired_at?: string
+          cosmetic_id: string
+          gifted_by?: string | null
+          id?: string
+          metadata?: Json
+          source?: Database["public"]["Enums"]["cosmetic_source"]
+          user_id: string
+        }
+        Update: {
+          acquired_at?: string
+          cosmetic_id?: string
+          gifted_by?: string | null
+          id?: string
+          metadata?: Json
+          source?: Database["public"]["Enums"]["cosmetic_source"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_cosmetics_cosmetic_id_fkey"
+            columns: ["cosmetic_id"]
+            isOneToOne: false
+            referencedRelation: "cosmetic_shop_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_cosmetics_cosmetic_id_fkey"
+            columns: ["cosmetic_id"]
+            isOneToOne: false
+            referencedRelation: "profile_cosmetics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_economy: {
         Row: {
           balance: number
@@ -3491,6 +3749,102 @@ export type Database = {
           },
         ]
       }
+      user_profile_loadout: {
+        Row: {
+          accent_color: string | null
+          background_pattern_id: string | null
+          banner_id: string | null
+          bio: string | null
+          card_layout: string
+          effect_id: string | null
+          frame_id: string | null
+          sticker_ids: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accent_color?: string | null
+          background_pattern_id?: string | null
+          banner_id?: string | null
+          bio?: string | null
+          card_layout?: string
+          effect_id?: string | null
+          frame_id?: string | null
+          sticker_ids?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accent_color?: string | null
+          background_pattern_id?: string | null
+          banner_id?: string | null
+          bio?: string | null
+          card_layout?: string
+          effect_id?: string | null
+          frame_id?: string | null
+          sticker_ids?: string[]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_profile_loadout_background_pattern_id_fkey"
+            columns: ["background_pattern_id"]
+            isOneToOne: false
+            referencedRelation: "cosmetic_shop_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_profile_loadout_background_pattern_id_fkey"
+            columns: ["background_pattern_id"]
+            isOneToOne: false
+            referencedRelation: "profile_cosmetics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_profile_loadout_banner_id_fkey"
+            columns: ["banner_id"]
+            isOneToOne: false
+            referencedRelation: "cosmetic_shop_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_profile_loadout_banner_id_fkey"
+            columns: ["banner_id"]
+            isOneToOne: false
+            referencedRelation: "profile_cosmetics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_profile_loadout_effect_id_fkey"
+            columns: ["effect_id"]
+            isOneToOne: false
+            referencedRelation: "cosmetic_shop_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_profile_loadout_effect_id_fkey"
+            columns: ["effect_id"]
+            isOneToOne: false
+            referencedRelation: "profile_cosmetics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_profile_loadout_frame_id_fkey"
+            columns: ["frame_id"]
+            isOneToOne: false
+            referencedRelation: "cosmetic_shop_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_profile_loadout_frame_id_fkey"
+            columns: ["frame_id"]
+            isOneToOne: false
+            referencedRelation: "profile_cosmetics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       warnings: {
         Row: {
           active: boolean
@@ -3542,8 +3896,95 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_rankings: {
+        Row: {
+          category: string
+          created_at: string
+          guild_id: string
+          id: string
+          rankings: Json
+          week_start: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          guild_id: string
+          id?: string
+          rankings?: Json
+          week_start: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          guild_id?: string
+          id?: string
+          rankings?: Json
+          week_start?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
+      cosmetic_shop_view: {
+        Row: {
+          available_until: string | null
+          collection: string | null
+          description: string | null
+          id: string | null
+          image_url: string | null
+          is_on_offer: boolean | null
+          is_rare_pick: boolean | null
+          metadata: Json | null
+          name: string | null
+          preview_url: string | null
+          price_coins: number | null
+          price_premium: number | null
+          rarity: Database["public"]["Enums"]["cosmetic_rarity"] | null
+          slug: string | null
+          sort_order: number | null
+          type: Database["public"]["Enums"]["cosmetic_type"] | null
+          vip_only: boolean | null
+        }
+        Insert: {
+          available_until?: string | null
+          collection?: string | null
+          description?: string | null
+          id?: string | null
+          image_url?: string | null
+          is_on_offer?: never
+          is_rare_pick?: never
+          metadata?: Json | null
+          name?: string | null
+          preview_url?: string | null
+          price_coins?: number | null
+          price_premium?: number | null
+          rarity?: Database["public"]["Enums"]["cosmetic_rarity"] | null
+          slug?: string | null
+          sort_order?: number | null
+          type?: Database["public"]["Enums"]["cosmetic_type"] | null
+          vip_only?: boolean | null
+        }
+        Update: {
+          available_until?: string | null
+          collection?: string | null
+          description?: string | null
+          id?: string | null
+          image_url?: string | null
+          is_on_offer?: never
+          is_rare_pick?: never
+          metadata?: Json | null
+          name?: string | null
+          preview_url?: string | null
+          price_coins?: number | null
+          price_premium?: number | null
+          rarity?: Database["public"]["Enums"]["cosmetic_rarity"] | null
+          slug?: string | null
+          sort_order?: number | null
+          type?: Database["public"]["Enums"]["cosmetic_type"] | null
+          vip_only?: boolean | null
+        }
+        Relationships: []
+      }
       moderation_stats_30d: {
         Row: {
           action: string | null
@@ -3555,6 +3996,15 @@ export type Database = {
       }
     }
     Functions: {
+      cosmetic_purchase: {
+        Args: {
+          _cosmetic_id: string
+          _guild_id: string
+          _use_discount?: boolean
+          _user_id: string
+        }
+        Returns: Json
+      }
       economy_credit_wallet: {
         Args: { _amount: number; _guild_id: string; _user_id: string }
         Returns: Json
@@ -3585,9 +4035,35 @@ export type Database = {
         Args: { _code: string; _guild_id: string }
         Returns: Json
       }
+      rotate_daily_cosmetics: { Args: { _force?: boolean }; Returns: Json }
+      snapshot_weekly_ranking: { Args: { _guild_id: string }; Returns: Json }
     }
     Enums: {
-      [_ in never]: never
+      automation_kind:
+        | "weekly_ranking_posted"
+        | "season_ended"
+        | "season_started"
+        | "insight_sent"
+        | "milestone_reached"
+        | "cosmetic_rotation_generated"
+        | "economy_autotune"
+        | "missions_generated"
+        | "cosmetic_drop_spawned"
+      cosmetic_rarity: "common" | "rare" | "epic" | "legendary" | "seasonal"
+      cosmetic_source:
+        | "shop"
+        | "drop"
+        | "gift"
+        | "seasonal_reward"
+        | "admin_grant"
+        | "vip_bonus"
+      cosmetic_type:
+        | "banner"
+        | "frame"
+        | "sticker"
+        | "effect"
+        | "background_pattern"
+        | "badge_decoration"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3714,6 +4190,35 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      automation_kind: [
+        "weekly_ranking_posted",
+        "season_ended",
+        "season_started",
+        "insight_sent",
+        "milestone_reached",
+        "cosmetic_rotation_generated",
+        "economy_autotune",
+        "missions_generated",
+        "cosmetic_drop_spawned",
+      ],
+      cosmetic_rarity: ["common", "rare", "epic", "legendary", "seasonal"],
+      cosmetic_source: [
+        "shop",
+        "drop",
+        "gift",
+        "seasonal_reward",
+        "admin_grant",
+        "vip_bonus",
+      ],
+      cosmetic_type: [
+        "banner",
+        "frame",
+        "sticker",
+        "effect",
+        "background_pattern",
+        "badge_decoration",
+      ],
+    },
   },
 } as const

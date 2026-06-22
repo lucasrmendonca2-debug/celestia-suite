@@ -42,7 +42,7 @@ export const Route = createFileRoute("/api/public/cron/daily-missions")({
         }
 
         await supabaseAdmin.from("automation_events").insert({
-          kind: "daily_missions_generated",
+          kind: "missions_generated",
           payload: { success, failed, total: (guilds ?? []).length },
         });
 

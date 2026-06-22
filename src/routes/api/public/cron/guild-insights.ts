@@ -52,7 +52,7 @@ export const Route = createFileRoute("/api/public/cron/guild-insights")({
         }
 
         await supabaseAdmin.from("automation_events").insert({
-          kind: "intelligence_run",
+          kind: "insight_sent",
           payload: { insights, milestones, tunings, total: (guilds ?? []).length },
         });
 

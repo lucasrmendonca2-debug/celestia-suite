@@ -32,6 +32,8 @@ import { Route as AuthenticatedDashboardSlugRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminPremiumRouteImport } from './routes/_authenticated/admin.premium'
 import { Route as AuthenticatedDashboardSlugIndexRouteImport } from './routes/_authenticated/dashboard.$slug.index'
 import { Route as ApiPublicCronWeeklyRankingRouteImport } from './routes/api/public/cron/weekly-ranking'
+import { Route as ApiPublicCronGuildInsightsRouteImport } from './routes/api/public/cron/guild-insights'
+import { Route as ApiPublicCronDailyMissionsRouteImport } from './routes/api/public/cron/daily-missions'
 import { Route as ApiPublicCronCosmeticRotationRouteImport } from './routes/api/public/cron/cosmetic-rotation'
 import { Route as ApiAuthDiscordLoginRouteImport } from './routes/api/auth/discord/login'
 import { Route as ApiAuthDiscordCallbackRouteImport } from './routes/api/auth/discord/callback'
@@ -173,6 +175,18 @@ const ApiPublicCronWeeklyRankingRoute =
   ApiPublicCronWeeklyRankingRouteImport.update({
     id: '/api/public/cron/weekly-ranking',
     path: '/api/public/cron/weekly-ranking',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicCronGuildInsightsRoute =
+  ApiPublicCronGuildInsightsRouteImport.update({
+    id: '/api/public/cron/guild-insights',
+    path: '/api/public/cron/guild-insights',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicCronDailyMissionsRoute =
+  ApiPublicCronDailyMissionsRouteImport.update({
+    id: '/api/public/cron/daily-missions',
+    path: '/api/public/cron/daily-missions',
     getParentRoute: () => rootRouteImport,
   } as any)
 const ApiPublicCronCosmeticRotationRoute =
@@ -349,6 +363,8 @@ export interface FileRoutesByFullPath {
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
   '/api/public/cron/cosmetic-rotation': typeof ApiPublicCronCosmeticRotationRoute
+  '/api/public/cron/daily-missions': typeof ApiPublicCronDailyMissionsRoute
+  '/api/public/cron/guild-insights': typeof ApiPublicCronGuildInsightsRoute
   '/api/public/cron/weekly-ranking': typeof ApiPublicCronWeeklyRankingRoute
   '/dashboard/$slug/': typeof AuthenticatedDashboardSlugIndexRoute
 }
@@ -394,6 +410,8 @@ export interface FileRoutesByTo {
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
   '/api/public/cron/cosmetic-rotation': typeof ApiPublicCronCosmeticRotationRoute
+  '/api/public/cron/daily-missions': typeof ApiPublicCronDailyMissionsRoute
+  '/api/public/cron/guild-insights': typeof ApiPublicCronGuildInsightsRoute
   '/api/public/cron/weekly-ranking': typeof ApiPublicCronWeeklyRankingRoute
   '/dashboard/$slug': typeof AuthenticatedDashboardSlugIndexRoute
 }
@@ -442,6 +460,8 @@ export interface FileRoutesById {
   '/api/auth/discord/callback': typeof ApiAuthDiscordCallbackRoute
   '/api/auth/discord/login': typeof ApiAuthDiscordLoginRoute
   '/api/public/cron/cosmetic-rotation': typeof ApiPublicCronCosmeticRotationRoute
+  '/api/public/cron/daily-missions': typeof ApiPublicCronDailyMissionsRoute
+  '/api/public/cron/guild-insights': typeof ApiPublicCronGuildInsightsRoute
   '/api/public/cron/weekly-ranking': typeof ApiPublicCronWeeklyRankingRoute
   '/_authenticated/dashboard/$slug/': typeof AuthenticatedDashboardSlugIndexRoute
 }
@@ -490,6 +510,8 @@ export interface FileRouteTypes {
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
     | '/api/public/cron/cosmetic-rotation'
+    | '/api/public/cron/daily-missions'
+    | '/api/public/cron/guild-insights'
     | '/api/public/cron/weekly-ranking'
     | '/dashboard/$slug/'
   fileRoutesByTo: FileRoutesByTo
@@ -535,6 +557,8 @@ export interface FileRouteTypes {
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
     | '/api/public/cron/cosmetic-rotation'
+    | '/api/public/cron/daily-missions'
+    | '/api/public/cron/guild-insights'
     | '/api/public/cron/weekly-ranking'
     | '/dashboard/$slug'
   id:
@@ -582,6 +606,8 @@ export interface FileRouteTypes {
     | '/api/auth/discord/callback'
     | '/api/auth/discord/login'
     | '/api/public/cron/cosmetic-rotation'
+    | '/api/public/cron/daily-missions'
+    | '/api/public/cron/guild-insights'
     | '/api/public/cron/weekly-ranking'
     | '/_authenticated/dashboard/$slug/'
   fileRoutesById: FileRoutesById
@@ -605,6 +631,8 @@ export interface RootRouteChildren {
   ApiAuthDiscordCallbackRoute: typeof ApiAuthDiscordCallbackRoute
   ApiAuthDiscordLoginRoute: typeof ApiAuthDiscordLoginRoute
   ApiPublicCronCosmeticRotationRoute: typeof ApiPublicCronCosmeticRotationRoute
+  ApiPublicCronDailyMissionsRoute: typeof ApiPublicCronDailyMissionsRoute
+  ApiPublicCronGuildInsightsRoute: typeof ApiPublicCronGuildInsightsRoute
   ApiPublicCronWeeklyRankingRoute: typeof ApiPublicCronWeeklyRankingRoute
 }
 
@@ -769,6 +797,20 @@ declare module '@tanstack/react-router' {
       path: '/api/public/cron/weekly-ranking'
       fullPath: '/api/public/cron/weekly-ranking'
       preLoaderRoute: typeof ApiPublicCronWeeklyRankingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/cron/guild-insights': {
+      id: '/api/public/cron/guild-insights'
+      path: '/api/public/cron/guild-insights'
+      fullPath: '/api/public/cron/guild-insights'
+      preLoaderRoute: typeof ApiPublicCronGuildInsightsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/cron/daily-missions': {
+      id: '/api/public/cron/daily-missions'
+      path: '/api/public/cron/daily-missions'
+      fullPath: '/api/public/cron/daily-missions'
+      preLoaderRoute: typeof ApiPublicCronDailyMissionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/cron/cosmetic-rotation': {
@@ -1049,6 +1091,8 @@ const rootRouteChildren: RootRouteChildren = {
   ApiAuthDiscordCallbackRoute: ApiAuthDiscordCallbackRoute,
   ApiAuthDiscordLoginRoute: ApiAuthDiscordLoginRoute,
   ApiPublicCronCosmeticRotationRoute: ApiPublicCronCosmeticRotationRoute,
+  ApiPublicCronDailyMissionsRoute: ApiPublicCronDailyMissionsRoute,
+  ApiPublicCronGuildInsightsRoute: ApiPublicCronGuildInsightsRoute,
   ApiPublicCronWeeklyRankingRoute: ApiPublicCronWeeklyRankingRoute,
 }
 export const routeTree = rootRouteImport

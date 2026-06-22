@@ -318,7 +318,11 @@ export interface ShopCatalogDTO {
   ownedIds: string[];
   wallets: WalletDTO[];
   totalBalance: number;
+  dailyOfferIds: string[];
+  rarePickIds: string[];
+  discountPercent: number;
 }
+
 
 export const getShopCatalog = createServerFn({ method: "GET" }).handler(
   async (): Promise<ShopCatalogDTO> => {

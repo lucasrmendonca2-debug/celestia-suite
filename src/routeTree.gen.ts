@@ -18,6 +18,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as DailyRouteImport } from './routes/daily'
+import { Route as CosmeticsPreviewRouteImport } from './routes/cosmetics-preview'
 import { Route as ComandosRouteImport } from './routes/comandos'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
@@ -100,6 +101,11 @@ const DocsRoute = DocsRouteImport.update({
 const DailyRoute = DailyRouteImport.update({
   id: '/daily',
   path: '/daily',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CosmeticsPreviewRoute = CosmeticsPreviewRouteImport.update({
+  id: '/cosmetics-preview',
+  path: '/cosmetics-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ComandosRoute = ComandosRouteImport.update({
@@ -324,6 +330,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/blog': typeof BlogRoute
   '/comandos': typeof ComandosRoute
+  '/cosmetics-preview': typeof CosmeticsPreviewRoute
   '/daily': typeof DailyRoute
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
@@ -372,6 +379,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/blog': typeof BlogRoute
   '/comandos': typeof ComandosRoute
+  '/cosmetics-preview': typeof CosmeticsPreviewRoute
   '/daily': typeof DailyRoute
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
@@ -421,6 +429,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/blog': typeof BlogRoute
   '/comandos': typeof ComandosRoute
+  '/cosmetics-preview': typeof CosmeticsPreviewRoute
   '/daily': typeof DailyRoute
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
@@ -471,6 +480,7 @@ export interface FileRouteTypes {
     | '/'
     | '/blog'
     | '/comandos'
+    | '/cosmetics-preview'
     | '/daily'
     | '/docs'
     | '/entrar'
@@ -519,6 +529,7 @@ export interface FileRouteTypes {
     | '/'
     | '/blog'
     | '/comandos'
+    | '/cosmetics-preview'
     | '/daily'
     | '/docs'
     | '/entrar'
@@ -567,6 +578,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/blog'
     | '/comandos'
+    | '/cosmetics-preview'
     | '/daily'
     | '/docs'
     | '/entrar'
@@ -617,6 +629,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   BlogRoute: typeof BlogRoute
   ComandosRoute: typeof ComandosRoute
+  CosmeticsPreviewRoute: typeof CosmeticsPreviewRoute
   DailyRoute: typeof DailyRoute
   DocsRoute: typeof DocsRoute
   EntrarRoute: typeof EntrarRoute
@@ -699,6 +712,13 @@ declare module '@tanstack/react-router' {
       path: '/daily'
       fullPath: '/daily'
       preLoaderRoute: typeof DailyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cosmetics-preview': {
+      id: '/cosmetics-preview'
+      path: '/cosmetics-preview'
+      fullPath: '/cosmetics-preview'
+      preLoaderRoute: typeof CosmeticsPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/comandos': {
@@ -1077,6 +1097,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   BlogRoute: BlogRoute,
   ComandosRoute: ComandosRoute,
+  CosmeticsPreviewRoute: CosmeticsPreviewRoute,
   DailyRoute: DailyRoute,
   DocsRoute: DocsRoute,
   EntrarRoute: EntrarRoute,
@@ -1098,13 +1119,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -4,6 +4,7 @@ import { ui } from "../../systems/ui/embed.factory.js";
 import { fmtCoins } from "../../utils/format.js";
 import { getAccount, getCurrency, transferWallet } from "../../systems/economy/economy.js";
 import { classifyTarget, economyResponses, pick } from "../../systems/personality/index.js";
+import { logger } from "../../utils/logger.js";
 
 const command: SlashCommand = {
   category: "economy",

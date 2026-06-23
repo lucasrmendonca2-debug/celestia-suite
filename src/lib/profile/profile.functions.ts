@@ -294,12 +294,11 @@ export const updateProfileMeta = createServerFn({ method: "POST" })
   });
 
 export const purchaseProfileCosmetic = createServerFn({ method: "POST" })
-  .inputValidator((input: { cosmeticId: string; guildId: string; useDiscount?: boolean }) => input)
+  .inputValidator((input: { cosmeticId: string; useDiscount?: boolean }) => input)
   .handler(async ({ data }) => {
     const user = await requireSessionUser();
-    const { data: result, error } = await supabaseAdmin.rpc("cosmetic_purchase", {
+    const { data: result, error } = await supabaseAdmin.rpc("cosmetic_purchase_global" as any, {
       _user_id: user.id,
-      _guild_id: data.guildId,
       _cosmetic_id: data.cosmeticId,
       _use_discount: data.useDiscount ?? false,
     });
@@ -307,34 +306,48 @@ export const purchaseProfileCosmetic = createServerFn({ method: "POST" })
     return result as { ok: boolean; reason?: string; price_paid?: number; new_balance?: number };
   });
 
+export const getUserBalance = createServerFn({ method: "GET" }).handler(
+  async (): Promise<{ balance: number }> => {
+    const user = await requireSessionUser();
+    const { data, error } = await supabaseAdmin.rpc("ensure_user_wallet_global" as any, {
+      _user_id: user.id,
+    });
+    if (error) throw new Error(error.message);
+    return { balance: Number(data ?? 0) };
+  },
+);
+
 export interface ShopItemDTO extends CosmeticDTO {
   price_coins: number;
   price_premium: number;
   vip_only: boolean;
+  is_on_offer?: boolean;
+  is_rare_pick?: boolean;
+  available_until?: string | null;
 }
 
 export interface ShopCatalogDTO {
   cosmetics: ShopItemDTO[];
   ownedIds: string[];
   favoriteIds: string[];
-  wallets: WalletDTO[];
-  totalBalance: number;
+  balance: number;
   dailyOfferIds: string[];
   rarePickIds: string[];
   discountPercent: number;
 }
 
-
 export const getShopCatalog = createServerFn({ method: "GET" }).handler(
   async (): Promise<ShopCatalogDTO> => {
     const user = await requireSessionUser();
 
-    const { data: cosmetics, error: cosErr } = await supabaseAdmin
-      .from("profile_cosmetics")
+    // View global como fonte principal (já filtra ativos, disponibilidade, marca ofertas)
+    const { data: cosmetics, error: cosErr } = await (supabaseAdmin as unknown as {
+      from: (t: string) => any;
+    })
+      .from("cosmetic_shop_view")
       .select(
-        "id, type, slug, name, description, rarity, image_url, preview_url, collection, price_coins, price_premium, vip_only",
+        "id, type, slug, name, description, rarity, image_url, preview_url, collection, price_coins, price_premium, vip_only, is_on_offer, is_rare_pick, available_until, sort_order",
       )
-      .eq("active", true)
       .order("sort_order", { ascending: true });
     if (cosErr) throw new Error(cosErr.message);
 
@@ -350,27 +363,10 @@ export const getShopCatalog = createServerFn({ method: "GET" }).handler(
       .select("cosmetic_id")
       .eq("user_id", user.id);
 
-    const { data: walletsRaw } = await supabaseAdmin
-      .from("user_economy")
-      .select("guild_id, balance")
-      .eq("user_id", user.id)
-      .order("balance", { ascending: false });
-
-    const guildIds = (walletsRaw ?? []).map((w) => w.guild_id);
-    const guildsMap: Record<string, { name: string | null; icon: string | null }> = {};
-    if (guildIds.length > 0) {
-      const { data: gd } = await supabaseAdmin
-        .from("bot_guild_presence")
-        .select("guild_id, name, icon")
-        .in("guild_id", guildIds);
-      for (const g of gd ?? []) guildsMap[g.guild_id] = { name: g.name, icon: g.icon };
-    }
-    const wallets: WalletDTO[] = (walletsRaw ?? []).map((w) => ({
-      guild_id: w.guild_id,
-      guild_name: guildsMap[w.guild_id]?.name ?? null,
-      guild_icon: guildsMap[w.guild_id]?.icon ?? null,
-      balance: Number(w.balance ?? 0),
-    }));
+    // Garante carteira global criada (lazy seed)
+    const { data: balRaw } = await supabaseAdmin.rpc("ensure_user_wallet_global" as any, {
+      _user_id: user.id,
+    });
 
     const today = new Date().toISOString().slice(0, 10);
     const { data: rotation } = await supabaseAdmin
@@ -379,17 +375,23 @@ export const getShopCatalog = createServerFn({ method: "GET" }).handler(
       .eq("rotation_date", today)
       .maybeSingle();
 
+    const rows = (cosmetics ?? []) as Array<ShopItemDTO & { is_on_offer?: boolean; is_rare_pick?: boolean }>;
+
     return {
-      cosmetics: (cosmetics ?? []) as ShopItemDTO[],
+      cosmetics: rows,
       ownedIds: (owned ?? []).map((o) => o.cosmetic_id),
       favoriteIds: ((favRaw ?? []) as Array<{ cosmetic_id: string }>).map((f) => f.cosmetic_id),
-      wallets,
-      totalBalance: wallets.reduce((a, w) => a + w.balance, 0),
-      dailyOfferIds: (rotation?.daily_offers ?? []) as string[],
-      rarePickIds: (rotation?.rare_picks ?? []) as string[],
+      balance: Number(balRaw ?? 0),
+      dailyOfferIds:
+        (rotation?.daily_offers as string[] | null) ??
+        rows.filter((r) => r.is_on_offer).map((r) => r.id),
+      rarePickIds:
+        (rotation?.rare_picks as string[] | null) ??
+        rows.filter((r) => r.is_rare_pick).map((r) => r.id),
       discountPercent: rotation?.discount_percent ?? 0,
     };
   },
 );
+
 
 

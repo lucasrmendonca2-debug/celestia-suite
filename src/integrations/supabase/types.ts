@@ -4047,6 +4047,30 @@ export type Database = {
           },
         ]
       }
+      user_wallet_global: {
+        Row: {
+          balance: number
+          created_at: string
+          seeded: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          seeded?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          seeded?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       warnings: {
         Row: {
           active: boolean
@@ -4286,8 +4310,20 @@ export type Database = {
         }
         Returns: Json
       }
+      cosmetic_purchase_global: {
+        Args: {
+          _cosmetic_id: string
+          _use_discount?: boolean
+          _user_id: string
+        }
+        Returns: Json
+      }
       detect_guild_milestones: {
         Args: { _guild_id: string; _member_count: number }
+        Returns: Json
+      }
+      economy_credit_global: {
+        Args: { _amount: number; _user_id: string }
         Returns: Json
       }
       economy_credit_wallet: {
@@ -4307,6 +4343,7 @@ export type Database = {
         }
         Returns: Json
       }
+      ensure_user_wallet_global: { Args: { _user_id: string }; Returns: number }
       generate_daily_missions: { Args: { _guild_id: string }; Returns: Json }
       generate_guild_insights: { Args: { _guild_id: string }; Returns: Json }
       get_hall_of_fame: { Args: never; Returns: Json }
@@ -4318,6 +4355,7 @@ export type Database = {
           total_members: number
         }[]
       }
+      get_user_global_balance: { Args: { _user_id: string }; Returns: number }
       get_user_mission_difficulty: {
         Args: { _guild_id: string; _user_id: string }
         Returns: number

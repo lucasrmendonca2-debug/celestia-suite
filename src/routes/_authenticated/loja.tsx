@@ -193,11 +193,9 @@ function LojaPage() {
   const [showOwned, setShowOwned] = useState<"all" | "missing">("all");
   const [page, setPage] = useState(1);
   const [buyTarget, setBuyTarget] = useState<ShopItemDTO | null>(null);
-  const [buyGuild, setBuyGuild] = useState<string | null>(
-    catalog.wallets[0]?.guild_id ?? null,
-  );
   const [buying, setBuying] = useState(false);
   const [favSet, setFavSet] = useState<Set<string>>(() => new Set(catalog.favoriteIds));
+
 
   // Sincroniza favoritos quando o catálogo for refetchado
   useEffect(() => {
@@ -286,17 +284,17 @@ function LojaPage() {
   }
 
   async function confirmPurchase() {
-    if (!buyTarget || !buyGuild) return;
+    if (!buyTarget) return;
     setBuying(true);
     const toastId = toast.loading(`Comprando ${buyTarget.name}…`);
     try {
       const res = await purchaseFn({
-        data: { cosmeticId: buyTarget.id, guildId: buyGuild, useDiscount: dailySet.has(buyTarget.id) },
+        data: { cosmeticId: buyTarget.id, useDiscount: dailySet.has(buyTarget.id) },
       });
 
       if (!res.ok) {
         const reasonMap: Record<string, string> = {
-          insufficient_funds: "Saldo insuficiente nessa carteira.",
+          insufficient_funds: "Saldo insuficiente — ganhe mais moedas no Discord.",
           already_owned: "Você já tem esse cosmético.",
           not_found: "Cosmético não encontrado ou desativado.",
           expired: "Esta oferta expirou.",
@@ -310,7 +308,6 @@ function LojaPage() {
           `${buyTarget.name} adquirido! −${fmt(res.price_paid ?? 0)} 🪙 · saldo ${fmt(res.new_balance ?? 0)}`,
           { id: toastId, duration: 4000 },
         );
-        // Animação celebratória
         if (buyTarget.rarity === "legendary" || buyTarget.rarity === "epic") {
           celebrateLegendary();
         } else {
@@ -328,11 +325,7 @@ function LojaPage() {
     }
   }
 
-  const selectedWallet: WalletDTO | undefined = catalog.wallets.find(
-    (w) => w.guild_id === buyGuild,
-  );
-  const canAfford =
-    !!buyTarget && !!selectedWallet && selectedWallet.balance >= buyTarget.price_coins;
+  const canAfford = !!buyTarget && catalog.balance >= buyTarget.price_coins;
 
   return (
     <main className="min-h-dvh bg-background text-foreground">
@@ -341,20 +334,21 @@ function LojaPage() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Loja de Perfil</h1>
             <p className="text-muted-foreground">
-              Banners, molduras e cosméticos para personalizar seu card.
+              Banners, molduras e cosméticos para personalizar seu card — compre uma vez, use em qualquer servidor.
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 rounded-md border border-border/60 bg-card/50 px-3 py-2">
+            <div className="flex items-center gap-2 rounded-md border border-amber-500/30 bg-amber-500/5 px-3 py-2">
               <Coins className="h-4 w-4 text-amber-400" />
-              <span className="text-sm font-semibold">{fmt(catalog.totalBalance)}</span>
-              <span className="text-xs text-muted-foreground">total</span>
+              <span className="text-sm font-semibold tabular-nums">{fmt(catalog.balance)}</span>
+              <span className="text-xs text-muted-foreground">saldo global</span>
             </div>
             <Button asChild variant="outline">
               <Link to="/perfil">
                 <UserIcon className="mr-2 h-4 w-4" />
                 Meu Perfil
               </Link>
+
             </Button>
           </div>
         </header>
@@ -521,45 +515,19 @@ function LojaPage() {
                 </span>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs text-muted-foreground">
-                  Pagar com a carteira do servidor
-                </label>
-                {catalog.wallets.length === 0 ? (
-                  <p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-400">
-                    Você ainda não tem moedas em nenhum servidor. Use o bot para ganhar
-                    coins primeiro.
-                  </p>
-                ) : (
-                  <Select
-                    value={buyGuild ?? undefined}
-                    onValueChange={(v) => setBuyGuild(v)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Escolha o servidor" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {catalog.wallets.map((w) => (
-                        <SelectItem key={w.guild_id} value={w.guild_id}>
-                          <span className="flex w-full items-center justify-between gap-3">
-                            <span className="truncate">
-                              {w.guild_name ?? w.guild_id}
-                            </span>
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              {fmt(w.balance)} 🪙
-                            </span>
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-                {selectedWallet && !canAfford && (
-                  <p className="text-xs text-destructive">
-                    Saldo insuficiente nessa carteira ({fmt(selectedWallet.balance)} 🪙).
-                  </p>
-                )}
+              <div className="flex items-center justify-between rounded-md border border-border/60 bg-card/50 px-3 py-2">
+                <span className="text-sm text-muted-foreground">Seu saldo global</span>
+                <span className="flex items-center gap-1 text-base font-semibold tabular-nums">
+                  <Coins className="h-4 w-4 text-amber-400" />
+                  {fmt(catalog.balance)}
+                </span>
               </div>
+
+              {!canAfford && (
+                <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+                  Saldo insuficiente. Você precisa de mais {fmt(buyTarget.price_coins - catalog.balance)} 🪙. Ganhe moedas no Discord com <code>/diario</code>, <code>/trabalhar</code> e missões.
+                </p>
+              )}
             </div>
           )}
 
@@ -569,8 +537,9 @@ function LojaPage() {
             </Button>
             <Button
               onClick={confirmPurchase}
-              disabled={buying || !buyGuild || !canAfford}
+              disabled={buying || !canAfford}
             >
+
               {buying ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

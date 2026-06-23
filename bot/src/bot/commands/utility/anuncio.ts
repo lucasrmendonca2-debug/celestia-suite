@@ -4,7 +4,10 @@ import { ChannelType,
   type TextChannel, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
-import { Announcement } from "../../../database/models.js";
+import {
+  createAnnouncement,
+  listScheduledAnnouncements,
+} from "../../repositories/content.repo.js";
 
 function parseDuration(input: string): number | null {
   const m = input.trim().toLowerCase().match(/^(\d+)\s*(s|m|h|d)$/);

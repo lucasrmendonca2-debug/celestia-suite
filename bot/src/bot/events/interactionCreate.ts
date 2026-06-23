@@ -71,7 +71,7 @@ const event: BotEvent<"interactionCreate"> = {
                 description: res.reason,
               }),
             ],
-            ephemeral: true,
+            flags: MessageFlags.Ephemeral,
           });
         }
         return;
@@ -170,7 +170,7 @@ const event: BotEvent<"interactionCreate"> = {
           if (interaction.deferred || interaction.replied) {
             await interaction.followUp({ embeds: [embed], flags: MessageFlags.Ephemeral });
           } else {
-            await interaction.reply({ embeds: [embed], ephemeral: true });
+            await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
           }
         } catch {
           /* engole — interaction provavelmente expirou */

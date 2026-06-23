@@ -1,10 +1,8 @@
-import {
-  SlashCommandBuilder,
+import { SlashCommandBuilder,
   ChatInputCommandInteraction,
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonStyle,
-} from "discord.js";
+  ButtonStyle, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { fmtCoins } from "../../utils/format.js";
@@ -52,7 +50,7 @@ const command: SlashCommand = {
               description: "O servidor ainda não tem missões configuradas.",
             }),
           ],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       const lines = rows.map(({ mission, state }) => {
@@ -87,7 +85,7 @@ const command: SlashCommand = {
           }),
         ],
         components,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -98,14 +96,14 @@ const command: SlashCommand = {
       if (!target) {
         return interaction.reply({
           embeds: [brandEmbed({ kind: "error", title: `Missão \`${slug}\` não existe.` })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       const res = await claimMission(guildId, interaction.user.id, target.mission.id);
       if (!res.ok) {
         return interaction.reply({
           embeds: [brandEmbed({ kind: "error", title: "Não foi possível resgatar", description: res.reason })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       return interaction.reply({
@@ -116,7 +114,7 @@ const command: SlashCommand = {
             description: `+${fmtCoins(res.reward ?? 0, c.emoji, c.name)} adicionado à sua carteira.`,
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   },

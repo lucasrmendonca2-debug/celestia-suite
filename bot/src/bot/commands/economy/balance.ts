@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { ui } from "../../systems/ui/embed.factory.js";
 import { fmtCoins } from "../../utils/format.js";
@@ -24,14 +24,14 @@ const command: SlashCommand = {
             description: "Eu vivo de eletricidade e boa vontade. Saldo: **0 moedas e 14 logs**.",
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
     if (target.bot) {
       await interaction.reply({
         embeds: [ui.info({ description: "Esse aí é um bot, ele não participa da economia. 🤖" })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }

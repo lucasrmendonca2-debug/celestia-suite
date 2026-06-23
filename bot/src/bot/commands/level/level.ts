@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { addXpAdmin, resetUserLevel } from "../../systems/social/xp.service.js";
@@ -36,7 +36,7 @@ const command: SlashCommand = {
     const target = interaction.options.getUser("usuario", true);
     const member = await interaction.guild!.members.fetch(target.id).catch(() => null);
     if (!member) {
-      await interaction.reply({ ephemeral: true, content: "❌ Usuário não está no servidor." });
+      await interaction.reply({ flags: MessageFlags.Ephemeral, content: "❌ Usuário não está no servidor." });
       return;
     }
 

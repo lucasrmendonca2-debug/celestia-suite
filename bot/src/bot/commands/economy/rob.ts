@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { ui } from "../../systems/ui/embed.factory.js";
 import { fmtCoins, fmtDuration } from "../../utils/format.js";
@@ -21,15 +21,15 @@ const command: SlashCommand = {
     const target = interaction.options.getUser("usuario", true);
     const kind = classifyTarget(interaction, target);
     if (kind === "self") {
-      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.robSelf) })], ephemeral: true });
+      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.robSelf) })], flags: MessageFlags.Ephemeral });
       return;
     }
     if (kind === "bot_self") {
-      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.robBot) })], ephemeral: true });
+      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.robBot) })], flags: MessageFlags.Ephemeral });
       return;
     }
     if (kind === "bot_other") {
-      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.robOtherBot) })], ephemeral: true });
+      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.robOtherBot) })], flags: MessageFlags.Ephemeral });
       return;
     }
     const me = await getAccount(guildId, interaction.user.id);
@@ -39,24 +39,39 @@ const command: SlashCommand = {
       const remaining = COOLDOWN - (now.getTime() - me.lastRob.getTime());
       await interaction.reply({
         embeds: [ui.warn({ title: "Calma, ladrão", description: `Aguarde **${fmtDuration(remaining)}** antes do próximo golpe.` })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
     if (them.wallet < 200) {
       await interaction.reply({
         embeds: [ui.warn({ title: "Alvo sem fundos", description: `${target} não tem nada de valor na carteira.` })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
-    me.lastRob = now;
-    await me.save();
+    // Atômico: trava o cooldown só se ainda não estiver dentro da janela.
+    const { EconomyAccount } = await import("../../../database/models.js");
+    const cooldownGuard = await EconomyAccount.updateOne(
+      {
+        guildId,
+        userId: interaction.user.id,
+        $or: [{ lastRob: null }, { lastRob: { $lte: new Date(now.getTime() - COOLDOWN) } }],
+      },
+      { $set: { lastRob: now } },
+    );
+    if (cooldownGuard.modifiedCount === 0) {
+      await interaction.reply({
+        embeds: [ui.warn({ title: "Calma, ladrão", description: "Outro golpe seu já está em andamento." })],
+        flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
     const c = await getCurrency(guildId);
     if (Math.random() < 0.45) {
       const taken = Math.floor(them.wallet * (0.1 + Math.random() * 0.3));
       // Atômico: só desconta se ainda tiver saldo.
-      const { EconomyAccount } = await import("../../../database/models.js");
+      // (EconomyAccount já importado acima)
       const updated = await EconomyAccount.findOneAndUpdate(
         { guildId, userId: target.id, wallet: { $gte: taken } },
         { $inc: { wallet: -taken } },
@@ -65,7 +80,7 @@ const command: SlashCommand = {
       if (!updated) {
         await interaction.reply({
           embeds: [ui.warn({ title: "Alvo escapou", description: `${target} esvaziou a carteira antes do golpe.` })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
         return;
       }
@@ -81,7 +96,7 @@ const command: SlashCommand = {
       });
     } else {
       const fine = Math.min(me.wallet, Math.floor(150 + Math.random() * 400));
-      const { EconomyAccount } = await import("../../../database/models.js");
+      // (EconomyAccount já importado acima)
       await EconomyAccount.updateOne(
         { guildId, userId: interaction.user.id, wallet: { $gte: fine } },
         { $inc: { wallet: -fine } },

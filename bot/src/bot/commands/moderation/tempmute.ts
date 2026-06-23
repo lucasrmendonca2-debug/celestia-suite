@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import {
@@ -37,14 +37,14 @@ const command: SlashCommand = {
     if (!config.enabled || !config.allow_temporary_mute) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Tempmute desativado nas configurações." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const author = await guild.members.fetch(interaction.user.id);
     if (!(await hasModCapability(author, "can_mute"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para mutar." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const user = interaction.options.getUser("usuario", true);
@@ -53,21 +53,21 @@ const command: SlashCommand = {
     if (!duration) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Duração inválida (use 10m, 1h, 1d)." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const member = await guild.members.fetch(user.id).catch(() => null);
     if (!member) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Usuário não está no servidor." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const check = await canPunishTarget(author, member, config);
     if (!check.ok) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Não posso punir", description: check.reason })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     await interaction.deferReply();

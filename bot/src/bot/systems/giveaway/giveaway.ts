@@ -1,11 +1,9 @@
-import {
-  ActionRowBuilder,
+import { ActionRowBuilder,
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
   Client,
-  type TextChannel,
-} from "discord.js";
+  type TextChannel, MessageFlags } from "discord.js";
 import { Giveaway, LevelAccount, EconomyAccount, VipMembership } from "../../../database/models.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { fmtDuration } from "../../utils/format.js";
@@ -68,7 +66,7 @@ export async function handleGiveawayButton(interaction: ButtonInteraction) {
   if (!g || g.ended) {
     await interaction.reply({
       embeds: [brandEmbed({ kind: "warn", title: "Encerrado", description: "Este giveaway já terminou." })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -102,7 +100,7 @@ export async function handleGiveawayButton(interaction: ButtonInteraction) {
           description: fails.map((f) => `• ${f}`).join("\n"),
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -112,7 +110,7 @@ export async function handleGiveawayButton(interaction: ButtonInteraction) {
     await g.save();
     await interaction.reply({
       embeds: [brandEmbed({ kind: "info", title: "Saiu do giveaway", description: "Você não participa mais." })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   } else {
     let entries = 1;
@@ -134,7 +132,7 @@ export async function handleGiveawayButton(interaction: ButtonInteraction) {
           description: entries > 1 ? `Boa sorte 🍀 (entradas: **${entries}** — bônus VIP)` : "Boa sorte 🍀",
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 

@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { hasModCapability } from "../../systems/moderation/moderation.permissions.js";
@@ -18,7 +18,7 @@ const command: SlashCommand = {
     if (!(await hasModCapability(author, "can_view_history"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para ver histórico." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const n = interaction.options.getInteger("numero", true);
@@ -26,7 +26,7 @@ const command: SlashCommand = {
     if (!c) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: `Caso #${n} não encontrado.` })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const fields: { name: string; value: string; inline?: boolean }[] = [
@@ -56,7 +56,7 @@ const command: SlashCommand = {
 
     await interaction.reply({
       embeds: [brandEmbed({ title: `Caso #${c.case_number}`, fields })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   },
 };

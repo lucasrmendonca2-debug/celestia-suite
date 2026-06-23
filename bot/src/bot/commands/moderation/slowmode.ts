@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, type TextChannel } from "discord.js";
+import { SlashCommandBuilder, type TextChannel, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { hasModCapability } from "../../systems/moderation/moderation.permissions.js";
@@ -21,7 +21,7 @@ const command: SlashCommand = {
     if (!(await hasModCapability(author, "can_lock_channel"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para alterar slowmode." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const seconds = interaction.options.getInteger("segundos", true);
@@ -44,7 +44,7 @@ const command: SlashCommand = {
     });
     await interaction.reply({
       embeds: [brandEmbed({ kind: "success", title: "Slowmode atualizado", description: `Agora: **${seconds}s**` })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   },
 };

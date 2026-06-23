@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChannelType } from "discord.js";
+import { SlashCommandBuilder, ChannelType, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 
@@ -25,7 +25,7 @@ const command: SlashCommand = {
           ],
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   },
 };

@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { ui } from "../../systems/ui/embed.factory.js";
 import { fmtCoins } from "../../utils/format.js";
@@ -23,7 +23,7 @@ const command: SlashCommand = {
     if (!amount || amount > acc.wallet) {
       await interaction.reply({
         embeds: [ui.error({ title: "Valor inválido", description: "Verifique seu saldo na carteira e tente novamente." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -35,7 +35,7 @@ const command: SlashCommand = {
             description: `Você só pode depositar mais **${max.toLocaleString("pt-BR")}** agora.`,
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }

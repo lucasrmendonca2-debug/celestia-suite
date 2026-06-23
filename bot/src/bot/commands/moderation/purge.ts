@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChannelType, type TextChannel, type Message } from "discord.js";
+import { SlashCommandBuilder, ChannelType, type TextChannel, type Message, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { hasModCapability } from "../../systems/moderation/moderation.permissions.js";
@@ -26,17 +26,17 @@ const command: SlashCommand = {
     if (!(await hasModCapability(author, "can_clear_messages"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para limpar mensagens." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const channel = interaction.channel as TextChannel;
     if (channel.type !== ChannelType.GuildText) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Use em canal de texto." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral });
     const amount = interaction.options.getInteger("quantidade", true);
     const user = interaction.options.getUser("usuario");
     const contem = interaction.options.getString("contem")?.toLowerCase();

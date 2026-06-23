@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import {
@@ -126,36 +126,36 @@ const command: SlashCommand = {
       if (titulo !== null) patch.title = titulo;
       if (cor !== null) {
         if (!isValidColor(cor))
-          return void interaction.reply({ content: "Cor inválida. Use #RRGGBB.", ephemeral: true });
+          return void interaction.reply({ content: "Cor inválida. Use #RRGGBB.", flags: MessageFlags.Ephemeral });
         patch.accent_color = cor;
         patch.color = cor;
       }
       if (fundo !== null) {
         if (!isValidColor(fundo))
-          return void interaction.reply({ content: "Cor de fundo inválida.", ephemeral: true });
+          return void interaction.reply({ content: "Cor de fundo inválida.", flags: MessageFlags.Ephemeral });
         patch.background_color = fundo;
       }
       if (texto !== null) {
         if (!isValidColor(texto))
-          return void interaction.reply({ content: "Cor do texto inválida.", ephemeral: true });
+          return void interaction.reply({ content: "Cor do texto inválida.", flags: MessageFlags.Ephemeral });
         patch.text_color = texto;
       }
       if (banner !== null) {
         if (banner.length && !isValidImageUrl(banner))
-          return void interaction.reply({ content: "URL de banner inválida.", ephemeral: true });
+          return void interaction.reply({ content: "URL de banner inválida.", flags: MessageFlags.Ephemeral });
         patch.banner_url = banner.length ? banner : null;
       }
       if (estilo !== null) {
         if (!isValidCardStyle(estilo))
-          return void interaction.reply({ content: "Estilo inválido.", ephemeral: true });
+          return void interaction.reply({ content: "Estilo inválido.", flags: MessageFlags.Ephemeral });
         patch.card_style = estilo;
       }
 
       if (!Object.keys(patch).length) {
-        return void interaction.reply({ content: "Nada para atualizar.", ephemeral: true });
+        return void interaction.reply({ content: "Nada para atualizar.", flags: MessageFlags.Ephemeral });
       }
       await updateProfile(guildId, interaction.user.id, patch);
-      await interaction.reply({ content: "✅ Perfil atualizado.", ephemeral: true });
+      await interaction.reply({ content: "✅ Perfil atualizado.", flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -170,13 +170,13 @@ const command: SlashCommand = {
       if (invalid.length) {
         return void interaction.reply({
           content: `Você não possui: \`${invalid.join(", ")}\``,
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       await updateProfile(guildId, interaction.user.id, { selected_badges: codes });
       await interaction.reply({
         content: codes.length ? `✅ Em destaque: ${codes.join(", ")}` : "✅ Destaques limpos.",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }

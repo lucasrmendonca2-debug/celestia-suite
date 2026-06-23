@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { Reminder } from "../../../database/models.js";
@@ -38,7 +38,7 @@ const command: SlashCommand = {
     ),
   async execute(interaction) {
     if (!interaction.inGuild()) {
-      await interaction.reply({ content: "Use dentro de um servidor.", ephemeral: true });
+      await interaction.reply({ content: "Use dentro de um servidor.", flags: MessageFlags.Ephemeral });
       return;
     }
     const sub = interaction.options.getSubcommand();
@@ -50,7 +50,19 @@ const command: SlashCommand = {
       if (!ms || ms < 10_000 || ms > 30 * 86_400_000) {
         await interaction.reply({
           content: "Tempo inválido. Use 10s a 30d (ex.: `30m`, `2h`, `1d`).",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
+        });
+        return;
+      }
+      const activeCount = await Reminder.countDocuments({
+        userId: interaction.user.id,
+        delivered: false,
+      });
+      const MAX_ACTIVE = 10;
+      if (activeCount >= MAX_ACTIVE) {
+        await interaction.reply({
+          content: `Você já tem ${MAX_ACTIVE} lembretes ativos. Cancele algum com \`/lembrete cancelar\` antes de criar outro.`,
+          flags: MessageFlags.Ephemeral,
         });
         return;
       }
@@ -73,7 +85,7 @@ const command: SlashCommand = {
             ],
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -87,7 +99,7 @@ const command: SlashCommand = {
         .sort({ remindAt: 1 })
         .limit(10);
       if (items.length === 0) {
-        await interaction.reply({ content: "Você não tem lembretes ativos.", ephemeral: true });
+        await interaction.reply({ content: "Você não tem lembretes ativos.", flags: MessageFlags.Ephemeral });
         return;
       }
       await interaction.reply({
@@ -103,7 +115,7 @@ const command: SlashCommand = {
               .join("\n\n"),
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -116,10 +128,10 @@ const command: SlashCommand = {
         delivered: false,
       }).catch(() => null);
       if (!res || res.deletedCount === 0) {
-        await interaction.reply({ content: "Lembrete não encontrado.", ephemeral: true });
+        await interaction.reply({ content: "Lembrete não encontrado.", flags: MessageFlags.Ephemeral });
         return;
       }
-      await interaction.reply({ content: "✅ Lembrete cancelado.", ephemeral: true });
+      await interaction.reply({ content: "✅ Lembrete cancelado.", flags: MessageFlags.Ephemeral });
     }
   },
 };

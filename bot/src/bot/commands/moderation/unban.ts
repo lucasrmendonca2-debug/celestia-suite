@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import {
@@ -28,14 +28,14 @@ const command: SlashCommand = {
     if (!(await hasModCapability(author, "can_unban"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para desbanir." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const userId = interaction.options.getString("user_id", true).trim();
     if (!/^\d{5,32}$/.test(userId)) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "ID inválido." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const reason = interaction.options.getString("motivo") ?? undefined;

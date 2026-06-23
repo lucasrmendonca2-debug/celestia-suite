@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { hasModCapability } from "../../systems/moderation/moderation.permissions.js";
@@ -25,7 +25,7 @@ const command: SlashCommand = {
     if (!(await hasModCapability(author, "can_use_moderation"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const user = interaction.options.getUser("usuario", true);
@@ -35,13 +35,13 @@ const command: SlashCommand = {
     if (!member) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Usuário não está no servidor." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     if (!member.manageable) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Não consigo alterar o apelido (hierarquia)." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const oldNick = member.nickname ?? "(nenhum)";
@@ -82,7 +82,7 @@ const command: SlashCommand = {
           description: `<@${user.id}>: \`${oldNick}\` → \`${nick ?? "(reset)"}\``,
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   },
 };

@@ -1,11 +1,9 @@
-import {
-  ActionRowBuilder,
+import { ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
-  type APIEmbed,
-} from "discord.js";
+  type APIEmbed, MessageFlags } from "discord.js";
 import type { SlashCommand, ZenoxClient } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { Tone } from "../../utils/messages.js";
@@ -65,20 +63,20 @@ const command: SlashCommand = {
       if (!meta) {
         return interaction.reply({
           embeds: [brandEmbed({ kind: "error", title: "Comando não encontrado", description: `Não achei \`/${name}\`. Use \`/help buscar\`.` })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
-      return interaction.reply({ embeds: [renderCommandDetail(meta)], ephemeral: true });
+      return interaction.reply({ embeds: [renderCommandDetail(meta)], flags: MessageFlags.Ephemeral });
     }
 
     if (sub === "buscar") {
       const term = interaction.options.getString("termo", true);
       const results = searchCommands(client, term, 12);
-      return interaction.reply({ embeds: [renderSearch(term, results)], ephemeral: true });
+      return interaction.reply({ embeds: [renderSearch(term, results)], flags: MessageFlags.Ephemeral });
     }
 
     const view = renderHome(client);
-    await interaction.reply({ ...view, ephemeral: true });
+    await interaction.reply({ ...view, flags: MessageFlags.Ephemeral });
   },
 };
 

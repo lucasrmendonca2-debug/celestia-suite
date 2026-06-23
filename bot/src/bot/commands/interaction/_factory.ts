@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
+import { SlashCommandBuilder, type ChatInputCommandInteraction, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { ui } from "../../systems/ui/embed.factory.js";
 import { getAsset, type AssetKey } from "../../systems/ui/embed.assets.js";
@@ -63,7 +63,7 @@ function build(action: Action, desc: string): SlashCommand {
       const kind = classifyTarget(interaction, target);
 
       if (kind === "self") {
-        await interaction.reply({ embeds: [ui.fun({ description: pick(pool.self), guildId })], ephemeral: true });
+        await interaction.reply({ embeds: [ui.fun({ description: pick(pool.self), guildId })], flags: MessageFlags.Ephemeral });
         return;
       }
       if (kind === "bot_self") {

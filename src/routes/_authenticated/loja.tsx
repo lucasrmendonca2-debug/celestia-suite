@@ -39,6 +39,7 @@ import {
   Check,
   Search,
   User as UserIcon,
+  Loader2,
 } from "lucide-react";
 
 const shopOptions = queryOptions({
@@ -217,23 +218,35 @@ function LojaPage() {
   async function confirmPurchase() {
     if (!buyTarget || !buyGuild) return;
     setBuying(true);
+    const toastId = toast.loading(`Comprando ${buyTarget.name}…`);
     try {
       const res = await purchaseFn({
         data: { cosmeticId: buyTarget.id, guildId: buyGuild, useDiscount: dailySet.has(buyTarget.id) },
       });
 
       if (!res.ok) {
-        toast.error(`Não foi possível comprar: ${res.reason ?? "erro"}`);
+        const reasonMap: Record<string, string> = {
+          insufficient_funds: "Saldo insuficiente nessa carteira.",
+          already_owned: "Você já tem esse cosmético.",
+          not_found: "Cosmético não encontrado ou desativado.",
+          expired: "Esta oferta expirou.",
+          not_available_yet: "Esta oferta ainda não está disponível.",
+        };
+        toast.error(reasonMap[res.reason ?? ""] ?? `Não foi possível comprar: ${res.reason ?? "erro"}`, {
+          id: toastId,
+        });
       } else {
         toast.success(
-          `Comprado! ${fmt(res.price_paid ?? 0)} 🪙 — saldo: ${fmt(res.new_balance ?? 0)}`,
+          `${buyTarget.name} adquirido! −${fmt(res.price_paid ?? 0)} 🪙 · saldo ${fmt(res.new_balance ?? 0)}`,
+          { id: toastId, duration: 4000 },
         );
         setBuyTarget(null);
         qc.invalidateQueries({ queryKey: ["shop-catalog"] });
         qc.invalidateQueries({ queryKey: ["my-profile"] });
       }
-    } catch (e: any) {
-      toast.error(e?.message ?? "Falha ao comprar");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Falha ao comprar";
+      toast.error(msg, { id: toastId });
     } finally {
       setBuying(false);
     }
@@ -426,7 +439,14 @@ function LojaPage() {
               onClick={confirmPurchase}
               disabled={buying || !buyGuild || !canAfford}
             >
-              {buying ? "Comprando…" : "Confirmar"}
+              {buying ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Comprando…
+                </>
+              ) : (
+                "Confirmar compra"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

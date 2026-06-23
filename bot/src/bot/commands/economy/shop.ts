@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { fmtCoins } from "../../utils/format.js";
@@ -105,7 +105,7 @@ const command: SlashCommand = {
       if (!rotation.length) {
         await interaction.reply({
           embeds: [brandEmbed({ kind: "info", title: "Sem rotação ativa", description: "Adicione itens com `/loja adicionar` primeiro." })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
         return;
       }
@@ -141,7 +141,7 @@ const command: SlashCommand = {
 
     if (sub === "rotacionar") {
       if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem permissão" })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem permissão" })], flags: MessageFlags.Ephemeral });
         return;
       }
       const r = await rotateNow(guildId);
@@ -155,7 +155,7 @@ const command: SlashCommand = {
               : "_Nenhum item disponível para rotacionar. Adicione itens primeiro._",
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -163,7 +163,7 @@ const command: SlashCommand = {
 
     if (sub === "adicionar") {
       if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem permissão" })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem permissão" })], flags: MessageFlags.Ephemeral });
         return;
       }
       const name = interaction.options.getString("nome", true).slice(0, 60);
@@ -176,18 +176,18 @@ const command: SlashCommand = {
           { guildId, name, price, description, stock, roleId: role?.id ?? null, consumable: !role, source: "bot" },
         { upsert: true, setDefaultsOnInsert: true },
       );
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Item adicionado", description: `**${name}** — ${fmtCoins(price, c.emoji, c.name)}` })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Item adicionado", description: `**${name}** — ${fmtCoins(price, c.emoji, c.name)}` })], flags: MessageFlags.Ephemeral });
       return;
     }
 
     if (sub === "remover") {
       if (!interaction.memberPermissions?.has(PermissionFlagsBits.ManageGuild)) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem permissão" })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem permissão" })], flags: MessageFlags.Ephemeral });
         return;
       }
       const name = interaction.options.getString("nome", true);
       await ShopItem.deleteOne({ guildId, name });
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Item removido" })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Item removido" })], flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -196,7 +196,7 @@ const command: SlashCommand = {
       const qty = interaction.options.getInteger("quantidade") ?? 1;
       const item = await ShopItem.findOne({ guildId, name, enabled: true });
       if (!item) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Item não encontrado" })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Item não encontrado" })], flags: MessageFlags.Ephemeral });
         return;
       }
       const rotation = await getActiveRotation(guildId);
@@ -210,7 +210,7 @@ const command: SlashCommand = {
           { $inc: { stock: -qty } },
         );
         if (stockUpdate.modifiedCount === 0) {
-          await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem estoque" })], ephemeral: true });
+          await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem estoque" })], flags: MessageFlags.Ephemeral });
           return;
         }
       }
@@ -227,7 +227,7 @@ const command: SlashCommand = {
         if (item.stock !== -1) {
           await ShopItem.updateOne({ _id: item._id }, { $inc: { stock: qty } });
         }
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Saldo insuficiente" })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Saldo insuficiente" })], flags: MessageFlags.Ephemeral });
         return;
       }
       const acc = walletUpdate;

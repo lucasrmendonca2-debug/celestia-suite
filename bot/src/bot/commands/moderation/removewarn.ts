@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import {
@@ -21,7 +21,7 @@ const command: SlashCommand = {
     if (!(await hasModCapability(author, "can_remove_warn"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para remover warns." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const id = interaction.options.getInteger("id", true);
@@ -34,7 +34,7 @@ const command: SlashCommand = {
     });
     await interaction.reply({
       embeds: [brandEmbed({ kind: "success", title: "Advertência removida", description: `\`#${id}\` foi desativada.` })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   },
 };

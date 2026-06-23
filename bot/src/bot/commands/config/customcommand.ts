@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { CustomCommand, Guild } from "../../../database/models.js";
@@ -34,7 +34,7 @@ const command: SlashCommand = {
     if (sub === "adicionar") {
       const name = interaction.options.getString("nome", true).toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 32);
       if (!name) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Nome inválido" })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Nome inválido" })], flags: MessageFlags.Ephemeral });
         return;
       }
       const response = interaction.options.getString("resposta", true).slice(0, 1900);
@@ -46,7 +46,7 @@ const command: SlashCommand = {
       if (count >= limit && !(await CustomCommand.findOne({ guildId, name }))) {
         await interaction.reply({
           embeds: [brandEmbed({ kind: "error", title: "Limite atingido", description: `Plano atual: **${limit}** comandos. Faça upgrade VIP para **${LIMIT_PREMIUM}**.` })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
         return;
       }
@@ -55,11 +55,11 @@ const command: SlashCommand = {
         { response, embed, deleteTrigger, createdBy: interaction.user.id, enabled: true },
         { upsert: true, setDefaultsOnInsert: true },
       );
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Comando salvo", description: `Use **!${name}** no chat.` })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Comando salvo", description: `Use **!${name}** no chat.` })], flags: MessageFlags.Ephemeral });
     } else if (sub === "remover") {
       const name = interaction.options.getString("nome", true).toLowerCase();
       await CustomCommand.deleteOne({ guildId, name });
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Removido" })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Removido" })], flags: MessageFlags.Ephemeral });
     } else {
       const list = await CustomCommand.find({ guildId }).limit(50);
       await interaction.reply({
@@ -71,7 +71,7 @@ const command: SlashCommand = {
               : "Nenhum ainda.",
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   },

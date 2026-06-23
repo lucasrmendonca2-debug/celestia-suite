@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import {
@@ -39,7 +39,7 @@ const command: SlashCommand = {
     if (!config.enabled) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Moderação desativada" })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -47,7 +47,7 @@ const command: SlashCommand = {
     if (!(await hasModCapability(author, "can_mute"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para silenciar." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -59,13 +59,13 @@ const command: SlashCommand = {
     if (user.id === interaction.user.id) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "warn", title: "Auto-mute?", description: "Se quiser silêncio, fecha o Discord um pouquinho. 😅" })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     if (user.id === interaction.client.user.id) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "warn", title: "Mutar o bot?", description: pick(moderationResponses.muteBot) })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -73,7 +73,7 @@ const command: SlashCommand = {
     if (durationSec > MAX_TIMEOUT && !config.mute_role_id) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem cargo de mute configurado, duração máxima é 28 dias." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -81,7 +81,7 @@ const command: SlashCommand = {
     if (!member) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Usuário não está no servidor" })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -89,7 +89,7 @@ const command: SlashCommand = {
     if (!check.ok) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Não posso punir", description: check.reason })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -99,13 +99,13 @@ const command: SlashCommand = {
       if (!roleExists) {
         return interaction.reply({
           embeds: [brandEmbed({ kind: "error", title: "Cargo de mute não encontrado." })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
     } else if (!member.moderatable) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Não consigo silenciar (hierarquia)." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 

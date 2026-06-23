@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits, ChannelType, type TextChannel } from "discord.js";
+import { SlashCommandBuilder, PermissionFlagsBits, ChannelType, type TextChannel, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { Giveaway } from "../../../database/models.js";
@@ -44,7 +44,7 @@ const command: SlashCommand = {
       const durationStr = interaction.options.getString("duracao", true);
       const ms = parseDuration(durationStr);
       if (!ms || ms < 10_000) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Duração inválida", description: "Use formatos como 10m, 1h, 2d (mínimo 10s)." })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Duração inválida", description: "Use formatos como 10m, 1h, 2d (mínimo 10s)." })], flags: MessageFlags.Ephemeral });
         return;
       }
       const winnersCount = interaction.options.getInteger("vencedores") ?? 1;
@@ -74,7 +74,7 @@ const command: SlashCommand = {
       });
       doc.messageId = sent.id;
       await doc.save();
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "🎉 Giveaway criado", description: `Em ${channel} • ID: \`${doc._id}\`` })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "🎉 Giveaway criado", description: `Em ${channel} • ID: \`${doc._id}\`` })], flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -82,11 +82,11 @@ const command: SlashCommand = {
       const id = interaction.options.getString("id", true);
       const g = await Giveaway.findById(id);
       if (!g || g.guildId !== guildId) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Giveaway não encontrado neste servidor" })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Giveaway não encontrado neste servidor" })], flags: MessageFlags.Ephemeral });
         return;
       }
       await endGiveaway(client, id);
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Encerrado" })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Encerrado" })], flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -94,11 +94,11 @@ const command: SlashCommand = {
       const id = interaction.options.getString("id", true);
       const g = await Giveaway.findById(id);
       if (!g || g.guildId !== guildId) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Giveaway não encontrado neste servidor" })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Giveaway não encontrado neste servidor" })], flags: MessageFlags.Ephemeral });
         return;
       }
       if (!g.ended) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Giveaway não está encerrado" })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Giveaway não está encerrado" })], flags: MessageFlags.Ephemeral });
         return;
       }
       const pool = g.participants.filter((p) => !g.winners.includes(p));
@@ -112,7 +112,7 @@ const command: SlashCommand = {
       await channel?.send({
         content: newWinners.length ? `🎲 Reroll! Novos vencedores: ${newWinners.map((w) => `<@${w}>`).join(", ")} — **${g.prize}**` : "Sem candidatos para reroll.",
       });
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Reroll feito" })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Reroll feito" })], flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -127,7 +127,7 @@ const command: SlashCommand = {
               : "Nenhum giveaway ativo.",
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   },

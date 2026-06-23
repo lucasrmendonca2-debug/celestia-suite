@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { ui } from "../../systems/ui/embed.factory.js";
 import { getAsset } from "../../systems/ui/embed.assets.js";
@@ -28,7 +28,7 @@ const command: SlashCommand = {
             description: `Aguarde **${fmtDuration(remaining)}** antes de tentar de novo.`,
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }

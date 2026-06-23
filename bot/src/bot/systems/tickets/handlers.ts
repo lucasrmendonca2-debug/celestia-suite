@@ -1,5 +1,4 @@
-import {
-  ButtonInteraction,
+import { ButtonInteraction,
   ChannelType,
   ChatInputCommandInteraction,
   Guild,
@@ -8,8 +7,7 @@ import {
   OverwriteType,
   PermissionFlagsBits,
   StringSelectMenuInteraction,
-  TextChannel,
-} from "discord.js";
+  TextChannel, MessageFlags } from "discord.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { supabase } from "../../../database/supabase.js";
 import {
@@ -555,7 +553,7 @@ export async function handleTicketButton(interaction: ButtonInteraction): Promis
 
   if (action === "open") {
     const [, , categoryId] = interaction.customId.split(":");
-    await interaction.deferReply({ ephemeral: true }).catch(() => {});
+    await interaction.deferReply({ flags: MessageFlags.Ephemeral }).catch(() => {});
     try {
       const { channelId } = await openTicket(
         interaction.guild,
@@ -593,7 +591,7 @@ export async function handleTicketButton(interaction: ButtonInteraction): Promis
       );
       await interaction.reply({
         embeds: [brandEmbed({ kind: "success", title: "Ticket fechado" })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     } catch (err) {
       await interaction.reply({
@@ -604,7 +602,7 @@ export async function handleTicketButton(interaction: ButtonInteraction): Promis
             description: (err as Error).message,
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     return;
@@ -649,7 +647,7 @@ export async function handleTicketButton(interaction: ButtonInteraction): Promis
             description: (err as Error).message,
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   }
@@ -662,12 +660,12 @@ export async function handleTicketButton(interaction: ButtonInteraction): Promis
       );
       await interaction.reply({
         embeds: [brandEmbed({ kind: "success", title: "Ticket reaberto" })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     } catch (err) {
       await interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Erro", description: (err as Error).message })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     return;
@@ -679,7 +677,7 @@ export async function handleTicketButton(interaction: ButtonInteraction): Promis
     if (!member.permissions.has(PermissionFlagsBits.ManageChannels)) {
       await interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão" })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -741,12 +739,12 @@ async function handleRateAction(interaction: ButtonInteraction): Promise<void> {
     if (interaction.replied || interaction.deferred) {
       await interaction.followUp({
         embeds: [brandEmbed({ kind: "error", title: "Erro", description: (err as Error).message })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       }).catch(() => {});
     } else {
       await interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Erro", description: (err as Error).message })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       }).catch(() => {});
     }
   }
@@ -771,7 +769,7 @@ export async function handleTicketSelect(
   if (!interaction.guild) return;
   // Acknowledge within 3s — channel creation can take longer than Discord's
   // interaction timeout, which surfaces as "Esta interação falhou".
-  await interaction.deferReply({ ephemeral: true }).catch(() => {});
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral }).catch(() => {});
   const categoryId = interaction.values[0];
   try {
     const { channelId } = await openTicket(

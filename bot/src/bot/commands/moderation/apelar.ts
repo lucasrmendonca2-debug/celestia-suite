@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction } from "discord.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { supabase } from "../../../database/supabase.js";
@@ -39,13 +39,13 @@ const command: SlashCommand = {
     if (!modCase) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: `Caso #${caseNumber} não existe.` })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     if (modCase.user_id !== interaction.user.id) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Você só pode apelar dos seus próprios casos." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -68,7 +68,7 @@ const command: SlashCommand = {
             description: "Aguarde a equipe revisar.",
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -82,7 +82,7 @@ const command: SlashCommand = {
     if (error) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Falha ao registrar apelação", description: error.message })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -96,7 +96,7 @@ const command: SlashCommand = {
           fields: [{ name: "Seu motivo", value: reason }],
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   },
 };

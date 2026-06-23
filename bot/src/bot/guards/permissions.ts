@@ -1,9 +1,7 @@
-import {
-  ChatInputCommandInteraction,
+import { ChatInputCommandInteraction,
   GuildMember,
   PermissionResolvable,
-  PermissionsBitField,
-} from "discord.js";
+  PermissionsBitField, MessageFlags } from "discord.js";
 import { env } from "../../config/env.js";
 import type { SlashCommand } from "../../types/command.js";
 import { brandEmbed } from "../utils/embed.js";
@@ -63,8 +61,8 @@ export async function denyWith(
     description: reason,
   });
   if (interaction.deferred || interaction.replied) {
-    await interaction.followUp({ embeds: [embed], ephemeral: true });
+    await interaction.followUp({ embeds: [embed], flags: MessageFlags.Ephemeral });
   } else {
-    await interaction.reply({ embeds: [embed], ephemeral: true });
+    await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
   }
 }

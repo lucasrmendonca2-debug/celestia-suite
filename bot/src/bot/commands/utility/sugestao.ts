@@ -1,8 +1,6 @@
-import {
-  PermissionFlagsBits,
+import { PermissionFlagsBits,
   SlashCommandBuilder,
-  type TextChannel,
-} from "discord.js";
+  type TextChannel, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { supabase } from "../../../database/supabase.js";
@@ -66,20 +64,20 @@ const command: SlashCommand = {
 
     if (sub === "enviar") {
       if (config?.suggestions_enabled === false) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "warn", title: "Desativado", description: "O sistema de sugestões está desativado neste servidor." })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "warn", title: "Desativado", description: "O sistema de sugestões está desativado neste servidor." })], flags: MessageFlags.Ephemeral });
         return;
       }
       const channelId = config?.suggestions_channel_id;
       if (!channelId) {
         await interaction.reply({
           embeds: [brandEmbed({ kind: "error", title: "Canal não configurado", description: "Peça à staff para configurar o canal de sugestões no dashboard." })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
         return;
       }
       const channel = interaction.guild?.channels.cache.get(channelId) as TextChannel | undefined;
       if (!channel) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Canal inválido", description: "O canal configurado não foi encontrado." })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Canal inválido", description: "O canal configurado não foi encontrado." })], flags: MessageFlags.Ephemeral });
         return;
       }
       const text = interaction.options.getString("texto", true).slice(0, 1500);
@@ -88,7 +86,7 @@ const command: SlashCommand = {
       if (wantAnon && !allowAnon) {
         await interaction.reply({
           embeds: [brandEmbed({ kind: "warn", title: "Anônimo desativado", description: "A staff não permite sugestões anônimas neste servidor." })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
         return;
       }
@@ -107,7 +105,7 @@ const command: SlashCommand = {
         .select("*")
         .single();
       if (error || !data) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Erro", description: error?.message ?? "Falha ao criar sugestão." })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Erro", description: error?.message ?? "Falha ao criar sugestão." })], flags: MessageFlags.Ephemeral });
         return;
       }
       const s = data as SuggestionRow;
@@ -117,20 +115,20 @@ const command: SlashCommand = {
 
       await interaction.reply({
         embeds: [brandEmbed({ kind: "success", title: "Sugestão enviada", description: `Sua sugestão foi publicada em ${channel.toString()}. Obrigado por ajudar!`, fields: [{ name: "ID", value: `\`${s.id}\`` }] })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
 
     if (sub === "aprovar" || sub === "reprovar" || sub === "responder") {
       if (!isStaff) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem permissão", description: "Você precisa de **Gerenciar Mensagens** para isso." })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem permissão", description: "Você precisa de **Gerenciar Mensagens** para isso." })], flags: MessageFlags.Ephemeral });
         return;
       }
       const id = interaction.options.getString("id", true);
       const s = await getSuggestion(id);
       if (!s || s.guild_id !== guildId) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Não encontrada" })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Não encontrada" })], flags: MessageFlags.Ephemeral });
         return;
       }
 
@@ -140,7 +138,7 @@ const command: SlashCommand = {
       } else {
         const motivo = interaction.options.getString("motivo");
         if (config?.suggestions_require_reason && !motivo) {
-          await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Motivo obrigatório", description: "Este servidor exige motivo nas decisões." })], ephemeral: true });
+          await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Motivo obrigatório", description: "Este servidor exige motivo nas decisões." })], flags: MessageFlags.Ephemeral });
           return;
         }
         const newStatus: SuggestionStatus = sub === "aprovar" ? "APPROVED" : "REJECTED";
@@ -159,7 +157,7 @@ const command: SlashCommand = {
         const votingEnabled = config?.suggestions_allow_voting ?? true;
         await refreshSuggestionMessage(interaction.client, fresh, votingEnabled);
       }
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Atualizada", description: "Sugestão atualizada." })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Atualizada", description: "Sugestão atualizada." })], flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -175,7 +173,7 @@ const command: SlashCommand = {
       const lines = list.length
         ? list.map((s) => `• \`${s.id}\` (👍${s.upvotes}/👎${s.downvotes}) — ${s.content.slice(0, 80)}`).join("\n")
         : "Nenhuma sugestão pendente.";
-      await interaction.reply({ embeds: [brandEmbed({ title: "Sugestões pendentes", description: lines })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ title: "Sugestões pendentes", description: lines })], flags: MessageFlags.Ephemeral });
     }
   },
 };

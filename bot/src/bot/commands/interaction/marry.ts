@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType } from "discord.js";
+import { SlashCommandBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { Marriage } from "../../../database/models.js";
@@ -15,7 +15,7 @@ const command: SlashCommand = {
   async execute(interaction) {
     const target = interaction.options.getUser("usuario", true);
     if (target.bot || target.id === interaction.user.id) {
-      await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Alvo inválido" })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Alvo inválido" })], flags: MessageFlags.Ephemeral });
       return;
     }
     const existing = await Marriage.findOne({
@@ -26,7 +26,7 @@ const command: SlashCommand = {
       ],
     });
     if (existing) {
-      await interaction.reply({ embeds: [brandEmbed({ kind: "warn", title: "Já há um casamento ativo" })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ kind: "warn", title: "Já há um casamento ativo" })], flags: MessageFlags.Ephemeral });
       return;
     }
 

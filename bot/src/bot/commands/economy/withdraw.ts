@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { ui } from "../../systems/ui/embed.factory.js";
 import { fmtCoins } from "../../utils/format.js";
@@ -21,7 +21,7 @@ const command: SlashCommand = {
     if (!amount || amount > acc.bank) {
       await interaction.reply({
         embeds: [ui.error({ title: "Valor inválido", description: "Você não tem esse valor disponível no banco." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }

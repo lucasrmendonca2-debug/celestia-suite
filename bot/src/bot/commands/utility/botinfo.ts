@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, version as djsVersion } from "discord.js";
+import { SlashCommandBuilder, version as djsVersion, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 
@@ -34,7 +34,7 @@ const command: SlashCommand = {
           ],
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   },
 };

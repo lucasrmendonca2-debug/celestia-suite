@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import ms from "ms";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
@@ -74,7 +74,7 @@ const command: SlashCommand = {
     if (!isOwner(interaction.user.id)) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Acesso negado", description: "Esse comando é restrito ao dono do bot." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -91,7 +91,7 @@ const command: SlashCommand = {
               : "Nenhum plano cadastrado.",
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -100,8 +100,8 @@ const command: SlashCommand = {
       const slug = interaction.options.getString("plano", true);
       const dur = interaction.options.getString("duracao");
       const plan = await getPlanBySlug(slug);
-      if (!plan) return interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Plano não encontrado" })], ephemeral: true });
-      if (plan.type !== "USER_VIP") return interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Plano incompatível", description: "Esse plano não é do tipo USER_VIP." })], ephemeral: true });
+      if (!plan) return interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Plano não encontrado" })], flags: MessageFlags.Ephemeral });
+      if (plan.type !== "USER_VIP") return interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Plano incompatível", description: "Esse plano não é do tipo USER_VIP." })], flags: MessageFlags.Ephemeral });
       const durMs = dur ? (ms(dur) as number | undefined) : null;
       const durationDays = durMs ? Math.max(1, Math.round(durMs / 86_400_000)) : plan.duration_days;
       const subscription = await grantSubscription({
@@ -132,8 +132,8 @@ const command: SlashCommand = {
       const slug = interaction.options.getString("plano", true);
       const dur = interaction.options.getString("duracao");
       const plan = await getPlanBySlug(slug);
-      if (!plan) return interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Plano não encontrado" })], ephemeral: true });
-      if (plan.type !== "GUILD_PREMIUM") return interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Plano incompatível", description: "Esse plano não é GUILD_PREMIUM." })], ephemeral: true });
+      if (!plan) return interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Plano não encontrado" })], flags: MessageFlags.Ephemeral });
+      if (plan.type !== "GUILD_PREMIUM") return interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Plano incompatível", description: "Esse plano não é GUILD_PREMIUM." })], flags: MessageFlags.Ephemeral });
       const durMs = dur ? (ms(dur) as number | undefined) : null;
       const durationDays = durMs ? Math.max(1, Math.round(durMs / 86_400_000)) : plan.duration_days;
       const subscription = await grantSubscription({
@@ -165,7 +165,7 @@ const command: SlashCommand = {
       const expira = interaction.options.getString("expira");
       const duracao = interaction.options.getString("duracao");
       const plan = await getPlanBySlug(slug);
-      if (!plan) return interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Plano não encontrado" })], ephemeral: true });
+      if (!plan) return interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Plano não encontrado" })], flags: MessageFlags.Ephemeral });
       const expiresAt = expira ? new Date(Date.now() + (ms(expira) as number)) : null;
       const durationDays = duracao ? Math.max(1, Math.round((ms(duracao) as number) / 86_400_000)) : null;
       const code = await createCode({
@@ -186,7 +186,7 @@ const command: SlashCommand = {
             description: `Código: \`${code.code}\`\nPlano: **${plan.name}**\nUsos: ${code.max_uses}\nExpira: ${code.expires_at ? fmtExpire(code.expires_at) : "Nunca"}\nDuração do plano: ${code.duration_days ?? plan.duration_days} dias`,
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   },

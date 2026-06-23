@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { ui } from "../../systems/ui/embed.factory.js";
 import { getAsset } from "../../systems/ui/embed.assets.js";
@@ -8,6 +8,7 @@ import { getConfig } from "../../utils/guildCache.js";
 import { logTx } from "../../systems/economy/economy.tx.js";
 import { incrementMissionProgress } from "../../systems/economy/missions.js";
 import { economyResponses } from "../../systems/personality/index.js";
+import { logger } from "../../utils/logger.js";
 
 const JOBS = economyResponses.workJobs;
 
@@ -30,7 +31,7 @@ const command: SlashCommand = {
     const now = new Date();
 
     if (cfg.economyEnabled === false) {
-      await interaction.reply({ embeds: [ui.warn({ title: "Economia desativada" })], ephemeral: true });
+      await interaction.reply({ embeds: [ui.warn({ title: "Economia desativada" })], flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -43,7 +44,7 @@ const command: SlashCommand = {
             description: `Você pode trabalhar novamente em **${fmtDuration(remaining)}**.`,
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -62,15 +63,17 @@ const command: SlashCommand = {
     acc.lastWork = now;
     await acc.save();
 
-    void logTx({
+    logTx({
       guildId,
       userId: interaction.user.id,
       kind: "work",
       amount,
       balanceAfter: acc.wallet,
       reason: "Trabalho",
-    });
-    void incrementMissionProgress(guildId, interaction.user.id, "work");
+    }).catch((err) => logger.warn({ err }, "logTx work falhou"));
+    incrementMissionProgress(guildId, interaction.user.id, "work").catch((err) =>
+      logger.warn({ err }, "incrementMissionProgress work falhou"),
+    );
 
     const job = JOBS[Math.floor(Math.random() * JOBS.length)];
     const image = await getAsset(guildId, "economy.work_image");

@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, ChatInputCommandInteraction, PermissionFlagsBits, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { supabase } from "../../../database/supabase.js";
@@ -46,7 +46,7 @@ const command: SlashCommand = {
     if (!(await hasModCapability(member, "can_warn"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão de moderação." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -69,7 +69,7 @@ const command: SlashCommand = {
           .join("\n\n") || "_Nenhuma apelação pendente._";
       return interaction.reply({
         embeds: [brandEmbed({ title: "📨 Apelações pendentes", description: lines })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -90,7 +90,7 @@ const command: SlashCommand = {
     if (!appeal) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: `Nenhuma apelação pendente para o caso #${caseNumber}.` })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -128,7 +128,7 @@ const command: SlashCommand = {
           title: `Apelação #${caseNumber} ${status === "approved" ? "aprovada" : "rejeitada"}.`,
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   },
 };

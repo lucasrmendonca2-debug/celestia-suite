@@ -96,9 +96,16 @@ export async function getConfig(guildId: string) {
   const hit = cache.get(guildId);
   if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.cfg;
 
-  let mongoDoc = await GuildConfig.findOne({ guildId });
-  if (!mongoDoc) mongoDoc = await GuildConfig.create({ guildId });
-  const cfg: any = mongoDoc.toObject ? mongoDoc.toObject() : { ...mongoDoc };
+  // Defaults baseline (campos legados que código antigo ainda lê).
+  const cfg: any = {
+    guildId,
+    economyVipMultiplier: 1.5,
+    economyWorkCooldownSeconds: 3600,
+    economyWorkMin: 80,
+    economyWorkMax: 320,
+    economyDailyAmount: 250,
+    economyEnabled: true,
+  };
 
   const [guildRes, ecoRes, premiumRes, socialRes, commRes] = await Promise.all([
     supabase.from("guild_configs").select("*").eq("guild_id", guildId).maybeSingle(),

@@ -219,7 +219,6 @@ async function handleAutocomplete(ix: AutocompleteInteraction) {
     .map((x) => ({
       // @ts-expect-error supabase join shape
       name: `${x.profile_cosmetics?.name ?? "Item"} (${RARITY_BADGE[x.profile_cosmetics?.rarity ?? "common"] ?? ""})`.slice(0, 100),
-      // @ts-expect-error supabase join shape
       value: String(x.cosmetic_id),
       // @ts-expect-error supabase join shape
       slug: String(x.profile_cosmetics?.slug ?? ""),

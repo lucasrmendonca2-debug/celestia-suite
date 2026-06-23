@@ -12,7 +12,12 @@ import http from "node:http";
 import crypto from "node:crypto";
 import { logger } from "../bot/utils/logger.js";
 import { env } from "../config/env.js";
-import { DailyToken, EconomyAccount } from "../database/models.js";
+import { EconomyAccount } from "../database/models.js";
+import {
+  consumeDailyToken,
+  createDailyToken,
+  findDailyToken,
+} from "../bot/repositories/content.repo.js";
 import {
   addWallet,
   currencyFromConfig,

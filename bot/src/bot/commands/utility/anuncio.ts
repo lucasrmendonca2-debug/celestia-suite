@@ -140,31 +140,30 @@ const command: SlashCommand = {
         });
         return;
       }
-      await Announcement.create({
+      await createAnnouncement({
         guildId: interaction.guildId!,
         channelId: canal.id,
         authorId: interaction.user.id,
         title: titulo,
         content: mensagem,
         mention: mencao,
-        sent: true,
         sentAt: new Date(),
       });
       await interaction.reply({ content: "✅ Anúncio enviado.", flags: MessageFlags.Ephemeral });
       return;
     }
 
-    const a = await Announcement.create({
+    const a = await createAnnouncement({
       guildId: interaction.guildId!,
       channelId: canal.id,
       authorId: interaction.user.id,
       title: titulo,
       content: mensagem,
       mention: mencao,
-      scheduledFor,
+      scheduledAt: scheduledFor,
     });
     await interaction.reply({
-      content: `⏰ Anúncio agendado para <t:${Math.floor(scheduledFor.getTime() / 1000)}:F> (\`${String(a._id)}\`).`,
+      content: `⏰ Anúncio agendado para <t:${Math.floor(scheduledFor.getTime() / 1000)}:F> (\`${a.id}\`).`,
       flags: MessageFlags.Ephemeral,
     });
   },

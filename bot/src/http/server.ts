@@ -105,19 +105,28 @@ async function buildStatus(guildId: string, userId: string) {
 }
 
 async function handleStatus(req: http.IncomingMessage, res: http.ServerResponse) {
-  const { token } = await readJson(req);
+  const { token, expectedUserId } = await readJson(req);
   if (!token) return send(res, 400, { error: "missing token" });
   const t = await DailyToken.findOne({ token });
   if (!t) return send(res, 404, { error: "invalid token" });
   if (t.expiresAt.getTime() < Date.now())
     return send(res, 410, { error: "expired" });
+  if (expectedUserId && t.userId !== expectedUserId)
+    return send(res, 403, { error: "token_user_mismatch" });
   const status = await buildStatus(t.guildId, t.userId);
   return send(res, 200, { ok: true, user: { id: t.userId, guildId: t.guildId }, ...status });
 }
 
 async function handleClaim(req: http.IncomingMessage, res: http.ServerResponse) {
-  const { token } = await readJson(req);
+  const { token, expectedUserId } = await readJson(req);
   if (!token) return send(res, 400, { error: "missing token" });
+  // Verifica dono ANTES de consumir o token, para evitar gastar tokens alheios.
+  const preview = await DailyToken.findOne({ token });
+  if (!preview) return send(res, 404, { error: "invalid token" });
+  if (preview.expiresAt.getTime() < Date.now())
+    return send(res, 410, { error: "expired" });
+  if (expectedUserId && preview.userId !== expectedUserId)
+    return send(res, 403, { error: "token_user_mismatch" });
   const t = await DailyToken.findOneAndDelete({ token });
   if (!t) return send(res, 404, { error: "invalid token" });
   if (t.expiresAt.getTime() < Date.now())

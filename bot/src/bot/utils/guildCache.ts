@@ -1,25 +1,17 @@
 import type { Guild as DiscordGuild } from "discord.js";
-import { GuildConfig } from "../../database/models.js";
 import { canWriteSupabase, supabase } from "../../database/supabase.js";
 import { env } from "../../config/env.js";
 import { logger } from "./logger.js";
 
 /**
- * Garante que existem linhas mínimas para a guild no Supabase.
- * Não-bloqueante: retorna imediatamente e roda upserts em background.
+ * Garante que existe linha mínima da guild no Supabase.
+ * Não-bloqueante: retorna imediatamente e roda o upsert em background.
  *
- * P9 fase 1: removidas as chamadas `Guild.updateOne`/`User.updateOne` do
- * shim Mongoose — eram no-ops (a tabela Mongo `guilds` não existe mais).
- * `GuildConfig` continua aqui só porque o `getConfig()` ainda lê campos
- * legados dele; será removido na fase 2 junto com `commands/config/config.ts`.
+ * P9 fase 2: removida a escrita ao shim Mongoose `GuildConfig`. Toda a
+ * configuração persiste agora direto no Supabase (`guild_configs` e tabelas
+ * derivadas) — `getConfig()` abaixo só lê.
  */
 export function ensureGuild(guild: DiscordGuild) {
-  void GuildConfig.updateOne(
-    { guildId: guild.id },
-    { $setOnInsert: { guildId: guild.id } },
-    { upsert: true },
-  ).catch((err) => logger.warn({ err, guildId: guild.id }, "ensureGuild GuildConfig upsert falhou"));
-
   if (!canWriteSupabase) {
     logger.debug({ guildId: guild.id }, "supabase guild_configs upsert ignorado — service_role ausente");
     return;

@@ -18,13 +18,7 @@ const command: SlashCommand = {
       await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Alvo inválido" })], flags: MessageFlags.Ephemeral });
       return;
     }
-    const existing = await Marriage.findOne({
-      status: "MARRIED",
-      $or: [
-        { userA: interaction.user.id }, { userB: interaction.user.id },
-        { userA: target.id }, { userB: target.id },
-      ],
-    });
+    const existing = await findActiveMarriage(interaction.guildId!, [interaction.user.id, target.id]);
     if (existing) {
       await interaction.reply({ embeds: [brandEmbed({ kind: "warn", title: "Já há um casamento ativo" })], flags: MessageFlags.Ephemeral });
       return;

@@ -269,19 +269,53 @@ export function startHttpServer() {
     logger.warn("BOT_API_SECRET ausente — HTTP bridge não será iniciado");
     return;
   }
+  const allowedOrigins = getAllowedOrigins();
+  logger.info({ allowedOrigins }, "HTTP bridge CORS configurado");
   const ports = [...new Set([Number(env.BOT_HTTP_PORT ?? 3001), 8080])];
   const handler = async (req: http.IncomingMessage, res: http.ServerResponse) => {
-    if (req.method === "OPTIONS") return send(res, 204, {});
-    if (req.method !== "POST") return send(res, 405, { error: "method not allowed" });
-    const secret = req.headers["x-bot-secret"];
-    if (secret !== env.BOT_API_SECRET) return send(res, 401, { error: "unauthorized" });
+    const origin = pickOrigin(req);
+    const hasBrowserOrigin = Boolean(req.headers.origin);
+
+    if (hasBrowserOrigin && !origin) {
+      applyCors(res, null);
+      return send(res, 403, { error: "origin_not_allowed" });
+    }
+    applyCors(res, origin);
+
+    if (req.method === "OPTIONS") {
+      res.statusCode = 204;
+      res.end();
+      return;
+    }
+    if (req.method !== "POST") {
+      res.setHeader("Allow", "POST, OPTIONS");
+      return send(res, 405, { error: "method_not_allowed" });
+    }
+
+    const secretHeader = req.headers["x-bot-secret"];
+    const provided = Array.isArray(secretHeader) ? secretHeader[0] : secretHeader;
+    if (!provided || !safeEqualStr(provided, env.BOT_API_SECRET!)) {
+      return send(res, 401, { error: "unauthorized" });
+    }
+
+    const contentType = (req.headers["content-type"] ?? "").toLowerCase();
+    if (contentType && !contentType.includes("application/json")) {
+      return send(res, 415, { error: "unsupported_media_type" });
+    }
+
     try {
       if (req.url === "/api/daily/status") return await handleStatus(req, res);
       if (req.url === "/api/daily/claim") return await handleClaim(req, res);
-      return send(res, 404, { error: "not found" });
+      return send(res, 404, { error: "not_found" });
     } catch (err: any) {
-      logger.error({ err, url: req.url }, "HTTP bridge erro");
-      return send(res, 500, { error: "internal", message: err?.message });
+      if (err instanceof HttpError) {
+        return send(res, err.status, { error: err.code });
+      }
+      logger.error(
+        { err: { message: err?.message, name: err?.name }, url: req.url, method: req.method },
+        "HTTP bridge erro",
+      );
+      return send(res, 500, { error: "internal_error" });
     }
   };
   for (const port of ports) {

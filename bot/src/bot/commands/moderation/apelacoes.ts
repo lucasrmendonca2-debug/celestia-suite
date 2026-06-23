@@ -43,7 +43,7 @@ const command: SlashCommand = {
   async execute(interaction: ChatInputCommandInteraction) {
     const guild = interaction.guild!;
     const member = await guild.members.fetch(interaction.user.id);
-    if (!(await hasModCapability(member, "can_warn"))) {
+    if (!(await hasModCapability(member, "can_manage_appeals"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão de moderação." })],
         flags: MessageFlags.Ephemeral,

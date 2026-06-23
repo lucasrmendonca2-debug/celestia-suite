@@ -39,6 +39,9 @@ const command: SlashCommand = {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guildId!;
 
+    const isHttpUrl = (u: string | null | undefined): boolean =>
+      !!u && /^https?:\/\/[^\s]+$/i.test(u);
+
     if (sub === "enviar") {
       const channel = interaction.options.getChannel("canal", true) as TextChannel;
       const vars = { user: `<@${interaction.user.id}>`, server: interaction.guild!.name };
@@ -49,6 +52,14 @@ const command: SlashCommand = {
       const image = interaction.options.getString("imagem") ?? undefined;
       const thumbnail = interaction.options.getString("thumbnail") ?? undefined;
       const footer = interaction.options.getString("footer") ?? undefined;
+
+      if ((image && !isHttpUrl(image)) || (thumbnail && !isHttpUrl(thumbnail))) {
+        await interaction.reply({
+          embeds: [brandEmbed({ kind: "error", title: "URL inválida", description: "Imagem/thumbnail devem ser URLs http(s)." })],
+          flags: MessageFlags.Ephemeral,
+        });
+        return;
+      }
 
       const eb = new EmbedBuilder().setColor(color).setDescription(description);
       if (title) eb.setTitle(title);

@@ -37,20 +37,26 @@ const command: SlashCommand = {
       const level = interaction.options.getInteger("nivel", true);
       const role = interaction.options.getRole("cargo", true);
       const removePrevious = interaction.options.getBoolean("remover_anteriores") ?? false;
-      // upsert (guild, level, type=role)
-      await supabase
+      // Upsert atômico — depende de unique (guild_id, level, reward_type)
+      const { error } = await supabase
         .from("level_rewards")
-        .delete()
-        .eq("guild_id", guildId)
-        .eq("level", level)
-        .eq("reward_type", "role");
-      await supabase.from("level_rewards").insert({
-        guild_id: guildId,
-        level,
-        reward_type: "role",
-        reward_value: role.id,
-        remove_previous_roles: removePrevious,
-      });
+        .upsert(
+          {
+            guild_id: guildId,
+            level,
+            reward_type: "role",
+            reward_value: role.id,
+            remove_previous_roles: removePrevious,
+          },
+          { onConflict: "guild_id,level,reward_type" },
+        );
+      if (error) {
+        await interaction.reply({
+          embeds: [brandEmbed({ kind: "error", title: "Falha ao salvar", description: error.message })],
+          flags: MessageFlags.Ephemeral,
+        });
+        return;
+      }
       await interaction.reply({
         embeds: [
           brandEmbed({ kind: "success", title: "Recompensa salva", description: `Nível **${level}** → <@&${role.id}>` }),

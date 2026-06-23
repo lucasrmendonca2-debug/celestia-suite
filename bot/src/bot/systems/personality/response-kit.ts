@@ -1,4 +1,4 @@
-import type { ChatInputCommandInteraction, EmbedBuilder, InteractionReplyOptions } from "discord.js";
+import { MessageFlags, type ChatInputCommandInteraction, type EmbedBuilder, type InteractionReplyOptions } from "discord.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { pick } from "./random-responses.js";
 
@@ -35,9 +35,10 @@ export async function replyPick(
 ): Promise<void> {
   const description = pick(pool);
   const embed = brandEmbed({ kind: opts.kind ?? "info", title: opts.title, description });
+  const isEphemeral = opts.ephemeral ?? true;
   const payload: InteractionReplyOptions = {
     embeds: [embed],
-    ephemeral: opts.ephemeral ?? true,
+    ...(isEphemeral ? { flags: MessageFlags.Ephemeral } : {}),
   };
   if (interaction.deferred || interaction.replied) {
     await interaction.followUp(payload);

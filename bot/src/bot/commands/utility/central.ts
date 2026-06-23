@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { MessageFlags, SlashCommandBuilder } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { fmtCoins, fmtDuration } from "../../utils/format.js";
@@ -90,7 +90,7 @@ const command: SlashCommand = {
           footer: "Use /help comando nome:central para ver os subcomandos relacionados.",
         }),
       ],
-      ephemeral: target.id !== interaction.user.id,
+      ...(target.id !== interaction.user.id ? { flags: MessageFlags.Ephemeral } : {}),
     });
   },
 };

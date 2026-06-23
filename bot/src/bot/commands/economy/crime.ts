@@ -42,7 +42,7 @@ const command: SlashCommand = {
       });
       return;
     }
-    acc.lastCrime = now;
+    // cooldown atômico já travado — busca asset apenas após confirmar
     const success = Math.random() < 0.6;
     const image = await getAsset(guildId, "economy.crime_image");
     if (success) {

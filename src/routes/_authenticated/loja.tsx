@@ -370,7 +370,9 @@ function LojaPage() {
   const canAfford = !!buyTarget && catalog.balance >= buyTarget.price_coins;
 
   return (
+    <TooltipProvider delayDuration={200}>
     <main className="min-h-dvh bg-background text-foreground">
+
       <div className="mx-auto max-w-7xl px-6 py-10 space-y-8">
         <header className="flex flex-wrap items-end justify-between gap-4">
           <div>

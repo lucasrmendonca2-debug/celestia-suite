@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
-import { Marriage } from "../../../database/models.js";
+import { findActiveMarriage, createMarriage } from "../../repositories/phase4.repo.js";
 
 const command: SlashCommand = {
   category: "interaction",

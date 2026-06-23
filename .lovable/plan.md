@@ -1,70 +1,131 @@
-## Decisão técnica: NÃO usar satori + @resvg/resvg-wasm
 
-Testei mentalmente esta combinação várias vezes no runtime Cloudflare Workers do TanStack Start e ela é **instável demais para produção**:
+## Objetivo
 
-- `@resvg/resvg-wasm` precisa carregar o `.wasm` em runtime. No Worker do TSS (Vite + workerd), o asset `.wasm` precisa ser embedado no bundle — vários relatos de `WebAssembly.compile failed` ou `Cannot find module` em build de produção (funciona em dev, quebra em prod).
-- `satori` exige carregar fontes (TTF/OTF) como `ArrayBuffer` em runtime. No Worker não há filesystem confiável; precisa `fetch()` da fonte a cada request (lento) ou inlinar como base64 (bundle gigante).
-- Mesmo funcionando, gerar PNG raster em cada request num Worker custa CPU (limite de 10–50ms grátis) — o Discord cacheia a URL, mas o primeiro hit pode estourar.
+Conectar o sistema de cosméticos ao restante do bot (level-up, daily, level rewards, /top, /rank, /perfil), aplicar dificuldade adaptativa nas missões, e mover **toda** a loja para o site (com dashboards separados para usuário e guild). O Discord deixa de ter strings de compra — apenas comandos de uso (`/perfil`, `/perfil equipar`).
 
-## Solução adotada: **SVG nativo + cache no Storage**
+---
 
-O Discord renderiza `image/svg+xml` perfeitamente em embeds quando servido com o content-type correto e dimensões fixas no atributo. SVG nos dá:
+## 1. Drops automáticos de cosméticos
 
-- **Zero dependências novas** — só `Response` com string.
-- **Vetorial** — escala perfeito em qualquer DPI.
-- **Tipografia via `<text>`** — sem precisar embedar fontes; usamos `font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"` (Discord renderiza com fontes do sistema dele).
-- **Imagens** (avatar, banner, frame, stickers) entram como `<image href="...">` apontando para URLs já públicas do Discord CDN / nossos assets.
+### 1.1 Helper único `tryDropCommonCosmetic(userId, source, baseChance)`
+Já existe em `bot/src/bot/systems/cosmetics/cosmetics.service.ts`. Vamos:
+- Gravar o drop em `cosmetic_drops` (source: `level_up` | `daily` | `level_reward`)
+- Retornar `{ cosmetic, dropped: boolean }` para o caller anunciar
 
-Se mais tarde quiser PNG raster mesmo, dá pra rodar `satori + resvg` numa **Edge Function Supabase** (Deno, suporta WASM nativamente) chamada a partir do mesmo endpoint TSS — mas começamos com SVG porque resolve 100% do caso de uso (embed Discord).
+### 1.2 Level-up (já existe parcial)
+Em `xp.service.ts`, manter a chamada mas **registrar** em `cosmetic_drops` e enviar embed `ui.celebration` no canal de level-up com o item.
 
-## Arquitetura
+### 1.3 `/daily` (`bot/src/bot/commands/economy/daily.ts`)
+Após creditar moedas, chance de **2%** de dropar cosmético comum. Se dropar, adicionar campo no embed: `🎁 Bônus raro: <nome do item>`.
+
+### 1.4 Level rewards (`level-rewards.service.ts`)
+Adicionar tipo `cosmetic` em `level_rewards.reward_type` (já existe coluna `reward_value` — guardar o `cosmetic_id`). Quando atingir o nível, inserir em `user_cosmetics` e logar em `cosmetic_drops` com source `level_reward`. UI no dashboard `/dashboard/$slug/niveis` ganha um seletor de cosmético.
+
+---
+
+## 2. Missões adaptativas (`user_mission_profile`)
+
+Modificar `generate_daily_missions` para ler o perfil do usuário e ajustar `target` por usuário, **não por guild**. Como hoje a função gera missões por guild, criar uma nova função SQL:
 
 ```text
-GET /api/public/profile/:userId/card.svg
-  ├─ supabaseAdmin: lê user_profile_loadout + profile_cosmetics + user_economy + level_users
-  ├─ resolve avatar do Discord (cdn.discordapp.com)
-  ├─ monta SVG 800×400 com banner, frame, avatar, nome, XP bar, bio, coins, rep, stickers
-  └─ retorna SVG com Cache-Control: public, max-age=300, s-maxage=300
-
-GET /dashboard/perfil — adiciona <ProfileCardPreview /> que faz <img src="/api/public/profile/{me}/card.svg?t={Date.now()}" />
+fn: assign_user_daily_missions(_guild_id, _user_id)
+  - lê user_mission_profile.difficulty_tier (easy/normal/hard)
+  - lê histórico de completions
+  - clona missões da guild para user_missions com target ajustado:
+      easy   → target * 0.6
+      normal → target * 1.0
+      hard   → target * 1.5  e reward * 1.4
+  - atualiza user_mission_profile.last_assigned_at
 ```
 
-## Arquivos a criar/editar
+Chamada quando o usuário usa `/missoes` pela primeira vez no dia.
 
-1. **`src/lib/profile/card-svg.server.ts`** (novo) — função `buildProfileCardSvg(data)` pura: recebe dados resolvidos, retorna string SVG. Inclui escape de XML, layout responsivo, gradientes, barra de XP, área de stickers.
+---
 
-2. **`src/lib/profile/card-data.server.ts`** (novo) — função `loadProfileCardData(userId)` que faz 1 query agregada via `supabaseAdmin`: loadout + cosméticos equipados + saldo total + nível/XP + username/avatar (busca username em `social_profiles` ou Discord API se necessário; fallback "Usuário"). Cache em memória de 60s.
+## 3. `/top` e `/rank` mostrando cosméticos
 
-3. **`src/routes/api/public/profile/$userId/card[.]svg.ts`** (novo) — server route que valida `userId` (regex `^\d{17,20}$`), chama as duas funções acima, retorna `Response(svg, { headers: { 'Content-Type': 'image/svg+xml; charset=utf-8', 'Cache-Control': 'public, max-age=300, s-maxage=300, immutable' } })`. Em erro, retorna SVG fallback (não JSON — o Discord precisa de imagem).
+- `/top`: adicionar coluna visual com badge da raridade do **frame** equipado ao lado do nome (emoji: ⚪🔵🟣🟡).
+- `/rank` (em `social/rank`): incluir thumbnail = sticker principal do loadout, e linha "🎨 Estilo: <banner name>".
+- Buscar via JOIN `user_profile_loadout` + `profile_cosmetics`.
 
-4. **`src/routes/_authenticated/perfil.tsx`** (editar) — adicionar card "Preview do Card Público" na coluna direita acima do inventário, mostrando `<img src="/api/public/profile/{me.id}/card.svg?v={hash}" />` com botão "Copiar URL" para usar no Discord.
+---
 
-5. **`bot/src/bot/commands/fun/perfil.ts`** (editar — opcional, mas pedido) — no embed do `/perfil`, setar `.setImage(\`${process.env.APP_URL}/api/public/profile/${target.id}/card.svg\`)`.
+## 4. `/perfil` mais bonito
 
-## Cache
+No embed atual (`bot/src/bot/commands/fun/perfil.ts`):
+- Manter imagem PNG (via wsrv) como hoje
+- Adicionar campos: **Banner equipado**, **Frame**, **Stickers** (até 3, com nomes + raridade)
+- Reordenar para que o card seja o destaque visual
 
-Estratégia em 3 camadas (sem precisar Storage):
+---
 
-1. **Memória do Worker** (`Map<userId, {svg, expiresAt}>`, TTL 60s) — bom para hits seguidos no mesmo isolate.
-2. **HTTP**: `Cache-Control: public, max-age=300, s-maxage=300` — CDN do Cloudflare faz o cache pesado.
-3. **Bypass via querystring**: `?v=timestamp` quando o usuário muda o loadout no dashboard (invalida o cache do browser pra ele ver o preview atualizado).
+## 5. **Loja só no site** + dashboards separados
 
-Storage só seria necessário se quiséssemos PNGs pré-renderizados — fica como evolução futura.
+### 5.1 Remover do Discord
+- Remover subcomando `/perfil loja` e botões `cosmetic:buy:*` do `interactionCreate.ts`
+- `/perfil` agora mostra link clicável: **🛒 Personalize seu perfil → https://zenoxbot.lovable.app/loja**
+- `/perfil equipar` continua existindo (com autocomplete dos itens já possuídos)
 
-## Segurança
+### 5.2 Dashboard de USUÁRIO (`/loja` — já existe)
+Aprimorar a rota atual `src/routes/_authenticated/loja.tsx`:
+- 2 colunas: **Catálogo** (com tabs Banners/Frames/Stickers/Efeitos/Ofertas/Temporada) à esquerda, **Preview do meu card** ao vivo à direita
+- Botão "Comprar" usa server fn `purchaseCosmetic`
+- Botão "Equipar / Desequipar" atualiza loadout e re-renderiza preview
+- Mostrar moedas agregadas do usuário (soma de `user_economy` de todas as guilds)
 
-- Endpoint público (`/api/public/`), sem auth — qualquer um pode pedir o card de qualquer userId (igual avatares Discord).
-- Validar `userId` com regex de snowflake antes de query (evita SQL injection mesmo com client tipado).
-- Não vazar email, IP, ou qualquer PII além do que já é público (avatar+username Discord).
-- Bio é escapada pra XML (sem `<script>` etc).
+### 5.3 NOVO dashboard de GUILD: `/dashboard/$slug/loja`
+Para admins do servidor, gerenciar a loja **daquela guild**:
+- Ver/desativar cosméticos da rotação atual
+- Forçar nova rotação (`rotate_daily_cosmetics(true)`)
+- Configurar **multiplicador de preço** e **multiplicador de recompensa** (já existem em `economy_tuning_state`)
+- Ver estatísticas: vendas dos últimos 7d, top compradores, item mais vendido
+- Criar **cosmético exclusivo da guild** (insert em `profile_cosmetics` com flag `guild_exclusive_id`)
 
-## Riscos / pontos de atenção
+Requer nova coluna `guild_exclusive_id text null` em `profile_cosmetics` (migration).
 
-- **Username**: o app não armazena username do Discord em tabela própria; eu busco em `social_profiles` se existir, senão mostro "ID curto" (`123…789`). Você quer que eu chame a Discord API com bot token (`users/:id`) e cacheie? Sai do escopo de "edge puro" — adiciona ~200ms.
-- **Imagens cross-origin no SVG**: alguns clientes não carregam `<image href>` externo dentro de SVG por segurança. **Discord carrega** (testado em outros bots), mas browsers podem bloquear no preview do dashboard. Plano B: o preview no dashboard renderiza um React equivalente em vez do `<img>` do SVG.
+---
 
-## Que NÃO vai entrar nesta iteração
+## Estrutura técnica
 
-- PNG raster (satori/resvg) — fica para depois se Discord precisar mesmo.
-- Animações no card lendário (SVG suporta `<animate>`, mas Discord não renderiza animação em embed).
-- Upload no Storage do PNG — desnecessário com cache HTTP.
+### Migrations
+1. `profile_cosmetics.guild_exclusive_id text null` + index
+2. `level_rewards`: garantir suporte a `reward_type = 'cosmetic'` (validation trigger)
+3. SQL fn `assign_user_daily_missions(_guild_id, _user_id)`
+4. SQL fn `log_cosmetic_drop(_user_id, _cosmetic_id, _source)` (insert em `cosmetic_drops` + `user_cosmetics`)
+
+### Server functions (TanStack)
+- `src/lib/cosmetics/cosmetics.functions.ts`: `listShopForGuild`, `purchaseCosmetic`, `equipCosmetic`, `getLoadout`, `getUserCosmetics` (já existem várias — consolidar)
+- `src/lib/cosmetics/guild-shop.functions.ts`: `getGuildShopStats`, `forceRotation`, `setPriceMultiplier`, `createGuildExclusiveCosmetic`, `toggleCosmeticActive` — todas com `requireSupabaseAuth` + check de `has_role('admin' guild)`
+
+### Rotas
+- `src/routes/_authenticated/loja.tsx` (refactor)
+- `src/routes/_authenticated/dashboard.$slug.loja.tsx` (novo)
+- Adicionar item "Loja" no sidebar do dashboard de guild
+
+### Bot
+- `cosmetics.service.ts`: helper `tryDropCommonCosmetic` chamando RPC `log_cosmetic_drop`
+- `daily.ts`: integrar drop
+- `top.ts` e `rank.ts`: JOIN com loadout
+- `perfil.ts`: remover subcomando `loja`, melhorar embed, remover handler de botões
+- `interactionCreate.ts`: remover handler `cosmetic:buy:*` (manter equipar)
+- `missoes.ts`: chamar `assign_user_daily_missions` na primeira interação do dia
+
+---
+
+## Ordem de execução
+
+1. Migrations (4 acima)
+2. Server fns novas (guild-shop)
+3. Refactor `/loja` (user dashboard com preview ao vivo)
+4. Novo `/dashboard/$slug/loja` (guild dashboard)
+5. Bot: drops em level-up/daily/level-reward
+6. Bot: /top, /rank, /perfil com cosméticos
+7. Bot: remover loja do Discord, missões adaptativas
+
+---
+
+## Riscos / decisões
+
+- **Compras só no site**: usuários sem conta no dashboard não compram. OK pois o login com Discord OAuth já existe.
+- **Multiplicadores de guild**: aplicam apenas quando a compra é feita "para usar nessa guild"? → Decisão: multiplicador da guild **onde o usuário gastou mais nos últimos 30 dias** (guild "principal"). Simples e justo.
+- **Cosméticos exclusivos de guild**: visíveis no `/loja` global apenas se o usuário está naquela guild (check via `bot_guild_presence` + membership — usaremos somente `bot_guild_presence` para v1, refinar depois).

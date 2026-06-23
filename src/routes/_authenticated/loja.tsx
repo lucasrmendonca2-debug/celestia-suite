@@ -468,6 +468,8 @@ function LojaPage() {
                       item={item}
                       owned={ownedSet.has(item.id)}
                       favorited={favSet.has(item.id)}
+                      affordable={catalog.balance >= item.price_coins}
+
                       onBuy={() => setBuyTarget(item)}
                       onFavorite={() => handleFavorite(item)}
                     />

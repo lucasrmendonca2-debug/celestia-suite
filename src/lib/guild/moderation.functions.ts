@@ -18,9 +18,10 @@ async function admin() {
   const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
   return supabaseAdmin;
 }
-async function perm(guildId: string) {
-  const { assertCanManageGuild } = await import("./permissions.server");
-  return assertCanManageGuild(guildId);
+async function perm(guildId: string, area: import("./permissions.functions").DashboardArea) {
+  const { assertCanAccessArea } = await import("./permissions-audit.server");
+  const actor = await assertCanAccessArea(guildId, area);
+  return actor.id;
 }
 
 const MOD_DEFAULTS = {
@@ -67,7 +68,7 @@ export const getModerationConfig = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "moderation");
     const sb = await admin();
     const { data: row, error } = await sb
       .from("moderation_configs")
@@ -117,7 +118,7 @@ const ConfigInput = z.object({
 export const updateModerationConfig = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => ConfigInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "moderation");
     const sb = await admin();
     const { guildId, ...rest } = data;
     const { data: row, error } = await sb
@@ -136,7 +137,7 @@ export const listModerationPermissionRoles = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "moderation");
     const sb = await admin();
     const { data: rows, error } = await sb
       .from("moderation_permission_roles")
@@ -171,7 +172,7 @@ const PermRoleInput = z.object({
 export const upsertModerationPermissionRole = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => PermRoleInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "moderation");
     const sb = await admin();
     const { guildId, role_id, ...rest } = data;
     const { data: row, error } = await sb
@@ -191,7 +192,7 @@ export const deleteModerationPermissionRole = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, role_id: snowflake }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "moderation");
     const sb = await admin();
     const { error } = await sb
       .from("moderation_permission_roles")
@@ -226,7 +227,7 @@ export const listPunishments = createServerFn({ method: "GET" })
         .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "moderation");
     const sb = await admin();
     let q = sb
       .from("punishments")
@@ -249,7 +250,7 @@ export const getModerationStats = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "moderation");
     const sb = await admin();
     const [totalRes, activeRes, warnRes] = await Promise.all([
       sb
@@ -298,7 +299,7 @@ export const listModerationCases = createServerFn({ method: "GET" })
         .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "moderation");
     const sb = await admin();
     let q = sb
       .from("mod_cases")
@@ -328,7 +329,7 @@ export const editModerationCaseReason = createServerFn({ method: "POST" })
         .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "moderation");
     const sb = await admin();
     const { data: row, error } = await sb
       .from("mod_cases")
@@ -352,7 +353,7 @@ export const invalidateModerationCase = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "moderation");
     const sb = await admin();
     const { error } = await sb
       .from("mod_cases")

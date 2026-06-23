@@ -13,9 +13,10 @@ async function admin() {
   const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
   return supabaseAdmin;
 }
-async function perm(guildId: string) {
-  const { assertCanManageGuild } = await import("./permissions.server");
-  return assertCanManageGuild(guildId);
+async function perm(guildId: string, area: import("./permissions.functions").DashboardArea) {
+  const { assertCanAccessArea } = await import("./permissions-audit.server");
+  const actor = await assertCanAccessArea(guildId, area);
+  return actor.id;
 }
 
 // ============================================================
@@ -40,7 +41,7 @@ const SOCIAL_DEFAULTS = {
 export const getSocialConfig = createServerFn({ method: "GET" })
   .inputValidator((d: { guildId: string }) => z.object({ guildId: guildIdSchema }).parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "social");
     const sb = await admin();
     const { data: row, error } = await sb
       .from("social_config")
@@ -71,7 +72,7 @@ const SocialInput = z.object({
 export const updateSocialConfig = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => SocialInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "social");
     const sb = await admin();
     const { guildId, ...rest } = data;
     const { error } = await sb
@@ -103,7 +104,7 @@ const LEVEL_DEFAULTS = {
 export const getLevelConfig = createServerFn({ method: "GET" })
   .inputValidator((d: { guildId: string }) => z.object({ guildId: guildIdSchema }).parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "leveling");
     const sb = await admin();
     const { data: row, error } = await sb
       .from("level_config")
@@ -133,7 +134,7 @@ const LevelInput = z.object({
 export const updateLevelConfig = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => LevelInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "leveling");
     const sb = await admin();
     const { guildId, ...rest } = data;
     const { error } = await sb
@@ -149,7 +150,7 @@ export const updateLevelConfig = createServerFn({ method: "POST" })
 export const listSocialRewards = createServerFn({ method: "GET" })
   .inputValidator((d: { guildId: string }) => z.object({ guildId: guildIdSchema }).parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "social");
     const sb = await admin();
     const { data: rows, error } = await sb
       .from("level_rewards")
@@ -172,7 +173,7 @@ const RewardInput = z.object({
 export const addSocialReward = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => RewardInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "social");
     const sb = await admin();
     const { guildId, ...rest } = data;
     const { enforceGuildLimit } = await import("./premium-limits.server");
@@ -187,7 +188,7 @@ export const removeSocialReward = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "social");
     const sb = await admin();
     const { error } = await sb
       .from("level_rewards")
@@ -212,7 +213,7 @@ export const getSocialLeaderboard = createServerFn({ method: "GET" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "social");
     const sb = await admin();
     const from = data.offset;
     const to = data.offset + data.limit - 1;
@@ -248,7 +249,7 @@ export const getSocialLogs = createServerFn({ method: "GET" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "social");
     const sb = await admin();
     const from = data.offset;
     const to = data.offset + data.limit - 1;
@@ -281,7 +282,7 @@ async function currentUserId(): Promise<string> {
 export const getMyProfile = createServerFn({ method: "GET" })
   .inputValidator((d: { guildId: string }) => z.object({ guildId: guildIdSchema }).parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "social");
     const userId = await currentUserId();
     const sb = await admin();
     const { data: row, error } = await sb
@@ -312,7 +313,7 @@ const MyProfileInput = z.object({
 export const updateMyProfile = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => MyProfileInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "social");
     const userId = await currentUserId();
     const sb = await admin();
     const { guildId, ...rest } = data;

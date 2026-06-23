@@ -13,9 +13,10 @@ async function admin() {
   return supabaseAdmin;
 }
 
-async function perm(guildId: string) {
-  const { assertCanManageGuild } = await import("./permissions.server");
-  return assertCanManageGuild(guildId);
+async function perm(guildId: string, area: import("./permissions.functions").DashboardArea) {
+  const { assertCanAccessArea } = await import("./permissions-audit.server");
+  const actor = await assertCanAccessArea(guildId, area);
+  return actor.id;
 }
 
 const DEFAULT_CONFIG = {
@@ -34,7 +35,7 @@ const DEFAULT_CONFIG = {
 export const getCommunityConfig = createServerFn({ method: "GET" })
   .inputValidator((d: { guildId: string }) => z.object({ guildId: guildIdSchema }).parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "community");
     const sb = await admin();
     const { data: row } = await sb
       .from("community_config")
@@ -61,7 +62,7 @@ const updateSchema = z.object({
 export const updateCommunityConfig = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => updateSchema.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "community");
     const sb = await admin();
     const { guildId, ...patch } = data;
     const { data: row, error } = await sb
@@ -76,7 +77,7 @@ export const updateCommunityConfig = createServerFn({ method: "POST" })
 export const listGuildPolls = createServerFn({ method: "GET" })
   .inputValidator((d: { guildId: string }) => z.object({ guildId: guildIdSchema }).parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "community");
     const sb = await admin();
     const { data: rows } = await sb
       .from("polls")
@@ -97,7 +98,7 @@ export const listGuildSuggestions = createServerFn({ method: "GET" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "community");
     const sb = await admin();
     let q = sb
       .from("suggestions")
@@ -120,7 +121,7 @@ export const updateSuggestionStatus = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    const userId = await perm(data.guildId);
+    const userId = await perm(data.guildId, "community");
     const sb = await admin();
     const { error } = await sb
       .from("suggestions")
@@ -140,7 +141,7 @@ export const cancelPoll = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, pollId: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "community");
     const sb = await admin();
     const { error } = await sb
       .from("polls")

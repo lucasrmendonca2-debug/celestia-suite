@@ -10,15 +10,16 @@ async function admin() {
   const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
   return supabaseAdmin;
 }
-async function perm(guildId: string) {
-  const { assertCanManageGuild } = await import("./permissions.server");
-  return assertCanManageGuild(guildId);
+async function perm(guildId: string, area: import("./permissions.functions").DashboardArea) {
+  const { assertCanAccessArea } = await import("./permissions-audit.server");
+  const actor = await assertCanAccessArea(guildId, area);
+  return actor.id;
 }
 
 export const listSeasons = createServerFn({ method: "GET" })
   .inputValidator((d: { guildId: string }) => z.object({ guildId: guildIdSchema }).parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "leveling");
     const sb = await admin();
     const { data: rows, error } = await sb
       .from("level_seasons")
@@ -42,7 +43,7 @@ const CreateInput = z.object({
 export const createSeason = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => CreateInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "leveling");
     const sb = await admin();
     if (data.activate) {
       // Desativa as anteriores
@@ -66,7 +67,7 @@ export const setSeasonActive = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid(), active: z.boolean() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "leveling");
     const sb = await admin();
     if (data.active) {
       await sb.from("level_seasons").update({ is_active: false }).eq("guild_id", data.guildId);
@@ -85,7 +86,7 @@ export const endSeason = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "leveling");
     const sb = await admin();
     const { error } = await sb
       .from("level_seasons")
@@ -101,7 +102,7 @@ export const deleteSeason = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "leveling");
     const sb = await admin();
     const { error } = await sb
       .from("level_seasons")
@@ -124,7 +125,7 @@ export const getSeasonLeaderboard = createServerFn({ method: "GET" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "leveling");
     const sb = await admin();
     const from = data.offset;
     const to = data.offset + data.limit - 1;

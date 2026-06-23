@@ -71,7 +71,7 @@ const command: SlashCommand = {
     if (Math.random() < 0.45) {
       const taken = Math.floor(them.wallet * (0.1 + Math.random() * 0.3));
       // Atômico: só desconta se ainda tiver saldo.
-      const { EconomyAccount } = await import("../../../database/models.js");
+      // (EconomyAccount já importado acima)
       const updated = await EconomyAccount.findOneAndUpdate(
         { guildId, userId: target.id, wallet: { $gte: taken } },
         { $inc: { wallet: -taken } },

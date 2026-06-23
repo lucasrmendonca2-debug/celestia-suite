@@ -123,7 +123,7 @@ const command: SlashCommand = {
         content: first
           ? `✅ ${badge.emoji} **${badge.name}** concedida a <@${user.id}>.`
           : `<@${user.id}> já possui essa badge.`,
-        ephemeral: !first,
+        ...(first ? {} : { flags: MessageFlags.Ephemeral }),
       });
       return;
     }

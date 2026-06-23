@@ -90,7 +90,7 @@ const command: SlashCommand = {
           footer: "Use /help comando nome:central para ver os subcomandos relacionados.",
         }),
       ],
-      ephemeral: target.id !== interaction.user.id,
+      ...(target.id !== interaction.user.id ? { flags: MessageFlags.Ephemeral } : {}),
     });
   },
 };

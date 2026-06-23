@@ -95,13 +95,13 @@ export const getGuildOverview = createServerFn({ method: "GET" })
     z.object({ guildId: z.string().regex(/^\d{5,32}$/) }).parse(d),
   )
   .handler(async ({ data }): Promise<GuildOverview> => {
-    const { assertCanManageGuild } = await import("./permissions.server");
+    const { assertCanAccessArea } = await import("./permissions-audit.server");
     const {
       getBotPresenceForGuild,
       guildIconUrlFromHash,
     } = await import("./bot-presence.server");
     const { getDiscordBotToken } = await import("@/lib/discord/bot-token.server");
-    await assertCanManageGuild(data.guildId);
+    await assertCanAccessArea(data.guildId, "overview");
 
     const token = getDiscordBotToken();
     const clientId = process.env.DISCORD_CLIENT_ID;

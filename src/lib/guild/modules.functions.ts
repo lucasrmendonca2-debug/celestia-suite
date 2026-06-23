@@ -21,9 +21,10 @@ async function admin() {
   const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
   return supabaseAdmin;
 }
-async function perm(guildId: string) {
-  const { assertCanManageGuild } = await import("./permissions.server");
-  return assertCanManageGuild(guildId);
+async function perm(guildId: string, area: import("./permissions.functions").DashboardArea) {
+  const { assertCanAccessArea } = await import("./permissions-audit.server");
+  const actor = await assertCanAccessArea(guildId, area);
+  return actor.id;
 }
 
 // ============================================================
@@ -72,7 +73,7 @@ export const getLogsConfig = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "logs");
     const sb = await admin();
     const { data: row, error } = await sb
       .from("guild_logs_config")
@@ -127,7 +128,7 @@ const LogsInput = z.object({
 export const updateLogsConfig = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => LogsInput.parse(d))
   .handler(async ({ data }) => {
-    const userId = await perm(data.guildId);
+    const userId = await perm(data.guildId, "logs");
     const sb = await admin();
     const { guildId, ...rest } = data as Record<string, unknown> & {
       guildId: string;
@@ -155,7 +156,7 @@ export const listAuditLogs = createServerFn({ method: "GET" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "logs");
     const sb = await admin();
     let q = sb
       .from("server_audit_logs")
@@ -179,7 +180,7 @@ export const listAutoroles = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "autorole");
     const sb = await admin();
     const { data: rows, error } = await sb
       .from("guild_autoroles")
@@ -257,7 +258,7 @@ export const listReactionRoles = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "reaction_roles");
     const sb = await admin();
     const { data: rows, error } = await sb
       .from("reaction_roles")
@@ -281,7 +282,7 @@ const RRInput = z.object({
 export const addReactionRole = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => RRInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "reaction_roles");
     const sb = await admin();
     const { error } = await sb.from("reaction_roles").insert({
       guild_id: data.guildId,
@@ -301,7 +302,7 @@ export const removeReactionRole = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "reaction_roles");
     const sb = await admin();
     const { error } = await sb
       .from("reaction_roles")
@@ -346,7 +347,7 @@ export const getAutomodConfig = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "automod");
     const sb = await admin();
     const { data: row, error } = await sb
       .from("automod_config")
@@ -387,7 +388,7 @@ const AutomodInput = z.object({
 export const updateAutomodConfig = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => AutomodInput.parse(d))
   .handler(async ({ data }) => {
-    const userId = await perm(data.guildId);
+    const userId = await perm(data.guildId, "automod");
     const sb = await admin();
     const { guildId, ...rest } = data;
     const { data: row, error } = await sb
@@ -423,7 +424,7 @@ export const getLevelingConfig = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "leveling");
     const sb = await admin();
     const { data: row, error } = await sb
       .from("level_config")
@@ -468,7 +469,7 @@ const LevelingInput = z.object({
 export const updateLevelingConfig = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => LevelingInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "leveling");
     const sb = await admin();
     const { error: e1 } = await sb.from("level_config").upsert(
       {
@@ -501,7 +502,7 @@ export const listLevelRewards = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "leveling");
     const sb = await admin();
     const { data: rows, error } = await sb
       .from("level_rewards")
@@ -529,7 +530,7 @@ export const addLevelReward = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "leveling");
     const sb = await admin();
     const { error } = await sb.from("level_rewards").insert({
       guild_id: data.guildId,
@@ -546,7 +547,7 @@ export const removeLevelReward = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "leveling");
     const sb = await admin();
     const { error } = await sb
       .from("level_rewards")
@@ -568,7 +569,7 @@ export const getLeaderboard = createServerFn({ method: "GET" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "leveling");
     const sb = await admin();
     const from = data.offset;
     const to = data.offset + data.limit - 1;
@@ -612,7 +613,7 @@ export const getEconomyConfig = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "economy");
     const sb = await admin();
     const { data: row, error } = await sb
       .from("economy_config")
@@ -637,7 +638,7 @@ const EconomyInput = z.object({
 export const updateEconomyConfig = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => EconomyInput.parse(d))
   .handler(async ({ data }) => {
-    const userId = await perm(data.guildId);
+    const userId = await perm(data.guildId, "economy");
     const sb = await admin();
     const { guildId, ...rest } = data;
     const { data: row, error } = await sb
@@ -657,7 +658,7 @@ export const listShopItems = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "economy");
     const sb = await admin();
     const { data: rows, error } = await sb
       .from("shop_items")
@@ -683,7 +684,7 @@ const ShopItemInput = z.object({
 export const upsertShopItem = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => ShopItemInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "economy");
     const sb = await admin();
     const payload = {
       id: data.id,
@@ -712,7 +713,7 @@ export const removeShopItem = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "economy");
     const sb = await admin();
     const { error } = await sb
       .from("shop_items")
@@ -728,7 +729,7 @@ export const listEconomyMissions = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "economy");
     const sb = await admin();
     const { data: rows, error } = await sb
       .from("economy_missions")
@@ -755,7 +756,7 @@ const MissionInput = z.object({
 export const upsertEconomyMission = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => MissionInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "economy");
     const sb = await admin();
     const { guildId, id, ...rest } = data;
     const { error } = await sb
@@ -773,7 +774,7 @@ export const removeEconomyMission = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "economy");
     const sb = await admin();
     const { error } = await sb
       .from("economy_missions")
@@ -792,7 +793,7 @@ export const listMultipliers = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "economy");
     const sb = await admin();
     const { data: rows, error } = await (sb as any)
       .from("guild_multipliers")
@@ -828,7 +829,7 @@ const MultiplierInput = z.object({
 export const upsertMultiplier = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => MultiplierInput.parse(d))
   .handler(async ({ data }) => {
-    const userId = await perm(data.guildId);
+    const userId = await perm(data.guildId, "economy");
     const sb = await admin();
     if (!data.id) {
       const { enforceGuildLimit } = await import("./premium-limits.server");
@@ -859,7 +860,7 @@ export const removeMultiplier = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "economy");
     const sb = await admin();
     const { error } = await (sb as any)
       .from("guild_multipliers")
@@ -884,7 +885,7 @@ export const listModCases = createServerFn({ method: "GET" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "moderation");
     const sb = await admin();
     let q = sb
       .from("mod_cases")
@@ -906,7 +907,7 @@ export const listCustomCommands = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "commands");
     const sb = await admin();
     const { data: rows, error } = await sb
       .from("custom_commands")
@@ -935,7 +936,7 @@ const CCInput = z.object({
 export const upsertCustomCommand = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => CCInput.parse(d))
   .handler(async ({ data }) => {
-    const userId = await perm(data.guildId);
+    const userId = await perm(data.guildId, "commands");
     const sb = await admin();
     const payload = {
       id: data.id,
@@ -960,7 +961,7 @@ export const removeCustomCommand = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "commands");
     const sb = await admin();
     const { error } = await sb
       .from("custom_commands")
@@ -979,7 +980,7 @@ export const listEmbedTemplates = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "embeds");
     const sb = await admin();
     const { data: rows, error } = await sb
       .from("embed_templates")
@@ -1000,7 +1001,7 @@ const EmbedInput = z.object({
 export const upsertEmbedTemplate = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => EmbedInput.parse(d))
   .handler(async ({ data }) => {
-    const userId = await perm(data.guildId);
+    const userId = await perm(data.guildId, "embeds");
     const sb = await admin();
     if (!data.id) {
       const { enforceGuildLimit } = await import("./premium-limits.server");
@@ -1025,7 +1026,7 @@ export const removeEmbedTemplate = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "embeds");
     const sb = await admin();
     const { error } = await sb
       .from("embed_templates")

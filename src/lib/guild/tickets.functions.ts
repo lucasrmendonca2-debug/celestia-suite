@@ -24,9 +24,10 @@ async function botToken() {
   if (!token) throw new Error("Token do bot não configurado no servidor.");
   return token;
 }
-async function perm(guildId: string) {
-  const { assertCanManageGuild } = await import("./permissions.server");
-  return assertCanManageGuild(guildId);
+async function perm(guildId: string, area: import("./permissions.functions").DashboardArea) {
+  const { assertCanAccessArea } = await import("./permissions-audit.server");
+  const actor = await assertCanAccessArea(guildId, area);
+  return actor.id;
 }
 
 const TICKET_DEFAULTS = {
@@ -106,7 +107,7 @@ export const getTicketConfig = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { data: row, error } = await sb
       .from("ticket_configs")
@@ -143,7 +144,7 @@ const TicketConfigInput = z.object({
 export const updateTicketConfig = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => TicketConfigInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { guildId, ...rest } = data;
     const payload = {
@@ -168,7 +169,7 @@ export const getTicketStats = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const [openRes, totalRes] = await Promise.all([
       sb
@@ -260,7 +261,7 @@ export const sendTicketPanel = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const token = await botToken();
 
     const sb = await admin();
@@ -400,7 +401,7 @@ export const deleteTicketPanel = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const token = await botToken();
     const sb = await admin();
     const { data: cfg } = await sb
@@ -442,7 +443,7 @@ export const listOpenTickets = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { data: rows, error } = await sb
       .from("tickets")
@@ -462,7 +463,7 @@ export const deleteActiveTicket = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const token = await botToken();
     const sb = await admin();
     const { data: ticket, error } = await sb
@@ -511,7 +512,7 @@ export const createPanelWebhook = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const token = await botToken();
     const sb = await admin();
 
@@ -580,7 +581,7 @@ export const updatePanelWebhook = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { data: cfg } = await sb
       .from("ticket_configs")
@@ -616,7 +617,7 @@ export const deletePanelWebhook = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { data: cfg } = await sb
       .from("ticket_configs")
@@ -653,7 +654,7 @@ export const seedTicketTemplates = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { count } = await sb
       .from("ticket_categories")
@@ -709,7 +710,7 @@ export const listTicketCategories = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { data: rows, error } = await sb
       .from("ticket_categories")
@@ -724,7 +725,7 @@ export const listTicketCategories = createServerFn({ method: "GET" })
 export const upsertTicketCategory = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => CategoryInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { guildId, id, ...rest } = data;
     const payload = { guild_id: guildId, ...rest };
@@ -745,7 +746,7 @@ export const deleteTicketCategory = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { error } = await sb
       .from("ticket_categories")
@@ -772,7 +773,7 @@ export const listAccessLevels = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { data: rows, error } = await sb
       .from("ticket_access_levels")
@@ -786,7 +787,7 @@ export const listAccessLevels = createServerFn({ method: "GET" })
 export const upsertAccessLevel = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => AccessLevelInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { guildId, id, ...rest } = data;
     const payload = { guild_id: guildId, ...rest };
@@ -803,7 +804,7 @@ export const deleteAccessLevel = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { error } = await sb
       .from("ticket_access_levels")
@@ -841,7 +842,7 @@ export const listPermissionRoles = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { data: rows, error } = await sb
       .from("ticket_permission_roles")
@@ -855,7 +856,7 @@ export const listPermissionRoles = createServerFn({ method: "GET" })
 export const upsertPermissionRole = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => PermissionRoleInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { guildId, id, ...rest } = data;
     const payload = { guild_id: guildId, ...rest };
@@ -872,7 +873,7 @@ export const deletePermissionRole = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { error } = await sb
       .from("ticket_permission_roles")
@@ -900,7 +901,7 @@ export const listGuildEmojis = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }): Promise<GuildEmoji[]> => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const token = await botToken();
     const res = await fetch(`${DISCORD}/guilds/${data.guildId}/emojis`, {
       headers: { Authorization: `Bot ${token}` },
@@ -947,7 +948,7 @@ export const listGuildChannels = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }): Promise<GuildChannel[]> => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const token = await botToken();
     const res = await fetch(`${DISCORD}/guilds/${data.guildId}/channels`, {
       headers: { Authorization: `Bot ${token}` },
@@ -974,7 +975,7 @@ export const listGuildRoles = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }): Promise<GuildRole[]> => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const token = await botToken();
     const res = await fetch(`${DISCORD}/guilds/${data.guildId}/roles`, {
       headers: { Authorization: `Bot ${token}` },
@@ -1006,7 +1007,7 @@ export const listTicketLogs = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema, limit: z.number().int().min(1).max(200).default(100) }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { data: rows, error } = await sb
       .from("ticket_logs")
@@ -1023,7 +1024,7 @@ export const getTicketRatings = createServerFn({ method: "GET" })
     z.object({ guildId: guildIdSchema }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { data: rows, error } = await sb
       .from("tickets")
@@ -1053,7 +1054,7 @@ export const updateTicketAppearance = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "tickets");
     const sb = await admin();
     const { error } = await sb
       .from("ticket_configs")

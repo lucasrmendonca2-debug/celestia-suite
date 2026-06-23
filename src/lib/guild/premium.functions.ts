@@ -11,9 +11,10 @@ async function admin() {
   return supabaseAdmin;
 }
 
-async function perm(guildId: string) {
-  const { assertCanManageGuild } = await import("./permissions.server");
-  return assertCanManageGuild(guildId);
+async function perm(guildId: string, area: import("./permissions.functions").DashboardArea) {
+  const { assertCanAccessArea } = await import("./permissions-audit.server");
+  const actor = await assertCanAccessArea(guildId, area);
+  return actor.id;
 }
 
 export const listPremiumPlans = createServerFn({ method: "GET" }).handler(async () => {
@@ -30,7 +31,7 @@ export const listPremiumPlans = createServerFn({ method: "GET" }).handler(async 
 export const getGuildPremiumStatus = createServerFn({ method: "GET" })
   .inputValidator((d: { guildId: string }) => z.object({ guildId: guildIdSchema }).parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "premium");
     const sb = await admin();
     const { data: subRow } = await sb
       .from("premium_subscriptions")
@@ -47,7 +48,7 @@ export const getGuildPremiumStatus = createServerFn({ method: "GET" })
 export const listPremiumAuditLogs = createServerFn({ method: "GET" })
   .inputValidator((d: { guildId: string }) => z.object({ guildId: guildIdSchema }).parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "premium");
     const sb = await admin();
     const { data: rows } = await sb
       .from("premium_audit_log")
@@ -63,7 +64,7 @@ const roleIdSchema = z.string().regex(/^\d{5,32}$/).nullable();
 export const getPremiumGuildConfig = createServerFn({ method: "GET" })
   .inputValidator((d: { guildId: string }) => z.object({ guildId: guildIdSchema }).parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "premium");
     const sb = await admin();
     const { data: row } = await sb
       .from("premium_guild_config")
@@ -84,7 +85,7 @@ export const updatePremiumGuildConfig = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "premium");
     const sb = await admin();
     const payload = {
       guild_id: data.guildId,
@@ -108,7 +109,7 @@ const RedeemInput = z.object({
 export const redeemGuildCode = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => RedeemInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "premium");
     const sb = await admin();
     const code = data.code.trim().toUpperCase();
 
@@ -147,7 +148,7 @@ export const redeemGuildCode = createServerFn({ method: "POST" })
 export const getPremiumUsage = createServerFn({ method: "GET" })
   .inputValidator((d: { guildId: string }) => z.object({ guildId: guildIdSchema }).parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "premium");
     const sb = await admin();
     const { FREE_LIMITS } = await import("./premium-limits.server");
 

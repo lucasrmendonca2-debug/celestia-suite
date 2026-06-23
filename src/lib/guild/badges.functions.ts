@@ -12,9 +12,10 @@ async function admin() {
   const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
   return supabaseAdmin;
 }
-async function perm(guildId: string) {
-  const { assertCanManageGuild } = await import("./permissions.server");
-  return assertCanManageGuild(guildId);
+async function perm(guildId: string, area: import("./permissions.functions").DashboardArea) {
+  const { assertCanAccessArea } = await import("./permissions-audit.server");
+  const actor = await assertCanAccessArea(guildId, area);
+  return actor.id;
 }
 
 // ============================================================
@@ -23,7 +24,7 @@ async function perm(guildId: string) {
 export const listBadges = createServerFn({ method: "GET" })
   .inputValidator((d: { guildId: string }) => z.object({ guildId: guildIdSchema }).parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "badges");
     const sb = await admin();
     const { data: rows, error } = await sb.from("badges").select("*").eq("guild_id", data.guildId).order("created_at");
     if (error) throw new Error(error.message);
@@ -46,7 +47,7 @@ const BadgeInput = z.object({
 export const upsertBadge = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => BadgeInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "badges");
     const sb = await admin();
     const { guildId, id, ...rest } = data;
     if (id) {
@@ -66,7 +67,7 @@ export const deleteBadge = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "badges");
     const sb = await admin();
     const { error } = await sb.from("badges").delete().eq("id", data.id).eq("guild_id", data.guildId);
     if (error) throw new Error(error.message);
@@ -85,7 +86,7 @@ export const grantBadge = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "badges");
     const sb = await admin();
     // upsert manual (idempotente)
     const { data: existing } = await sb
@@ -115,7 +116,7 @@ export const revokeBadgeFn = createServerFn({ method: "POST" })
       .parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "badges");
     const sb = await admin();
     const { error } = await sb
       .from("user_badges")
@@ -133,7 +134,7 @@ export const revokeBadgeFn = createServerFn({ method: "POST" })
 export const listAchievements = createServerFn({ method: "GET" })
   .inputValidator((d: { guildId: string }) => z.object({ guildId: guildIdSchema }).parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "badges");
     const sb = await admin();
     const { data: rows, error } = await sb
       .from("achievements")
@@ -171,7 +172,7 @@ const AchievementInput = z.object({
 export const upsertAchievement = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => AchievementInput.parse(d))
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "badges");
     const sb = await admin();
     const { guildId, id, ...rest } = data;
     if (id) {
@@ -189,7 +190,7 @@ export const deleteAchievement = createServerFn({ method: "POST" })
     z.object({ guildId: guildIdSchema, id: z.string().uuid() }).parse(d),
   )
   .handler(async ({ data }) => {
-    await perm(data.guildId);
+    await perm(data.guildId, "badges");
     const sb = await admin();
     const { error } = await sb
       .from("achievements")

@@ -5,7 +5,15 @@
  */
 import { createServerFn } from "@tanstack/react-start";
 import { getCurrentUser } from "@/lib/auth/auth.functions";
-import { supabaseAdmin } from "@/lib/supabase-admin.server";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
+
+// Dynamic import: supabase-admin.server NUNCA pode entrar no bundle do client (service_role).
+async function loadAdmin(): Promise<SupabaseClient<Database>> {
+  const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
+  return supabaseAdmin;
+}
+
 
 export type ProfileSlot = "banner" | "frame" | "effect" | "background_pattern";
 

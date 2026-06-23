@@ -55,7 +55,7 @@ const command: SlashCommand = {
         }),
       ],
     });
-    void getAccount(guildId, target.id);
+    getAccount(guildId, target.id).catch((err) => logger.warn({ err }, "getAccount pay falhou"));
   },
 };
 export default command;

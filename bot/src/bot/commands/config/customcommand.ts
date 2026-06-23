@@ -43,30 +43,33 @@ const command: SlashCommand = {
         return;
       }
       const response = interaction.options.getString("resposta", true).slice(0, 1900);
-      const embed = interaction.options.getBoolean("embed") ?? false;
-      const deleteTrigger = interaction.options.getBoolean("apagar_trigger") ?? false;
-      const guild = await Guild.findById(guildId);
-      const limit = guild?.premium ? LIMIT_PREMIUM : LIMIT_FREE;
-      const count = await CustomCommand.countDocuments({ guildId });
-      if (count >= limit && !(await CustomCommand.findOne({ guildId, name }))) {
+      const useEmbed = interaction.options.getBoolean("embed") ?? false;
+      // P9 fase 3: o limite premium dependia de `Guild.findById` (shim no-op).
+      // Mantemos o limite free até reescrever sobre `premium_guild_config`.
+      const limit = LIMIT_FREE;
+      const count = await countCustomCommands(guildId);
+      const existing = await getCustomCommand(guildId, name);
+      if (count >= limit && !existing) {
         await interaction.reply({
-          embeds: [brandEmbed({ kind: "error", title: "Limite atingido", description: `Plano atual: **${limit}** comandos. Faça upgrade VIP para **${LIMIT_PREMIUM}**.` })],
+          embeds: [brandEmbed({ kind: "error", title: "Limite atingido", description: `Plano atual: **${limit}** comandos.` })],
           flags: MessageFlags.Ephemeral,
         });
         return;
       }
-      await CustomCommand.findOneAndUpdate(
-        { guildId, name },
-        { response, embed, deleteTrigger, createdBy: interaction.user.id, enabled: true },
-        { upsert: true, setDefaultsOnInsert: true },
-      );
+      await upsertCustomCommand({
+        guildId,
+        name,
+        responseText: response,
+        embed: useEmbed ? { kind: "brand" } : null,
+        createdBy: interaction.user.id,
+      });
       await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Comando salvo", description: `Use **!${name}** no chat.` })], flags: MessageFlags.Ephemeral });
     } else if (sub === "remover") {
       const name = interaction.options.getString("nome", true).toLowerCase();
-      await CustomCommand.deleteOne({ guildId, name });
+      await deleteCustomCommand(guildId, name);
       await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Removido" })], flags: MessageFlags.Ephemeral });
     } else {
-      const list = await CustomCommand.find({ guildId }).limit(50);
+      const list = await listCustomCommands(guildId, 50);
       await interaction.reply({
         embeds: [
           brandEmbed({

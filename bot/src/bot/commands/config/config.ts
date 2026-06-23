@@ -1,7 +1,19 @@
 import { SlashCommandBuilder, PermissionFlagsBits, ChannelType, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
-import { GuildConfig } from "../../../database/models.js";
+import { supabase, canWriteSupabase } from "../../../database/supabase.js";
+import {
+  updateGuildConfig,
+  updatePremiumGuildConfig,
+} from "../../repositories/guildConfig.repo.js";
+import { invalidateGuildConfig } from "../../utils/guildCache.js";
+
+const LOG_FIELD_TO_COLUMN: Record<string, { table: "guild_configs" | "ticket_configs"; column: string }> = {
+  modLogChannelId: { table: "guild_configs", column: "mod_log_channel_id" },
+  messageLogChannelId: { table: "guild_configs", column: "message_log_channel_id" },
+  memberLogChannelId: { table: "guild_configs", column: "member_log_channel_id" },
+  ticketLogChannelId: { table: "ticket_configs", column: "log_channel_id" },
+};
 
 const command: SlashCommand = {
   category: "config",
@@ -67,10 +79,33 @@ const command: SlashCommand = {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guildId!;
 
+    if (!canWriteSupabase) {
+      return interaction.reply({
+        embeds: [brandEmbed({ kind: "error", title: "Backend indisponível", description: "Configuração só é possível com a chave service_role configurada." })],
+        flags: MessageFlags.Ephemeral,
+      });
+    }
+
     if (group === "logs" && sub === "set") {
       const tipo = interaction.options.getString("tipo", true);
       const canal = interaction.options.getChannel("canal", true);
-      await GuildConfig.updateOne({ guildId }, { $set: { [tipo]: canal.id } }, { upsert: true });
+      const map = LOG_FIELD_TO_COLUMN[tipo];
+      if (!map) {
+        return interaction.reply({
+          embeds: [brandEmbed({ kind: "error", title: "Tipo inválido" })],
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+      const { error } = await supabase
+        .from(map.table)
+        .upsert({ guild_id: guildId, [map.column]: canal.id }, { onConflict: "guild_id" });
+      if (error) {
+        return interaction.reply({
+          embeds: [brandEmbed({ kind: "error", title: "Falha ao salvar", description: error.message })],
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+      invalidateGuildConfig(guildId);
       return interaction.reply({
         embeds: [brandEmbed({ kind: "success", title: "Canal de log atualizado", description: `${tipo} → <#${canal.id}>` })],
         flags: MessageFlags.Ephemeral,
@@ -80,11 +115,12 @@ const command: SlashCommand = {
     if (group === "welcome" && sub === "set") {
       const canal = interaction.options.getChannel("canal", true);
       const msg = interaction.options.getString("mensagem") ?? undefined;
-      await GuildConfig.updateOne(
-        { guildId },
-        { $set: { welcomeChannelId: canal.id, welcomeEnabled: true, ...(msg ? { welcomeMessage: msg } : {}) } },
-        { upsert: true },
-      );
+      await updateGuildConfig(guildId, {
+        welcome_channel_id: canal.id,
+        welcome_enabled: true,
+        ...(msg ? { welcome_message: msg } : {}),
+      });
+      invalidateGuildConfig(guildId);
       return interaction.reply({
         embeds: [brandEmbed({ kind: "success", title: "Boas-vindas configuradas", description: `Canal: <#${canal.id}>` })],
         flags: MessageFlags.Ephemeral,
@@ -92,9 +128,14 @@ const command: SlashCommand = {
     }
 
     if (group === "welcome" && sub === "toggle") {
-      const cfg = await GuildConfig.findOne({ guildId });
-      const next = !cfg?.welcomeEnabled;
-      await GuildConfig.updateOne({ guildId }, { $set: { welcomeEnabled: next } }, { upsert: true });
+      const { data } = await supabase
+        .from("guild_configs")
+        .select("welcome_enabled")
+        .eq("guild_id", guildId)
+        .maybeSingle();
+      const next = !(data?.welcome_enabled ?? false);
+      await updateGuildConfig(guildId, { welcome_enabled: next });
+      invalidateGuildConfig(guildId);
       return interaction.reply({
         embeds: [brandEmbed({ kind: "info", title: `Boas-vindas ${next ? "ativadas" : "desativadas"}` })],
         flags: MessageFlags.Ephemeral,
@@ -103,7 +144,10 @@ const command: SlashCommand = {
 
     if (group === "vip" && sub === "role") {
       const cargo = interaction.options.getRole("cargo", true);
-      await GuildConfig.updateOne({ guildId }, { $set: { vipRoleId: cargo.id } }, { upsert: true });
+      await updatePremiumGuildConfig(guildId, { vip_role_id: cargo.id });
+      // mantém compat com leitores que ainda consultam guild_configs.vip_role_id
+      await updateGuildConfig(guildId, { vip_role_id: cargo.id });
+      invalidateGuildConfig(guildId);
       return interaction.reply({
         embeds: [brandEmbed({ kind: "success", title: "Cargo VIP atualizado", description: `<@&${cargo.id}>` })],
         flags: MessageFlags.Ephemeral,

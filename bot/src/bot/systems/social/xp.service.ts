@@ -169,6 +169,32 @@ export async function handleSocialXp(msg: Message): Promise<void> {
       value: derived.level,
     }).catch(() => []);
     if (unlocked.length > 0) await announceAchievements(msg, unlocked).catch(() => {});
+
+    // Drop de cosmético comum (8% por level-up)
+    try {
+      const { tryDropCommonCosmetic } = await import("../cosmetics/cosmetics.service.js");
+      const dropped = await tryDropCommonCosmetic({
+        userId,
+        chance: 0.08,
+        reason: `level_up_${derived.level}`,
+      });
+      if (dropped) {
+        const { ui } = await import("../ui/embed.factory.js");
+        await msg.channel
+          .send({
+            embeds: [
+              ui.celebration({
+                title: `Drop! <@${userId}> ganhou ${dropped.name}`,
+                description: `Um cosmético **comum** caiu junto com o level-up. Equipe com \`/perfil equipar\`.`,
+                image: dropped.preview_url ?? dropped.image_url,
+              }),
+            ],
+          })
+          .catch(() => {});
+      }
+    } catch (err) {
+      logger.debug({ err }, "cosmetic drop falhou");
+    }
   }
 
   // Conquistas — total de mensagens (avalia depois do flush periódico, mas tentamos no momento também)

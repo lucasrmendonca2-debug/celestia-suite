@@ -17,9 +17,9 @@ const command: SlashCommand = {
   cooldown: 3,
   guildOnly: true,
   data: new SlashCommandBuilder()
-    .setName("perfil")
-    .setNameLocalizations({ "en-US": "profile" })
-    .setDescription("Perfil social do servidor.")
+    .setName("perfil-social")
+    .setNameLocalizations({ "en-US": "social-profile" })
+    .setDescription("Perfil social do servidor (bio, badges, reputação).")
     .addSubcommand((s) =>
       s
         .setName("ver")

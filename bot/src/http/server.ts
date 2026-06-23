@@ -162,10 +162,11 @@ async function buildStatus(guildId: string, userId: string) {
 }
 
 async function handleStatus(req: http.IncomingMessage, res: http.ServerResponse) {
-  const { token, expectedUserId } = await readJson(req);
-  if (!token) return send(res, 400, { error: "missing token" });
+  const { token, expectedUserId } = await readJson(req, env.BOT_API_MAX_BODY_BYTES);
+  if (!token || typeof token !== "string")
+    return send(res, 400, { error: "missing_token" });
   const t = await DailyToken.findOne({ token });
-  if (!t) return send(res, 404, { error: "invalid token" });
+  if (!t) return send(res, 404, { error: "invalid_token" });
   if (t.expiresAt.getTime() < Date.now())
     return send(res, 410, { error: "expired" });
   if (expectedUserId && t.userId !== expectedUserId)
@@ -175,8 +176,9 @@ async function handleStatus(req: http.IncomingMessage, res: http.ServerResponse)
 }
 
 async function handleClaim(req: http.IncomingMessage, res: http.ServerResponse) {
-  const { token, expectedUserId } = await readJson(req);
-  if (!token) return send(res, 400, { error: "missing token" });
+  const { token, expectedUserId } = await readJson(req, env.BOT_API_MAX_BODY_BYTES);
+  if (!token || typeof token !== "string")
+    return send(res, 400, { error: "missing_token" });
   // Verifica dono ANTES de consumir o token, para evitar gastar tokens alheios.
   const preview = await DailyToken.findOne({ token });
   if (!preview) return send(res, 404, { error: "invalid token" });

@@ -4,7 +4,10 @@ import { ChannelType,
   type TextChannel, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
-import { Announcement } from "../../../database/models.js";
+import {
+  createAnnouncement,
+  listScheduledAnnouncements,
+} from "../../repositories/content.repo.js";
 
 function parseDuration(input: string): number | null {
   const m = input.trim().toLowerCase().match(/^(\d+)\s*(s|m|h|d)$/);
@@ -66,9 +69,7 @@ const command: SlashCommand = {
     const sub = interaction.options.getSubcommand();
 
     if (sub === "listar") {
-      const items = await Announcement.find({ guildId: interaction.guildId!, sent: false })
-        .sort({ scheduledFor: 1 })
-        .limit(10);
+      const items = await listScheduledAnnouncements(interaction.guildId!, 10);
       if (items.length === 0) {
         await interaction.reply({ content: "Nenhum anúncio agendado.", flags: MessageFlags.Ephemeral });
         return;
@@ -81,7 +82,7 @@ const command: SlashCommand = {
             description: items
               .map(
                 (a) =>
-                  `\`${String(a._id)}\` — <#${a.channelId}> — <t:${Math.floor((a.scheduledFor ?? new Date()).getTime() / 1000)}:R>\n> ${a.content.slice(0, 120)}`,
+                  `\`${a.id}\` — <#${a.channel_id}> — <t:${Math.floor((a.scheduled_at ? new Date(a.scheduled_at) : new Date()).getTime() / 1000)}:R>\n> ${(a.content ?? "").slice(0, 120)}`,
               )
               .join("\n\n"),
           }),
@@ -139,31 +140,30 @@ const command: SlashCommand = {
         });
         return;
       }
-      await Announcement.create({
+      await createAnnouncement({
         guildId: interaction.guildId!,
         channelId: canal.id,
         authorId: interaction.user.id,
         title: titulo,
         content: mensagem,
         mention: mencao,
-        sent: true,
         sentAt: new Date(),
       });
       await interaction.reply({ content: "✅ Anúncio enviado.", flags: MessageFlags.Ephemeral });
       return;
     }
 
-    const a = await Announcement.create({
+    const a = await createAnnouncement({
       guildId: interaction.guildId!,
       channelId: canal.id,
       authorId: interaction.user.id,
       title: titulo,
       content: mensagem,
       mention: mencao,
-      scheduledFor,
+      scheduledAt: scheduledFor,
     });
     await interaction.reply({
-      content: `⏰ Anúncio agendado para <t:${Math.floor(scheduledFor.getTime() / 1000)}:F> (\`${String(a._id)}\`).`,
+      content: `⏰ Anúncio agendado para <t:${Math.floor(scheduledFor.getTime() / 1000)}:F> (\`${a.id}\`).`,
       flags: MessageFlags.Ephemeral,
     });
   },

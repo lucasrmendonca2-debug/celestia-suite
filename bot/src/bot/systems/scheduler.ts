@@ -1,5 +1,12 @@
 import { Client, type TextChannel } from "discord.js";
-import { VipMembership, Punishment, Giveaway, Reminder, Announcement } from "../../database/models.js";
+import { VipMembership, Punishment, Giveaway } from "../../database/models.js";
+import {
+  findDueReminders,
+  markReminderFired,
+  findDueAnnouncements,
+  markAnnouncementSent,
+  type AnnouncementRow,
+} from "../repositories/content.repo.js";
 import { logger } from "../utils/logger.js";
 import { getConfig } from "../utils/guildCache.js";
 import { sendLog } from "./logs/sender.js";
@@ -78,13 +85,15 @@ async function tick(client: Client) {
   }
 
   // Lembretes a entregar
-  const reminders = await Reminder.find({ delivered: false, remindAt: { $lte: now } }).limit(50);
+  const reminders = await findDueReminders(now, 50);
   for (const r of reminders) {
     try {
-      const ch = (await client.channels.fetch(r.channelId).catch(() => null)) as TextChannel | null;
+      const ch = r.channel_id
+        ? ((await client.channels.fetch(r.channel_id).catch(() => null)) as TextChannel | null)
+        : null;
       if (ch?.isTextBased()) {
         await ch.send({
-          content: `<@${r.userId}>`,
+          content: `<@${r.user_id}>`,
           embeds: [
             brandEmbed({
               kind: "info",
@@ -92,60 +101,61 @@ async function tick(client: Client) {
               description: r.message,
             }),
           ],
-          allowedMentions: { users: [r.userId] },
+          allowedMentions: { users: [r.user_id] },
         });
       } else {
-        const user = await client.users.fetch(r.userId).catch(() => null);
+        const user = await client.users.fetch(r.user_id).catch(() => null);
         await user?.send({
           embeds: [brandEmbed({ kind: "info", title: "⏰ Lembrete", description: r.message })],
         });
       }
     } catch (err) {
-      logger.error({ err, reminderId: String(r._id) }, "reminder delivery falhou");
+      logger.error({ err, reminderId: r.id }, "reminder delivery falhou");
     }
-    r.delivered = true;
-    await r.save();
+    await markReminderFired(r.id);
   }
 
   // Anúncios agendados
-  const announcements = await Announcement.find({
-    sent: false,
-    scheduledFor: { $ne: null, $lte: now },
-  }).limit(20);
+  const announcements = await findDueAnnouncements(now, 20);
   for (const a of announcements) {
+    const meta = (a.embed ?? {}) as { title?: string | null; mention?: string | null };
+    const mention = meta.mention ?? null;
     try {
-      const ch = (await client.channels.fetch(a.channelId).catch(() => null)) as TextChannel | null;
+      const ch = (await client.channels.fetch(a.channel_id).catch(() => null)) as TextChannel | null;
       if (ch?.isTextBased()) {
         const content =
-          a.mention === "everyone"
+          mention === "everyone"
             ? "@everyone"
-            : a.mention === "here"
+            : mention === "here"
               ? "@here"
-              : a.mention && /^\d{17,20}$/.test(a.mention)
-                ? `<@&${a.mention}>`
+              : mention && /^\d{17,20}$/.test(mention)
+                ? `<@&${mention}>`
                 : undefined;
-        await ch.send({
+        const sent = await ch.send({
           content,
           embeds: [
             brandEmbed({
               kind: "info",
-              title: a.title ?? "📣 Anúncio",
-              description: a.content,
+              title: meta.title ?? "📣 Anúncio",
+              description: a.content ?? "",
             }),
           ],
           allowedMentions:
-            a.mention === "everyone" || a.mention === "here"
+            mention === "everyone" || mention === "here"
               ? { parse: ["everyone"] }
-              : a.mention && /^\d{17,20}$/.test(a.mention)
-                ? { roles: [a.mention] }
+              : mention && /^\d{17,20}$/.test(mention)
+                ? { roles: [mention] }
                 : { parse: [] },
         });
+        await markAnnouncementSent(a.id, sent.id);
+      } else {
+        await markAnnouncementSent(a.id, null);
       }
-      a.sent = true;
-      a.sentAt = new Date();
-      await a.save();
     } catch (err) {
-      logger.error({ err, announcementId: String(a._id) }, "announcement delivery falhou");
+      logger.error({ err, announcementId: a.id }, "announcement delivery falhou");
     }
   }
 }
+
+// type re-export usado por consumers externos (se houver)
+export type { AnnouncementRow };

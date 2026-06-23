@@ -2,7 +2,7 @@ import { SlashCommandBuilder, PermissionFlagsBits, ChannelType, EmbedBuilder, ty
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { applyVars } from "../../utils/format.js";
-import { EmbedTemplate } from "../../../database/models.js";
+import { upsertEmbedTemplate, getEmbedTemplate, listEmbedTemplates } from "../../repositories/content.repo.js";
 
 const command: SlashCommand = {
   category: "config",
@@ -70,10 +70,11 @@ const command: SlashCommand = {
 
       const saveAs = interaction.options.getString("salvar_como");
       if (saveAs) {
-        await EmbedTemplate.findOneAndUpdate(
-          { guildId, name: saveAs },
-          { payload: { title, description: interaction.options.getString("descricao", true), color, image, thumbnail, footer }, createdBy: interaction.user.id },
-          { upsert: true, setDefaultsOnInsert: true },
+        await upsertEmbedTemplate(
+          guildId,
+          saveAs,
+          { title, description: interaction.options.getString("descricao", true), color, image, thumbnail, footer },
+          interaction.user.id,
         );
       }
       await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Embed enviado", description: saveAs ? `Salvo como **${saveAs}**` : undefined })], flags: MessageFlags.Ephemeral });
@@ -83,12 +84,12 @@ const command: SlashCommand = {
     if (sub === "enviar-modelo") {
       const name = interaction.options.getString("nome", true);
       const channel = interaction.options.getChannel("canal", true) as TextChannel;
-      const t = await EmbedTemplate.findOne({ guildId, name });
+      const t = await getEmbedTemplate(guildId, name);
       if (!t) {
         await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Template não encontrado" })], flags: MessageFlags.Ephemeral });
         return;
       }
-      const p = t.payload as Record<string, string | number | undefined>;
+      const p = (t.embed ?? {}) as Record<string, string | number | undefined>;
       const vars = { user: `<@${interaction.user.id}>`, server: interaction.guild!.name };
       const eb = new EmbedBuilder().setColor((p.color as number) ?? 0x7c3aed).setDescription(applyVars(String(p.description ?? ""), vars));
       if (p.title) eb.setTitle(String(p.title));
@@ -101,7 +102,7 @@ const command: SlashCommand = {
     }
 
     if (sub === "modelos") {
-      const list = await EmbedTemplate.find({ guildId }).limit(25);
+      const list = await listEmbedTemplates(guildId, 25);
       await interaction.reply({
         embeds: [brandEmbed({ title: "🎨 Templates de Embed", description: list.length ? list.map((t) => `• **${t.name}**`).join("\n") : "Nenhum." })],
         flags: MessageFlags.Ephemeral,

@@ -107,8 +107,13 @@ export async function incrementMissionProgress(
   by = 1,
 ): Promise<void> {
   try {
-    const missions = await ensureMissions(guildId);
-    const targets = missions.filter((m) => m.kind === kind && m.active);
+    const [missions, score] = await Promise.all([
+      ensureMissions(guildId),
+      getDifficultyScore(guildId, userId),
+    ]);
+    const targets = missions
+      .filter((m) => m.kind === kind && m.active)
+      .map((m) => applyDifficulty(m, score));
     if (!targets.length) return;
     const period = todayPeriod();
     for (const m of targets) {
@@ -122,6 +127,7 @@ export async function incrementMissionProgress(
         .maybeSingle();
       const newProgress = (existing?.progress ?? 0) + by;
       const completed = newProgress >= m.goal;
+      const wasCompleted = !!existing?.completed_at;
       await supabase.from("user_missions").upsert(
         {
           id: existing?.id,
@@ -134,6 +140,17 @@ export async function incrementMissionProgress(
         },
         { onConflict: "guild_id,user_id,mission_id,period_start" },
       );
+      // Se acabou de concluir agora, bump no perfil adaptativo
+      if (completed && !wasCompleted) {
+        supabase
+          .rpc("bump_user_mission_profile", {
+            _user_id: userId,
+            _guild_id: guildId,
+            _completed: true,
+          })
+          .then(() => {})
+          .catch(() => {});
+      }
     }
   } catch (err) {
     logger.debug({ err, kind }, "incrementMissionProgress falhou");
@@ -146,13 +163,21 @@ export async function claimMission(
   missionId: string,
 ): Promise<{ ok: boolean; reason?: string; reward?: number }> {
   const period = todayPeriod();
-  const { data: mission } = await supabase
-    .from("economy_missions")
-    .select("id,reward,title,goal")
-    .eq("id", missionId)
-    .eq("guild_id", guildId)
-    .maybeSingle();
-  if (!mission) return { ok: false, reason: "Missão não encontrada." };
+  const [missionRes, score] = await Promise.all([
+    supabase
+      .from("economy_missions")
+      .select("id,reward,title,goal")
+      .eq("id", missionId)
+      .eq("guild_id", guildId)
+      .maybeSingle(),
+    getDifficultyScore(guildId, userId),
+  ]);
+  const baseMission = missionRes.data;
+  if (!baseMission) return { ok: false, reason: "Missão não encontrada." };
+  const mission = applyDifficulty(
+    { goal: baseMission.goal as number, reward: baseMission.reward as number },
+    score,
+  );
 
   const { data: state } = await supabase
     .from("user_missions")
@@ -168,7 +193,6 @@ export async function claimMission(
   }
   if (state.claimed_at) return { ok: false, reason: "Recompensa já coletada." };
 
-  // Paga via Mongo (carteira principal)
   await EconomyAccount.updateOne(
     { guildId, userId },
     { $inc: { wallet: mission.reward }, $setOnInsert: { guildId, userId } },
@@ -183,8 +207,8 @@ export async function claimMission(
     userId,
     kind: "mission_reward",
     amount: mission.reward,
-    reason: `Missão: ${mission.title}`,
-    metadata: { mission_id: missionId },
+    reason: `Missão: ${baseMission.title}`,
+    metadata: { mission_id: missionId, difficulty_score: score },
   });
   return { ok: true, reward: mission.reward };
 }

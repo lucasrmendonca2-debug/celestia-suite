@@ -130,8 +130,18 @@
     "category": "fun"
   },
   {
+    "name": "bonk",
+    "description": "Bonk em alguém.",
+    "category": "interaction"
+  },
+  {
     "name": "casar",
     "description": "Pede alguém em casamento. 💍",
+    "category": "interaction"
+  },
+  {
+    "name": "cuddle",
+    "description": "Faz chamego em alguém.",
     "category": "interaction"
   },
   {
@@ -140,13 +150,33 @@
     "category": "interaction"
   },
   {
+    "name": "hug",
+    "description": "Dá um abraço em alguém.",
+    "category": "interaction"
+  },
+  {
+    "name": "kiss",
+    "description": "Dá um beijo em alguém.",
+    "category": "interaction"
+  },
+  {
+    "name": "pat",
+    "description": "Faz carinho em alguém.",
+    "category": "interaction"
+  },
+  {
+    "name": "poke",
+    "description": "Cutuca alguém.",
+    "category": "interaction"
+  },
+  {
     "name": "ship",
     "description": "Calcula a compatibilidade entre duas pessoas.",
     "category": "interaction"
   },
   {
-    "name": "usuario",
-    "description": "Alvo",
+    "name": "slap",
+    "description": "Dá um tapa em alguém.",
     "category": "interaction"
   },
   {

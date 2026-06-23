@@ -56,17 +56,9 @@ const command: SlashCommand = {
       });
       return;
     }
-    // Atômico: trava o cooldown só se ainda não estiver dentro da janela.
-    const { EconomyAccount } = await import("../../../database/models.js");
-    const cooldownGuard = await EconomyAccount.updateOne(
-      {
-        guildId,
-        userId: interaction.user.id,
-        $or: [{ lastRob: null }, { lastRob: { $lte: new Date(now.getTime() - COOLDOWN) } }],
-      },
-      { $set: { lastRob: now } },
-    );
-    if (cooldownGuard.modifiedCount === 0) {
+    // Atômico: trava cooldown no banco (substitui o read-modify-write do shim).
+    const locked = await claimCooldown(guildId, interaction.user.id, "last_rob_at", COOLDOWN / 1000);
+    if (!locked) {
       await interaction.reply({
         embeds: [ui.warn({ title: "Calma, ladrão", description: "Outro golpe seu já está em andamento." })],
         flags: MessageFlags.Ephemeral,
@@ -76,21 +68,15 @@ const command: SlashCommand = {
     const c = await getCurrency(guildId);
     if (Math.random() < 0.45) {
       const taken = Math.floor(them.wallet * (0.1 + Math.random() * 0.3));
-      // Atômico: só desconta se ainda tiver saldo.
-      // (EconomyAccount já importado acima)
-      const updated = await EconomyAccount.findOneAndUpdate(
-        { guildId, userId: target.id, wallet: { $gte: taken } },
-        { $inc: { wallet: -taken } },
-        { new: true },
-      );
-      if (!updated) {
+      const debited = await removeWallet(guildId, target.id, taken);
+      if (!debited) {
         await interaction.reply({
           embeds: [ui.warn({ title: "Alvo escapou", description: `${target} esvaziou a carteira antes do golpe.` })],
           flags: MessageFlags.Ephemeral,
         });
         return;
       }
-      await EconomyAccount.updateOne({ guildId, userId: interaction.user.id }, { $inc: { wallet: taken } });
+      await addWallet(guildId, interaction.user.id, taken);
       await interaction.reply({
         embeds: [
           ui.economy({
@@ -102,11 +88,7 @@ const command: SlashCommand = {
       });
     } else {
       const fine = Math.min(me.wallet, Math.floor(150 + Math.random() * 400));
-      // (EconomyAccount já importado acima)
-      await EconomyAccount.updateOne(
-        { guildId, userId: interaction.user.id, wallet: { $gte: fine } },
-        { $inc: { wallet: -fine } },
-      );
+      await removeWallet(guildId, interaction.user.id, fine);
       await interaction.reply({
         embeds: [
           ui.error({

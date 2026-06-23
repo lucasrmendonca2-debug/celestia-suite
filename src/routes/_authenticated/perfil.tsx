@@ -219,6 +219,120 @@ function InventoryItem({
   );
 }
 
+const SOURCE_LABEL: Record<string, { label: string; icon: typeof Coins; tone: string }> = {
+  shop: { label: "Compra na loja", icon: Coins, tone: "text-amber-400" },
+  drop: { label: "Drop aleatório", icon: Gift, tone: "text-pink-400" },
+  level_reward: { label: "Recompensa de nível", icon: Trophy, tone: "text-emerald-400" },
+  seasonal: { label: "Recompensa sazonal", icon: Sparkles, tone: "text-purple-400" },
+  daily: { label: "Diário", icon: Gift, tone: "text-blue-400" },
+  admin: { label: "Concedido", icon: Sparkles, tone: "text-muted-foreground" },
+};
+
+function timeAgo(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const sec = Math.floor(diffMs / 1000);
+  if (sec < 60) return `há ${sec}s`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `há ${min}min`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `há ${hr}h`;
+  const day = Math.floor(hr / 24);
+  if (day < 30) return `há ${day}d`;
+  const mo = Math.floor(day / 30);
+  if (mo < 12) return `há ${mo}mes${mo > 1 ? "es" : ""}`;
+  return new Date(iso).toLocaleDateString("pt-BR");
+}
+
+function PurchaseHistorySection() {
+  const { data: history, isLoading } = useQuery({
+    queryKey: ["purchase-history"],
+    queryFn: () => getPurchaseHistory(),
+    staleTime: 1000 * 30,
+  });
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="py-10 text-center text-sm text-muted-foreground">
+          Carregando histórico…
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!history || history.length === 0) {
+    return (
+      <Card>
+        <CardContent className="py-2">
+          <EmptyMascot
+            variant="sleeping"
+            title="Nenhuma aquisição ainda"
+            description="Suas compras, drops e recompensas aparecem aqui assim que rolarem."
+            action={
+              <Button asChild>
+                <Link to="/loja">Visitar a loja</Link>
+              </Button>
+            }
+          />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Últimas aquisições</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-2">
+          {history.map((entry) => {
+            const meta = SOURCE_LABEL[entry.source ?? ""] ?? SOURCE_LABEL.admin;
+            const Icon = meta.icon;
+            return (
+              <li
+                key={entry.id}
+                className="flex items-center gap-3 rounded-md border border-border/60 bg-card/50 p-2.5 transition-colors hover:bg-card animate-fade-in"
+              >
+                <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted">
+                  {entry.cosmetic.image_url && (
+                    <img
+                      src={entry.cosmetic.image_url}
+                      alt={entry.cosmetic.name}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="truncate text-sm font-medium">{entry.cosmetic.name}</p>
+                    <Badge variant="outline" className={`shrink-0 ${RARITY_STYLES[entry.cosmetic.rarity]}`}>
+                      {RARITY_LABEL[entry.cosmetic.rarity] ?? entry.cosmetic.rarity}
+                    </Badge>
+                  </div>
+                  <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Icon className={`h-3 w-3 ${meta.tone}`} />
+                    {meta.label}
+                    {entry.price_paid != null && entry.price_paid > 0 && (
+                      <>
+                        <span className="opacity-50">·</span>
+                        <span>−{entry.price_paid.toLocaleString("pt-BR")} 🪙</span>
+                      </>
+                    )}
+                    <span className="opacity-50">·</span>
+                    <span>{timeAgo(entry.acquired_at)}</span>
+                  </p>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </CardContent>
+    </Card>
+  );
+}
+
 function PerfilPage() {
   const qc = useQueryClient();
   const { data: profile } = useSuspenseQuery(profileOptions);

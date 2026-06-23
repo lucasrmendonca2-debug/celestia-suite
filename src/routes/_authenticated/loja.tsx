@@ -117,7 +117,7 @@ function ItemCard({
 }) {
   const isLegendary = item.rarity === "legendary";
   const buyDisabled = owned || !affordable;
-  const buyLabel = owned ? "Adquirido" : !affordable ? "Sem saldo" : "Comprar";
+  const buyLabel = owned ? "Adquirido" : !affordable ? "Saldo insuficiente" : "Comprar";
 
   const buyButton = (
     <Button
@@ -125,7 +125,7 @@ function ItemCard({
       variant={owned ? "secondary" : "default"}
       disabled={buyDisabled}
       onClick={onBuy}
-      aria-label={!affordable && !owned ? "Saldo insuficiente" : undefined}
+      aria-label={!affordable && !owned ? "Saldo insuficiente (Global)" : undefined}
     >
       {buyLabel}
     </Button>
@@ -195,7 +195,7 @@ function ItemCard({
               <TooltipTrigger asChild>
                 <span tabIndex={0}>{buyButton}</span>
               </TooltipTrigger>
-              <TooltipContent>Saldo insuficiente</TooltipContent>
+              <TooltipContent>Saldo insuficiente (Global)</TooltipContent>
             </Tooltip>
           ) : (
             buyButton

@@ -50,8 +50,23 @@ const command: SlashCommand = {
       });
       return;
     }
-    me.lastRob = now;
-    await me.save();
+    // Atômico: trava o cooldown só se ainda não estiver dentro da janela.
+    const { EconomyAccount } = await import("../../../database/models.js");
+    const cooldownGuard = await EconomyAccount.updateOne(
+      {
+        guildId,
+        userId: interaction.user.id,
+        $or: [{ lastRob: null }, { lastRob: { $lte: new Date(now.getTime() - COOLDOWN) } }],
+      },
+      { $set: { lastRob: now } },
+    );
+    if (cooldownGuard.modifiedCount === 0) {
+      await interaction.reply({
+        embeds: [ui.warn({ title: "Calma, ladrão", description: "Outro golpe seu já está em andamento." })],
+        flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
     const c = await getCurrency(guildId);
     if (Math.random() < 0.45) {
       const taken = Math.floor(them.wallet * (0.1 + Math.random() * 0.3));

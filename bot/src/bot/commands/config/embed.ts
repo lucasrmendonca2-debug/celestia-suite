@@ -2,7 +2,7 @@ import { SlashCommandBuilder, PermissionFlagsBits, ChannelType, EmbedBuilder, ty
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { applyVars } from "../../utils/format.js";
-import { EmbedTemplate } from "../../../database/models.js";
+import { upsertEmbedTemplate, getEmbedTemplate, listEmbedTemplates } from "../../repositories/content.repo.js";
 
 const command: SlashCommand = {
   category: "config",

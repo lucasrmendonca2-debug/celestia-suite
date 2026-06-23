@@ -69,9 +69,7 @@ const command: SlashCommand = {
     const sub = interaction.options.getSubcommand();
 
     if (sub === "listar") {
-      const items = await Announcement.find({ guildId: interaction.guildId!, sent: false })
-        .sort({ scheduledFor: 1 })
-        .limit(10);
+      const items = await listScheduledAnnouncements(interaction.guildId!, 10);
       if (items.length === 0) {
         await interaction.reply({ content: "Nenhum anúncio agendado.", flags: MessageFlags.Ephemeral });
         return;
@@ -84,7 +82,7 @@ const command: SlashCommand = {
             description: items
               .map(
                 (a) =>
-                  `\`${String(a._id)}\` — <#${a.channelId}> — <t:${Math.floor((a.scheduledFor ?? new Date()).getTime() / 1000)}:R>\n> ${a.content.slice(0, 120)}`,
+                  `\`${a.id}\` — <#${a.channel_id}> — <t:${Math.floor((a.scheduled_at ? new Date(a.scheduled_at) : new Date()).getTime() / 1000)}:R>\n> ${(a.content ?? "").slice(0, 120)}`,
               )
               .join("\n\n"),
           }),

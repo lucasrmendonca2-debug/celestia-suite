@@ -43,7 +43,7 @@ const command: SlashCommand = {
         filter: (i) => i.user.id === target.id,
       });
       if (click.customId === "marry:yes") {
-        await Marriage.create({ userA: interaction.user.id, userB: target.id, status: "MARRIED", marriedAt: new Date() });
+        await createMarriage({ guildId: interaction.guildId!, userA: interaction.user.id, userB: target.id, proposedBy: interaction.user.id });
         await click.update({
           embeds: [brandEmbed({ kind: "success", title: "💖 Casamento celebrado!", description: `${interaction.user} e ${target} estão oficialmente casados 🎉` })],
           components: [],

@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
+    "typecheck": "tsgo --noEmit",
     "sync-commands": "node scripts/build-commands-json.mjs"
   },
   "dependencies": {

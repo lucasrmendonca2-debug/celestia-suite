@@ -59,6 +59,8 @@ export interface SlashCommand {
   /** Módulo lógico do comando (subagrupamento dentro da categoria). */
   module?: string;
   execute: (interaction: ChatInputCommandInteraction, ctx: CommandContext) => Promise<unknown>;
+  /** Handler opcional para autocomplete de opções. */
+  autocomplete?: (interaction: AutocompleteInteraction, ctx: CommandContext) => Promise<unknown>;
 }
 
 export interface CommandContext {

@@ -316,6 +316,7 @@ export interface ShopItemDTO extends CosmeticDTO {
 export interface ShopCatalogDTO {
   cosmetics: ShopItemDTO[];
   ownedIds: string[];
+  favoriteIds: string[];
   wallets: WalletDTO[];
   totalBalance: number;
   dailyOfferIds: string[];
@@ -339,6 +340,13 @@ export const getShopCatalog = createServerFn({ method: "GET" }).handler(
 
     const { data: owned } = await supabaseAdmin
       .from("user_cosmetics")
+      .select("cosmetic_id")
+      .eq("user_id", user.id);
+
+    const { data: favRaw } = await (supabaseAdmin as unknown as {
+      from: (t: string) => any;
+    })
+      .from("user_favorite_cosmetics")
       .select("cosmetic_id")
       .eq("user_id", user.id);
 
@@ -374,6 +382,7 @@ export const getShopCatalog = createServerFn({ method: "GET" }).handler(
     return {
       cosmetics: (cosmetics ?? []) as ShopItemDTO[],
       ownedIds: (owned ?? []).map((o) => o.cosmetic_id),
+      favoriteIds: ((favRaw ?? []) as Array<{ cosmetic_id: string }>).map((f) => f.cosmetic_id),
       wallets,
       totalBalance: wallets.reduce((a, w) => a + w.balance, 0),
       dailyOfferIds: (rotation?.daily_offers ?? []) as string[],

@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery, useQueryClient, queryOptions } from "@tanstack/react-query";
+import { useSuspenseQuery, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
@@ -11,13 +11,16 @@ import {
   type ProfileDTO,
   type CosmeticDTO,
 } from "@/lib/profile/profile.functions";
+import { getPurchaseHistory } from "@/lib/profile/purchase-history.functions";
+import { celebrateBurst } from "@/lib/animations/confetti";
+import { EmptyMascot } from "@/components/profile/EmptyMascot";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Sparkles, Shirt, Palette, Sticker, Wand2, ShoppingBag, X } from "lucide-react";
+import { Sparkles, Shirt, Palette, Sticker, Wand2, ShoppingBag, X, History, Coins, Gift, Trophy } from "lucide-react";
 
 const profileOptions = queryOptions({
   queryKey: ["my-profile"],
@@ -216,6 +219,120 @@ function InventoryItem({
   );
 }
 
+const SOURCE_LABEL: Record<string, { label: string; icon: typeof Coins; tone: string }> = {
+  shop: { label: "Compra na loja", icon: Coins, tone: "text-amber-400" },
+  drop: { label: "Drop aleatório", icon: Gift, tone: "text-pink-400" },
+  level_reward: { label: "Recompensa de nível", icon: Trophy, tone: "text-emerald-400" },
+  seasonal: { label: "Recompensa sazonal", icon: Sparkles, tone: "text-purple-400" },
+  daily: { label: "Diário", icon: Gift, tone: "text-blue-400" },
+  admin: { label: "Concedido", icon: Sparkles, tone: "text-muted-foreground" },
+};
+
+function timeAgo(iso: string): string {
+  const diffMs = Date.now() - new Date(iso).getTime();
+  const sec = Math.floor(diffMs / 1000);
+  if (sec < 60) return `há ${sec}s`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `há ${min}min`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `há ${hr}h`;
+  const day = Math.floor(hr / 24);
+  if (day < 30) return `há ${day}d`;
+  const mo = Math.floor(day / 30);
+  if (mo < 12) return `há ${mo}mes${mo > 1 ? "es" : ""}`;
+  return new Date(iso).toLocaleDateString("pt-BR");
+}
+
+function PurchaseHistorySection() {
+  const { data: history, isLoading } = useQuery({
+    queryKey: ["purchase-history"],
+    queryFn: () => getPurchaseHistory(),
+    staleTime: 1000 * 30,
+  });
+
+  if (isLoading) {
+    return (
+      <Card>
+        <CardContent className="py-10 text-center text-sm text-muted-foreground">
+          Carregando histórico…
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!history || history.length === 0) {
+    return (
+      <Card>
+        <CardContent className="py-2">
+          <EmptyMascot
+            variant="sleeping"
+            title="Nenhuma aquisição ainda"
+            description="Suas compras, drops e recompensas aparecem aqui assim que rolarem."
+            action={
+              <Button asChild>
+                <Link to="/loja">Visitar a loja</Link>
+              </Button>
+            }
+          />
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-base">Últimas aquisições</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ul className="space-y-2">
+          {history.map((entry) => {
+            const meta = SOURCE_LABEL[entry.source ?? ""] ?? SOURCE_LABEL.admin;
+            const Icon = meta.icon;
+            return (
+              <li
+                key={entry.id}
+                className="flex items-center gap-3 rounded-md border border-border/60 bg-card/50 p-2.5 transition-colors hover:bg-card animate-fade-in"
+              >
+                <div className="h-12 w-12 shrink-0 overflow-hidden rounded-md bg-muted">
+                  {entry.cosmetic.image_url && (
+                    <img
+                      src={entry.cosmetic.image_url}
+                      alt={entry.cosmetic.name}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="truncate text-sm font-medium">{entry.cosmetic.name}</p>
+                    <Badge variant="outline" className={`shrink-0 ${RARITY_STYLES[entry.cosmetic.rarity]}`}>
+                      {RARITY_LABEL[entry.cosmetic.rarity] ?? entry.cosmetic.rarity}
+                    </Badge>
+                  </div>
+                  <p className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Icon className={`h-3 w-3 ${meta.tone}`} />
+                    {meta.label}
+                    {entry.price_paid != null && entry.price_paid > 0 && (
+                      <>
+                        <span className="opacity-50">·</span>
+                        <span>−{entry.price_paid.toLocaleString("pt-BR")} 🪙</span>
+                      </>
+                    )}
+                    <span className="opacity-50">·</span>
+                    <span>{timeAgo(entry.acquired_at)}</span>
+                  </p>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </CardContent>
+    </Card>
+  );
+}
+
 function PerfilPage() {
   const qc = useQueryClient();
   const { data: profile } = useSuspenseQuery(profileOptions);
@@ -248,6 +365,7 @@ function PerfilPage() {
     try {
       await equipFn({ data: { cosmeticId } });
       toast.success("Equipado!");
+      celebrateBurst();
       qc.invalidateQueries({ queryKey: ["my-profile"] });
       setCardVersion(Date.now());
     } catch (e: any) {
@@ -425,55 +543,74 @@ function PerfilPage() {
             </Card>
           </div>
 
-          {/* Coluna direita: inventário */}
-          <Card className="self-start">
-            <CardHeader className="flex-row items-center justify-between space-y-0">
-              <CardTitle className="text-base">Inventário ({profile.inventory.length})</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Tabs value={tab} onValueChange={setTab}>
-                <TabsList className="grid w-full grid-cols-5">
-                  {TYPE_TABS.map((t) => {
-                    const Icon = t.icon;
-                    return (
-                      <TabsTrigger key={t.id} value={t.id} className="gap-1.5">
-                        <Icon className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">{t.label}</span>
-                      </TabsTrigger>
-                    );
-                  })}
-                </TabsList>
-                <TabsContent value={tab} className="mt-4">
-                  {!hasInventory ? (
-                    <div className="py-12 text-center">
-                      <Sparkles className="mx-auto h-10 w-10 text-muted-foreground/40" />
-                      <p className="mt-3 text-sm text-muted-foreground">
-                        Você ainda não tem cosméticos.
-                      </p>
-                      <Button asChild className="mt-4">
-                        <Link to="/loja">Visitar a loja</Link>
-                      </Button>
-                    </div>
-                  ) : filteredInventory.length === 0 ? (
-                    <p className="py-8 text-center text-sm text-muted-foreground">
-                      Nenhum item desta categoria.
-                    </p>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                      {filteredInventory.map((entry) => (
-                        <InventoryItem
-                          key={entry.id}
-                          entry={entry}
-                          isEquipped={equippedIds.has(entry.cosmetic.id)}
-                          onEquip={() => handleEquip(entry.cosmetic.id)}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
+          {/* Coluna direita: inventário + histórico */}
+          <div className="space-y-4 self-start">
+            <Tabs defaultValue="inventory">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="inventory" className="gap-1.5">
+                  <ShoppingBag className="h-3.5 w-3.5" />
+                  Inventário ({profile.inventory.length})
+                </TabsTrigger>
+                <TabsTrigger value="history" className="gap-1.5">
+                  <History className="h-3.5 w-3.5" />
+                  Histórico
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="inventory">
+                <Card>
+                  <CardContent className="pt-6">
+                    <Tabs value={tab} onValueChange={setTab}>
+                      <TabsList className="grid w-full grid-cols-5">
+                        {TYPE_TABS.map((t) => {
+                          const Icon = t.icon;
+                          return (
+                            <TabsTrigger key={t.id} value={t.id} className="gap-1.5">
+                              <Icon className="h-3.5 w-3.5" />
+                              <span className="hidden sm:inline">{t.label}</span>
+                            </TabsTrigger>
+                          );
+                        })}
+                      </TabsList>
+                      <TabsContent value={tab} className="mt-4">
+                        {!hasInventory ? (
+                          <EmptyMascot
+                            variant="sleeping"
+                            title="Inventário vazio"
+                            description="Você ainda não tem cosméticos. Bora ganhar moedas e dar uma olhada na loja?"
+                            action={
+                              <Button asChild>
+                                <Link to="/loja">Visitar a loja</Link>
+                              </Button>
+                            }
+                          />
+                        ) : filteredInventory.length === 0 ? (
+                          <p className="py-8 text-center text-sm text-muted-foreground">
+                            Nenhum item desta categoria.
+                          </p>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                            {filteredInventory.map((entry) => (
+                              <InventoryItem
+                                key={entry.id}
+                                entry={entry}
+                                isEquipped={equippedIds.has(entry.cosmetic.id)}
+                                onEquip={() => handleEquip(entry.cosmetic.id)}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </TabsContent>
+                    </Tabs>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="history">
+                <PurchaseHistorySection />
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
     </main>

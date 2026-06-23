@@ -91,3 +91,37 @@ export const getPremiumPlans = createServerFn({ method: "GET" }).handler(
     });
   },
 );
+
+export interface PremiumCosmeticDTO {
+  id: string;
+  name: string;
+  description: string | null;
+  type: string;
+  rarity: string;
+  image_url: string | null;
+  collection: string | null;
+}
+
+export const getPremiumShowcase = createServerFn({ method: "GET" }).handler(
+  async (): Promise<PremiumCosmeticDTO[]> => {
+    const supabase = serverClient();
+    if (!supabase) return [];
+    const { data, error } = await supabase
+      .from("profile_cosmetics")
+      .select("id, name, description, type, rarity, image_url, collection, vip_only, sort_order")
+      .eq("active", true)
+      .or("rarity.eq.legendary,vip_only.eq.true")
+      .order("sort_order", { ascending: true })
+      .limit(8);
+    if (error || !data) return [];
+    return data.map((c) => ({
+      id: c.id,
+      name: c.name,
+      description: c.description,
+      type: c.type,
+      rarity: c.rarity,
+      image_url: c.image_url,
+      collection: c.collection,
+    }));
+  },
+);

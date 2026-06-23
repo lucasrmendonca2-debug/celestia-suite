@@ -14,6 +14,7 @@ import { Route as StatusRouteImport } from './routes/status'
 import { Route as RecursosRouteImport } from './routes/recursos'
 import { Route as PremiumRouteImport } from './routes/premium'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as HallDaFamaRouteImport } from './routes/hall-da-fama'
 import { Route as EntrarRouteImport } from './routes/entrar'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as DailyRouteImport } from './routes/daily'
@@ -84,6 +85,11 @@ const PremiumRoute = PremiumRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HallDaFamaRoute = HallDaFamaRouteImport.update({
+  id: '/hall-da-fama',
+  path: '/hall-da-fama',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EntrarRoute = EntrarRouteImport.update({
@@ -354,6 +360,7 @@ export interface FileRoutesByFullPath {
   '/daily': typeof DailyRoute
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
+  '/hall-da-fama': typeof HallDaFamaRoute
   '/login': typeof LoginRoute
   '/premium': typeof PremiumRoute
   '/recursos': typeof RecursosRoute
@@ -406,6 +413,7 @@ export interface FileRoutesByTo {
   '/daily': typeof DailyRoute
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
+  '/hall-da-fama': typeof HallDaFamaRoute
   '/login': typeof LoginRoute
   '/premium': typeof PremiumRoute
   '/recursos': typeof RecursosRoute
@@ -459,6 +467,7 @@ export interface FileRoutesById {
   '/daily': typeof DailyRoute
   '/docs': typeof DocsRoute
   '/entrar': typeof EntrarRoute
+  '/hall-da-fama': typeof HallDaFamaRoute
   '/login': typeof LoginRoute
   '/premium': typeof PremiumRoute
   '/recursos': typeof RecursosRoute
@@ -513,6 +522,7 @@ export interface FileRouteTypes {
     | '/daily'
     | '/docs'
     | '/entrar'
+    | '/hall-da-fama'
     | '/login'
     | '/premium'
     | '/recursos'
@@ -565,6 +575,7 @@ export interface FileRouteTypes {
     | '/daily'
     | '/docs'
     | '/entrar'
+    | '/hall-da-fama'
     | '/login'
     | '/premium'
     | '/recursos'
@@ -617,6 +628,7 @@ export interface FileRouteTypes {
     | '/daily'
     | '/docs'
     | '/entrar'
+    | '/hall-da-fama'
     | '/login'
     | '/premium'
     | '/recursos'
@@ -671,6 +683,7 @@ export interface RootRouteChildren {
   DailyRoute: typeof DailyRoute
   DocsRoute: typeof DocsRoute
   EntrarRoute: typeof EntrarRoute
+  HallDaFamaRoute: typeof HallDaFamaRoute
   LoginRoute: typeof LoginRoute
   PremiumRoute: typeof PremiumRoute
   RecursosRoute: typeof RecursosRoute
@@ -722,6 +735,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hall-da-fama': {
+      id: '/hall-da-fama'
+      path: '/hall-da-fama'
+      fullPath: '/hall-da-fama'
+      preLoaderRoute: typeof HallDaFamaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/entrar': {
@@ -1166,6 +1186,7 @@ const rootRouteChildren: RootRouteChildren = {
   DailyRoute: DailyRoute,
   DocsRoute: DocsRoute,
   EntrarRoute: EntrarRoute,
+  HallDaFamaRoute: HallDaFamaRoute,
   LoginRoute: LoginRoute,
   PremiumRoute: PremiumRoute,
   RecursosRoute: RecursosRoute,

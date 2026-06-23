@@ -3803,6 +3803,46 @@ export type Database = {
         }
         Relationships: []
       }
+      user_favorite_cosmetics: {
+        Row: {
+          cosmetic_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          cosmetic_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          cosmetic_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_favorite_cosmetics_cosmetic_id_fkey"
+            columns: ["cosmetic_id"]
+            isOneToOne: false
+            referencedRelation: "cosmetic_shop_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_favorite_cosmetics_cosmetic_id_fkey"
+            columns: ["cosmetic_id"]
+            isOneToOne: false
+            referencedRelation: "guild_shop_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_favorite_cosmetics_cosmetic_id_fkey"
+            columns: ["cosmetic_id"]
+            isOneToOne: false
+            referencedRelation: "profile_cosmetics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_mission_profile: {
         Row: {
           completed_count: number
@@ -4269,6 +4309,7 @@ export type Database = {
       }
       generate_daily_missions: { Args: { _guild_id: string }; Returns: Json }
       generate_guild_insights: { Args: { _guild_id: string }; Returns: Json }
+      get_hall_of_fame: { Args: never; Returns: Json }
       get_public_stats: {
         Args: never
         Returns: {

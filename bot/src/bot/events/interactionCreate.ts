@@ -56,10 +56,7 @@ const event: BotEvent<"interactionCreate"> = {
         else if (interaction.customId.startsWith("giveaway:")) await handleGiveawayButton(interaction);
         else if (interaction.customId.startsWith("poll:")) await handlePollButton(interaction);
         else if (interaction.customId.startsWith("suggestion:")) await handleSuggestionButton(interaction);
-        else if (interaction.customId.startsWith("cosmetic:")) {
-          const { handleCosmeticButton } = await import("../commands/fun/perfil.js");
-          await handleCosmeticButton(interaction);
-        }
+        // cosmetic:* buttons removidos — loja agora é só pelo site.
         else if (interaction.customId.startsWith("mission_claim:")) {
           const missionId = interaction.customId.split(":")[1];
           if (!missionId) return;

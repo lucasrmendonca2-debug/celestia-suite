@@ -54,6 +54,18 @@ const command: SlashCommand = {
         });
         return;
       }
+      const activeCount = await Reminder.countDocuments({
+        userId: interaction.user.id,
+        delivered: false,
+      });
+      const MAX_ACTIVE = 10;
+      if (activeCount >= MAX_ACTIVE) {
+        await interaction.reply({
+          content: `Você já tem ${MAX_ACTIVE} lembretes ativos. Cancele algum com \`/lembrete cancelar\` antes de criar outro.`,
+          flags: MessageFlags.Ephemeral,
+        });
+        return;
+      }
       const r = await Reminder.create({
         guildId: interaction.guildId!,
         userId: interaction.user.id,

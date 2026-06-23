@@ -169,6 +169,38 @@ export async function shopBuyAtomic(
 }
 
 /**
+ * Transferência atômica entre wallet e bank — respeita bank_cap.
+ * Substitui `acc.wallet -= x; acc.bank += x; await acc.save()` que sofre race.
+ */
+export async function bankTransferAtomic(
+  guildId: string,
+  userId: string,
+  amount: number,
+  direction: "deposit" | "withdraw",
+): Promise<{ ok: boolean; reason?: string; wallet?: number; bank?: number; bankCap?: number }> {
+  if (amount <= 0) return { ok: false, reason: "invalid_amount" };
+  const { data, error } = await supabase.rpc("economy_bank_transfer", {
+    _guild_id: guildId,
+    _user_id: userId,
+    _amount: amount,
+    _direction: direction,
+  });
+  if (error) {
+    logger.error({ err: error, guildId, userId, amount, direction }, "bankTransferAtomic RPC falhou");
+    return { ok: false, reason: "rpc_error" };
+  }
+  const p = data as any;
+  if (!p?.ok) return { ok: false, reason: p?.reason ?? "unknown" };
+  return {
+    ok: true,
+    wallet: Number(p.wallet ?? 0),
+    bank: Number(p.bank ?? 0),
+    bankCap: p.bank_cap != null ? Number(p.bank_cap) : undefined,
+  };
+}
+
+
+/**
  * Diária atômica: trava `last_daily_at` no banco e retorna se sucedeu.
  * O caller é responsável por creditar a recompensa (via `addWallet`) e
  * atualizar streak — mas só APÓS este RPC retornar ok.

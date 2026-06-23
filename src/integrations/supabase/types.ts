@@ -4334,6 +4334,15 @@ export type Database = {
         Args: { _guild_id: string; _member_count: number }
         Returns: Json
       }
+      economy_bank_transfer: {
+        Args: {
+          _amount: number
+          _direction: string
+          _guild_id: string
+          _user_id: string
+        }
+        Returns: Json
+      }
       economy_claim_cooldown: {
         Args: {
           _cooldown_seconds: number

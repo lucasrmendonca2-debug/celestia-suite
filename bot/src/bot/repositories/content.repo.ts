@@ -135,14 +135,10 @@ export async function listCustomCommands(guildId: string, limit = 50): Promise<C
 }
 
 export async function incrementCustomCommandUses(id: string) {
-  // Não-bloqueante: incremento best-effort via RPC-like update; ignoramos erro.
-  const { error } = await supabase.rpc("increment_custom_command_uses" as never, { _id: id } as never);
-  if (error) {
-    // Fallback simples: read + update (não atômico, mas suficiente para contador de uso).
-    const { data } = await supabase.from("custom_commands").select("uses").eq("id", id).maybeSingle();
-    const uses = ((data as any)?.uses ?? 0) + 1;
-    await supabase.from("custom_commands").update({ uses }).eq("id", id);
-  }
+  // Best-effort: read + update. Não atômico, mas suficiente para contador de uso.
+  const { data } = await supabase.from("custom_commands").select("uses").eq("id", id).maybeSingle();
+  const uses = ((data as any)?.uses ?? 0) + 1;
+  await supabase.from("custom_commands").update({ uses }).eq("id", id);
 }
 
 // ============================================================

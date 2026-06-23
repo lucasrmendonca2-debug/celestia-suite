@@ -1,5 +1,11 @@
 import { Client, type TextChannel } from "discord.js";
-import { VipMembership, Punishment, Giveaway } from "../../database/models.js";
+import {
+  findExpiredUserVips,
+  markVipExpired,
+  findExpiredTempbans,
+  markPunishmentInactive,
+  findDueGiveaways,
+} from "../repositories/phase4.repo.js";
 import {
   findDueReminders,
   markReminderFired,

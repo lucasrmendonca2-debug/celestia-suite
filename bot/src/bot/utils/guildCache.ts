@@ -198,15 +198,10 @@ export function invalidateGuildConfig(guildId: string) {
 }
 
 /**
- * Não-bloqueante: dispara upsert do user em background.
+ * P9 fase 2: no-op (a tabela Mongo `users` não existe mais). Mantido por
+ * compatibilidade com call-sites; quando precisarmos de cache de usuário
+ * será reescrito sobre uma tabela `users` em Supabase.
  */
-export function ensureUser(id: string, username?: string | null) {
-  void User.updateOne(
-    { _id: id },
-    {
-      $set: { ...(username ? { username } : {}) },
-      $setOnInsert: { _id: id },
-    },
-    { upsert: true },
-  ).catch((err) => logger.warn({ err, userId: id }, "ensureUser falhou"));
+export function ensureUser(_id: string, _username?: string | null) {
+  // intencionalmente vazio
 }

@@ -156,7 +156,13 @@ const command: SlashCommand = {
 
     if (sub === "ignorar") {
       const tipo = interaction.options.getString("tipo", true);
-      const id = interaction.options.getString("id", true);
+      const id = interaction.options.getString("id", true).trim();
+      if (!/^\d{17,20}$/.test(id)) {
+        return interaction.reply({
+          embeds: [brandEmbed({ kind: "error", title: "ID inválido", description: "Informe um Snowflake do Discord (17–20 dígitos)." })],
+          flags: MessageFlags.Ephemeral,
+        });
+      }
       const cfg = await getLogsConfig(guildId);
       const current = ((cfg as Record<string, string[] | null> | null)?.[tipo] ?? []) as string[];
       const next = current.includes(id)

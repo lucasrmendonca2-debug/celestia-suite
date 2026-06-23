@@ -316,6 +316,7 @@ export interface ShopItemDTO extends CosmeticDTO {
 export interface ShopCatalogDTO {
   cosmetics: ShopItemDTO[];
   ownedIds: string[];
+  favoriteIds: string[];
   wallets: WalletDTO[];
   totalBalance: number;
   dailyOfferIds: string[];

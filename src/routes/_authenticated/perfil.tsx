@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useSuspenseQuery, useQueryClient, queryOptions } from "@tanstack/react-query";
+import { useSuspenseQuery, useQueryClient, queryOptions, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState, useMemo } from "react";
 import { toast } from "sonner";
@@ -11,13 +11,16 @@ import {
   type ProfileDTO,
   type CosmeticDTO,
 } from "@/lib/profile/profile.functions";
+import { getPurchaseHistory } from "@/lib/profile/purchase-history.functions";
+import { celebrateBurst } from "@/lib/animations/confetti";
+import { EmptyMascot } from "@/components/profile/EmptyMascot";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Sparkles, Shirt, Palette, Sticker, Wand2, ShoppingBag, X } from "lucide-react";
+import { Sparkles, Shirt, Palette, Sticker, Wand2, ShoppingBag, X, History, Coins, Gift, Trophy } from "lucide-react";
 
 const profileOptions = queryOptions({
   queryKey: ["my-profile"],

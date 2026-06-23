@@ -39,6 +39,7 @@ import {
   Check,
   Search,
   User as UserIcon,
+  Loader2,
 } from "lucide-react";
 
 const shopOptions = queryOptions({

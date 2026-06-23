@@ -42,29 +42,86 @@ export async function issueDailyToken(guildId: string, userId: string) {
   return token;
 }
 
-async function readJson(req: http.IncomingMessage): Promise<any> {
+function getAllowedOrigins(): string[] {
+  const list = (env.BOT_API_ALLOWED_ORIGINS ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (list.length) return list;
+  try {
+    return [new URL(env.APP_URL).origin];
+  } catch {
+    return [];
+  }
+}
+
+function pickOrigin(req: http.IncomingMessage): string | null {
+  const allowed = getAllowedOrigins();
+  const origin = (req.headers.origin as string | undefined) ?? null;
+  if (!origin) return null; // server-to-server (sem browser) — sem CORS
+  if (allowed.includes("*")) return "*";
+  return allowed.includes(origin) ? origin : null;
+}
+
+function applyCors(res: http.ServerResponse, origin: string | null) {
+  if (origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+  }
+  res.setHeader("Access-Control-Allow-Headers", "content-type, x-bot-secret");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Max-Age", "600");
+}
+
+class HttpError extends Error {
+  constructor(public status: number, public code: string, message?: string) {
+    super(message ?? code);
+  }
+}
+
+async function readJson(
+  req: http.IncomingMessage,
+  maxBytes: number,
+): Promise<any> {
   return new Promise((resolve, reject) => {
-    let body = "";
-    req.on("data", (c) => (body += c));
+    const chunks: Buffer[] = [];
+    let size = 0;
+    req.on("data", (c: Buffer) => {
+      size += c.length;
+      if (size > maxBytes) {
+        reject(new HttpError(413, "payload_too_large"));
+        req.destroy();
+        return;
+      }
+      chunks.push(c);
+    });
     req.on("end", () => {
-      if (!body) return resolve({});
+      if (!size) return resolve({});
       try {
-        resolve(JSON.parse(body));
-      } catch (e) {
-        reject(e);
+        resolve(JSON.parse(Buffer.concat(chunks).toString("utf8")));
+      } catch {
+        reject(new HttpError(400, "invalid_json"));
       }
     });
-    req.on("error", reject);
+    req.on("error", (err) => reject(err));
   });
 }
 
 function send(res: http.ServerResponse, status: number, body: any) {
   res.statusCode = status;
-  res.setHeader("Content-Type", "application/json");
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "content-type, x-bot-secret");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.end(JSON.stringify(body));
+}
+
+function safeEqualStr(a: string, b: string): boolean {
+  const ab = Buffer.from(a, "utf8");
+  const bb = Buffer.from(b, "utf8");
+  if (ab.length !== bb.length) {
+    // Mantém tempo aproximado comparando contra si mesmo.
+    crypto.timingSafeEqual(ab, ab);
+    return false;
+  }
+  return crypto.timingSafeEqual(ab, bb);
 }
 
 async function buildStatus(guildId: string, userId: string) {

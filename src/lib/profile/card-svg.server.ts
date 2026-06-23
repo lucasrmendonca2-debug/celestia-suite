@@ -42,7 +42,7 @@ function truncate(s: string, max: number) {
 export function buildProfileCardSvg(d: ProfileCardData): string {
   const W = 800;
   const H = 400;
-  const accent = /^#[0-9a-fA-F]{6}$/.test(d.accentColor) ? d.accentColor : "#5865F2";
+  const accent = /^#[0-9a-fA-F]{6}$/.test(d.accentColor) ? d.accentColor : "#f59e0b";
 
   const xpPct = d.xpForNext > 0 ? clamp(d.xpInLevel / d.xpForNext, 0, 1) : 0;
   const xpBarW = 460;
@@ -54,10 +54,15 @@ export function buildProfileCardSvg(d: ProfileCardData): string {
   const isLegendary = d.rarity === "legendary";
   const glowColor = isLegendary ? "#fbbf24" : accent;
 
-  // Banner: imagem se houver, senão gradiente baseado no accent
+  // Banner: imagem se houver, senão gradiente padrão Zenox (âmbar→preto) com brilho decorativo
   const bannerEl = d.bannerUrl
     ? `<image href="${escapeXml(d.bannerUrl)}" x="0" y="0" width="${W}" height="180" preserveAspectRatio="xMidYMid slice" clip-path="url(#bannerClip)"/>`
-    : `<rect x="0" y="0" width="${W}" height="180" fill="url(#bannerGrad)"/>`;
+    : `<g>
+         <rect x="0" y="0" width="${W}" height="180" fill="url(#defaultBannerGrad)"/>
+         <circle cx="640" cy="40" r="120" fill="${accent}" opacity="0.18"/>
+         <circle cx="720" cy="160" r="80" fill="${accent}" opacity="0.10"/>
+         <circle cx="60" cy="20" r="60" fill="#fbbf24" opacity="0.08"/>
+       </g>`;
 
   // Frame ao redor do avatar
   const avatarCX = 100;

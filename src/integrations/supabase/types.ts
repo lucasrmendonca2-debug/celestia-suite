@@ -1983,6 +1983,7 @@ export type Database = {
           can_clear_messages: boolean
           can_kick: boolean
           can_lock_channel: boolean
+          can_manage_appeals: boolean
           can_manage_automod: boolean
           can_manage_blacklist: boolean
           can_manage_moderation_config: boolean
@@ -2006,6 +2007,7 @@ export type Database = {
           can_clear_messages?: boolean
           can_kick?: boolean
           can_lock_channel?: boolean
+          can_manage_appeals?: boolean
           can_manage_automod?: boolean
           can_manage_blacklist?: boolean
           can_manage_moderation_config?: boolean
@@ -2029,6 +2031,7 @@ export type Database = {
           can_clear_messages?: boolean
           can_kick?: boolean
           can_lock_channel?: boolean
+          can_manage_appeals?: boolean
           can_manage_automod?: boolean
           can_manage_blacklist?: boolean
           can_manage_moderation_config?: boolean
@@ -4318,8 +4321,26 @@ export type Database = {
         }
         Returns: Json
       }
+      daily_claim_atomic: {
+        Args: {
+          _cooldown_seconds: number
+          _expected_streak: number
+          _guild_id: string
+          _user_id: string
+        }
+        Returns: Json
+      }
       detect_guild_milestones: {
         Args: { _guild_id: string; _member_count: number }
+        Returns: Json
+      }
+      economy_claim_cooldown: {
+        Args: {
+          _cooldown_seconds: number
+          _field: string
+          _guild_id: string
+          _user_id: string
+        }
         Returns: Json
       }
       economy_credit_global: {
@@ -4360,12 +4381,26 @@ export type Database = {
         Args: { _guild_id: string; _user_id: string }
         Returns: number
       }
+      level_add_xp: {
+        Args: { _amount: number; _guild_id: string; _user_id: string }
+        Returns: Json
+      }
       next_case_number: { Args: { _guild_id: string }; Returns: number }
       redeem_guild_premium_code: {
         Args: { _code: string; _guild_id: string }
         Returns: Json
       }
       rotate_daily_cosmetics: { Args: { _force?: boolean }; Returns: Json }
+      shop_buy_atomic: {
+        Args: {
+          _guild_id: string
+          _item_id: string
+          _qty: number
+          _unit_price: number
+          _user_id: string
+        }
+        Returns: Json
+      }
       snapshot_weekly_ranking: { Args: { _guild_id: string }; Returns: Json }
       tune_guild_economy: { Args: { _guild_id: string }; Returns: Json }
     }

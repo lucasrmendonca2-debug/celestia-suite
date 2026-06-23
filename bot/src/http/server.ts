@@ -170,14 +170,15 @@ async function handleStatus(req: http.IncomingMessage, res: http.ServerResponse)
   const { token, expectedUserId } = await readJson(req, env.BOT_API_MAX_BODY_BYTES);
   if (!token || typeof token !== "string")
     return send(res, 400, { error: "missing_token" });
-  const t = await DailyToken.findOne({ token });
-  if (!t) return send(res, 404, { error: "invalid_token" });
-  if (t.expiresAt.getTime() < Date.now())
+  const t = await findDailyToken(token);
+  if (!t || t.used) return send(res, 404, { error: "invalid_token" });
+  if (new Date(t.expires_at).getTime() < Date.now())
     return send(res, 410, { error: "expired" });
-  if (expectedUserId && t.userId !== expectedUserId)
+  if (expectedUserId && t.user_id !== expectedUserId)
     return send(res, 403, { error: "token_user_mismatch" });
-  const status = await buildStatus(t.guildId, t.userId);
-  return send(res, 200, { ok: true, user: { id: t.userId, guildId: t.guildId }, ...status });
+  const guildId = t.guild_id ?? "";
+  const status = await buildStatus(guildId, t.user_id);
+  return send(res, 200, { ok: true, user: { id: t.user_id, guildId }, ...status });
 }
 
 async function handleClaim(req: http.IncomingMessage, res: http.ServerResponse) {
@@ -185,18 +186,20 @@ async function handleClaim(req: http.IncomingMessage, res: http.ServerResponse) 
   if (!token || typeof token !== "string")
     return send(res, 400, { error: "missing_token" });
   // Verifica dono ANTES de consumir o token, para evitar gastar tokens alheios.
-  const preview = await DailyToken.findOne({ token });
-  if (!preview) return send(res, 404, { error: "invalid_token" });
-  if (preview.expiresAt.getTime() < Date.now())
+  const preview = await findDailyToken(token);
+  if (!preview || preview.used) return send(res, 404, { error: "invalid_token" });
+  if (new Date(preview.expires_at).getTime() < Date.now())
     return send(res, 410, { error: "expired" });
-  if (expectedUserId && preview.userId !== expectedUserId)
+  if (expectedUserId && preview.user_id !== expectedUserId)
     return send(res, 403, { error: "token_user_mismatch" });
-  const t = await DailyToken.findOneAndDelete({ token });
+  // Consome atomicamente: só passa se used=false → true.
+  const t = await consumeDailyToken(token);
   if (!t) return send(res, 404, { error: "invalid_token" });
-  if (t.expiresAt.getTime() < Date.now())
+  if (new Date(t.expires_at).getTime() < Date.now())
     return send(res, 410, { error: "expired" });
 
-  const { guildId, userId } = t;
+  const guildId = t.guild_id ?? "";
+  const userId = t.user_id;
   const now = new Date();
   await getAccount(guildId, userId);
 

@@ -180,3 +180,72 @@ function PlanSection({
     </section>
   );
 }
+
+const RARITY_GLOW: Record<string, string> = {
+  legendary: "shadow-[0_10px_30px_-10px_rgba(245,158,11,0.7)] border-[#F59E0B]",
+  epic: "shadow-[0_10px_30px_-10px_rgba(124,58,237,0.6)] border-[#7C3AED]",
+  rare: "shadow-[0_10px_30px_-10px_rgba(56,189,248,0.5)] border-[#38BDF8]",
+  common: "shadow-[0_6px_0_0_#1B0E3B] border-[#1B0E3B]",
+  seasonal: "shadow-[0_10px_30px_-10px_rgba(236,72,153,0.6)] border-[#EC4899]",
+};
+
+const RARITY_PT: Record<string, string> = {
+  legendary: "Lendário",
+  epic: "Épico",
+  rare: "Raro",
+  common: "Comum",
+  seasonal: "Sazonal",
+};
+
+function PremiumShowcase({ items }: { items: PremiumCosmeticDTO[] }) {
+  return (
+    <section className="mx-auto mt-20 max-w-6xl">
+      <div className="mb-6 flex items-end justify-between gap-4">
+        <div>
+          <span className="inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-[#FBBF24] px-3 py-1 text-[11px] font-extrabold uppercase tracking-widest text-[#1B0E3B] shadow-[0_3px_0_0_#1B0E3B]">
+            <Crown className="size-3" /> Vitrine VIP
+          </span>
+          <h2 className="mt-3 font-['Plus_Jakarta_Sans'] text-3xl font-extrabold tracking-tight md:text-4xl">
+            Cosméticos <span className="text-[#FBBF24]">exclusivos</span> pra assinantes.
+          </h2>
+          <p className="mt-2 max-w-2xl text-[#5B4B7A]">
+            Banners, molduras e stickers que só aparecem na sua loja quando você é VIP.
+          </p>
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+        {items.map((item) => {
+          const isBanner = item.type === "banner";
+          return (
+            <article
+              key={item.id}
+              className={`group overflow-hidden rounded-2xl border-2 bg-white transition-all hover:-translate-y-1 ${RARITY_GLOW[item.rarity] ?? RARITY_GLOW.common}`}
+            >
+              <div
+                className={`relative ${isBanner ? "aspect-[3/1]" : "aspect-square"} w-full overflow-hidden bg-[#FBF7FF]`}
+              >
+                {item.image_url && (
+                  <img
+                    src={item.image_url}
+                    alt={item.name}
+                    loading="lazy"
+                    className={`h-full w-full ${item.type === "frame" || item.type === "sticker" ? "object-contain p-3" : "object-cover"} transition-transform duration-500 group-hover:scale-110`}
+                  />
+                )}
+                <div className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full border-2 border-[#1B0E3B] bg-[#FBBF24] px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-widest text-[#1B0E3B] shadow-[0_2px_0_0_#1B0E3B]">
+                  <Crown className="size-2.5" /> VIP
+                </div>
+              </div>
+              <div className="space-y-1 p-3">
+                <p className="truncate text-sm font-extrabold text-[#1B0E3B]">{item.name}</p>
+                <p className="text-[11px] font-bold uppercase tracking-widest text-[#5B4B7A]">
+                  {RARITY_PT[item.rarity] ?? item.rarity}
+                </p>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  );
+}

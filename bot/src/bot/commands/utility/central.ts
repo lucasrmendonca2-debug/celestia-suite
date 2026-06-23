@@ -3,7 +3,7 @@ import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { fmtCoins, fmtDuration } from "../../utils/format.js";
 import { getAccount, getCurrency } from "../../systems/economy/economy.js";
-import { LevelAccount, Ticket, VipMembership } from "../../../database/models.js";
+import { findLevelAccount, countOpenTickets, findActiveUserVip } from "../../repositories/phase4.repo.js";
 import { getActiveUserSubscription, getPlan } from "../../systems/premium/premium.service.js";
 import { supabase } from "../../../database/supabase.js";
 

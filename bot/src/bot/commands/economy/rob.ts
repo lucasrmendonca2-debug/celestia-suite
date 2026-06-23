@@ -96,7 +96,7 @@ const command: SlashCommand = {
       });
     } else {
       const fine = Math.min(me.wallet, Math.floor(150 + Math.random() * 400));
-      const { EconomyAccount } = await import("../../../database/models.js");
+      // (EconomyAccount já importado acima)
       await EconomyAccount.updateOne(
         { guildId, userId: interaction.user.id, wallet: { $gte: fine } },
         { $inc: { wallet: -fine } },

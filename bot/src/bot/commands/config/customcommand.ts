@@ -1,10 +1,15 @@
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
-import { CustomCommand, Guild } from "../../../database/models.js";
+import {
+  countCustomCommands,
+  deleteCustomCommand,
+  getCustomCommand,
+  listCustomCommands,
+  upsertCustomCommand,
+} from "../../repositories/content.repo.js";
 
 const LIMIT_FREE = 10;
-const LIMIT_PREMIUM = 100;
 
 const command: SlashCommand = {
   category: "config",

@@ -65,7 +65,7 @@ const TYPE_LABEL: Record<string, string> = {
 
 export const Route = createFileRoute("/_authenticated/dashboard/$slug/loja")({
   loader: async ({ context, params }) => {
-    await requireUser();
+    const user = await requireUser();
     const guilds = await context.queryClient.ensureQueryData({
       queryKey: ["my-guilds"],
       queryFn: () => listMyGuilds(),
@@ -76,18 +76,18 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/loja")({
       queryKey: ["guild-shop", guildId],
       queryFn: () => getGuildShopOverview({ data: { guildId } }),
     });
-    return { guildId, guildName: guilds.find((g) => g.id === guildId)?.name ?? "" };
+    return { guildId, user };
   },
   component: GuildShopPage,
   errorComponent: DashboardErrorBoundary,
-  notFoundComponent: DashboardNotFound,
+  notFoundComponent: () => <DashboardNotFound />,
   head: () => ({
     meta: [{ title: "Loja de Cosméticos — Zenox" }],
   }),
 });
 
 function GuildShopPage() {
-  const { guildId, guildName } = Route.useLoaderData();
+  const { guildId, user } = Route.useLoaderData();
   const qc = useQueryClient();
   const { data } = useSuspenseQuery({
     queryKey: ["guild-shop", guildId],
@@ -150,9 +150,24 @@ function GuildShopPage() {
 
   return (
     <ModuleLayout
+      guildId={guildId}
+      user={user}
       icon={ShoppingBag}
       title="Loja de Cosméticos"
-      description={`Configure a rotação diária, multiplicadores e itens exclusivos de ${guildName}.`}
+      description="Rotação diária, multiplicadores e itens exclusivos do servidor."
+      actions={
+        <Button
+          size="sm"
+          variant="outline"
+          disabled={rotate.isPending}
+          onClick={() => rotate.mutate()}
+        >
+          <RefreshCw
+            className={`mr-2 h-4 w-4 ${rotate.isPending ? "animate-spin" : ""}`}
+          />
+          Forçar rotação
+        </Button>
+      }
     >
       <div className="grid gap-4 sm:grid-cols-3">
         <AuroraStatCard
@@ -175,104 +190,104 @@ function GuildShopPage() {
         />
       </div>
 
-      {/* Rotação do dia */}
-      <AuroraSection
-        title="Rotação do dia"
-        description="Itens em destaque para todos os usuários hoje. Atualiza automaticamente à meia-noite."
-        actions={
-          <Button
-            size="sm"
-            variant="outline"
-            disabled={rotate.isPending}
-            onClick={() => rotate.mutate()}
-          >
-            <RefreshCw
-              className={`mr-2 h-4 w-4 ${rotate.isPending ? "animate-spin" : ""}`}
-            />
-            Forçar nova rotação
-          </Button>
-        }
-      >
-        {rotationItems.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Sem itens na rotação ainda. Clique em "Forçar nova rotação".
-          </p>
-        ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {rotationItems.map((c: any) => (
-              <CosmeticCard key={c.id} cosmetic={c} />
-            ))}
-          </div>
-        )}
-      </AuroraSection>
+      <div className="mt-6 space-y-6">
+        {/* Rotação do dia */}
+        <AuroraSection
+          title="Rotação do dia"
+          description="Itens em destaque para todos os usuários hoje. Atualiza automaticamente à meia-noite."
+          icon={Sparkles}
+          tone="peach"
+        >
+          {rotationItems.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Sem itens na rotação ainda. Clique em "Forçar rotação" no topo.
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {rotationItems.map((c: any) => (
+                <CosmeticCard key={c.id} cosmetic={c} />
+              ))}
+            </div>
+          )}
+        </AuroraSection>
 
-      {/* Tuning de economia */}
-      <AuroraSection
-        title="Multiplicadores de economia"
-        description="Ajuste preço da loja e recompensa diária. Use com cuidado — afeta toda a guild."
-        icon={Settings2}
-      >
-        <div className="grid gap-6 sm:grid-cols-2">
-          <AuroraField
-            label={`Preço da loja: ${priceMult.toFixed(2)}×`}
-            hint="0.5× = metade do preço · 2.0× = dobro"
-          >
-            <Slider
-              value={[priceMult]}
-              onValueChange={(v) => setPriceMult(v[0])}
-              min={0.5}
-              max={2.0}
-              step={0.05}
-            />
-          </AuroraField>
-          <AuroraField
-            label={`Recompensa diária: ${dailyMult.toFixed(2)}×`}
-            hint="Aplicado no /daily e drops"
-          >
-            <Slider
-              value={[dailyMult]}
-              onValueChange={(v) => setDailyMult(v[0])}
-              min={0.5}
-              max={2.0}
-              step={0.05}
-            />
-          </AuroraField>
-        </div>
-        <div className="mt-4 flex items-center gap-3">
-          <Button onClick={() => tune.mutate()} disabled={tune.isPending}>
-            {tune.isPending ? "Salvando..." : "Salvar tuning"}
-          </Button>
-          <Badge variant="outline" className="text-xs">
-            Estado atual: {String(data.tuning.state ?? "stable")}
-          </Badge>
-        </div>
-      </AuroraSection>
-
-      {/* Cosméticos exclusivos */}
-      <AuroraSection
-        title="Cosméticos exclusivos do servidor"
-        description="Crie itens que aparecem apenas para membros desse servidor."
-        actions={<CreateCosmeticDialog guildId={guildId} onCreated={() => qc.invalidateQueries({ queryKey: ["guild-shop", guildId] })} createFn={createFn} />}
-      >
-        {exclusives.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Nenhum cosmético exclusivo ainda. Crie o primeiro com o botão acima!
-          </p>
-        ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-            {exclusives.map((c: any) => (
-              <CosmeticCard
-                key={c.id}
-                cosmetic={c}
-                exclusive
-                onToggle={(active) =>
-                  toggle.mutate({ cosmeticId: c.id, active })
-                }
+        {/* Tuning de economia */}
+        <AuroraSection
+          title="Multiplicadores de economia"
+          description="Ajuste preço da loja e recompensa diária. Use com cuidado — afeta toda a guild."
+          icon={Settings2}
+          tone="cyan"
+        >
+          <div className="grid gap-6 sm:grid-cols-2">
+            <AuroraField
+              label={`Preço da loja: ${priceMult.toFixed(2)}×`}
+              hint="0.5× = metade do preço · 2.0× = dobro"
+            >
+              <Slider
+                value={[priceMult]}
+                onValueChange={(v) => setPriceMult(v[0])}
+                min={0.5}
+                max={2.0}
+                step={0.05}
               />
-            ))}
+            </AuroraField>
+            <AuroraField
+              label={`Recompensa diária: ${dailyMult.toFixed(2)}×`}
+              hint="Aplicado no /daily e drops"
+            >
+              <Slider
+                value={[dailyMult]}
+                onValueChange={(v) => setDailyMult(v[0])}
+                min={0.5}
+                max={2.0}
+                step={0.05}
+              />
+            </AuroraField>
           </div>
-        )}
-      </AuroraSection>
+          <div className="mt-4 flex items-center gap-3">
+            <Button onClick={() => tune.mutate()} disabled={tune.isPending}>
+              {tune.isPending ? "Salvando..." : "Salvar tuning"}
+            </Button>
+            <Badge variant="outline" className="text-xs">
+              Estado: {String(data.tuning.state ?? "stable")}
+            </Badge>
+          </div>
+        </AuroraSection>
+
+        {/* Cosméticos exclusivos */}
+        <AuroraSection
+          title="Cosméticos exclusivos do servidor"
+          description="Crie itens que aparecem apenas para membros desse servidor."
+          icon={ShoppingBag}
+          tone="lavender"
+        >
+          <div className="mb-3 flex justify-end">
+            <CreateCosmeticDialog
+              guildId={guildId}
+              onCreated={() => qc.invalidateQueries({ queryKey: ["guild-shop", guildId] })}
+              createFn={createFn}
+            />
+          </div>
+          {exclusives.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Nenhum cosmético exclusivo ainda. Crie o primeiro com o botão acima!
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+              {exclusives.map((c: any) => (
+                <CosmeticCard
+                  key={c.id}
+                  cosmetic={c}
+                  exclusive
+                  onToggle={(active) =>
+                    toggle.mutate({ cosmeticId: c.id, active })
+                  }
+                />
+              ))}
+            </div>
+          )}
+        </AuroraSection>
+      </div>
     </ModuleLayout>
   );
 }
@@ -352,8 +367,14 @@ function CreateCosmeticDialog({
     slug: "",
     name: "",
     description: "",
-    type: "banner" as const,
-    rarity: "common" as const,
+    type: "banner" as
+      | "banner"
+      | "frame"
+      | "sticker"
+      | "effect"
+      | "background_pattern"
+      | "badge_decoration",
+    rarity: "common" as "common" | "rare" | "epic" | "legendary" | "seasonal",
     price_coins: 100,
     image_url: "",
   });
@@ -476,7 +497,10 @@ function CreateCosmeticDialog({
           <Button variant="ghost" onClick={() => setOpen(false)}>
             Cancelar
           </Button>
-          <Button onClick={submit} disabled={saving || !form.name || !form.slug || !form.image_url}>
+          <Button
+            onClick={submit}
+            disabled={saving || !form.name || !form.slug || !form.image_url}
+          >
             {saving ? "Criando..." : "Criar"}
           </Button>
         </DialogFooter>

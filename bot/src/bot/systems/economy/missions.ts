@@ -35,6 +35,28 @@ function todayPeriod(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+/**
+ * Lê o fator de dificuldade adaptativa do usuário (1.0 = normal).
+ * Quanto maior, mais difícil (e maior a recompensa).
+ */
+async function getDifficultyScore(guildId: string, userId: string): Promise<number> {
+  const { data } = await supabase.rpc("get_user_mission_difficulty", {
+    _user_id: userId,
+    _guild_id: guildId,
+  });
+  const n = typeof data === "number" ? data : Number(data);
+  return Number.isFinite(n) && n > 0 ? n : 1.0;
+}
+
+/** Aplica o fator adaptativo nos campos goal/reward. */
+function applyDifficulty<T extends { goal: number; reward: number }>(m: T, score: number): T {
+  return {
+    ...m,
+    goal: Math.max(1, Math.round(m.goal * score)),
+    reward: Math.max(1, Math.round(m.reward * score)),
+  };
+}
+
 async function ensureMissions(guildId: string): Promise<MissionRow[]> {
   const { data } = await supabase
     .from("economy_missions")
@@ -57,7 +79,10 @@ async function ensureMissions(guildId: string): Promise<MissionRow[]> {
 }
 
 export async function listUserMissions(guildId: string, userId: string) {
-  const missions = await ensureMissions(guildId);
+  const [missions, score] = await Promise.all([
+    ensureMissions(guildId),
+    getDifficultyScore(guildId, userId),
+  ]);
   if (!missions.length) return [];
   const period = todayPeriod();
   const { data: progress } = await supabase
@@ -69,7 +94,10 @@ export async function listUserMissions(guildId: string, userId: string) {
   const byMission = new Map<string, UserMissionRow>(
     ((progress as UserMissionRow[] | null) ?? []).map((p) => [p.mission_id, p]),
   );
-  return missions.map((m) => ({ mission: m, state: byMission.get(m.id) ?? null }));
+  return missions.map((m) => ({
+    mission: applyDifficulty(m, score),
+    state: byMission.get(m.id) ?? null,
+  }));
 }
 
 export async function incrementMissionProgress(

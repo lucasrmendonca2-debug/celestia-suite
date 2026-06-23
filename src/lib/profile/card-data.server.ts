@@ -87,12 +87,15 @@ export async function loadProfileCardData(userId: string): Promise<ProfileCardDa
     .map((id) => cosmeticsMap[id]?.image_url)
     .filter((u): u is string => !!u);
 
+  // Defaults para perfis sem loadout: card nunca aparece "cru".
+  const DEFAULT_BIO = "Membro da comunidade Zenox ✨";
+
   const data: ProfileCardData = {
     userId,
     username,
     avatarUrl,
-    accentColor: loadout?.accent_color ?? "#5865F2",
-    bio: loadout?.bio ?? null,
+    accentColor: loadout?.accent_color ?? "#f59e0b",
+    bio: loadout?.bio?.trim() || DEFAULT_BIO,
     bannerUrl: banner?.image_url ?? null,
     frameUrl: frame?.image_url ?? null,
     stickerUrls,

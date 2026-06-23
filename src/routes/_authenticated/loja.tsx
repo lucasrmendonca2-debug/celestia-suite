@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useSuspenseQuery, useQueryClient, queryOptions } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import {
   getShopCatalog,
@@ -9,6 +9,9 @@ import {
   type ShopItemDTO,
   type WalletDTO,
 } from "@/lib/profile/profile.functions";
+import { toggleFavorite } from "@/lib/profile/favorites.functions";
+import { celebrateBurst, celebrateLegendary } from "@/lib/animations/confetti";
+import { EmptyMascot } from "@/components/profile/EmptyMascot";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -40,6 +43,9 @@ import {
   Search,
   User as UserIcon,
   Loader2,
+  Heart,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 const shopOptions = queryOptions({

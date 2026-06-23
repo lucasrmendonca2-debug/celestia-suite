@@ -1,4 +1,5 @@
-import { EconomyAccount, VipMembership } from "../../../database/models.js";
+import { EconomyAccount } from "../../../database/models.js";
+import { findActiveUserVip } from "../../repositories/phase4.repo.js";
 import { supabase } from "../../../database/supabase.js";
 import { getConfig } from "../../utils/guildCache.js";
 import { logger } from "../../utils/logger.js";

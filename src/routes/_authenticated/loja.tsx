@@ -193,11 +193,9 @@ function LojaPage() {
   const [showOwned, setShowOwned] = useState<"all" | "missing">("all");
   const [page, setPage] = useState(1);
   const [buyTarget, setBuyTarget] = useState<ShopItemDTO | null>(null);
-  const [buyGuild, setBuyGuild] = useState<string | null>(
-    catalog.wallets[0]?.guild_id ?? null,
-  );
   const [buying, setBuying] = useState(false);
   const [favSet, setFavSet] = useState<Set<string>>(() => new Set(catalog.favoriteIds));
+
 
   // Sincroniza favoritos quando o catálogo for refetchado
   useEffect(() => {

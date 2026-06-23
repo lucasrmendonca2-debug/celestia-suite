@@ -203,34 +203,23 @@ const command: SlashCommand = {
       const { price: unitPrice, discount_pct } = applyRotationPrice(item.price, rotation, item.name);
       const total = unitPrice * qty;
 
-      // Atômico: desconta estoque com filtro de quantidade disponível.
-      if (item.stock !== -1) {
-        const stockUpdate = await ShopItem.updateOne(
-          { _id: item._id, stock: { $gte: qty } },
-          { $inc: { stock: -qty } },
-        );
-        if (stockUpdate.modifiedCount === 0) {
-          await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Sem estoque" })], flags: MessageFlags.Ephemeral });
-          return;
-        }
-      }
-
-      // Atômico: desconta saldo da carteira só se houver fundos suficientes.
-      const { EconomyAccount } = await import("../../../database/models.js");
-      const walletUpdate = await EconomyAccount.findOneAndUpdate(
-        { guildId, userId: interaction.user.id, wallet: { $gte: total } },
-        { $inc: { wallet: -total } },
-        { new: true },
-      );
-      if (!walletUpdate) {
-        // Devolve estoque se houver.
-        if (item.stock !== -1) {
-          await ShopItem.updateOne({ _id: item._id }, { $inc: { stock: qty } });
-        }
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Saldo insuficiente" })], flags: MessageFlags.Ephemeral });
+      // Atômico: estoque + saldo no mesmo bloco PL/pgSQL. Substitui o padrão
+      // anterior (decrement stock then decrement wallet via shim) que sofria race.
+      const buy = await shopBuyAtomic(guildId, interaction.user.id, item._id as string, qty, unitPrice);
+      if (!buy.ok) {
+        const titles: Record<string, string> = {
+          out_of_stock: "Sem estoque",
+          insufficient_funds: "Saldo insuficiente",
+          not_found: "Item não encontrado",
+          disabled: "Item indisponível",
+        };
+        await interaction.reply({
+          embeds: [brandEmbed({ kind: "error", title: titles[buy.reason ?? ""] ?? "Compra falhou" })],
+          flags: MessageFlags.Ephemeral,
+        });
         return;
       }
-      const acc = walletUpdate;
+      const newBalance = buy.newBalance ?? 0;
       if (item.roleId && interaction.guild) {
         const member = await interaction.guild.members.fetch(interaction.user.id).catch(() => null);
         await member?.roles.add(item.roleId).catch(() => {});
@@ -246,7 +235,7 @@ const command: SlashCommand = {
         userId: interaction.user.id,
         kind: "shop_buy",
         amount: -total,
-        balanceAfter: acc.wallet,
+        balanceAfter: newBalance,
         reason: `Compra: ${qty}× ${item.name}${discount_pct ? ` (-${discount_pct}%)` : ""}`,
         metadata: { item_name: item.name, qty, discount_pct },
       });

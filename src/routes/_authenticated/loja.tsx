@@ -204,8 +204,7 @@ function ItemCard({
   );
 }
 
-  );
-}
+
 
 function LojaPage() {
   const qc = useQueryClient();

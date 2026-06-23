@@ -68,8 +68,12 @@ export const getDailyStatus = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const session = await getSession();
     if (!session.data.userId) return { error: "not_logged_in" as const };
-    const result = await callBot("/api/daily/status", { token: data.token });
+    const result = await callBot("/api/daily/status", {
+      token: data.token,
+      expectedUserId: session.data.userId,
+    });
     if (result?.error) return result;
+    // Defesa em profundidade: rejeita se o bot devolveu outro user.
     if (result?.user?.id && result.user.id !== session.data.userId) {
       return { error: "token_user_mismatch" as const };
     }
@@ -81,6 +85,9 @@ export const claimDaily = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const session = await getSession();
     if (!session.data.userId) return { error: "not_logged_in" as const };
-    const result = await callBot("/api/daily/claim", { token: data.token });
+    const result = await callBot("/api/daily/claim", {
+      token: data.token,
+      expectedUserId: session.data.userId,
+    });
     return result as DailyClaimDTO | { error: string };
   });

@@ -439,7 +439,14 @@ function LojaPage() {
               onClick={confirmPurchase}
               disabled={buying || !buyGuild || !canAfford}
             >
-              {buying ? "Comprando…" : "Confirmar"}
+              {buying ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Comprando…
+                </>
+              ) : (
+                "Confirmar compra"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -15,13 +15,13 @@ export interface CosmeticPrompt {
 }
 
 const BANNER_BASE =
-  "ultra wide cinematic profile banner, no text, no watermark, no logo, no faces, no human figures, balanced horizontal composition, sharp focus, professional digital art, suitable as a clean background behind avatar and name, aspect ratio 3:1";
+  "ultra wide cinematic profile banner, ABSOLUTELY NO TEXT of any kind (no letters, no numbers, no words, no captions, no calligraphy, no runes, no street signs, no graffiti), no watermark, no logo, no signature, no UI elements, no human faces, no human figures, no characters, balanced horizontal composition with negative space on the right side for an overlay, sharp focus, professional digital matte painting, suitable as a clean background behind avatar and name, aspect ratio 3:1, ultra detailed, 4k";
 
 const FRAME_BASE =
-  "circular avatar frame ornament, transparent center hole for a profile picture, perfectly symmetrical ring, no text, no watermark, decorative border art only, the inner 60% of the image must be empty so an avatar can be placed inside, premium digital craftsmanship";
+  "circular avatar frame ornament rendered as a perfect ring on a transparent or solid white background, the INNER 60% of the canvas MUST be completely empty/transparent/plain (no decoration inside the central hole) so a round profile picture can fit inside, perfectly symmetrical decorative border, ABSOLUTELY NO TEXT (no letters, no numbers, no monograms), no watermark, no signature, no portrait inside the ring, premium digital craftsmanship, clean vector-like edges, 1:1 aspect ratio";
 
 const STICKER_BASE =
-  "single centered icon on plain solid white background, no text, no watermark, no shadows on background, simple flat or semi-flat style, clear silhouette, suitable as a small profile sticker, 1:1 aspect, large object filling 70% of the canvas";
+  "single centered icon or object on a plain solid white background, ABSOLUTELY NO TEXT (no letters, no numbers, no captions, no labels), no watermark, no signature, no background shadow, no extra props, simple flat or semi-flat illustration style, clear silhouette, bold readable shapes, the main object fills 70% of the canvas and is perfectly centered, 1:1 aspect ratio, suitable as a small profile sticker";
 
 const RARITY_PRICE: Record<Rarity, number> = {
   common: 500,

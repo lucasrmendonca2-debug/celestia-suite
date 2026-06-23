@@ -62,7 +62,7 @@ export const upsertGuildAsset = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => UpsertInput.parse(d))
   .handler(async ({ data }) => {
     const { assertCanAccessArea, writeAudit } = await import("./permissions-audit.server");
-    const actor = await assertCanAccessArea(data.guildId, "permissions");
+    const actor = await assertCanAccessArea(data.guildId, "assets");
     const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
 
     const { data: prev } = await supabaseAdmin
@@ -111,7 +111,7 @@ export const removeGuildAsset = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => RemoveInput.parse(d))
   .handler(async ({ data }) => {
     const { assertCanAccessArea, writeAudit } = await import("./permissions-audit.server");
-    const actor = await assertCanAccessArea(data.guildId, "permissions");
+    const actor = await assertCanAccessArea(data.guildId, "assets");
     const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
     const { error } = await supabaseAdmin
       .from("bot_assets")

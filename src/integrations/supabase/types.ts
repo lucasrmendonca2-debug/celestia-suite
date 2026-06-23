@@ -701,6 +701,13 @@ export type Database = {
             foreignKeyName: "cosmetic_drops_cosmetic_id_fkey"
             columns: ["cosmetic_id"]
             isOneToOne: false
+            referencedRelation: "guild_shop_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cosmetic_drops_cosmetic_id_fkey"
+            columns: ["cosmetic_id"]
+            isOneToOne: false
             referencedRelation: "profile_cosmetics"
             referencedColumns: ["id"]
           },
@@ -2465,6 +2472,7 @@ export type Database = {
           collection: string | null
           created_at: string
           description: string | null
+          guild_exclusive_id: string | null
           id: string
           image_url: string
           metadata: Json
@@ -2487,6 +2495,7 @@ export type Database = {
           collection?: string | null
           created_at?: string
           description?: string | null
+          guild_exclusive_id?: string | null
           id?: string
           image_url: string
           metadata?: Json
@@ -2509,6 +2518,7 @@ export type Database = {
           collection?: string | null
           created_at?: string
           description?: string | null
+          guild_exclusive_id?: string | null
           id?: string
           image_url?: string
           metadata?: Json
@@ -3742,6 +3752,13 @@ export type Database = {
             foreignKeyName: "user_cosmetics_cosmetic_id_fkey"
             columns: ["cosmetic_id"]
             isOneToOne: false
+            referencedRelation: "guild_shop_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_cosmetics_cosmetic_id_fkey"
+            columns: ["cosmetic_id"]
+            isOneToOne: false
             referencedRelation: "profile_cosmetics"
             referencedColumns: ["id"]
           },
@@ -3915,6 +3932,13 @@ export type Database = {
             foreignKeyName: "user_profile_loadout_background_pattern_id_fkey"
             columns: ["background_pattern_id"]
             isOneToOne: false
+            referencedRelation: "guild_shop_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_profile_loadout_background_pattern_id_fkey"
+            columns: ["background_pattern_id"]
+            isOneToOne: false
             referencedRelation: "profile_cosmetics"
             referencedColumns: ["id"]
           },
@@ -3923,6 +3947,13 @@ export type Database = {
             columns: ["banner_id"]
             isOneToOne: false
             referencedRelation: "cosmetic_shop_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_profile_loadout_banner_id_fkey"
+            columns: ["banner_id"]
+            isOneToOne: false
+            referencedRelation: "guild_shop_view"
             referencedColumns: ["id"]
           },
           {
@@ -3937,6 +3968,13 @@ export type Database = {
             columns: ["effect_id"]
             isOneToOne: false
             referencedRelation: "cosmetic_shop_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_profile_loadout_effect_id_fkey"
+            columns: ["effect_id"]
+            isOneToOne: false
+            referencedRelation: "guild_shop_view"
             referencedColumns: ["id"]
           },
           {
@@ -3951,6 +3989,13 @@ export type Database = {
             columns: ["frame_id"]
             isOneToOne: false
             referencedRelation: "cosmetic_shop_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_profile_loadout_frame_id_fkey"
+            columns: ["frame_id"]
+            isOneToOne: false
+            referencedRelation: "guild_shop_view"
             referencedColumns: ["id"]
           },
           {
@@ -4102,6 +4147,81 @@ export type Database = {
         }
         Relationships: []
       }
+      guild_shop_view: {
+        Row: {
+          active: boolean | null
+          available_from: string | null
+          available_until: string | null
+          collection: string | null
+          created_at: string | null
+          description: string | null
+          guild_exclusive_id: string | null
+          id: string | null
+          image_url: string | null
+          metadata: Json | null
+          name: string | null
+          preview_url: string | null
+          price_coins: number | null
+          price_premium: number | null
+          rarity: Database["public"]["Enums"]["cosmetic_rarity"] | null
+          scope_guild_id: string | null
+          season_id: string | null
+          slug: string | null
+          sort_order: number | null
+          type: Database["public"]["Enums"]["cosmetic_type"] | null
+          updated_at: string | null
+          vip_only: boolean | null
+        }
+        Insert: {
+          active?: boolean | null
+          available_from?: string | null
+          available_until?: string | null
+          collection?: string | null
+          created_at?: string | null
+          description?: string | null
+          guild_exclusive_id?: string | null
+          id?: string | null
+          image_url?: string | null
+          metadata?: Json | null
+          name?: string | null
+          preview_url?: string | null
+          price_coins?: number | null
+          price_premium?: number | null
+          rarity?: Database["public"]["Enums"]["cosmetic_rarity"] | null
+          scope_guild_id?: never
+          season_id?: string | null
+          slug?: string | null
+          sort_order?: number | null
+          type?: Database["public"]["Enums"]["cosmetic_type"] | null
+          updated_at?: string | null
+          vip_only?: boolean | null
+        }
+        Update: {
+          active?: boolean | null
+          available_from?: string | null
+          available_until?: string | null
+          collection?: string | null
+          created_at?: string | null
+          description?: string | null
+          guild_exclusive_id?: string | null
+          id?: string | null
+          image_url?: string | null
+          metadata?: Json | null
+          name?: string | null
+          preview_url?: string | null
+          price_coins?: number | null
+          price_premium?: number | null
+          rarity?: Database["public"]["Enums"]["cosmetic_rarity"] | null
+          scope_guild_id?: never
+          season_id?: string | null
+          slug?: string | null
+          sort_order?: number | null
+          type?: Database["public"]["Enums"]["cosmetic_type"] | null
+          updated_at?: string | null
+          vip_only?: boolean | null
+        }
+        Relationships: []
+      }
       moderation_stats_30d: {
         Row: {
           action: string | null
@@ -4113,6 +4233,10 @@ export type Database = {
       }
     }
     Functions: {
+      bump_user_mission_profile: {
+        Args: { _completed: boolean; _guild_id: string; _user_id: string }
+        Returns: Json
+      }
       cosmetic_purchase: {
         Args: {
           _cosmetic_id: string
@@ -4152,6 +4276,10 @@ export type Database = {
           servers_present: number
           total_members: number
         }[]
+      }
+      get_user_mission_difficulty: {
+        Args: { _guild_id: string; _user_id: string }
+        Returns: number
       }
       next_case_number: { Args: { _guild_id: string }; Returns: number }
       redeem_guild_premium_code: {

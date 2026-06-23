@@ -38,10 +38,10 @@ export function newDailyToken(): string {
 
 export async function issueDailyToken(guildId: string, userId: string) {
   const token = newDailyToken();
-  await DailyToken.create({
-    token,
+  await createDailyToken({
     guildId,
     userId,
+    token,
     expiresAt: new Date(Date.now() + TOKEN_TTL),
   });
   return token;

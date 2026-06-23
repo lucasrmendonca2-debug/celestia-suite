@@ -4,12 +4,16 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
+    "prebuild": "node scripts/build-commands-json.mjs",
+    "prebuild:dev": "node scripts/build-commands-json.mjs",
+    "predev": "node scripts/build-commands-json.mjs",
     "dev": "vite dev",
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "preview": "vite preview",
     "lint": "eslint .",
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "sync-commands": "node scripts/build-commands-json.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

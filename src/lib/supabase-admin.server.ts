@@ -1,47 +1,34 @@
 /**
- * Server-side Supabase client with graceful fallback.
+ * Server-side Supabase client com **service role obrigatório**.
  *
- * On Lovable Cloud production, SUPABASE_SERVICE_ROLE_KEY is not injected.
- * The auto-generated `client.server.ts` throws "Missing Supabase environment"
- * on first property access, which crashes SSR loaders and triggers the root
- * error boundary ("This page didn't load") on navigation.
+ * Fallback histórico para a publishable key foi removido em prol da segurança
+ * (ver auditoria P0-3): caller que usa `supabaseAdmin` assume bypass de RLS.
+ * Se a env não existe, qualquer leitura/escrita falha cedo com mensagem clara,
+ * em vez de rodar silenciosamente como `anon` e produzir comportamento errado.
  *
- * This wrapper exports the same `supabaseAdmin` symbol but falls back to the
- * publishable/anon key when service role is absent. With RLS configured on
- * dashboard tables for authenticated reads, this keeps the UI working — only
- * privileged admin writes (which legitimately require service role) will fail,
- * and only on the specific call that needs it.
+ * Para leituras públicas (com policy `TO anon`), criar um client local com
+ * `createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY)` dentro do handler.
  */
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
 let _client: SupabaseClient<Database> | undefined;
-let _warned = false;
 
 function build(): SupabaseClient<Database> {
   const url = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  const publishableKey =
-    process.env.SUPABASE_PUBLISHABLE_KEY ?? process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-  const key = serviceKey ?? publishableKey;
-
-  if (!url || !key) {
+  if (!url || !serviceKey) {
     const missing = [
       ...(!url ? ["SUPABASE_URL"] : []),
-      ...(!key ? ["SUPABASE_SERVICE_ROLE_KEY or SUPABASE_PUBLISHABLE_KEY"] : []),
+      ...(!serviceKey ? ["SUPABASE_SERVICE_ROLE_KEY"] : []),
     ];
-    throw new Error(`Missing Supabase environment variable(s): ${missing.join(", ")}.`);
-  }
-
-  if (!serviceKey && !_warned) {
-    _warned = true;
-    console.warn(
-      "[supabase-admin] SUPABASE_SERVICE_ROLE_KEY not set — falling back to publishable key (RLS enforced).",
+    throw new Error(
+      `supabaseAdmin requer ${missing.join(" e ")}. Para leituras públicas use createClient com SUPABASE_PUBLISHABLE_KEY dentro do handler.`,
     );
   }
 
-  return createClient<Database>(url, key, {
+  return createClient<Database>(url, serviceKey, {
     auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
   });
 }

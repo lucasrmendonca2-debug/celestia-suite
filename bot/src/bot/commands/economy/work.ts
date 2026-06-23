@@ -3,7 +3,7 @@ import type { SlashCommand } from "../../../types/command.js";
 import { ui } from "../../systems/ui/embed.factory.js";
 import { getAsset } from "../../systems/ui/embed.assets.js";
 import { fmtCoins, fmtDuration } from "../../utils/format.js";
-import { currencyFromConfig, getAccount, isVip } from "../../systems/economy/economy.js";
+import { addWallet, claimCooldown, currencyFromConfig, getAccount, isVip } from "../../systems/economy/economy.js";
 import { getConfig } from "../../utils/guildCache.js";
 import { logTx } from "../../systems/economy/economy.tx.js";
 import { incrementMissionProgress } from "../../systems/economy/missions.js";
@@ -49,6 +49,16 @@ const command: SlashCommand = {
       return;
     }
 
+    // Atômico: trava cooldown ANTES de calcular/creditar — evita race entre 2 /trabalhar simultâneos.
+    const locked = await claimCooldown(guildId, interaction.user.id, "last_work_at", Math.floor(cooldown / 1000));
+    if (!locked) {
+      await interaction.reply({
+        embeds: [ui.warn({ title: "Descanse um pouco", description: "Você acabou de trabalhar." })],
+        flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
+
     const { getUserVipMultiplier } = await import("../../systems/premium/premium.features.js");
     const [vipMember, premiumMult] = await Promise.all([
       isVip(guildId, interaction.user.id),
@@ -59,9 +69,9 @@ const command: SlashCommand = {
     const base = Math.floor(min + Math.random() * (max - min + 1));
     const mult = vipMember ? cfg.economyVipMultiplier : 1;
     const amount = Math.floor(base * mult * premiumMult);
+    await addWallet(guildId, interaction.user.id, amount);
     acc.wallet += amount;
     acc.lastWork = now;
-    await acc.save();
 
     logTx({
       guildId,

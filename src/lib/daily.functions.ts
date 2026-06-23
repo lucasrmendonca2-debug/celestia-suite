@@ -7,61 +7,32 @@ function botBase(): string | null {
   return url;
 }
 
-function botBaseCandidates(): string[] {
-  const base = botBase();
-  const fallbackBases = [
-    "http://ec2-52-67-80-142.sa-east-1.compute.amazonaws.com:8080",
-    "http://52.67.80.142:8080",
-  ];
-  if (!base) return fallbackBases;
-
-  const candidates = [base, ...fallbackBases];
-  try {
-    const url = new URL(base);
-    if (url.protocol === "http:" && url.port === "3001") {
-      url.port = "8080";
-      candidates.push(url.toString().replace(/\/$/, ""));
-    }
-  } catch {
-    // Keep the original base only.
-  }
-  return [...new Set(candidates)];
-}
-
 async function callBot(path: string, body: any) {
-  const bases = botBaseCandidates();
-  if (bases.length === 0) {
-    return { error: "bot_not_configured" as const };
-  }
+  const base = botBase();
+  if (!base) return { error: "bot_not_configured" as const };
   const secret = process.env.BOT_API_SECRET;
   if (!secret) return { error: "bot_secret_missing" as const };
-  let lastError: any = null;
-  for (const base of bases) {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
-    try {
-      const res = await fetch(`${base}${path}`, {
-        method: "POST",
-        signal: controller.signal,
-        headers: {
-          "content-type": "application/json",
-          "x-bot-secret": secret,
-        },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) return { error: data?.error ?? `http_${res.status}`, data };
-      return data;
-    } catch (e: any) {
-      lastError = e;
-    } finally {
-      clearTimeout(timeout);
-    }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
+  try {
+    const res = await fetch(`${base}${path}`, {
+      method: "POST",
+      signal: controller.signal,
+      headers: { "content-type": "application/json", "x-bot-secret": secret },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) return { error: data?.error ?? `http_${res.status}`, data };
+    return data;
+  } catch (e: any) {
+    return {
+      error: e?.name === "AbortError" ? ("bot_timeout" as const) : ("fetch_failed" as const),
+      data: { message: "Não consegui conectar ao bot. Verifique se BOT_API_URL está configurado e o bot está online." },
+    };
+  } finally {
+    clearTimeout(timeout);
   }
-  return {
-    error: lastError?.name === "AbortError" ? ("bot_timeout" as const) : ("fetch_failed" as const),
-    data: { message: "Não consegui conectar ao bot. Use um novo /daily após o bot reiniciar na porta 8080." },
-  };
 }
 
 export interface DailyStatusDTO {

@@ -14,7 +14,9 @@ import { logger } from "../bot/utils/logger.js";
 import { env } from "../config/env.js";
 import { DailyToken, EconomyAccount } from "../database/models.js";
 import {
+  addWallet,
   currencyFromConfig,
+  dailyClaimAtomic,
   getAccount,
   isVip,
 } from "../bot/systems/economy/economy.js";
@@ -124,29 +126,24 @@ async function handleClaim(req: http.IncomingMessage, res: http.ServerResponse) 
   const { guildId, userId } = t;
   const now = new Date();
   await getAccount(guildId, userId);
-  const cutoff = new Date(now.getTime() - DAY);
-  const claimed = await EconomyAccount.findOneAndUpdate(
-    {
-      guildId,
-      userId,
-      $or: [{ lastDaily: null }, { lastDaily: { $lte: cutoff } }],
-    },
-    { $set: { lastDaily: now } },
-    { new: true },
-  );
-  if (!claimed) {
-    const fresh = await EconomyAccount.findOne({ guildId, userId });
-    return send(res, 409, {
-      error: "already_claimed",
-      nextClaimAt: fresh?.lastDaily
-        ? new Date(fresh.lastDaily.getTime() + DAY).toISOString()
-        : null,
-    });
+
+  // Pré-calcula streak baseado no estado atual (apenas para resposta — o lock atômico é o RPC abaixo).
+  const prev = await EconomyAccount.findOne({ guildId, userId });
+  const prevStreak = prev?.streakDaily ?? 0;
+  const newStreak = prevStreak > 0 ? prevStreak + 1 : 1;
+
+  // Atômico: trava `last_daily_at` no banco. Substitui o padrão findOneAndUpdate +
+  // $inc wallet (não atômico via shim) que podia gravar cooldown sem creditar moedas.
+  const lock = await dailyClaimAtomic(guildId, userId, Math.floor(DAY / 1000), newStreak);
+  if (!lock.ok) {
+    if (lock.reason === "cooldown_active") {
+      return send(res, 409, { error: "already_claimed", nextClaimAt: lock.nextAt ?? null });
+    }
+    return send(res, 500, { error: lock.reason ?? "rpc_error" });
   }
 
   const cfg = await getConfig(guildId);
   const c = currencyFromConfig(cfg);
-  const newStreak = (claimed.streakDaily ?? 0) > 0 ? (claimed.streakDaily ?? 0) + 1 : 1;
   const [vipMember, premiumMult] = await Promise.all([
     isVip(guildId, userId),
     import("../bot/systems/premium/premium.features.js")
@@ -159,11 +156,10 @@ async function handleClaim(req: http.IncomingMessage, res: http.ServerResponse) 
     (cfg.economyDailyAmount + streakBonus) * vipMult * premiumMult,
   );
 
-  const final = await EconomyAccount.findOneAndUpdate(
-    { guildId, userId },
-    { $inc: { wallet: amount }, $set: { streakDaily: newStreak } },
-    { new: true },
-  );
+  // Crédito atômico via RPC já existente. Streak é persistido pelo shim (campo extra).
+  await addWallet(guildId, userId, amount);
+  await EconomyAccount.updateOne({ guildId, userId }, { $set: { streakDaily: newStreak } });
+  const final = await EconomyAccount.findOne({ guildId, userId });
   const wallet = final?.wallet ?? amount;
 
   logTx({

@@ -1,4 +1,13 @@
-import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
+import {
+  SlashCommandBuilder,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
+  type ChatInputCommandInteraction,
+  type AutocompleteInteraction,
+  type ButtonInteraction,
+  type APIEmbedField,
+} from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { ui } from "../../systems/ui/embed.factory.js";
 import { brandEmbed } from "../../utils/embed.js";
@@ -9,6 +18,7 @@ import {
   getUserLoadout,
   saveUserLoadout,
   purchaseCosmetic,
+  type Cosmetic,
   type CosmeticType,
 } from "../../systems/cosmetics/cosmetics.service.js";
 
@@ -29,12 +39,22 @@ const TYPE_LABEL: Record<CosmeticType, string> = {
   badge_decoration: "Decoração de badge",
 };
 
+const SHOP_TYPES: CosmeticType[] = ["banner", "frame", "sticker", "effect"];
+const PAGE_SIZE = 4;
+
 function fmtPrice(coins: number, isOffer?: boolean, discount = 20): string {
   if (coins <= 0) return "Grátis";
   if (!isOffer) return `🪙 ${coins.toLocaleString("pt-BR")}`;
   const discounted = Math.floor((coins * (100 - discount)) / 100);
   return `~~🪙 ${coins.toLocaleString("pt-BR")}~~ → **🪙 ${discounted.toLocaleString("pt-BR")}** (−${discount}%)`;
 }
+
+function cardUrlFor(userId: string): string {
+  const appUrl = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://zenoxbot.lovable.app";
+  return `${appUrl.replace(/\/$/, "")}/api/public/profile/${userId}/card.svg?v=${Date.now()}`;
+}
+
+// ============= /perfil ver  &  /perfil preview =============
 
 async function handleVer(ix: ChatInputCommandInteraction, targetId: string) {
   await ix.deferReply();
@@ -44,7 +64,7 @@ async function handleVer(ix: ChatInputCommandInteraction, targetId: string) {
   ]);
   const totalItems = inventory.length;
 
-  const fields: { name: string; value: string; inline?: boolean }[] = [
+  const fields: APIEmbedField[] = [
     { name: "Itens no inventário", value: String(totalItems), inline: true },
     { name: "Layout", value: loadout?.card_layout ?? "classic", inline: true },
   ];
@@ -55,23 +75,79 @@ async function handleVer(ix: ChatInputCommandInteraction, targetId: string) {
     fields.push({ name: "Bio", value: loadout.bio });
   }
 
-  const appUrl = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://zenoxbot.lovable.app";
-  const cardUrl = `${appUrl.replace(/\/$/, "")}/api/public/profile/${targetId}/card.svg?v=${Date.now()}`;
-
   return ix.editReply({
     embeds: [
       ui.social({
         title: `Perfil de ${targetId === ix.user.id ? "você" : `<@${targetId}>`}`,
-        description: totalItems === 0
-          ? "Esse perfil ainda está cru. Compre cosméticos em `/perfil loja` pra personalizar."
-          : "Visual do perfil renderizado com os cosméticos equipados.",
+        description:
+          totalItems === 0
+            ? "Esse perfil ainda está cru. Compre cosméticos em `/perfil loja` pra personalizar."
+            : "Visual do perfil renderizado com os cosméticos equipados.",
         fields,
-        image: cardUrl,
+        image: cardUrlFor(targetId),
       }),
     ],
   });
 }
 
+// ============= /perfil loja (paginada + botões) =============
+
+function buildShopView(items: Cosmetic[], type: CosmeticType, page: number) {
+  const totalPages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+  const safePage = Math.min(Math.max(page, 0), totalPages - 1);
+  const slice = items.slice(safePage * PAGE_SIZE, safePage * PAGE_SIZE + PAGE_SIZE);
+
+  const fields: APIEmbedField[] = slice.map((c) => {
+    const tag = c.is_rare_pick ? "🔥 RARO DO DIA · " : c.is_on_offer ? "💸 OFERTA · " : "";
+    return {
+      name: `${tag}${c.name}`,
+      value: `${RARITY_BADGE[c.rarity] ?? c.rarity} · ${fmtPrice(c.price_coins, c.is_on_offer)}\n_${c.description ?? "Sem descrição."}_`,
+      inline: false,
+    };
+  });
+
+  const embed = ui.economy({
+    title: `Loja de ${TYPE_LABEL[type]}s — página ${safePage + 1}/${totalPages}`,
+    description: slice.length === 0
+      ? `Sem ${TYPE_LABEL[type].toLowerCase()}s à venda agora.`
+      : "Clique em um botão pra comprar. Use `/perfil equipar` depois.",
+    fields,
+    image: slice[0]?.preview_url ?? slice[0]?.image_url ?? undefined,
+  });
+
+  const components: ActionRowBuilder<ButtonBuilder>[] = [];
+
+  if (slice.length > 0) {
+    const buyRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      ...slice.map((c) =>
+        new ButtonBuilder()
+          .setCustomId(`cosmetic:buy:${c.id}`)
+          .setLabel(c.name.slice(0, 70))
+          .setStyle(c.is_on_offer ? ButtonStyle.Success : ButtonStyle.Primary)
+          .setEmoji(c.rarity === "legendary" ? "🟡" : c.rarity === "epic" ? "🟣" : c.rarity === "rare" ? "🔵" : "⚪"),
+      ),
+    );
+    components.push(buyRow);
+  }
+
+  if (totalPages > 1) {
+    const navRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
+        .setCustomId(`cosmetic:page:${type}:${safePage - 1}`)
+        .setLabel("◀ Anterior")
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(safePage === 0),
+      new ButtonBuilder()
+        .setCustomId(`cosmetic:page:${type}:${safePage + 1}`)
+        .setLabel("Próxima ▶")
+        .setStyle(ButtonStyle.Secondary)
+        .setDisabled(safePage >= totalPages - 1),
+    );
+    components.push(navRow);
+  }
+
+  return { embed, components };
+}
 
 async function handleLoja(ix: ChatInputCommandInteraction) {
   const type = (ix.options.getString("tipo") ?? "banner") as CosmeticType;
@@ -81,99 +157,160 @@ async function handleLoja(ix: ChatInputCommandInteraction) {
       embeds: [
         brandEmbed({
           kind: "info",
-          title: `Loja vazia`,
+          title: "Loja vazia",
           description: `Ainda não temos ${TYPE_LABEL[type].toLowerCase()}s à venda. Volta em breve!`,
         }),
       ],
       ephemeral: true,
     });
   }
-
-  const lines = items.slice(0, 10).map((c) => {
-    const tag = c.is_rare_pick ? "🔥 RARO DO DIA · " : c.is_on_offer ? "💸 OFERTA · " : "";
-    return `${tag}**${c.name}** · ${RARITY_BADGE[c.rarity] ?? c.rarity}\n${fmtPrice(c.price_coins, c.is_on_offer)} · \`${c.slug}\``;
-  });
-
-  return ix.reply({
-    embeds: [
-      ui.economy({
-        guildId: ix.guildId ?? undefined,
-        title: `Loja de ${TYPE_LABEL[type]}s`,
-        description: lines.join("\n\n"),
-        footer: "Use /perfil comprar <slug> pra adquirir um item",
-      }),
-    ],
-  });
+  const { embed, components } = buildShopView(items, type, 0);
+  return ix.reply({ embeds: [embed], components });
 }
 
-async function handleComprar(ix: ChatInputCommandInteraction) {
-  if (!ix.guildId) return ix.reply({ content: Msg.guildOnly(), ephemeral: true });
-  const slug = ix.options.getString("item", true);
-  const items = await listShop();
-  const item = items.find((c) => c.slug === slug);
-  if (!item) {
-    return ix.reply({
-      embeds: [brandEmbed({ kind: "error", title: "Item não encontrado", description: `Não achei \`${slug}\` na loja.` })],
-      ephemeral: true,
-    });
+/** Handler dos botões cosmetic:* — chamado por interactionCreate. */
+export async function handleCosmeticButton(ix: ButtonInteraction) {
+  const [, action, ...rest] = ix.customId.split(":");
+
+  if (action === "page") {
+    const type = rest[0] as CosmeticType;
+    const page = Number.parseInt(rest[1] ?? "0", 10) || 0;
+    if (!SHOP_TYPES.includes(type)) return;
+    const items = await listShop({ type });
+    const { embed, components } = buildShopView(items, type, page);
+    await ix.update({ embeds: [embed], components }).catch(() => {});
+    return;
   }
 
-  const result = await purchaseCosmetic({
-    userId: ix.user.id,
-    guildId: ix.guildId,
-    cosmeticId: item.id,
-    useDiscount: true,
-  });
-
-  if (!result.ok) {
-    const reasons: Record<string, string> = {
-      already_owned: "Você já tem esse cosmético no inventário!",
-      insufficient_funds: `Faltam 🪙 ${(result.needed ?? 0).toLocaleString("pt-BR")} pra comprar isso.`,
-      expired: "Esse item não está mais disponível.",
-      not_available_yet: "Esse item ainda não foi lançado.",
-      not_found: "Item não encontrado.",
-    };
-    return ix.reply({
-      embeds: [brandEmbed({ kind: "error", title: "Compra não rolou", description: reasons[result.reason ?? ""] ?? "Tenta de novo." })],
-      ephemeral: true,
+  if (action === "buy") {
+    const cosmeticId = rest[0];
+    if (!cosmeticId) return;
+    if (!ix.guildId) {
+      return ix.reply({ content: Msg.guildOnly(), ephemeral: true });
+    }
+    await ix.deferReply({ ephemeral: true });
+    const result = await purchaseCosmetic({
+      userId: ix.user.id,
+      guildId: ix.guildId,
+      cosmeticId,
+      useDiscount: true,
+    });
+    if (!result.ok) {
+      const reasons: Record<string, string> = {
+        already_owned: "Você já tem esse cosmético no inventário!",
+        insufficient_funds: `Faltam 🪙 ${(result.needed ?? 0).toLocaleString("pt-BR")} pra comprar isso.`,
+        expired: "Esse item não está mais disponível.",
+        not_available_yet: "Esse item ainda não foi lançado.",
+        not_found: "Item não encontrado.",
+      };
+      return ix.editReply({
+        embeds: [brandEmbed({ kind: "error", title: "Compra não rolou", description: reasons[result.reason ?? ""] ?? "Tenta de novo." })],
+      });
+    }
+    return ix.editReply({
+      embeds: [
+        ui.celebration({
+          title: "Cosmético adquirido!",
+          description: `Você pagou **🪙 ${(result.price_paid ?? 0).toLocaleString("pt-BR")}**${result.discount ? ` (com ${result.discount}% de desconto)` : ""}. Equipe com \`/perfil equipar\`.`,
+          fields: [{ name: "Saldo restante", value: `🪙 ${(result.new_balance ?? 0).toLocaleString("pt-BR")}`, inline: true }],
+        }),
+      ],
     });
   }
-
-  return ix.reply({
-    embeds: [
-      ui.celebration({
-        title: `${item.name} adquirido!`,
-        description: `Você pagou **🪙 ${(result.price_paid ?? 0).toLocaleString("pt-BR")}**${result.discount ? ` (com ${result.discount}% de desconto)` : ""}. Equipe com \`/perfil equipar\`.`,
-        fields: [{ name: "Saldo restante", value: `🪙 ${(result.new_balance ?? 0).toLocaleString("pt-BR")}`, inline: true }],
-        image: item.preview_url ?? item.image_url,
-      }),
-    ],
-  });
 }
+
+// ============= /perfil equipar (com autocomplete) =============
 
 async function handleEquipar(ix: ChatInputCommandInteraction) {
-  const slot = ix.options.getString("slot", true) as "banner" | "frame" | "effect";
-  const slug = ix.options.getString("item", true);
+  const slot = ix.options.getString("tipo", true) as "banner" | "frame" | "effect" | "sticker";
+  const cosmeticId = ix.options.getString("item", true);
+
   const inv = await getUserInventory(ix.user.id);
   // @ts-expect-error supabase join shape
-  const owned = inv.find((x) => x.profile_cosmetics?.slug === slug);
+  const owned = inv.find((x) => x.cosmetic_id === cosmeticId && x.profile_cosmetics?.type === slot);
   if (!owned) {
     return ix.reply({
-      embeds: [brandEmbed({ kind: "error", title: "Item não está no seu inventário", description: `Compre em \`/perfil loja\` primeiro.` })],
+      embeds: [
+        brandEmbed({
+          kind: "error",
+          title: "Item não está no seu inventário",
+          description: "Use o autocomplete pra ver só os itens que você tem.",
+        }),
+      ],
       ephemeral: true,
     });
   }
 
-  const field = `${slot}_id`;
-  const ok = await saveUserLoadout(ix.user.id, { [field]: owned.cosmetic_id } as never);
+  let patch: Record<string, unknown>;
+  if (slot === "sticker") {
+    const loadout = await getUserLoadout(ix.user.id);
+    const current = new Set(loadout?.sticker_ids ?? []);
+    if (current.has(cosmeticId)) current.delete(cosmeticId);
+    else {
+      if (current.size >= 3) {
+        return ix.reply({
+          embeds: [brandEmbed({ kind: "warn", title: "Limite de stickers", description: "Você só pode equipar 3 stickers. Remova um antes." })],
+          ephemeral: true,
+        });
+      }
+      current.add(cosmeticId);
+    }
+    patch = { sticker_ids: Array.from(current) };
+  } else {
+    patch = { [`${slot}_id`]: cosmeticId };
+  }
+
+  const ok = await saveUserLoadout(ix.user.id, patch as never);
   if (!ok) {
-    return ix.reply({ embeds: [brandEmbed({ kind: "error", title: "Não consegui equipar", description: Msg.oops() })], ephemeral: true });
+    return ix.reply({
+      embeds: [brandEmbed({ kind: "error", title: "Não consegui equipar", description: Msg.oops() })],
+      ephemeral: true,
+    });
   }
   return ix.reply({
-    embeds: [brandEmbed({ kind: "success", title: "Equipado!", description: `\`${slug}\` no slot **${slot}**.` })],
+    embeds: [
+      brandEmbed({
+        kind: "success",
+        title: "Equipado!",
+        // @ts-expect-error supabase join shape
+        description: `**${owned.profile_cosmetics?.name ?? "Item"}** no slot **${slot}**.`,
+      }),
+    ],
     ephemeral: true,
   });
 }
+
+async function handleAutocomplete(ix: AutocompleteInteraction) {
+  const sub = ix.options.getSubcommand(false);
+  if (sub !== "equipar") return ix.respond([]);
+  const focused = ix.options.getFocused(true);
+  if (focused.name !== "item") return ix.respond([]);
+
+  const slot = (ix.options.getString("tipo") ?? "banner") as CosmeticType;
+  const inv = await getUserInventory(ix.user.id);
+  const query = focused.value.toLowerCase();
+
+  const matches = inv
+    // @ts-expect-error supabase join shape
+    .filter((x) => x.profile_cosmetics?.type === slot)
+    .map((x) => ({
+      // @ts-expect-error supabase join shape
+      name: `${x.profile_cosmetics?.name ?? "Item"} (${RARITY_BADGE[x.profile_cosmetics?.rarity ?? "common"] ?? ""})`.slice(0, 100),
+      // @ts-expect-error supabase join shape
+      value: String(x.cosmetic_id),
+      // @ts-expect-error supabase join shape
+      slug: String(x.profile_cosmetics?.slug ?? ""),
+      // @ts-expect-error supabase join shape
+      nameLower: String(x.profile_cosmetics?.name ?? "").toLowerCase(),
+    }))
+    .filter((o) => !query || o.nameLower.includes(query) || o.slug.includes(query))
+    .slice(0, 25)
+    .map((o) => ({ name: o.name, value: o.value }));
+
+  await ix.respond(matches);
+}
+
+// ============= Comando =============
 
 const command: SlashCommand = {
   category: "fun",
@@ -185,13 +322,19 @@ const command: SlashCommand = {
     .addSubcommand((s) =>
       s
         .setName("ver")
-        .setDescription("Mostra o perfil de alguém.")
+        .setDescription("Mostra seu card de perfil renderizado.")
         .addUserOption((o) => o.setName("usuario").setDescription("Quem você quer ver").setRequired(false)),
     )
     .addSubcommand((s) =>
       s
+        .setName("preview")
+        .setDescription("Vê o perfil de outra pessoa.")
+        .addUserOption((o) => o.setName("usuario").setDescription("Usuário a visualizar").setRequired(true)),
+    )
+    .addSubcommand((s) =>
+      s
         .setName("loja")
-        .setDescription("Vê os cosméticos disponíveis na loja.")
+        .setDescription("Vê os cosméticos disponíveis na loja, com botões de compra.")
         .addStringOption((o) =>
           o
             .setName("tipo")
@@ -206,26 +349,27 @@ const command: SlashCommand = {
     )
     .addSubcommand((s) =>
       s
-        .setName("comprar")
-        .setDescription("Compra um cosmético pelo slug.")
-        .addStringOption((o) => o.setName("item").setDescription("Slug do cosmético").setRequired(true)),
-    )
-    .addSubcommand((s) =>
-      s
         .setName("equipar")
         .setDescription("Equipa um cosmético do seu inventário.")
         .addStringOption((o) =>
           o
-            .setName("slot")
-            .setDescription("Onde equipar")
+            .setName("tipo")
+            .setDescription("Tipo de cosmético")
             .setRequired(true)
             .addChoices(
               { name: "Banner", value: "banner" },
               { name: "Moldura", value: "frame" },
+              { name: "Sticker", value: "sticker" },
               { name: "Efeito", value: "effect" },
             ),
         )
-        .addStringOption((o) => o.setName("item").setDescription("Slug do cosmético").setRequired(true)),
+        .addStringOption((o) =>
+          o
+            .setName("item")
+            .setDescription("Item do seu inventário")
+            .setRequired(true)
+            .setAutocomplete(true),
+        ),
     ),
   async execute(ix) {
     const sub = ix.options.getSubcommand();
@@ -233,9 +377,15 @@ const command: SlashCommand = {
       const target = ix.options.getUser("usuario") ?? ix.user;
       return handleVer(ix, target.id);
     }
+    if (sub === "preview") {
+      const target = ix.options.getUser("usuario", true);
+      return handleVer(ix, target.id);
+    }
     if (sub === "loja") return handleLoja(ix);
-    if (sub === "comprar") return handleComprar(ix);
     if (sub === "equipar") return handleEquipar(ix);
+  },
+  async autocomplete(ix) {
+    return handleAutocomplete(ix);
   },
 };
 

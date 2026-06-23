@@ -125,6 +125,11 @@
     "category": "fun"
   },
   {
+    "name": "perfil",
+    "description": "Mostra ou personaliza seu perfil visual.",
+    "category": "fun"
+  },
+  {
     "name": "casar",
     "description": "Pede alguém em casamento. 💍",
     "category": "interaction"
@@ -340,8 +345,8 @@
     "category": "utility"
   },
   {
-    "name": "perfil",
-    "description": "Perfil social do servidor.",
+    "name": "perfil-social",
+    "description": "Perfil social do servidor (bio, badges, reputação).",
     "category": "utility"
   },
   {

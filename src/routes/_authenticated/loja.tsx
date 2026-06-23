@@ -185,16 +185,29 @@ function LojaPage() {
   const qc = useQueryClient();
   const { data: catalog } = useSuspenseQuery(shopOptions);
   const purchaseFn = useServerFn(purchaseProfileCosmetic);
+  const favoriteFn = useServerFn(toggleFavorite);
 
   const [tab, setTab] = useState<string>("all");
   const [rarityFilter, setRarityFilter] = useState<string>("all");
   const [query, setQuery] = useState("");
   const [showOwned, setShowOwned] = useState<"all" | "missing">("all");
+  const [page, setPage] = useState(1);
   const [buyTarget, setBuyTarget] = useState<ShopItemDTO | null>(null);
   const [buyGuild, setBuyGuild] = useState<string | null>(
     catalog.wallets[0]?.guild_id ?? null,
   );
   const [buying, setBuying] = useState(false);
+  const [favSet, setFavSet] = useState<Set<string>>(() => new Set(catalog.favoriteIds));
+
+  // Sincroniza favoritos quando o catálogo for refetchado
+  useEffect(() => {
+    setFavSet(new Set(catalog.favoriteIds));
+  }, [catalog.favoriteIds]);
+
+  // Reset paginação quando filtros mudarem
+  useEffect(() => {
+    setPage(1);
+  }, [tab, rarityFilter, query, showOwned]);
 
   const ownedSet = useMemo(() => new Set(catalog.ownedIds), [catalog.ownedIds]);
 
@@ -208,6 +221,7 @@ function LojaPage() {
     return catalog.cosmetics
       .filter((c) => {
         if (tab === "all") return true;
+        if (tab === "favorites") return favSet.has(c.id);
         if (tab === "daily") return dailySet.has(c.id);
         if (tab === "seasonal") return c.rarity === "seasonal" || c.collection !== null;
         return c.type === tab;
@@ -216,21 +230,32 @@ function LojaPage() {
       .filter((c) =>
         showOwned === "missing" ? !ownedSet.has(c.id) : true,
       )
-      .filter((c) =>
-        q.length === 0
-          ? true
-          : c.name.toLowerCase().includes(q) ||
-            c.description?.toLowerCase().includes(q),
-      )
+      .filter((c) => {
+        if (q.length === 0) return true;
+        const rarityLabel = (RARITY_LABEL[c.rarity] ?? c.rarity).toLowerCase();
+        return (
+          c.name.toLowerCase().includes(q) ||
+          c.description?.toLowerCase().includes(q) ||
+          rarityLabel.includes(q)
+        );
+      })
       .sort(
         (a, b) =>
           RARITY_ORDER.indexOf(a.rarity) - RARITY_ORDER.indexOf(b.rarity),
       );
-  }, [catalog.cosmetics, tab, rarityFilter, showOwned, ownedSet, query, dailySet]);
+  }, [catalog.cosmetics, tab, rarityFilter, showOwned, ownedSet, query, dailySet, favSet]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pageItems = useMemo(
+    () => filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
+    [filtered, safePage],
+  );
 
   const counts = useMemo(() => {
     const m: Record<string, number> = {
       all: catalog.cosmetics.length,
+      favorites: catalog.cosmetics.filter((c) => favSet.has(c.id)).length,
       daily: catalog.cosmetics.filter((c) => dailySet.has(c.id)).length,
       seasonal: catalog.cosmetics.filter(
         (c) => c.rarity === "seasonal" || c.collection !== null,
@@ -238,8 +263,27 @@ function LojaPage() {
     };
     for (const c of catalog.cosmetics) m[c.type] = (m[c.type] ?? 0) + 1;
     return m;
-  }, [catalog.cosmetics, dailySet]);
+  }, [catalog.cosmetics, dailySet, favSet]);
 
+  async function handleFavorite(cosmetic: ShopItemDTO) {
+    // Otimista
+    const wasFav = favSet.has(cosmetic.id);
+    const nextSet = new Set(favSet);
+    if (wasFav) nextSet.delete(cosmetic.id);
+    else nextSet.add(cosmetic.id);
+    setFavSet(nextSet);
+
+    try {
+      const res = await favoriteFn({ data: { cosmeticId: cosmetic.id } });
+      if (res.favorited) toast.success(`${cosmetic.name} salvo nos favoritos`);
+      else toast(`${cosmetic.name} removido dos favoritos`);
+    } catch (e: unknown) {
+      // Rollback
+      setFavSet(favSet);
+      const msg = e instanceof Error ? e.message : "Falha ao favoritar";
+      toast.error(msg);
+    }
+  }
 
   async function confirmPurchase() {
     if (!buyTarget || !buyGuild) return;
@@ -266,6 +310,12 @@ function LojaPage() {
           `${buyTarget.name} adquirido! −${fmt(res.price_paid ?? 0)} 🪙 · saldo ${fmt(res.new_balance ?? 0)}`,
           { id: toastId, duration: 4000 },
         );
+        // Animação celebratória
+        if (buyTarget.rarity === "legendary" || buyTarget.rarity === "epic") {
+          celebrateLegendary();
+        } else {
+          celebrateBurst();
+        }
         setBuyTarget(null);
         qc.invalidateQueries({ queryKey: ["shop-catalog"] });
         qc.invalidateQueries({ queryKey: ["my-profile"] });
@@ -316,7 +366,7 @@ function LojaPage() {
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar cosmético…"
+              placeholder="Buscar por nome, descrição ou raridade…"
               className="pl-9"
             />
           </div>
@@ -362,23 +412,79 @@ function LojaPage() {
 
           <TabsContent value={tab} className="mt-6">
             {filtered.length === 0 ? (
-              <div className="py-16 text-center">
-                <Sparkles className="mx-auto h-10 w-10 text-muted-foreground/40" />
-                <p className="mt-3 text-sm text-muted-foreground">
-                  Nenhum cosmético encontrado com esses filtros.
-                </p>
-              </div>
+              tab === "favorites" ? (
+                <EmptyMascot
+                  variant="sleeping"
+                  title="Nenhum favorito ainda"
+                  description="Clique no ❤ de qualquer item pra salvar aqui e achar fácil depois."
+                />
+              ) : (
+                <EmptyMascot
+                  variant="analyst"
+                  title="Nada encontrado com esses filtros"
+                  description="Tenta limpar a busca ou trocar de aba — tem muito cosmético escondido por aí."
+                  action={
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setQuery("");
+                        setRarityFilter("all");
+                        setShowOwned("all");
+                        setTab("all");
+                      }}
+                    >
+                      Limpar filtros
+                    </Button>
+                  }
+                />
+              )
             ) : (
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-                {filtered.map((item) => (
-                  <ItemCard
-                    key={item.id}
-                    item={item}
-                    owned={ownedSet.has(item.id)}
-                    onBuy={() => setBuyTarget(item)}
-                  />
-                ))}
-              </div>
+              <>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+                  {pageItems.map((item) => (
+                    <ItemCard
+                      key={item.id}
+                      item={item}
+                      owned={ownedSet.has(item.id)}
+                      favorited={favSet.has(item.id)}
+                      onBuy={() => setBuyTarget(item)}
+                      onFavorite={() => handleFavorite(item)}
+                    />
+                  ))}
+                </div>
+
+                {totalPages > 1 && (
+                  <div className="mt-6 flex items-center justify-between gap-3">
+                    <p className="text-xs text-muted-foreground">
+                      Mostrando {(safePage - 1) * PAGE_SIZE + 1}–
+                      {Math.min(safePage * PAGE_SIZE, filtered.length)} de {filtered.length}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={safePage <= 1}
+                        onClick={() => setPage((p) => Math.max(1, p - 1))}
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                        Anterior
+                      </Button>
+                      <span className="text-xs text-muted-foreground tabular-nums">
+                        {safePage} / {totalPages}
+                      </span>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={safePage >= totalPages}
+                        onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                      >
+                        Próxima
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
           </TabsContent>
         </Tabs>

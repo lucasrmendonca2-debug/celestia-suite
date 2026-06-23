@@ -3,7 +3,7 @@ import type { SlashCommand } from "../../../types/command.js";
 import { ui } from "../../systems/ui/embed.factory.js";
 import { getAsset } from "../../systems/ui/embed.assets.js";
 import { fmtCoins, fmtDuration } from "../../utils/format.js";
-import { currencyFromConfig, getAccount, isVip } from "../../systems/economy/economy.js";
+import { addWallet, claimCooldown, currencyFromConfig, getAccount, isVip } from "../../systems/economy/economy.js";
 import { getConfig } from "../../utils/guildCache.js";
 import { logTx } from "../../systems/economy/economy.tx.js";
 import { incrementMissionProgress } from "../../systems/economy/missions.js";

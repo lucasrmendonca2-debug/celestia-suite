@@ -429,55 +429,74 @@ function PerfilPage() {
             </Card>
           </div>
 
-          {/* Coluna direita: inventário */}
-          <Card className="self-start">
-            <CardHeader className="flex-row items-center justify-between space-y-0">
-              <CardTitle className="text-base">Inventário ({profile.inventory.length})</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Tabs value={tab} onValueChange={setTab}>
-                <TabsList className="grid w-full grid-cols-5">
-                  {TYPE_TABS.map((t) => {
-                    const Icon = t.icon;
-                    return (
-                      <TabsTrigger key={t.id} value={t.id} className="gap-1.5">
-                        <Icon className="h-3.5 w-3.5" />
-                        <span className="hidden sm:inline">{t.label}</span>
-                      </TabsTrigger>
-                    );
-                  })}
-                </TabsList>
-                <TabsContent value={tab} className="mt-4">
-                  {!hasInventory ? (
-                    <div className="py-12 text-center">
-                      <Sparkles className="mx-auto h-10 w-10 text-muted-foreground/40" />
-                      <p className="mt-3 text-sm text-muted-foreground">
-                        Você ainda não tem cosméticos.
-                      </p>
-                      <Button asChild className="mt-4">
-                        <Link to="/loja">Visitar a loja</Link>
-                      </Button>
-                    </div>
-                  ) : filteredInventory.length === 0 ? (
-                    <p className="py-8 text-center text-sm text-muted-foreground">
-                      Nenhum item desta categoria.
-                    </p>
-                  ) : (
-                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                      {filteredInventory.map((entry) => (
-                        <InventoryItem
-                          key={entry.id}
-                          entry={entry}
-                          isEquipped={equippedIds.has(entry.cosmetic.id)}
-                          onEquip={() => handleEquip(entry.cosmetic.id)}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </TabsContent>
-              </Tabs>
-            </CardContent>
-          </Card>
+          {/* Coluna direita: inventário + histórico */}
+          <div className="space-y-4 self-start">
+            <Tabs defaultValue="inventory">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="inventory" className="gap-1.5">
+                  <ShoppingBag className="h-3.5 w-3.5" />
+                  Inventário ({profile.inventory.length})
+                </TabsTrigger>
+                <TabsTrigger value="history" className="gap-1.5">
+                  <History className="h-3.5 w-3.5" />
+                  Histórico
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="inventory">
+                <Card>
+                  <CardContent className="pt-6">
+                    <Tabs value={tab} onValueChange={setTab}>
+                      <TabsList className="grid w-full grid-cols-5">
+                        {TYPE_TABS.map((t) => {
+                          const Icon = t.icon;
+                          return (
+                            <TabsTrigger key={t.id} value={t.id} className="gap-1.5">
+                              <Icon className="h-3.5 w-3.5" />
+                              <span className="hidden sm:inline">{t.label}</span>
+                            </TabsTrigger>
+                          );
+                        })}
+                      </TabsList>
+                      <TabsContent value={tab} className="mt-4">
+                        {!hasInventory ? (
+                          <EmptyMascot
+                            variant="sleeping"
+                            title="Inventário vazio"
+                            description="Você ainda não tem cosméticos. Bora ganhar moedas e dar uma olhada na loja?"
+                            action={
+                              <Button asChild>
+                                <Link to="/loja">Visitar a loja</Link>
+                              </Button>
+                            }
+                          />
+                        ) : filteredInventory.length === 0 ? (
+                          <p className="py-8 text-center text-sm text-muted-foreground">
+                            Nenhum item desta categoria.
+                          </p>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                            {filteredInventory.map((entry) => (
+                              <InventoryItem
+                                key={entry.id}
+                                entry={entry}
+                                isEquipped={equippedIds.has(entry.cosmetic.id)}
+                                onEquip={() => handleEquip(entry.cosmetic.id)}
+                              />
+                            ))}
+                          </div>
+                        )}
+                      </TabsContent>
+                    </Tabs>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="history">
+                <PurchaseHistorySection />
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
       </div>
     </main>

@@ -6,7 +6,7 @@ interface RewardRow {
   id: string;
   guild_id: string;
   level: number;
-  reward_type: "role" | "coins" | "badge" | "title";
+  reward_type: "role" | "coins" | "badge" | "title" | "cosmetic";
   reward_value: string;
   remove_previous_roles: boolean;
   active: boolean;

@@ -98,11 +98,15 @@ function fmt(n: number) {
 function ItemCard({
   item,
   owned,
+  favorited,
   onBuy,
+  onFavorite,
 }: {
   item: ShopItemDTO;
   owned: boolean;
+  favorited: boolean;
   onBuy: () => void;
+  onFavorite: () => void;
 }) {
   const isLegendary = item.rarity === "legendary";
   return (
@@ -129,6 +133,19 @@ function ItemCard({
         >
           {RARITY_LABEL[item.rarity] ?? item.rarity}
         </Badge>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onFavorite();
+          }}
+          aria-label={favorited ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+          className={`absolute right-2 ${owned ? "top-10" : "top-2"} flex h-8 w-8 items-center justify-center rounded-full bg-black/40 backdrop-blur transition-all hover:scale-110 hover:bg-black/60 ${favorited ? "text-pink-400" : "text-white/80"}`}
+        >
+          <Heart
+            className={`h-4 w-4 transition-all ${favorited ? "fill-current animate-scale-in" : ""}`}
+          />
+        </button>
         {owned && (
           <Badge className="absolute right-2 top-2 bg-emerald-500/90 text-white border-transparent">
             <Check className="mr-1 h-3 w-3" /> Tem

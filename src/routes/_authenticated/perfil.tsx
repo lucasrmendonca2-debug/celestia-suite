@@ -251,6 +251,7 @@ function PerfilPage() {
     try {
       await equipFn({ data: { cosmeticId } });
       toast.success("Equipado!");
+      celebrateBurst();
       qc.invalidateQueries({ queryKey: ["my-profile"] });
       setCardVersion(Date.now());
     } catch (e: any) {

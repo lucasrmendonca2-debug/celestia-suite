@@ -8,6 +8,7 @@ import { getConfig } from "../../utils/guildCache.js";
 import { logTx } from "../../systems/economy/economy.tx.js";
 import { incrementMissionProgress } from "../../systems/economy/missions.js";
 import { economyResponses } from "../../systems/personality/index.js";
+import { logger } from "../../utils/logger.js";
 
 const JOBS = economyResponses.workJobs;
 

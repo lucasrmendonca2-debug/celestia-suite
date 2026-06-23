@@ -42,29 +42,86 @@ export async function issueDailyToken(guildId: string, userId: string) {
   return token;
 }
 
-async function readJson(req: http.IncomingMessage): Promise<any> {
+function getAllowedOrigins(): string[] {
+  const list = (env.BOT_API_ALLOWED_ORIGINS ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+  if (list.length) return list;
+  try {
+    return [new URL(env.APP_URL).origin];
+  } catch {
+    return [];
+  }
+}
+
+function pickOrigin(req: http.IncomingMessage): string | null {
+  const allowed = getAllowedOrigins();
+  const origin = (req.headers.origin as string | undefined) ?? null;
+  if (!origin) return null; // server-to-server (sem browser) — sem CORS
+  if (allowed.includes("*")) return "*";
+  return allowed.includes(origin) ? origin : null;
+}
+
+function applyCors(res: http.ServerResponse, origin: string | null) {
+  if (origin) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Vary", "Origin");
+  }
+  res.setHeader("Access-Control-Allow-Headers", "content-type, x-bot-secret");
+  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Max-Age", "600");
+}
+
+class HttpError extends Error {
+  constructor(public status: number, public code: string, message?: string) {
+    super(message ?? code);
+  }
+}
+
+async function readJson(
+  req: http.IncomingMessage,
+  maxBytes: number,
+): Promise<any> {
   return new Promise((resolve, reject) => {
-    let body = "";
-    req.on("data", (c) => (body += c));
+    const chunks: Buffer[] = [];
+    let size = 0;
+    req.on("data", (c: Buffer) => {
+      size += c.length;
+      if (size > maxBytes) {
+        reject(new HttpError(413, "payload_too_large"));
+        req.destroy();
+        return;
+      }
+      chunks.push(c);
+    });
     req.on("end", () => {
-      if (!body) return resolve({});
+      if (!size) return resolve({});
       try {
-        resolve(JSON.parse(body));
-      } catch (e) {
-        reject(e);
+        resolve(JSON.parse(Buffer.concat(chunks).toString("utf8")));
+      } catch {
+        reject(new HttpError(400, "invalid_json"));
       }
     });
-    req.on("error", reject);
+    req.on("error", (err) => reject(err));
   });
 }
 
 function send(res: http.ServerResponse, status: number, body: any) {
   res.statusCode = status;
-  res.setHeader("Content-Type", "application/json");
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "content-type, x-bot-secret");
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.end(JSON.stringify(body));
+}
+
+function safeEqualStr(a: string, b: string): boolean {
+  const ab = Buffer.from(a, "utf8");
+  const bb = Buffer.from(b, "utf8");
+  if (ab.length !== bb.length) {
+    // Mantém tempo aproximado comparando contra si mesmo.
+    crypto.timingSafeEqual(ab, ab);
+    return false;
+  }
+  return crypto.timingSafeEqual(ab, bb);
 }
 
 async function buildStatus(guildId: string, userId: string) {
@@ -105,10 +162,11 @@ async function buildStatus(guildId: string, userId: string) {
 }
 
 async function handleStatus(req: http.IncomingMessage, res: http.ServerResponse) {
-  const { token, expectedUserId } = await readJson(req);
-  if (!token) return send(res, 400, { error: "missing token" });
+  const { token, expectedUserId } = await readJson(req, env.BOT_API_MAX_BODY_BYTES);
+  if (!token || typeof token !== "string")
+    return send(res, 400, { error: "missing_token" });
   const t = await DailyToken.findOne({ token });
-  if (!t) return send(res, 404, { error: "invalid token" });
+  if (!t) return send(res, 404, { error: "invalid_token" });
   if (t.expiresAt.getTime() < Date.now())
     return send(res, 410, { error: "expired" });
   if (expectedUserId && t.userId !== expectedUserId)
@@ -118,17 +176,18 @@ async function handleStatus(req: http.IncomingMessage, res: http.ServerResponse)
 }
 
 async function handleClaim(req: http.IncomingMessage, res: http.ServerResponse) {
-  const { token, expectedUserId } = await readJson(req);
-  if (!token) return send(res, 400, { error: "missing token" });
+  const { token, expectedUserId } = await readJson(req, env.BOT_API_MAX_BODY_BYTES);
+  if (!token || typeof token !== "string")
+    return send(res, 400, { error: "missing_token" });
   // Verifica dono ANTES de consumir o token, para evitar gastar tokens alheios.
   const preview = await DailyToken.findOne({ token });
-  if (!preview) return send(res, 404, { error: "invalid token" });
+  if (!preview) return send(res, 404, { error: "invalid_token" });
   if (preview.expiresAt.getTime() < Date.now())
     return send(res, 410, { error: "expired" });
   if (expectedUserId && preview.userId !== expectedUserId)
     return send(res, 403, { error: "token_user_mismatch" });
   const t = await DailyToken.findOneAndDelete({ token });
-  if (!t) return send(res, 404, { error: "invalid token" });
+  if (!t) return send(res, 404, { error: "invalid_token" });
   if (t.expiresAt.getTime() < Date.now())
     return send(res, 410, { error: "expired" });
 
@@ -210,19 +269,53 @@ export function startHttpServer() {
     logger.warn("BOT_API_SECRET ausente — HTTP bridge não será iniciado");
     return;
   }
+  const allowedOrigins = getAllowedOrigins();
+  logger.info({ allowedOrigins }, "HTTP bridge CORS configurado");
   const ports = [...new Set([Number(env.BOT_HTTP_PORT ?? 3001), 8080])];
   const handler = async (req: http.IncomingMessage, res: http.ServerResponse) => {
-    if (req.method === "OPTIONS") return send(res, 204, {});
-    if (req.method !== "POST") return send(res, 405, { error: "method not allowed" });
-    const secret = req.headers["x-bot-secret"];
-    if (secret !== env.BOT_API_SECRET) return send(res, 401, { error: "unauthorized" });
+    const origin = pickOrigin(req);
+    const hasBrowserOrigin = Boolean(req.headers.origin);
+
+    if (hasBrowserOrigin && !origin) {
+      applyCors(res, null);
+      return send(res, 403, { error: "origin_not_allowed" });
+    }
+    applyCors(res, origin);
+
+    if (req.method === "OPTIONS") {
+      res.statusCode = 204;
+      res.end();
+      return;
+    }
+    if (req.method !== "POST") {
+      res.setHeader("Allow", "POST, OPTIONS");
+      return send(res, 405, { error: "method_not_allowed" });
+    }
+
+    const secretHeader = req.headers["x-bot-secret"];
+    const provided = Array.isArray(secretHeader) ? secretHeader[0] : secretHeader;
+    if (!provided || !safeEqualStr(provided, env.BOT_API_SECRET!)) {
+      return send(res, 401, { error: "unauthorized" });
+    }
+
+    const contentType = (req.headers["content-type"] ?? "").toLowerCase();
+    if (contentType && !contentType.includes("application/json")) {
+      return send(res, 415, { error: "unsupported_media_type" });
+    }
+
     try {
       if (req.url === "/api/daily/status") return await handleStatus(req, res);
       if (req.url === "/api/daily/claim") return await handleClaim(req, res);
-      return send(res, 404, { error: "not found" });
+      return send(res, 404, { error: "not_found" });
     } catch (err: any) {
-      logger.error({ err, url: req.url }, "HTTP bridge erro");
-      return send(res, 500, { error: "internal", message: err?.message });
+      if (err instanceof HttpError) {
+        return send(res, err.status, { error: err.code });
+      }
+      logger.error(
+        { err: { message: err?.message, name: err?.name }, url: req.url, method: req.method },
+        "HTTP bridge erro",
+      );
+      return send(res, 500, { error: "internal_error" });
     }
   };
   for (const port of ports) {

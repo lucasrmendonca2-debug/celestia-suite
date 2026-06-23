@@ -63,12 +63,12 @@ const command: SlashCommand = {
     const vipText = sub && plan
       ? `💎 **${plan.name}**${sub.expires_at ? ` — expira <t:${Math.floor(new Date(sub.expires_at).getTime() / 1000)}:R>` : " (vitalício)"}`
       : vipLegacy
-        ? `💎 **${vipLegacy.tier}** (servidor)`
+        ? `💎 **${vipLegacy.notes ?? "VIP"}** (servidor)`
         : "—";
 
     const level = lvl?.level ?? 0;
     const xp = lvl?.xp ?? 0;
-    const totalXp = lvl?.totalXp ?? 0;
+    const totalXp = Number(lvl?.total_xp ?? 0);
 
     await interaction.reply({
       embeds: [

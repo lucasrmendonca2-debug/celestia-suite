@@ -515,45 +515,19 @@ function LojaPage() {
                 </span>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-xs text-muted-foreground">
-                  Pagar com a carteira do servidor
-                </label>
-                {catalog.wallets.length === 0 ? (
-                  <p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-400">
-                    Você ainda não tem moedas em nenhum servidor. Use o bot para ganhar
-                    coins primeiro.
-                  </p>
-                ) : (
-                  <Select
-                    value={buyGuild ?? undefined}
-                    onValueChange={(v) => setBuyGuild(v)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Escolha o servidor" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {catalog.wallets.map((w) => (
-                        <SelectItem key={w.guild_id} value={w.guild_id}>
-                          <span className="flex w-full items-center justify-between gap-3">
-                            <span className="truncate">
-                              {w.guild_name ?? w.guild_id}
-                            </span>
-                            <span className="ml-2 text-xs text-muted-foreground">
-                              {fmt(w.balance)} 🪙
-                            </span>
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
-                {selectedWallet && !canAfford && (
-                  <p className="text-xs text-destructive">
-                    Saldo insuficiente nessa carteira ({fmt(selectedWallet.balance)} 🪙).
-                  </p>
-                )}
+              <div className="flex items-center justify-between rounded-md border border-border/60 bg-card/50 px-3 py-2">
+                <span className="text-sm text-muted-foreground">Seu saldo global</span>
+                <span className="flex items-center gap-1 text-base font-semibold tabular-nums">
+                  <Coins className="h-4 w-4 text-amber-400" />
+                  {fmt(catalog.balance)}
+                </span>
               </div>
+
+              {!canAfford && (
+                <p className="rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-xs text-destructive">
+                  Saldo insuficiente. Você precisa de mais {fmt(buyTarget.price_coins - catalog.balance)} 🪙. Ganhe moedas no Discord com <code>/diario</code>, <code>/trabalhar</code> e missões.
+                </p>
+              )}
             </div>
           )}
 
@@ -563,8 +537,9 @@ function LojaPage() {
             </Button>
             <Button
               onClick={confirmPurchase}
-              disabled={buying || !buyGuild || !canAfford}
+              disabled={buying || !canAfford}
             >
+
               {buying ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

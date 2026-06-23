@@ -47,6 +47,7 @@ import { Route as AuthenticatedDashboardSlugPremiumRouteImport } from './routes/
 import { Route as AuthenticatedDashboardSlugPermissoesRouteImport } from './routes/_authenticated/dashboard.$slug.permissoes'
 import { Route as AuthenticatedDashboardSlugNiveisRouteImport } from './routes/_authenticated/dashboard.$slug.niveis'
 import { Route as AuthenticatedDashboardSlugModeracaoRouteImport } from './routes/_authenticated/dashboard.$slug.moderacao'
+import { Route as AuthenticatedDashboardSlugLojaRouteImport } from './routes/_authenticated/dashboard.$slug.loja'
 import { Route as AuthenticatedDashboardSlugLogsRouteImport } from './routes/_authenticated/dashboard.$slug.logs'
 import { Route as AuthenticatedDashboardSlugEmbedsRouteImport } from './routes/_authenticated/dashboard.$slug.embeds'
 import { Route as AuthenticatedDashboardSlugEconomiaRouteImport } from './routes/_authenticated/dashboard.$slug.economia'
@@ -266,6 +267,12 @@ const AuthenticatedDashboardSlugModeracaoRoute =
     path: '/moderacao',
     getParentRoute: () => AuthenticatedDashboardSlugRoute,
   } as any)
+const AuthenticatedDashboardSlugLojaRoute =
+  AuthenticatedDashboardSlugLojaRouteImport.update({
+    id: '/loja',
+    path: '/loja',
+    getParentRoute: () => AuthenticatedDashboardSlugRoute,
+  } as any)
 const AuthenticatedDashboardSlugLogsRoute =
   AuthenticatedDashboardSlugLogsRouteImport.update({
     id: '/logs',
@@ -373,6 +380,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/$slug/economia': typeof AuthenticatedDashboardSlugEconomiaRoute
   '/dashboard/$slug/embeds': typeof AuthenticatedDashboardSlugEmbedsRoute
   '/dashboard/$slug/logs': typeof AuthenticatedDashboardSlugLogsRoute
+  '/dashboard/$slug/loja': typeof AuthenticatedDashboardSlugLojaRoute
   '/dashboard/$slug/moderacao': typeof AuthenticatedDashboardSlugModeracaoRoute
   '/dashboard/$slug/niveis': typeof AuthenticatedDashboardSlugNiveisRoute
   '/dashboard/$slug/permissoes': typeof AuthenticatedDashboardSlugPermissoesRoute
@@ -423,6 +431,7 @@ export interface FileRoutesByTo {
   '/dashboard/$slug/economia': typeof AuthenticatedDashboardSlugEconomiaRoute
   '/dashboard/$slug/embeds': typeof AuthenticatedDashboardSlugEmbedsRoute
   '/dashboard/$slug/logs': typeof AuthenticatedDashboardSlugLogsRoute
+  '/dashboard/$slug/loja': typeof AuthenticatedDashboardSlugLojaRoute
   '/dashboard/$slug/moderacao': typeof AuthenticatedDashboardSlugModeracaoRoute
   '/dashboard/$slug/niveis': typeof AuthenticatedDashboardSlugNiveisRoute
   '/dashboard/$slug/permissoes': typeof AuthenticatedDashboardSlugPermissoesRoute
@@ -476,6 +485,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/$slug/economia': typeof AuthenticatedDashboardSlugEconomiaRoute
   '/_authenticated/dashboard/$slug/embeds': typeof AuthenticatedDashboardSlugEmbedsRoute
   '/_authenticated/dashboard/$slug/logs': typeof AuthenticatedDashboardSlugLogsRoute
+  '/_authenticated/dashboard/$slug/loja': typeof AuthenticatedDashboardSlugLojaRoute
   '/_authenticated/dashboard/$slug/moderacao': typeof AuthenticatedDashboardSlugModeracaoRoute
   '/_authenticated/dashboard/$slug/niveis': typeof AuthenticatedDashboardSlugNiveisRoute
   '/_authenticated/dashboard/$slug/permissoes': typeof AuthenticatedDashboardSlugPermissoesRoute
@@ -529,6 +539,7 @@ export interface FileRouteTypes {
     | '/dashboard/$slug/economia'
     | '/dashboard/$slug/embeds'
     | '/dashboard/$slug/logs'
+    | '/dashboard/$slug/loja'
     | '/dashboard/$slug/moderacao'
     | '/dashboard/$slug/niveis'
     | '/dashboard/$slug/permissoes'
@@ -579,6 +590,7 @@ export interface FileRouteTypes {
     | '/dashboard/$slug/economia'
     | '/dashboard/$slug/embeds'
     | '/dashboard/$slug/logs'
+    | '/dashboard/$slug/loja'
     | '/dashboard/$slug/moderacao'
     | '/dashboard/$slug/niveis'
     | '/dashboard/$slug/permissoes'
@@ -631,6 +643,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/$slug/economia'
     | '/_authenticated/dashboard/$slug/embeds'
     | '/_authenticated/dashboard/$slug/logs'
+    | '/_authenticated/dashboard/$slug/loja'
     | '/_authenticated/dashboard/$slug/moderacao'
     | '/_authenticated/dashboard/$slug/niveis'
     | '/_authenticated/dashboard/$slug/permissoes'
@@ -942,6 +955,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardSlugModeracaoRouteImport
       parentRoute: typeof AuthenticatedDashboardSlugRoute
     }
+    '/_authenticated/dashboard/$slug/loja': {
+      id: '/_authenticated/dashboard/$slug/loja'
+      path: '/loja'
+      fullPath: '/dashboard/$slug/loja'
+      preLoaderRoute: typeof AuthenticatedDashboardSlugLojaRouteImport
+      parentRoute: typeof AuthenticatedDashboardSlugRoute
+    }
     '/_authenticated/dashboard/$slug/logs': {
       id: '/_authenticated/dashboard/$slug/logs'
       path: '/logs'
@@ -1041,6 +1061,7 @@ interface AuthenticatedDashboardSlugRouteChildren {
   AuthenticatedDashboardSlugEconomiaRoute: typeof AuthenticatedDashboardSlugEconomiaRoute
   AuthenticatedDashboardSlugEmbedsRoute: typeof AuthenticatedDashboardSlugEmbedsRoute
   AuthenticatedDashboardSlugLogsRoute: typeof AuthenticatedDashboardSlugLogsRoute
+  AuthenticatedDashboardSlugLojaRoute: typeof AuthenticatedDashboardSlugLojaRoute
   AuthenticatedDashboardSlugModeracaoRoute: typeof AuthenticatedDashboardSlugModeracaoRoute
   AuthenticatedDashboardSlugNiveisRoute: typeof AuthenticatedDashboardSlugNiveisRoute
   AuthenticatedDashboardSlugPermissoesRoute: typeof AuthenticatedDashboardSlugPermissoesRoute
@@ -1074,6 +1095,7 @@ const AuthenticatedDashboardSlugRouteChildren: AuthenticatedDashboardSlugRouteCh
     AuthenticatedDashboardSlugEmbedsRoute:
       AuthenticatedDashboardSlugEmbedsRoute,
     AuthenticatedDashboardSlugLogsRoute: AuthenticatedDashboardSlugLogsRoute,
+    AuthenticatedDashboardSlugLojaRoute: AuthenticatedDashboardSlugLojaRoute,
     AuthenticatedDashboardSlugModeracaoRoute:
       AuthenticatedDashboardSlugModeracaoRoute,
     AuthenticatedDashboardSlugNiveisRoute:

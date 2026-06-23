@@ -48,7 +48,7 @@ function errorMessage(status: AnyStatus) {
   if (error === "bot_not_configured") return "A URL da API do bot não está configurada.";
   if (error === "bot_secret_missing") return "O segredo da API do bot não está configurado.";
   if (error === "token_user_mismatch") return "Este link de daily pertence a outra conta Discord. Faça login com a conta que executou /daily.";
-  if (error === "invalid token") return "Token inválido ou já utilizado. Execute /daily novamente no Discord.";
+  if (error === "invalid_token" || error === "invalid token" || error === "missing_token") return "Token inválido ou já utilizado. Execute /daily novamente no Discord.";
   if (error === "expired") return "Este link expirou. Execute /daily novamente no Discord.";
   if (error === "already_claimed") return "Você já resgatou sua diária. Volte amanhã!";
   return (status as any).data?.message || "Gere um novo link com /daily no Discord.";

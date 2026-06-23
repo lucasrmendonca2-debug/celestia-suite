@@ -133,6 +133,45 @@ export async function purchaseCosmetic(args: {
   return data as PurchaseResult;
 }
 
+/**
+ * Tenta dropar um cosmético comum para o usuário.
+ * Probabilidade configurável (padrão 8%). Não duplica itens já possuídos.
+ */
+export async function tryDropCommonCosmetic(args: {
+  userId: string;
+  chance?: number;
+  reason?: string;
+}): Promise<Cosmetic | null> {
+  const chance = args.chance ?? 0.08;
+  if (Math.random() > chance) return null;
+
+  // Pega 1 cosmético comum aleatório que o usuário ainda NÃO tem
+  const { data: owned } = await supabase
+    .from("user_cosmetics")
+    .select("cosmetic_id")
+    .eq("user_id", args.userId);
+  const ownedIds = (owned ?? []).map((r) => r.cosmetic_id);
+
+  let q = supabase
+    .from("profile_cosmetics")
+    .select("*")
+    .eq("active", true)
+    .eq("rarity", "common");
+  if (ownedIds.length > 0) q = q.not("id", "in", `(${ownedIds.join(",")})`);
+  const { data: candidates, error } = await q.limit(50);
+  if (error || !candidates || candidates.length === 0) return null;
+
+  const pick = candidates[Math.floor(Math.random() * candidates.length)] as Cosmetic;
+  const ok = await grantCosmetic({
+    userId: args.userId,
+    cosmeticId: pick.id,
+    source: "drop",
+  });
+  if (!ok) return null;
+  logger.info({ userId: args.userId, slug: pick.slug, reason: args.reason }, "cosmetic dropped");
+  return pick;
+}
+
 /** Concede cosmético gratuitamente (drop, gift, seasonal reward, admin). */
 export async function grantCosmetic(args: {
   userId: string;

@@ -331,8 +331,21 @@ function LojaPage() {
           id: toastId,
         });
       } else {
+        // Optimistic update: aplica novo saldo + marca como owned imediatamente
+        const newBalance = res.new_balance ?? Math.max(0, catalog.balance - (res.price_paid ?? buyTarget.price_coins));
+        const ownedTarget = buyTarget.id;
+        qc.setQueryData(["shop-catalog"], (old: typeof catalog | undefined) =>
+          old
+            ? {
+                ...old,
+                balance: newBalance,
+                ownedIds: old.ownedIds.includes(ownedTarget) ? old.ownedIds : [...old.ownedIds, ownedTarget],
+              }
+            : old,
+        );
+
         toast.success(
-          `${buyTarget.name} adquirido! −${fmt(res.price_paid ?? 0)} 🪙 · saldo ${fmt(res.new_balance ?? 0)}`,
+          `${buyTarget.name} adquirido! −${fmt(res.price_paid ?? 0)} 🪙 · saldo ${fmt(newBalance)}`,
           { id: toastId, duration: 4000 },
         );
         if (buyTarget.rarity === "legendary" || buyTarget.rarity === "epic") {
@@ -341,9 +354,11 @@ function LojaPage() {
           celebrateBurst();
         }
         setBuyTarget(null);
+        // Refetch em background para reconciliar
         qc.invalidateQueries({ queryKey: ["shop-catalog"] });
         qc.invalidateQueries({ queryKey: ["my-profile"] });
       }
+
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Falha ao comprar";
       toast.error(msg, { id: toastId });

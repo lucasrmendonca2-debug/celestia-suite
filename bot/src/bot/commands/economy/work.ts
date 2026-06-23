@@ -63,15 +63,17 @@ const command: SlashCommand = {
     acc.lastWork = now;
     await acc.save();
 
-    void logTx({
+    logTx({
       guildId,
       userId: interaction.user.id,
       kind: "work",
       amount,
       balanceAfter: acc.wallet,
       reason: "Trabalho",
-    });
-    void incrementMissionProgress(guildId, interaction.user.id, "work");
+    }).catch((err) => logger.warn({ err }, "logTx work falhou"));
+    incrementMissionProgress(guildId, interaction.user.id, "work").catch((err) =>
+      logger.warn({ err }, "incrementMissionProgress work falhou"),
+    );
 
     const job = JOBS[Math.floor(Math.random() * JOBS.length)];
     const image = await getAsset(guildId, "economy.work_image");

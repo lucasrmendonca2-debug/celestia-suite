@@ -1,5 +1,5 @@
 import type { Message } from "discord.js";
-import { AutoModIncident } from "../../../database/models.js";
+import { createAutomodIncident } from "../../repositories/content.repo.js";
 import { supabase } from "../../../database/supabase.js";
 import { logger } from "../../utils/logger.js";
 

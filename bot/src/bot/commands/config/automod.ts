@@ -1,7 +1,24 @@
 import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
-import { GuildConfig } from "../../../database/models.js";
+import { supabase, canWriteSupabase } from "../../../database/supabase.js";
+import { invalidateGuildConfig } from "../../utils/guildCache.js";
+
+// Filtro do slash → coluna real em automod_config.
+// `antiRaidEnabled` mapeia para anti_flood_enabled (não existe coluna anti_raid).
+const FILTER_TO_COLUMN: Record<string, string> = {
+  antiLinkEnabled: "anti_link_enabled",
+  antiInviteEnabled: "anti_invite_enabled",
+  antiSpamEnabled: "anti_spam_enabled",
+  antiRaidEnabled: "anti_flood_enabled",
+};
+
+async function ensureAutomodRow(guildId: string) {
+  const { error } = await supabase
+    .from("automod_config")
+    .upsert({ guild_id: guildId }, { onConflict: "guild_id" });
+  if (error) throw error;
+}
 
 const command: SlashCommand = {
   category: "config",
@@ -20,7 +37,7 @@ const command: SlashCommand = {
             { name: "Anti-link", value: "antiLinkEnabled" },
             { name: "Anti-invite", value: "antiInviteEnabled" },
             { name: "Anti-spam", value: "antiSpamEnabled" },
-            { name: "Anti-raid", value: "antiRaidEnabled" },
+            { name: "Anti-raid (flood)", value: "antiRaidEnabled" },
           ),
         )
         .addBooleanOption((o) => o.setName("estado").setDescription("on/off").setRequired(true)),
@@ -47,58 +64,132 @@ const command: SlashCommand = {
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
     const guildId = interaction.guildId!;
-    const cfg = (await GuildConfig.findOneAndUpdate({ guildId }, { $setOnInsert: { guildId } }, { upsert: true, new: true, setDefaultsOnInsert: true }))!;
+
+    if (!canWriteSupabase) {
+      return interaction.reply({
+        embeds: [brandEmbed({ kind: "error", title: "Backend indisponível", description: "Configuração só é possível com a chave service_role configurada." })],
+        flags: MessageFlags.Ephemeral,
+      });
+    }
+
+    await ensureAutomodRow(guildId);
 
     if (sub === "toggle") {
-      const key = interaction.options.getString("filtro", true) as
-        | "antiLinkEnabled"
-        | "antiInviteEnabled"
-        | "antiSpamEnabled"
-        | "antiRaidEnabled";
+      const key = interaction.options.getString("filtro", true);
+      const column = FILTER_TO_COLUMN[key];
+      if (!column) {
+        return interaction.reply({
+          embeds: [brandEmbed({ kind: "error", title: "Filtro inválido" })],
+          flags: MessageFlags.Ephemeral,
+        });
+      }
       const state = interaction.options.getBoolean("estado", true);
-      cfg.set(key, state);
-      await cfg.save();
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "AutoMod atualizado", description: `**${key}** → ${state ? "ON" : "OFF"}` })], flags: MessageFlags.Ephemeral });
-      return;
+      const { error } = await supabase
+        .from("automod_config")
+        .update({ [column]: state })
+        .eq("guild_id", guildId);
+      if (error) {
+        return interaction.reply({
+          embeds: [brandEmbed({ kind: "error", title: "Falha ao salvar", description: error.message })],
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+      invalidateGuildConfig(guildId);
+      return interaction.reply({
+        embeds: [brandEmbed({ kind: "success", title: "AutoMod atualizado", description: `**${key}** → ${state ? "ON" : "OFF"}` })],
+        flags: MessageFlags.Ephemeral,
+      });
     }
 
     if (sub === "blacklist-add") {
-      const w = interaction.options.getString("palavra", true).toLowerCase();
-      if (!cfg.blacklistedWords.includes(w)) cfg.blacklistedWords.push(w);
-      await cfg.save();
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Palavra adicionada" })], flags: MessageFlags.Ephemeral });
-      return;
+      const w = interaction.options.getString("palavra", true).toLowerCase().trim();
+      if (!w) {
+        return interaction.reply({
+          embeds: [brandEmbed({ kind: "error", title: "Palavra inválida" })],
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+      const { error } = await supabase
+        .from("blacklisted_words")
+        .upsert({ guild_id: guildId, word: w, active: true }, { onConflict: "guild_id,word" });
+      if (error) {
+        return interaction.reply({
+          embeds: [brandEmbed({ kind: "error", title: "Falha ao adicionar", description: error.message })],
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+      return interaction.reply({
+        embeds: [brandEmbed({ kind: "success", title: "Palavra adicionada", description: `\`${w}\`` })],
+        flags: MessageFlags.Ephemeral,
+      });
     }
 
     if (sub === "blacklist-remove") {
-      const w = interaction.options.getString("palavra", true).toLowerCase();
-      cfg.blacklistedWords = cfg.blacklistedWords.filter((x) => x !== w);
-      await cfg.save();
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Palavra removida" })], flags: MessageFlags.Ephemeral });
-      return;
+      const w = interaction.options.getString("palavra", true).toLowerCase().trim();
+      const { error } = await supabase
+        .from("blacklisted_words")
+        .delete()
+        .eq("guild_id", guildId)
+        .eq("word", w);
+      if (error) {
+        return interaction.reply({
+          embeds: [brandEmbed({ kind: "error", title: "Falha ao remover", description: error.message })],
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+      return interaction.reply({
+        embeds: [brandEmbed({ kind: "success", title: "Palavra removida", description: `\`${w}\`` })],
+        flags: MessageFlags.Ephemeral,
+      });
     }
 
     if (sub === "blacklist-list") {
-      await interaction.reply({
+      const { data, error } = await supabase
+        .from("blacklisted_words")
+        .select("word")
+        .eq("guild_id", guildId)
+        .eq("active", true)
+        .order("word");
+      if (error) {
+        return interaction.reply({
+          embeds: [brandEmbed({ kind: "error", title: "Falha ao listar", description: error.message })],
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+      const words = (data ?? []).map((r: any) => r.word as string);
+      return interaction.reply({
         embeds: [
           brandEmbed({
             title: "🚫 Blacklist",
-            description: cfg.blacklistedWords.length ? cfg.blacklistedWords.map((w) => `\`${w}\``).join(" ") : "Vazia.",
+            description: words.length ? words.map((w) => `\`${w}\``).join(" ") : "Vazia.",
           }),
         ],
         flags: MessageFlags.Ephemeral,
       });
-      return;
     }
 
     if (sub === "whitelist-role") {
       const role = interaction.options.getRole("cargo", true);
-      const exists = cfg.automodWhitelistRoles.includes(role.id);
-      cfg.automodWhitelistRoles = exists
-        ? cfg.automodWhitelistRoles.filter((r) => r !== role.id)
-        : [...cfg.automodWhitelistRoles, role.id];
-      await cfg.save();
-      await interaction.reply({
+      const { data } = await supabase
+        .from("automod_config")
+        .select("whitelist_roles")
+        .eq("guild_id", guildId)
+        .maybeSingle();
+      const current: string[] = Array.isArray(data?.whitelist_roles) ? (data!.whitelist_roles as string[]) : [];
+      const exists = current.includes(role.id);
+      const next = exists ? current.filter((r) => r !== role.id) : [...current, role.id];
+      const { error } = await supabase
+        .from("automod_config")
+        .update({ whitelist_roles: next })
+        .eq("guild_id", guildId);
+      if (error) {
+        return interaction.reply({
+          embeds: [brandEmbed({ kind: "error", title: "Falha ao salvar", description: error.message })],
+          flags: MessageFlags.Ephemeral,
+        });
+      }
+      invalidateGuildConfig(guildId);
+      return interaction.reply({
         embeds: [brandEmbed({ kind: "success", title: exists ? "Cargo removido da whitelist" : "Cargo adicionado à whitelist", description: `<@&${role.id}>` })],
         flags: MessageFlags.Ephemeral,
       });

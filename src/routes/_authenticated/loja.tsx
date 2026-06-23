@@ -102,16 +102,33 @@ function ItemCard({
   item,
   owned,
   favorited,
+  affordable,
   onBuy,
   onFavorite,
 }: {
   item: ShopItemDTO;
   owned: boolean;
   favorited: boolean;
+  affordable: boolean;
   onBuy: () => void;
   onFavorite: () => void;
 }) {
   const isLegendary = item.rarity === "legendary";
+  const buyDisabled = owned || !affordable;
+  const buyLabel = owned ? "Adquirido" : !affordable ? "Sem saldo" : "Comprar";
+
+  const buyButton = (
+    <Button
+      size="sm"
+      variant={owned ? "secondary" : "default"}
+      disabled={buyDisabled}
+      onClick={onBuy}
+      aria-label={!affordable && !owned ? "Saldo insuficiente" : undefined}
+    >
+      {buyLabel}
+    </Button>
+  );
+
   return (
     <Card
       className={`group overflow-hidden ring-1 ${RARITY_RING[item.rarity]} transition-all hover:-translate-y-0.5 hover:shadow-lg`}
@@ -163,21 +180,30 @@ function ItemCard({
           )}
         </div>
         <div className="flex items-center justify-between gap-2 pt-1">
-          <div className="flex items-center gap-1 text-sm font-semibold">
-            <Coins className="h-4 w-4 text-amber-400" />
-            {fmt(item.price_coins)}
-          </div>
-          <Button
-            size="sm"
-            variant={owned ? "secondary" : "default"}
-            disabled={owned}
-            onClick={onBuy}
+          <div
+            className={`flex items-center gap-1 text-sm font-semibold ${!affordable && !owned ? "text-destructive" : ""}`}
+            title={!affordable && !owned ? "Saldo insuficiente" : undefined}
           >
-            {owned ? "Adquirido" : "Comprar"}
-          </Button>
+            <Coins className="h-4 w-4 text-amber-400" />
+            <span className="tabular-nums">{fmt(item.price_coins)}</span>
+            <span className="text-xs text-muted-foreground">🪙</span>
+          </div>
+          {!affordable && !owned ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span tabIndex={0}>{buyButton}</span>
+              </TooltipTrigger>
+              <TooltipContent>Saldo insuficiente</TooltipContent>
+            </Tooltip>
+          ) : (
+            buyButton
+          )}
         </div>
       </CardContent>
     </Card>
+  );
+}
+
   );
 }
 

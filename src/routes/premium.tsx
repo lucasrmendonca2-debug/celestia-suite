@@ -50,7 +50,7 @@ function planSubtitle(plan: PremiumPlanDTO): string {
 }
 
 function Premium() {
-  const plans = Route.useLoaderData() as PremiumPlanDTO[];
+  const { plans, showcase } = Route.useLoaderData() as PremiumLoaderData;
   const userPlans = plans.filter((p: PremiumPlanDTO) => p.type === "USER_VIP");
   const guildPlans = plans.filter((p: PremiumPlanDTO) => p.type === "GUILD_PREMIUM");
 
@@ -83,6 +83,8 @@ function Premium() {
           )}
         </div>
       )}
+
+      {showcase.length > 0 && <PremiumShowcase items={showcase} />}
 
       <div className="mx-auto mt-20 grid max-w-5xl items-center gap-10 rounded-[2rem] border-2 border-[#1B0E3B] bg-white p-8 shadow-[0_8px_0_0_#7C3AED] md:grid-cols-[1fr_1.2fr] md:p-12">
         <Mascot variant="celebrate" size={260} className="mx-auto" />

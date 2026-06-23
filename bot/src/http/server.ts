@@ -14,7 +14,9 @@ import { logger } from "../bot/utils/logger.js";
 import { env } from "../config/env.js";
 import { DailyToken, EconomyAccount } from "../database/models.js";
 import {
+  addWallet,
   currencyFromConfig,
+  dailyClaimAtomic,
   getAccount,
   isVip,
 } from "../bot/systems/economy/economy.js";

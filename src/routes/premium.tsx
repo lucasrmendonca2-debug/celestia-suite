@@ -2,7 +2,12 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Check, Star, Sparkles, Crown } from "lucide-react";
 import { PublicPage } from "@/components/site/PublicPage";
 import { Mascot } from "@/components/Mascot";
-import { getPremiumPlans, type PremiumPlanDTO } from "@/lib/premium.functions";
+import { getPremiumPlans, getPremiumShowcase, type PremiumPlanDTO, type PremiumCosmeticDTO } from "@/lib/premium.functions";
+
+interface PremiumLoaderData {
+  plans: PremiumPlanDTO[];
+  showcase: PremiumCosmeticDTO[];
+}
 
 export const Route = createFileRoute("/premium")({
   head: () => ({
@@ -13,7 +18,10 @@ export const Route = createFileRoute("/premium")({
       { property: "og:description", content: "Planos VIP e Premium pro Zenox com preços e benefícios atualizados." },
     ],
   }),
-  loader: () => getPremiumPlans(),
+  loader: async (): Promise<PremiumLoaderData> => {
+    const [plans, showcase] = await Promise.all([getPremiumPlans(), getPremiumShowcase()]);
+    return { plans, showcase };
+  },
   component: Premium,
 });
 

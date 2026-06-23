@@ -59,10 +59,7 @@ const command: SlashCommand = {
         });
         return;
       }
-      const activeCount = await Reminder.countDocuments({
-        userId: interaction.user.id,
-        delivered: false,
-      });
+      const activeCount = await countActiveReminders(interaction.user.id);
       const MAX_ACTIVE = 10;
       if (activeCount >= MAX_ACTIVE) {
         await interaction.reply({
@@ -71,12 +68,12 @@ const command: SlashCommand = {
         });
         return;
       }
-      const r = await Reminder.create({
+      const r = await createReminder({
         guildId: interaction.guildId!,
         userId: interaction.user.id,
         channelId: interaction.channelId,
         message: mensagem.slice(0, 500),
-        remindAt: new Date(Date.now() + ms),
+        fireAt: new Date(Date.now() + ms),
       });
       await interaction.reply({
         embeds: [
@@ -86,7 +83,7 @@ const command: SlashCommand = {
             description: `Vou te lembrar <t:${Math.floor((Date.now() + ms) / 1000)}:R>.`,
             fields: [
               { name: "Mensagem", value: mensagem.slice(0, 1000) },
-              { name: "ID", value: `\`${String(r._id)}\``, inline: true },
+              { name: "ID", value: `\`${r.id}\``, inline: true },
             ],
           }),
         ],
@@ -96,13 +93,7 @@ const command: SlashCommand = {
     }
 
     if (sub === "listar") {
-      const items = await Reminder.find({
-        guildId: interaction.guildId!,
-        userId: interaction.user.id,
-        delivered: false,
-      })
-        .sort({ remindAt: 1 })
-        .limit(10);
+      const items = await listActiveReminders(interaction.guildId!, interaction.user.id, 10);
       if (items.length === 0) {
         await interaction.reply({ content: "Você não tem lembretes ativos.", flags: MessageFlags.Ephemeral });
         return;
@@ -115,7 +106,7 @@ const command: SlashCommand = {
             description: items
               .map(
                 (r) =>
-                  `\`${String(r._id)}\` — <t:${Math.floor(r.remindAt.getTime() / 1000)}:R>\n${r.message}`,
+                  `\`${r.id}\` — <t:${Math.floor(new Date(r.fire_at).getTime() / 1000)}:R>\n${r.message}`,
               )
               .join("\n\n"),
           }),
@@ -127,12 +118,8 @@ const command: SlashCommand = {
 
     if (sub === "cancelar") {
       const id = interaction.options.getString("id", true);
-      const res = await Reminder.deleteOne({
-        _id: id,
-        userId: interaction.user.id,
-        delivered: false,
-      }).catch(() => null);
-      if (!res || res.deletedCount === 0) {
+      const ok = await deleteReminder(id, interaction.user.id).catch(() => false);
+      if (!ok) {
         await interaction.reply({ content: "Lembrete não encontrado.", flags: MessageFlags.Ephemeral });
         return;
       }

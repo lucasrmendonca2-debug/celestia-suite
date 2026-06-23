@@ -6,7 +6,7 @@ interface RewardRow {
   id: string;
   guild_id: string;
   level: number;
-  reward_type: "role" | "coins" | "badge" | "title";
+  reward_type: "role" | "coins" | "badge" | "title" | "cosmetic";
   reward_value: string;
   remove_previous_roles: boolean;
   active: boolean;
@@ -49,6 +49,18 @@ export async function applyLevelRewards(member: GuildMember, currentLevel: numbe
         const amount = Number(r.reward_value);
         if (!Number.isFinite(amount) || amount <= 0) continue;
         await addWallet(member.guild.id, member.id, amount).catch(() => {});
+      } else if (r.reward_type === "cosmetic") {
+        // reward_value contém o cosmetic_id (UUID)
+        try {
+          const { grantCosmetic } = await import("../cosmetics/cosmetics.service.js");
+          await grantCosmetic({
+            userId: member.id,
+            cosmeticId: r.reward_value,
+            source: "seasonal_reward",
+          });
+        } catch {
+          // best-effort
+        }
       }
       // badge/title: aplicado em pass 2 (sistema de badges) — registramos no log
       await supabase.from("level_logs").insert({

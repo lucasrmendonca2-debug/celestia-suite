@@ -73,6 +73,7 @@ const SECTIONS: Section[] = [
       { to: "niveis", label: "Níveis & XP", icon: TrendingUp },
       { to: "social", label: "Social", icon: Users },
       { to: "badges", label: "Badges", icon: Award },
+      { to: "loja", label: "Loja Cosméticos", icon: ImageIcon },
       { to: "conquistas", label: "Conquistas", icon: Trophy },
       { to: "temporadas", label: "Temporadas", icon: Trophy },
     ],

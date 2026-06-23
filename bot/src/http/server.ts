@@ -176,6 +176,16 @@ async function handleClaim(req: http.IncomingMessage, res: http.ServerResponse) 
   }).catch((err) => logger.warn({ err }, "logTx daily web falhou"));
   incrementMissionProgress(guildId, userId, "daily").catch(() => {});
 
+  // Chance pequena (2%) de dropar cosmético comum como bônus da diária.
+  let dropped: { id: string; name: string; rarity: string; image_url: string } | null = null;
+  try {
+    const { tryDropCommonCosmetic } = await import("../bot/systems/cosmetics/cosmetics.service.js");
+    const c = await tryDropCommonCosmetic({ userId, chance: 0.02, reason: "daily" });
+    if (c) dropped = { id: c.id, name: c.name, rarity: c.rarity, image_url: c.preview_url ?? c.image_url };
+  } catch (err) {
+    logger.debug({ err }, "daily cosmetic drop falhou");
+  }
+
   return send(res, 200, {
     ok: true,
     amount,
@@ -186,6 +196,7 @@ async function handleClaim(req: http.IncomingMessage, res: http.ServerResponse) 
     premiumMultiplier: premiumMult,
     currency: { name: c.name, emoji: c.emoji },
     nextClaimAt: new Date(now.getTime() + DAY).toISOString(),
+    drop: dropped,
   });
 }
 

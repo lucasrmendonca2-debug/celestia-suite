@@ -266,12 +266,13 @@ function PurchaseHistorySection() {
         <CardContent className="py-2">
           <EmptyMascot
             variant="sleeping"
-            title="Nenhuma aquisição ainda"
-            description="Suas compras, drops e recompensas aparecem aqui assim que rolarem."
+            title="Você ainda não comprou nada"
+            description="Bora pra loja? Banners, molduras e stickers te esperam."
             action={
               <Button asChild>
                 <Link to="/loja">Visitar a loja</Link>
               </Button>
+
             }
           />
         </CardContent>

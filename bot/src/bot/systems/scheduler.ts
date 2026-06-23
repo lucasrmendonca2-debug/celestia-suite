@@ -1,5 +1,11 @@
 import { Client, type TextChannel } from "discord.js";
-import { VipMembership, Punishment, Giveaway } from "../../database/models.js";
+import {
+  findExpiredUserVips,
+  markVipExpired,
+  findExpiredTempbans,
+  markPunishmentInactive,
+  findDueGiveaways,
+} from "../repositories/phase4.repo.js";
 import {
   findDueReminders,
   markReminderFired,
@@ -29,41 +35,40 @@ export function startSchedulers(client: Client) {
 async function tick(client: Client) {
   const now = new Date();
 
-  const expiredVips = await VipMembership.find({ active: true, expiresAt: { $ne: null, $lte: now } }).limit(100);
+  const expiredVips = await findExpiredUserVips(now, 100);
   for (const v of expiredVips) {
-    v.active = false;
-    await v.save();
-    const guild = client.guilds.cache.get(v.guildId);
+    await markVipExpired(v.id);
+    if (!v.guild_id || !v.user_id) continue;
+    const guild = client.guilds.cache.get(v.guild_id);
     if (!guild) continue;
-    const cfg = await getConfig(v.guildId).catch(() => null);
+    const cfg = await getConfig(v.guild_id).catch(() => null);
     if (cfg?.vipRoleId) {
-      const member = await guild.members.fetch(v.userId).catch(() => null);
+      const member = await guild.members.fetch(v.user_id).catch(() => null);
       const role = guild.roles.cache.get(cfg.vipRoleId);
       if (member && role) await member.roles.remove(role).catch(() => {});
     }
     await sendLog(
       guild,
       "modLogChannelId",
-      brandEmbed({ kind: "warn", title: "💎 VIP expirado", description: `<@${v.userId}> teve o VIP expirado.` }),
+      brandEmbed({ kind: "warn", title: "💎 VIP expirado", description: `<@${v.user_id}> teve o VIP expirado.` }),
       "vip.expire",
-      { userId: v.userId },
+      { userId: v.user_id },
     );
   }
 
-  const expiredBans = await Punishment.find({ active: true, type: "TEMPBAN", expiresAt: { $ne: null, $lte: now } }).limit(50);
+  const expiredBans = await findExpiredTempbans(now, 50);
   for (const p of expiredBans) {
-    const guild = client.guilds.cache.get(p.guildId);
+    const guild = client.guilds.cache.get(p.guild_id);
     if (!guild) continue;
-    await guild.bans.remove(p.userId, "tempban expirou").catch(() => {});
-    p.active = false;
-    await p.save();
+    await guild.bans.remove(p.user_id, "tempban expirou").catch(() => {});
+    await markPunishmentInactive(p.id);
   }
 
   // Giveaways prontos para encerrar
-  const ending = await Giveaway.find({ ended: false, endsAt: { $lte: now } }).limit(50);
+  const ending = await findDueGiveaways(now, 50);
   for (const g of ending) {
-    await endGiveaway(client, String(g._id)).catch((err) =>
-      logger.error({ err, giveawayId: String(g._id) }, "endGiveaway falhou"),
+    await endGiveaway(client, g.id).catch((err) =>
+      logger.error({ err, giveawayId: g.id }, "endGiveaway falhou"),
     );
   }
 

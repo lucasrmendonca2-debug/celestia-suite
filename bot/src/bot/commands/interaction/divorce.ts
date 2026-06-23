@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
-import { Marriage } from "../../../database/models.js";
+import { findActiveMarriage, breakMarriage } from "../../repositories/phase4.repo.js";
 
 const command: SlashCommand = {
   category: "interaction",
@@ -12,17 +12,13 @@ const command: SlashCommand = {
     .setNameLocalizations({ "en-US": "divorce" })
     .setDescription("Termina seu casamento 💔"),
   async execute(interaction) {
-    const m = await Marriage.findOne({
-      status: "MARRIED",
-      $or: [{ userA: interaction.user.id }, { userB: interaction.user.id }],
-    });
+    const m = await findActiveMarriage(interaction.guildId!, [interaction.user.id]);
     if (!m) {
       await interaction.reply({ embeds: [brandEmbed({ kind: "warn", title: "Você não é casado(a)" })], flags: MessageFlags.Ephemeral });
       return;
     }
-    m.status = "DIVORCED";
-    await m.save();
-    const other = m.userA === interaction.user.id ? m.userB : m.userA;
+    await breakMarriage(m.id);
+    const other = m.user_a_id === interaction.user.id ? m.user_b_id : m.user_a_id;
     await interaction.reply({
       embeds: [brandEmbed({ kind: "warn", title: "💔 Divorciado", description: `Você se divorciou de <@${other}>.` })],
     });

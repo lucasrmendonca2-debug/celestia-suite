@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
-import { Marriage } from "../../../database/models.js";
+import { findActiveMarriage, createMarriage } from "../../repositories/phase4.repo.js";
 
 const command: SlashCommand = {
   category: "interaction",
@@ -18,13 +18,7 @@ const command: SlashCommand = {
       await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Alvo inválido" })], flags: MessageFlags.Ephemeral });
       return;
     }
-    const existing = await Marriage.findOne({
-      status: "MARRIED",
-      $or: [
-        { userA: interaction.user.id }, { userB: interaction.user.id },
-        { userA: target.id }, { userB: target.id },
-      ],
-    });
+    const existing = await findActiveMarriage(interaction.guildId!, [interaction.user.id, target.id]);
     if (existing) {
       await interaction.reply({ embeds: [brandEmbed({ kind: "warn", title: "Já há um casamento ativo" })], flags: MessageFlags.Ephemeral });
       return;
@@ -49,7 +43,7 @@ const command: SlashCommand = {
         filter: (i) => i.user.id === target.id,
       });
       if (click.customId === "marry:yes") {
-        await Marriage.create({ userA: interaction.user.id, userB: target.id, status: "MARRIED", marriedAt: new Date() });
+        await createMarriage({ guildId: interaction.guildId!, userA: interaction.user.id, userB: target.id, proposedBy: interaction.user.id });
         await click.update({
           embeds: [brandEmbed({ kind: "success", title: "💖 Casamento celebrado!", description: `${interaction.user} e ${target} estão oficialmente casados 🎉` })],
           components: [],

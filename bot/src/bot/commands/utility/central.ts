@@ -3,7 +3,7 @@ import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { fmtCoins, fmtDuration } from "../../utils/format.js";
 import { getAccount, getCurrency } from "../../systems/economy/economy.js";
-import { LevelAccount, Ticket, VipMembership } from "../../../database/models.js";
+import { findLevelAccount, countOpenTickets, findActiveUserVip } from "../../repositories/phase4.repo.js";
 import { getActiveUserSubscription, getPlan } from "../../systems/premium/premium.service.js";
 import { supabase } from "../../../database/supabase.js";
 
@@ -29,9 +29,9 @@ const command: SlashCommand = {
     const [eco, currency, lvl, openTickets, vipLegacy, sub] = await Promise.all([
       getAccount(guildId, target.id),
       getCurrency(guildId),
-      LevelAccount.findOne({ guildId, userId: target.id }),
-      Ticket.countDocuments({ guildId, userId: target.id, status: "OPEN" }),
-      VipMembership.findOne({ guildId, userId: target.id, active: true }),
+      findLevelAccount(guildId, target.id),
+      countOpenTickets(guildId, target.id),
+      findActiveUserVip(guildId, target.id),
       getActiveUserSubscription(target.id).catch(() => null),
     ]);
 
@@ -63,12 +63,12 @@ const command: SlashCommand = {
     const vipText = sub && plan
       ? `💎 **${plan.name}**${sub.expires_at ? ` — expira <t:${Math.floor(new Date(sub.expires_at).getTime() / 1000)}:R>` : " (vitalício)"}`
       : vipLegacy
-        ? `💎 **${vipLegacy.tier}** (servidor)`
+        ? `💎 **${vipLegacy.notes ?? "VIP"}** (servidor)`
         : "—";
 
     const level = lvl?.level ?? 0;
     const xp = lvl?.xp ?? 0;
-    const totalXp = lvl?.totalXp ?? 0;
+    const totalXp = Number(lvl?.total_xp ?? 0);
 
     await interaction.reply({
       embeds: [

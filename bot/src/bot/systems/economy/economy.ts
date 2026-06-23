@@ -1,4 +1,5 @@
-import { EconomyAccount, VipMembership } from "../../../database/models.js";
+import { EconomyAccount } from "../../../database/models.js";
+import { findActiveUserVip } from "../../repositories/phase4.repo.js";
 import { supabase } from "../../../database/supabase.js";
 import { getConfig } from "../../utils/guildCache.js";
 import { logger } from "../../utils/logger.js";
@@ -80,7 +81,7 @@ export async function transferWallet(
 }
 
 export async function isVip(guildId: string, userId: string): Promise<boolean> {
-  const vip = await VipMembership.findOne({ guildId, userId, active: true });
+  const vip = await findActiveUserVip(guildId, userId);
   return !!vip;
 }
 

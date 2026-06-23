@@ -7,7 +7,7 @@ import {
   TextChannel,
 } from "discord.js";
 import ms from "ms";
-import { Punishment, type PunishmentType } from "../../../database/models.js";
+import { createPunishment, type PunishmentType } from "../../repositories/phase4.repo.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { sendLog } from "../logs/sender.js";
 
@@ -20,16 +20,17 @@ interface BaseArgs {
 export async function recordPunishment(
   args: BaseArgs & { userId: string; type: PunishmentType; durationMs?: number },
 ) {
-  return Punishment.create({
+  return createPunishment({
     guildId: args.guildId,
     userId: args.userId,
     moderatorId: args.moderatorId,
     type: args.type,
     reason: args.reason ?? null,
     durationMs: args.durationMs ?? null,
-    expiresAt: args.durationMs ? new Date(Date.now() + args.durationMs) : null,
   });
 }
+
+export type { PunishmentType };
 
 export async function logModeration(
   member: GuildMember | { guild: GuildMember["guild"]; id: string; user: { tag: string } },

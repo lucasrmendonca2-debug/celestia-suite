@@ -613,8 +613,6 @@ function makeModel<T = any>(schema: ModelSchema) {
 export const EconomyAccount = makeModel(ECONOMY);
 export const InventoryItem = makeModel(INVENTORY);
 export const ShopItem = makeModel(SHOP);
-export const Marriage = makeModel(MARRIAGE);
-export const Giveaway = makeModel(GIVEAWAY);
 export const Reminder = makeModel(REMINDER);
 export const Announcement = makeModel(ANNOUNCEMENT);
 export const AutoModIncident = makeModel(AUTOMOD);
@@ -622,10 +620,8 @@ export const DailyToken = makeModel(DAILY_TOKEN);
 export const Cooldown = makeModel(COOLDOWN);
 export const EmbedTemplate = makeModel(EMBED_TEMPLATE);
 export const CustomCommand = makeModel(CUSTOM_CMD);
-export const Punishment = makeModel(PUNISHMENT);
-export const LevelAccount = makeModel(LEVEL_ACCOUNT);
-export const Ticket = makeModel(TICKET);
-export const VipMembership = makeModel(VIP);
+// Phase 4 migrated → see bot/src/bot/repositories/phase4.repo.ts
+// (Marriage, Punishment, Giveaway, LevelAccount, Ticket, VipMembership)
 
 // ------------------------------------------------------------------
 // GuildConfig — mistura Supabase + memória (campos não-migrados)

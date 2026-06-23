@@ -3,7 +3,6 @@
  */
 import { createServerFn } from "@tanstack/react-start";
 import { getCurrentUser } from "@/lib/auth/auth.functions";
-import { supabaseAdmin } from "@/lib/supabase-admin.server";
 
 async function requireSessionUser() {
   const user = await getCurrentUser();
@@ -11,15 +10,17 @@ async function requireSessionUser() {
   return user;
 }
 
-// Cast: types.ts ainda não foi regenerado pra incluir user_favorite_cosmetics
-const sb = supabaseAdmin as unknown as {
-  from: (t: string) => any;
-};
+// Dynamic import: supabase-admin.server NUNCA pode entrar no bundle do client (service_role).
+async function loadAdmin() {
+  const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
+  return supabaseAdmin as unknown as { from: (t: string) => any };
+}
 
 export const toggleFavorite = createServerFn({ method: "POST" })
   .inputValidator((input: { cosmeticId: string }) => input)
   .handler(async ({ data }) => {
     const user = await requireSessionUser();
+    const sb = await loadAdmin();
 
     const { data: existing } = await sb
       .from("user_favorite_cosmetics")
@@ -47,6 +48,7 @@ export const toggleFavorite = createServerFn({ method: "POST" })
 
 export const listFavorites = createServerFn({ method: "GET" }).handler(async (): Promise<string[]> => {
   const user = await requireSessionUser();
+  const sb = await loadAdmin();
   const { data, error } = await sb
     .from("user_favorite_cosmetics")
     .select("cosmetic_id")

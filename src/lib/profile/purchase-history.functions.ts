@@ -3,7 +3,6 @@
  */
 import { createServerFn } from "@tanstack/react-start";
 import { getCurrentUser } from "@/lib/auth/auth.functions";
-import { supabaseAdmin } from "@/lib/supabase-admin.server";
 
 export interface PurchaseEntryDTO {
   id: string;
@@ -23,6 +22,8 @@ export const getPurchaseHistory = createServerFn({ method: "GET" }).handler(
   async (): Promise<PurchaseEntryDTO[]> => {
     const user = await getCurrentUser();
     if (!user) throw new Error("not_authenticated");
+    // Dynamic import: supabase-admin.server NUNCA pode entrar no bundle do client (service_role).
+    const { supabaseAdmin } = await import("@/lib/supabase-admin.server");
 
     const { data, error } = await supabaseAdmin
       .from("user_cosmetics")

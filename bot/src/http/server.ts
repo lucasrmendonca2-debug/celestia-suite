@@ -181,13 +181,13 @@ async function handleClaim(req: http.IncomingMessage, res: http.ServerResponse) 
     return send(res, 400, { error: "missing_token" });
   // Verifica dono ANTES de consumir o token, para evitar gastar tokens alheios.
   const preview = await DailyToken.findOne({ token });
-  if (!preview) return send(res, 404, { error: "invalid token" });
+  if (!preview) return send(res, 404, { error: "invalid_token" });
   if (preview.expiresAt.getTime() < Date.now())
     return send(res, 410, { error: "expired" });
   if (expectedUserId && preview.userId !== expectedUserId)
     return send(res, 403, { error: "token_user_mismatch" });
   const t = await DailyToken.findOneAndDelete({ token });
-  if (!t) return send(res, 404, { error: "invalid token" });
+  if (!t) return send(res, 404, { error: "invalid_token" });
   if (t.expiresAt.getTime() < Date.now())
     return send(res, 410, { error: "expired" });
 

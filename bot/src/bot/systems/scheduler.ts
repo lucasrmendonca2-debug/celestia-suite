@@ -1,5 +1,12 @@
 import { Client, type TextChannel } from "discord.js";
-import { VipMembership, Punishment, Giveaway, Reminder, Announcement } from "../../database/models.js";
+import { VipMembership, Punishment, Giveaway } from "../../database/models.js";
+import {
+  findDueReminders,
+  markReminderFired,
+  findDueAnnouncements,
+  markAnnouncementSent,
+  type AnnouncementRow,
+} from "../repositories/content.repo.js";
 import { logger } from "../utils/logger.js";
 import { getConfig } from "../utils/guildCache.js";
 import { sendLog } from "./logs/sender.js";

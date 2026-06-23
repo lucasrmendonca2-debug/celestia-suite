@@ -599,7 +599,9 @@ function LojaPage() {
         </DialogContent>
       </Dialog>
     </main>
+    </TooltipProvider>
   );
+
 }
 
 export const Route = createFileRoute("/_authenticated/loja")({

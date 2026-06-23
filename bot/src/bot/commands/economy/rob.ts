@@ -2,7 +2,13 @@ import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { ui } from "../../systems/ui/embed.factory.js";
 import { fmtCoins, fmtDuration } from "../../utils/format.js";
-import { getAccount, getCurrency } from "../../systems/economy/economy.js";
+import {
+  addWallet,
+  claimCooldown,
+  getAccount,
+  getCurrency,
+  removeWallet,
+} from "../../systems/economy/economy.js";
 import { classifyTarget, economyResponses, pick } from "../../systems/personality/index.js";
 
 const COOLDOWN = 30 * 60 * 1000;

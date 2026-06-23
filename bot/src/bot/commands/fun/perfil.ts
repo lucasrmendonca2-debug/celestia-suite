@@ -49,9 +49,15 @@ function fmtPrice(coins: number, isOffer?: boolean, discount = 20): string {
   return `~~🪙 ${coins.toLocaleString("pt-BR")}~~ → **🪙 ${discounted.toLocaleString("pt-BR")}** (−${discount}%)`;
 }
 
-function cardUrlFor(userId: string): string {
+function cardSvgUrl(userId: string): string {
   const appUrl = process.env.APP_URL ?? process.env.NEXT_PUBLIC_APP_URL ?? "https://zenoxbot.lovable.app";
   return `${appUrl.replace(/\/$/, "")}/api/public/profile/${userId}/card.svg?v=${Date.now()}`;
+}
+
+function cardImageUrl(userId: string): string {
+  // Discord embeds don't render SVG — proxy through wsrv.nl to convert to PNG.
+  const svg = cardSvgUrl(userId);
+  return `https://wsrv.nl/?url=${encodeURIComponent(svg)}&output=png&n=-1`;
 }
 
 // ============= /perfil ver  &  /perfil preview =============
@@ -79,12 +85,9 @@ async function handleVer(ix: ChatInputCommandInteraction, targetId: string) {
     embeds: [
       ui.social({
         title: `Perfil de ${targetId === ix.user.id ? "você" : `<@${targetId}>`}`,
-        description:
-          totalItems === 0
-            ? "Esse perfil ainda está cru. Compre cosméticos em `/perfil loja` pra personalizar."
-            : "Visual do perfil renderizado com os cosméticos equipados.",
+        description: "Card visual do perfil. Personalize ainda mais em `/perfil loja`.",
         fields,
-        image: cardUrlFor(targetId),
+        image: cardImageUrl(targetId),
       }),
     ],
   });

@@ -75,9 +75,9 @@ async function requireSessionUser() {
   return user;
 }
 
-async function fetchCosmeticsByIds(ids: string[]): Promise<Record<string, CosmeticDTO>> {
+async function fetchCosmeticsByIds(sb: Awaited<ReturnType<typeof loadAdmin>>, ids: string[]): Promise<Record<string, CosmeticDTO>> {
   if (ids.length === 0) return {};
-  const { data, error } = await supabaseAdmin
+  const { data, error } = await sb
     .from("profile_cosmetics")
     .select("id, type, slug, name, description, rarity, image_url, preview_url, collection")
     .in("id", ids);
@@ -97,6 +97,7 @@ function mapCosmetic(map: Record<string, CosmeticDTO>, id: string | null | undef
 export const getMyProfile = createServerFn({ method: "GET" }).handler(
   async (): Promise<ProfileDTO> => {
     const user = await requireSessionUser();
+    const supabaseAdmin = await loadAdmin();
 
     // 1. Loadout (cria default se não existir)
     let { data: loadout, error: loadoutErr } = await supabaseAdmin
@@ -133,7 +134,7 @@ export const getMyProfile = createServerFn({ method: "GET" }).handler(
     }
     for (const sid of loadout.sticker_ids ?? []) allIds.add(sid);
 
-    const cosmeticsMap = await fetchCosmeticsByIds([...allIds]);
+    const cosmeticsMap = await fetchCosmeticsByIds(supabaseAdmin, [...allIds]);
 
     const inventory: InventoryEntryDTO[] = (invRaw ?? [])
       .map((r) => {
@@ -207,6 +208,7 @@ export const equipCosmetic = createServerFn({ method: "POST" })
   .inputValidator((input: { cosmeticId: string; slot?: ProfileSlot | "sticker" }) => input)
   .handler(async ({ data }) => {
     const user = await requireSessionUser();
+    const supabaseAdmin = await loadAdmin();
 
     // valida posse
     const { data: owned } = await supabaseAdmin
@@ -257,6 +259,7 @@ export const unequipCosmetic = createServerFn({ method: "POST" })
   .inputValidator((input: { slot: ProfileSlot | "sticker"; cosmeticId?: string }) => input)
   .handler(async ({ data }) => {
     const user = await requireSessionUser();
+    const supabaseAdmin = await loadAdmin();
 
     if (data.slot === "sticker") {
       if (!data.cosmeticId) throw new Error("cosmetic_id_required");
@@ -286,6 +289,7 @@ export const updateProfileMeta = createServerFn({ method: "POST" })
   .inputValidator((input: { bio?: string | null; accentColor?: string }) => input)
   .handler(async ({ data }) => {
     const user = await requireSessionUser();
+    const supabaseAdmin = await loadAdmin();
     const patch: Record<string, unknown> = { user_id: user.id };
     if (data.bio !== undefined) {
       const trimmed = data.bio?.trim() ?? "";
@@ -305,6 +309,7 @@ export const purchaseProfileCosmetic = createServerFn({ method: "POST" })
   .inputValidator((input: { cosmeticId: string; useDiscount?: boolean }) => input)
   .handler(async ({ data }) => {
     const user = await requireSessionUser();
+    const supabaseAdmin = await loadAdmin();
     const { data: result, error } = await supabaseAdmin.rpc("cosmetic_purchase_global" as any, {
       _user_id: user.id,
       _cosmetic_id: data.cosmeticId,
@@ -317,6 +322,7 @@ export const purchaseProfileCosmetic = createServerFn({ method: "POST" })
 export const getUserBalance = createServerFn({ method: "GET" }).handler(
   async (): Promise<{ balance: number }> => {
     const user = await requireSessionUser();
+    const supabaseAdmin = await loadAdmin();
     const { data, error } = await supabaseAdmin.rpc("ensure_user_wallet_global" as any, {
       _user_id: user.id,
     });
@@ -347,6 +353,7 @@ export interface ShopCatalogDTO {
 export const getShopCatalog = createServerFn({ method: "GET" }).handler(
   async (): Promise<ShopCatalogDTO> => {
     const user = await requireSessionUser();
+    const supabaseAdmin = await loadAdmin();
 
     // View global como fonte principal (já filtra ativos, disponibilidade, marca ofertas)
     const { data: cosmetics, error: cosErr } = await (supabaseAdmin as unknown as {

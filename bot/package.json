@@ -9,6 +9,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit",
     "register": "tsx src/scripts/registerCommands.ts"
   },
   "dependencies": {

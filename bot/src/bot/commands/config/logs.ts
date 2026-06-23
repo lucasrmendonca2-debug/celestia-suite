@@ -1,9 +1,7 @@
-import {
-  SlashCommandBuilder,
+import { SlashCommandBuilder,
   ChatInputCommandInteraction,
   PermissionFlagsBits,
-  ChannelType,
-} from "discord.js";
+  ChannelType, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { supabase } from "../../../database/supabase.js";

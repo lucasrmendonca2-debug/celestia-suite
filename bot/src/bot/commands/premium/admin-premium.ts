@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import ms from "ms";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";

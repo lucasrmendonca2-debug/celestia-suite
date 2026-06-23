@@ -1,9 +1,7 @@
-import {
-  ChatInputCommandInteraction,
+import { ChatInputCommandInteraction,
   GuildMember,
   PermissionResolvable,
-  PermissionsBitField,
-} from "discord.js";
+  PermissionsBitField, MessageFlags } from "discord.js";
 import { env } from "../../config/env.js";
 import type { SlashCommand } from "../../types/command.js";
 import { brandEmbed } from "../utils/embed.js";

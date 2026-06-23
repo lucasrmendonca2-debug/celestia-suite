@@ -2,15 +2,13 @@
  * Sistema de sugestões — usa Supabase para persistir.
  * Cada sugestão vira um embed no canal configurado, com botões de upvote/downvote.
  */
-import {
-  ActionRowBuilder,
+import { ActionRowBuilder,
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
   Client,
   EmbedBuilder,
-  type TextChannel,
-} from "discord.js";
+  type TextChannel, MessageFlags } from "discord.js";
 import { supabase } from "../../../database/supabase.js";
 import { brandEmbed } from "../../utils/embed.js";
 

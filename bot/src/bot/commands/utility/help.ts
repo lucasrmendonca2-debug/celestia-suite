@@ -1,11 +1,9 @@
-import {
-  ActionRowBuilder,
+import { ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
   SlashCommandBuilder,
   StringSelectMenuBuilder,
-  type APIEmbed,
-} from "discord.js";
+  type APIEmbed, MessageFlags } from "discord.js";
 import type { SlashCommand, ZenoxClient } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { Tone } from "../../utils/messages.js";

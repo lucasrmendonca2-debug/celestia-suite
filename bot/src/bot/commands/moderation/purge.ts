@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, ChannelType, type TextChannel, type Message } from "discord.js";
+import { SlashCommandBuilder, ChannelType, type TextChannel, type Message, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { hasModCapability } from "../../systems/moderation/moderation.permissions.js";

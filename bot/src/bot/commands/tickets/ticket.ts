@@ -1,13 +1,11 @@
-import {
-  ActionRowBuilder,
+import { ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
   ChannelType,
   ChatInputCommandInteraction,
   PermissionFlagsBits,
   SlashCommandBuilder,
-  TextChannel,
-} from "discord.js";
+  TextChannel, MessageFlags } from "discord.js";
 import { env } from "../../../config/env.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";

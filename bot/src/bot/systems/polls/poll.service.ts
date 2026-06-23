@@ -3,15 +3,13 @@
  * Cada poll tem perguntas e opções (até 10), botões para votar
  * e um embed que mostra os resultados.
  */
-import {
-  ActionRowBuilder,
+import { ActionRowBuilder,
   ButtonBuilder,
   ButtonInteraction,
   ButtonStyle,
   Client,
   EmbedBuilder,
-  type TextChannel,
-} from "discord.js";
+  type TextChannel, MessageFlags } from "discord.js";
 import { supabase } from "../../../database/supabase.js";
 import { brandEmbed } from "../../utils/embed.js";
 

@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits } from "discord.js";
+import { SlashCommandBuilder, PermissionFlagsBits, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { ui } from "../../systems/ui/embed.factory.js";
 import { getAsset } from "../../systems/ui/embed.assets.js";

@@ -1,10 +1,8 @@
-import {
-  SlashCommandBuilder,
+import { SlashCommandBuilder,
   ChatInputCommandInteraction,
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonStyle,
-} from "discord.js";
+  ButtonStyle, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { fmtCoins } from "../../utils/format.js";

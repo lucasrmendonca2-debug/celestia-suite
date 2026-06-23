@@ -1,12 +1,10 @@
-import {
-  SlashCommandBuilder,
+import { SlashCommandBuilder,
   type ChatInputCommandInteraction,
   type AutocompleteInteraction,
   type APIEmbedField,
   ActionRowBuilder,
   ButtonBuilder,
-  ButtonStyle,
-} from "discord.js";
+  ButtonStyle, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { ui } from "../../systems/ui/embed.factory.js";
 import { brandEmbed } from "../../utils/embed.js";

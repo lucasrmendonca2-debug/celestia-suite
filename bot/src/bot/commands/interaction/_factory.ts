@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, type ChatInputCommandInteraction } from "discord.js";
+import { SlashCommandBuilder, type ChatInputCommandInteraction, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { ui } from "../../systems/ui/embed.factory.js";
 import { getAsset, type AssetKey } from "../../systems/ui/embed.assets.js";

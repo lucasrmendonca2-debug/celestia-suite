@@ -1,4 +1,4 @@
-import { SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { ui } from "../../systems/ui/embed.factory.js";
 import { fmtCoins, fmtDuration } from "../../utils/format.js";

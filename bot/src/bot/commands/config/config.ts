@@ -1,4 +1,4 @@
-import { SlashCommandBuilder, PermissionFlagsBits, ChannelType } from "discord.js";
+import { SlashCommandBuilder, PermissionFlagsBits, ChannelType, MessageFlags } from "discord.js";
 import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { GuildConfig } from "../../../database/models.js";

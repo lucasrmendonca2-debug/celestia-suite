@@ -224,8 +224,10 @@ export async function setPanelMessage(
 ): Promise<void> {
   await supabase
     .from("ticket_configs")
-    .update({ panel_channel_id: channelId, panel_message_id: messageId })
-    .eq("guild_id", guildId);
+    .upsert(
+      { guild_id: guildId, panel_channel_id: channelId, panel_message_id: messageId },
+      { onConflict: "guild_id" },
+    );
 }
 
 export async function writeLog(

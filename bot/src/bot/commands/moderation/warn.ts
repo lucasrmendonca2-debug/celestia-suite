@@ -179,25 +179,55 @@ const command: SlashCommand = {
       ],
     });
 
-    // Escalonamento automático por pontos
+    // Escalonamento automático por pontos — respeita hierarquia + registra caso
     if (totalPoints >= config.max_warnings && config.default_warn_punishment !== "none" && member) {
       const dur = config.default_warn_punishment_duration ?? 3600;
+      const escalationReason = "Limite de pontos de advertência atingido";
       try {
-        if (config.default_warn_punishment === "kick" && member.kickable) {
-          await member.kick("Limite de pontos de advertência atingido");
-        } else if (
-          (config.default_warn_punishment === "ban" || config.default_warn_punishment === "temp_ban") &&
-          member.bannable
-        ) {
-          await guild.bans.create(member.id, {
-            reason: "Limite de pontos de advertência atingido",
-            deleteMessageSeconds: 0,
+        const hierarchyCheck = await canPunishTarget(author, member, config);
+        if (!hierarchyCheck.ok) {
+          // Sem hierarquia para escalar — apenas registra no log e segue
+          await logModerationEvent({
+            guildId: guild.id,
+            userId: user.id,
+            moderatorId: interaction.user.id,
+            action: "WARN",
+            reason: `Escalonamento bloqueado: ${hierarchyCheck.reason ?? "hierarquia"}`,
           });
-        } else if (
-          (config.default_warn_punishment === "mute" || config.default_warn_punishment === "temp_mute") &&
-          member.moderatable
-        ) {
-          await member.timeout(Math.min(dur, 28 * 86400) * 1000, "Limite de pontos atingido");
+        } else {
+          let escalatedAction: "KICK" | "BAN" | "TEMP_BAN" | "MUTE" | "TEMP_MUTE" | null = null;
+          if (config.default_warn_punishment === "kick" && member.kickable) {
+            await member.kick(escalationReason);
+            escalatedAction = "KICK";
+          } else if (
+            (config.default_warn_punishment === "ban" || config.default_warn_punishment === "temp_ban") &&
+            member.bannable
+          ) {
+            await guild.bans.create(member.id, {
+              reason: escalationReason,
+              deleteMessageSeconds: 0,
+            });
+            escalatedAction = config.default_warn_punishment === "ban" ? "BAN" : "TEMP_BAN";
+          } else if (
+            (config.default_warn_punishment === "mute" || config.default_warn_punishment === "temp_mute") &&
+            member.moderatable
+          ) {
+            await member.timeout(Math.min(dur, 28 * 86400) * 1000, escalationReason);
+            escalatedAction = config.default_warn_punishment === "mute" ? "MUTE" : "TEMP_MUTE";
+          }
+
+          if (escalatedAction) {
+            await createCase({
+              guildId: guild.id,
+              userId: user.id,
+              userTag: user.tag,
+              moderatorId: interaction.client.user.id,
+              moderatorTag: interaction.client.user.tag,
+              action: escalatedAction,
+              reason: `${escalationReason} (auto · após caso #${modCase.case_number})`,
+              source: "BOT",
+            }).catch(() => null);
+          }
         }
       } catch {
         /* noop */

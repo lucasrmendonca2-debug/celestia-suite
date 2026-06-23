@@ -29,9 +29,9 @@ const command: SlashCommand = {
     const [eco, currency, lvl, openTickets, vipLegacy, sub] = await Promise.all([
       getAccount(guildId, target.id),
       getCurrency(guildId),
-      LevelAccount.findOne({ guildId, userId: target.id }),
-      Ticket.countDocuments({ guildId, userId: target.id, status: "OPEN" }),
-      VipMembership.findOne({ guildId, userId: target.id, active: true }),
+      findLevelAccount(guildId, target.id),
+      countOpenTickets(guildId, target.id),
+      findActiveUserVip(guildId, target.id),
       getActiveUserSubscription(target.id).catch(() => null),
     ]);
 

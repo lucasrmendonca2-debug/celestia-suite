@@ -18,6 +18,8 @@ const schema = z.object({
     .default("https://zenoxbot.lovable.app"),
   BOT_HTTP_PORT: z.coerce.number().optional(),
   BOT_API_SECRET: z.string().optional().or(z.literal("")),
+  BOT_API_ALLOWED_ORIGINS: z.string().optional().or(z.literal("")),
+  BOT_API_MAX_BODY_BYTES: z.coerce.number().default(32 * 1024),
   NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
   LOG_LEVEL: z.string().default("info"),
 });

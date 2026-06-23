@@ -109,6 +109,11 @@ export function buildProfileCardSvg(d: ProfileCardData): string {
       <stop offset="0%" stop-color="#0f0f12"/>
       <stop offset="100%" stop-color="#18181c"/>
     </linearGradient>
+    <linearGradient id="defaultBannerGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1c1917"/>
+      <stop offset="60%" stop-color="#451a03"/>
+      <stop offset="100%" stop-color="${accent}"/>
+    </linearGradient>
     <linearGradient id="xpGrad" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="${accent}"/>
       <stop offset="100%" stop-color="${glowColor}"/>

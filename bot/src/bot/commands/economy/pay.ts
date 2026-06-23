@@ -22,15 +22,15 @@ const command: SlashCommand = {
 
     const kind = classifyTarget(interaction, target);
     if (kind === "self") {
-      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.paySelf) })], ephemeral: true });
+      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.paySelf) })], flags: MessageFlags.Ephemeral });
       return;
     }
     if (kind === "bot_self") {
-      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.payBot) })], ephemeral: true });
+      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.payBot) })], flags: MessageFlags.Ephemeral });
       return;
     }
     if (kind === "bot_other") {
-      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.payOtherBot) })], ephemeral: true });
+      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.payOtherBot) })], flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -40,7 +40,7 @@ const command: SlashCommand = {
         tx.reason === "insufficient_funds" ? pick(economyResponses.noBalance) : "Não foi possível concluir a transferência agora.";
       await interaction.reply({
         embeds: [ui.error({ title: "Saldo insuficiente", description })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }

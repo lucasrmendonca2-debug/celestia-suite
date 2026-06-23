@@ -180,7 +180,7 @@ async function runPainel(interaction: ChatInputCommandInteraction) {
           description: "Você precisa da permissão **Gerenciar Servidor** para enviar o painel.",
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -196,7 +196,7 @@ async function runPainel(interaction: ChatInputCommandInteraction) {
             "Ative o sistema de tickets pelo **dashboard** antes de enviar o painel.",
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -217,7 +217,7 @@ async function runPainel(interaction: ChatInputCommandInteraction) {
           description: "Escolha um canal de texto ou configure um canal padrão no dashboard.",
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -238,7 +238,7 @@ async function runPainel(interaction: ChatInputCommandInteraction) {
         description: `Painel publicado em <#${target.id}>.`,
       }),
     ],
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 }
 
@@ -248,7 +248,7 @@ async function runFechar(interaction: ChatInputCommandInteraction) {
     if (!interaction.replied) {
       await interaction.reply({
         embeds: [brandEmbed({ kind: "success", title: "Ticket fechado" })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   } catch (err) {
@@ -260,7 +260,7 @@ async function runFechar(interaction: ChatInputCommandInteraction) {
           description: (err as Error).message,
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 }
@@ -273,12 +273,12 @@ async function runReabrir(interaction: ChatInputCommandInteraction) {
     );
     await interaction.reply({
       embeds: [brandEmbed({ kind: "success", title: "Ticket reaberto" })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   } catch (err) {
     await interaction.reply({
       embeds: [brandEmbed({ kind: "error", title: "Erro", description: (err as Error).message })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 }
@@ -293,12 +293,12 @@ async function runAdicionar(interaction: ChatInputCommandInteraction) {
     );
     await interaction.reply({
       embeds: [brandEmbed({ kind: "success", title: "Usuário adicionado" })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   } catch (err) {
     await interaction.reply({
       embeds: [brandEmbed({ kind: "error", title: "Erro", description: (err as Error).message })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 }
@@ -313,12 +313,12 @@ async function runRemover(interaction: ChatInputCommandInteraction) {
     );
     await interaction.reply({
       embeds: [brandEmbed({ kind: "success", title: "Usuário removido" })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   } catch (err) {
     await interaction.reply({
       embeds: [brandEmbed({ kind: "error", title: "Erro", description: (err as Error).message })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 }
@@ -359,7 +359,7 @@ async function runConfigurar(interaction: ChatInputCommandInteraction) {
       }),
     ],
     components: [linkRow],
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 }
 
@@ -376,7 +376,7 @@ async function ensureStaff(interaction: ChatInputCommandInteraction): Promise<bo
   ) {
     await interaction.reply({
       embeds: [brandEmbed({ kind: "error", title: "Sem permissão de staff." })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return false;
   }
@@ -389,7 +389,7 @@ async function runClaim(interaction: ChatInputCommandInteraction) {
   if (!ticket) {
     await interaction.reply({
       embeds: [brandEmbed({ kind: "error", title: "Este canal não é um ticket." })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -402,7 +402,7 @@ async function runClaim(interaction: ChatInputCommandInteraction) {
           description: `Este ticket já é de <@${ticket.claimed_by}>.`,
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -428,7 +428,7 @@ async function runPrioridade(interaction: ChatInputCommandInteraction) {
   if (!ticket) {
     await interaction.reply({
       embeds: [brandEmbed({ kind: "error", title: "Este canal não é um ticket." })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -451,7 +451,7 @@ async function runNota(interaction: ChatInputCommandInteraction) {
   if (!ticket) {
     await interaction.reply({
       embeds: [brandEmbed({ kind: "error", title: "Este canal não é um ticket." })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -473,7 +473,7 @@ async function runNota(interaction: ChatInputCommandInteraction) {
         footer: `Por ${interaction.user.tag} — visível apenas no dashboard`,
       }),
     ],
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 }
 
@@ -484,12 +484,12 @@ async function runRenomear(interaction: ChatInputCommandInteraction) {
   await channel.setName(nome).catch(() => {});
   await interaction.reply({
     embeds: [brandEmbed({ kind: "success", title: `Canal renomeado para \`${nome}\`` })],
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 }
 
 async function runMetricas(interaction: ChatInputCommandInteraction) {
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply({ flags: MessageFlags.Ephemeral });
   const guildId = interaction.guildId!;
   const since = new Date(Date.now() - 7 * 86400 * 1000).toISOString();
 
@@ -590,7 +590,7 @@ async function runResposta(interaction: ChatInputCommandInteraction) {
           description: lines || "_Nenhuma resposta cadastrada. Use `acao:Criar` para começar._",
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -599,14 +599,14 @@ async function runResposta(interaction: ChatInputCommandInteraction) {
     if (!isStaff) {
       await interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para criar." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
     if (!slug || !conteudo) {
       await interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Informe `slug` e `conteudo`." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -622,13 +622,13 @@ async function runResposta(interaction: ChatInputCommandInteraction) {
     if (error) {
       await interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Falha ao salvar", description: error.message })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
     await interaction.reply({
       embeds: [brandEmbed({ kind: "success", title: `Resposta \`${slug}\` salva.` })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -637,21 +637,21 @@ async function runResposta(interaction: ChatInputCommandInteraction) {
     if (!isStaff) {
       await interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
     if (!slug) {
       await interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Informe `slug`." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
     await supabase.from("ticket_quick_replies").delete().eq("guild_id", guildId).eq("slug", slug);
     await interaction.reply({
       embeds: [brandEmbed({ kind: "success", title: `Resposta \`${slug}\` removida.` })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -660,7 +660,7 @@ async function runResposta(interaction: ChatInputCommandInteraction) {
   if (!slug) {
     await interaction.reply({
       embeds: [brandEmbed({ kind: "error", title: "Informe `slug` da resposta a usar." })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -668,7 +668,7 @@ async function runResposta(interaction: ChatInputCommandInteraction) {
   if (!ticket) {
     await interaction.reply({
       embeds: [brandEmbed({ kind: "error", title: "Use dentro de um ticket." })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -681,7 +681,7 @@ async function runResposta(interaction: ChatInputCommandInteraction) {
   if (!qr) {
     await interaction.reply({
       embeds: [brandEmbed({ kind: "error", title: `Resposta \`${slug}\` não existe.` })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -690,6 +690,6 @@ async function runResposta(interaction: ChatInputCommandInteraction) {
   await channel.send({ content: qr.content });
   await interaction.reply({
     embeds: [brandEmbed({ kind: "success", title: "Resposta enviada." })],
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 }

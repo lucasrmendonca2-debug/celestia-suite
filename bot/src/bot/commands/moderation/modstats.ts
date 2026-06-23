@@ -17,14 +17,14 @@ const command: SlashCommand = {
     if (!(await hasModCapability(author, "can_view_history"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const rows = await modStatsLast30Days(guild.id);
     if (!rows.length) {
       return interaction.reply({
         embeds: [brandEmbed({ title: "📊 Modstats (30d)", description: "Nenhuma ação registrada." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const byMod = new Map<string, Map<string, number>>();
@@ -65,7 +65,7 @@ const command: SlashCommand = {
           ],
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   },
 };

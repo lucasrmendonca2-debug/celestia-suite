@@ -65,7 +65,7 @@ const command: SlashCommand = {
           { upsert: true, setDefaultsOnInsert: true },
         );
       }
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Embed enviado", description: saveAs ? `Salvo como **${saveAs}**` : undefined })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Embed enviado", description: saveAs ? `Salvo como **${saveAs}**` : undefined })], flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -74,7 +74,7 @@ const command: SlashCommand = {
       const channel = interaction.options.getChannel("canal", true) as TextChannel;
       const t = await EmbedTemplate.findOne({ guildId, name });
       if (!t) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Template não encontrado" })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Template não encontrado" })], flags: MessageFlags.Ephemeral });
         return;
       }
       const p = t.payload as Record<string, string | number | undefined>;
@@ -85,7 +85,7 @@ const command: SlashCommand = {
       if (p.thumbnail) eb.setThumbnail(String(p.thumbnail));
       if (p.footer) eb.setFooter({ text: String(p.footer) });
       await channel.send({ embeds: [eb] });
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Enviado" })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Enviado" })], flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -93,7 +93,7 @@ const command: SlashCommand = {
       const list = await EmbedTemplate.find({ guildId }).limit(25);
       await interaction.reply({
         embeds: [brandEmbed({ title: "🎨 Templates de Embed", description: list.length ? list.map((t) => `• **${t.name}**`).join("\n") : "Nenhum." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   },

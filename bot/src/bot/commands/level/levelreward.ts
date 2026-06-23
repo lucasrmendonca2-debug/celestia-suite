@@ -55,7 +55,7 @@ const command: SlashCommand = {
         embeds: [
           brandEmbed({ kind: "success", title: "Recompensa salva", description: `Nível **${level}** → <@&${role.id}>` }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -67,7 +67,7 @@ const command: SlashCommand = {
         .eq("guild_id", guildId)
         .eq("level", level)
         .eq("reward_type", "role");
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Removido" })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Removido" })], flags: MessageFlags.Ephemeral });
       return;
     }
     // list
@@ -92,7 +92,7 @@ const command: SlashCommand = {
             : "Nenhuma.",
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   },
 };

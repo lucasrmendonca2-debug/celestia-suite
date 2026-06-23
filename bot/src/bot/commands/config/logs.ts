@@ -120,7 +120,7 @@ const command: SlashCommand = {
             fields,
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -131,7 +131,7 @@ const command: SlashCommand = {
       if (!col) {
         return interaction.reply({
           embeds: [brandEmbed({ kind: "error", title: "Categoria inválida", description: `Categoria \`${categoria}\` desconhecida.` })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       const { error } = await supabase.from("guild_logs_config").upsert(
@@ -142,7 +142,7 @@ const command: SlashCommand = {
       if (error) {
         return interaction.reply({
           embeds: [brandEmbed({ kind: "error", title: "Falha", description: error.message })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       return interaction.reply({
@@ -152,7 +152,7 @@ const command: SlashCommand = {
             title: `Categoria \`${categoria}\` ${canal ? `definida em <#${canal.id}>` : "limpa"}.`,
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -171,7 +171,7 @@ const command: SlashCommand = {
       if (error) {
         return interaction.reply({
           embeds: [brandEmbed({ kind: "error", title: "Falha", description: error.message })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       return interaction.reply({
@@ -182,7 +182,7 @@ const command: SlashCommand = {
             description: `\`${id}\` em **${tipo}** (total: ${next.length})`,
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -207,7 +207,7 @@ const command: SlashCommand = {
           .join("\n") || "_Nenhum evento encontrado._";
       return interaction.reply({
         embeds: [brandEmbed({ title: "📚 Audit log recente", description: lines })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   },

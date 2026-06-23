@@ -36,19 +36,19 @@ const command: SlashCommand = {
       const message = interaction.options.getString("mensagem");
       const kind = classifyTarget(interaction, target);
       if (kind === "self") {
-        return void interaction.reply({ embeds: [brandEmbed({ kind: "warn", description: pick(socialResponses.repSelf) })], ephemeral: true });
+        return void interaction.reply({ embeds: [brandEmbed({ kind: "warn", description: pick(socialResponses.repSelf) })], flags: MessageFlags.Ephemeral });
       }
       if (kind === "bot_self") {
-        return void interaction.reply({ embeds: [brandEmbed({ kind: "warn", description: pick(socialResponses.repBot) })], ephemeral: true });
+        return void interaction.reply({ embeds: [brandEmbed({ kind: "warn", description: pick(socialResponses.repBot) })], flags: MessageFlags.Ephemeral });
       }
       if (kind === "bot_other") {
-        return void interaction.reply({ embeds: [brandEmbed({ kind: "warn", description: pick(socialResponses.repOtherBot) })], ephemeral: true });
+        return void interaction.reply({ embeds: [brandEmbed({ kind: "warn", description: pick(socialResponses.repOtherBot) })], flags: MessageFlags.Ephemeral });
       }
       const res = await giveReputation(guildId, interaction.user.id, target.id, message);
       if (!res.ok) {
         return void interaction.reply({
           content: `⏳ Você já deu rep recentemente. Tente em ${fmtRemaining(res.remainingMs ?? 0)}.`,
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       await interaction.reply({
@@ -67,7 +67,7 @@ const command: SlashCommand = {
     if (sub === "top") {
       const top = await getTopReputation(guildId, 10);
       if (!top.length) {
-        return void interaction.reply({ content: "Ainda não há reputações.", ephemeral: true });
+        return void interaction.reply({ content: "Ainda não há reputações.", flags: MessageFlags.Ephemeral });
       }
       const lines = top
         .map((r, i) => `**${i + 1}.** <@${r.user_id}> — ⭐ ${r.reputation}`)

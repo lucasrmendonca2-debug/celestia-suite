@@ -23,7 +23,7 @@ const command: SlashCommand = {
 
     if (!season) {
       await interaction.reply({
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
         content: "Nenhuma temporada ativa no momento.",
       });
       return;
@@ -49,7 +49,7 @@ const command: SlashCommand = {
     if (sub === "top") {
       const rows = await getSeasonLeaderboard(season.id, 10);
       if (rows.length === 0) {
-        await interaction.reply({ ephemeral: true, content: "Ninguém pontuou ainda nesta temporada." });
+        await interaction.reply({ flags: MessageFlags.Ephemeral, content: "Ninguém pontuou ainda nesta temporada." });
         return;
       }
       const medals = ["🥇", "🥈", "🥉"];

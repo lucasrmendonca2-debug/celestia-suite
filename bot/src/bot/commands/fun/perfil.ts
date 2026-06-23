@@ -160,7 +160,7 @@ async function handleEquipar(ix: ChatInputCommandInteraction) {
           description: `Compre cosméticos no site: ${shopUrl()}`,
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 
@@ -173,7 +173,7 @@ async function handleEquipar(ix: ChatInputCommandInteraction) {
       if (current.size >= 3) {
         return ix.reply({
           embeds: [brandEmbed({ kind: "warn", title: "Limite de stickers", description: "Você só pode equipar 3 stickers. Remova um antes." })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       current.add(cosmeticId);
@@ -187,7 +187,7 @@ async function handleEquipar(ix: ChatInputCommandInteraction) {
   if (!ok) {
     return ix.reply({
       embeds: [brandEmbed({ kind: "error", title: "Não consegui equipar", description: Msg.oops() })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
   return ix.reply({
@@ -199,7 +199,7 @@ async function handleEquipar(ix: ChatInputCommandInteraction) {
         description: `**${owned.profile_cosmetics?.name ?? "Item"}** no slot **${slot}**.`,
       }),
     ],
-    ephemeral: true,
+    flags: MessageFlags.Ephemeral,
   });
 }
 

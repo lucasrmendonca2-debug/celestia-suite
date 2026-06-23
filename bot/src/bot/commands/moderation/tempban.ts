@@ -37,14 +37,14 @@ const command: SlashCommand = {
     if (!config.enabled || !config.allow_temporary_ban) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Tempban desativado nas configurações." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const author = await guild.members.fetch(interaction.user.id);
     if (!(await hasModCapability(author, "can_ban"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para banir." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const user = interaction.options.getUser("usuario", true);
@@ -53,7 +53,7 @@ const command: SlashCommand = {
     if (!duration) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Duração inválida (use 1h, 2d, 1w)." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const member = await guild.members.fetch(user.id).catch(() => null);
@@ -62,13 +62,13 @@ const command: SlashCommand = {
       if (!check.ok) {
         return interaction.reply({
           embeds: [brandEmbed({ kind: "error", title: "Não posso punir", description: check.reason })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       if (!member.bannable) {
         return interaction.reply({
           embeds: [brandEmbed({ kind: "error", title: "Não consigo banir esse usuário." })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
     }

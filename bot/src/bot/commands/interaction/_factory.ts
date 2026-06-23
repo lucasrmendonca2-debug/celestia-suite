@@ -63,7 +63,7 @@ function build(action: Action, desc: string): SlashCommand {
       const kind = classifyTarget(interaction, target);
 
       if (kind === "self") {
-        await interaction.reply({ embeds: [ui.fun({ description: pick(pool.self), guildId })], ephemeral: true });
+        await interaction.reply({ embeds: [ui.fun({ description: pick(pool.self), guildId })], flags: MessageFlags.Ephemeral });
         return;
       }
       if (kind === "bot_self") {

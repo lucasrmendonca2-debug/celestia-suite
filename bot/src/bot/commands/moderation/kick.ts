@@ -35,7 +35,7 @@ const command: SlashCommand = {
     if (!config.enabled) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Moderação desativada" })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -43,7 +43,7 @@ const command: SlashCommand = {
     if (!(await hasModCapability(author, "can_kick"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para expulsar." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -54,13 +54,13 @@ const command: SlashCommand = {
     if (user.id === interaction.user.id) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "warn", title: "Auto-kick?", description: "Você não pode se expulsar. Mas pode dar /sair do canal, talvez? 😅" })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     if (user.id === interaction.client.user.id) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "warn", title: "Expulsar o bot?", description: pick(moderationResponses.kickBot) })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -68,7 +68,7 @@ const command: SlashCommand = {
     if (!member) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Usuário não está no servidor" })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -76,13 +76,13 @@ const command: SlashCommand = {
     if (!check.ok) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Não posso punir", description: check.reason })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     if (!member.kickable) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Não consigo expulsar esse usuário (hierarquia)." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 

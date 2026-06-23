@@ -113,14 +113,14 @@ export async function handleSuggestionButton(interaction: ButtonInteraction) {
 
   const s = await getSuggestion(id);
   if (!s) {
-    await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Não encontrada" })], ephemeral: true });
+    await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Não encontrada" })], flags: MessageFlags.Ephemeral });
     return;
   }
 
   const config = await getCommunityConfig(s.guild_id);
   const votingEnabled = config?.suggestions_allow_voting ?? true;
   if (!votingEnabled) {
-    await interaction.reply({ embeds: [brandEmbed({ kind: "warn", title: "Votação desativada" })], ephemeral: true });
+    await interaction.reply({ embeds: [brandEmbed({ kind: "warn", title: "Votação desativada" })], flags: MessageFlags.Ephemeral });
     return;
   }
 
@@ -133,10 +133,10 @@ export async function handleSuggestionButton(interaction: ButtonInteraction) {
 
   if (existing && (existing as { vote_type: string }).vote_type === type) {
     await supabase.from("suggestion_votes").delete().eq("id", (existing as { id: string }).id);
-    await interaction.reply({ embeds: [brandEmbed({ kind: "info", title: "Voto removido" })], ephemeral: true });
+    await interaction.reply({ embeds: [brandEmbed({ kind: "info", title: "Voto removido" })], flags: MessageFlags.Ephemeral });
   } else if (existing) {
     await supabase.from("suggestion_votes").update({ vote_type: type }).eq("id", (existing as { id: string }).id);
-    await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Voto trocado" })], ephemeral: true });
+    await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Voto trocado" })], flags: MessageFlags.Ephemeral });
   } else {
     await supabase.from("suggestion_votes").insert({
       suggestion_id: id,
@@ -144,7 +144,7 @@ export async function handleSuggestionButton(interaction: ButtonInteraction) {
       user_id: interaction.user.id,
       vote_type: type,
     });
-    await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: type === "UP" ? "Votou positivo 👍" : "Votou negativo 👎" })], ephemeral: true });
+    await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: type === "UP" ? "Votou positivo 👍" : "Votou negativo 👎" })], flags: MessageFlags.Ephemeral });
   }
 
   await recalcVotes(id);

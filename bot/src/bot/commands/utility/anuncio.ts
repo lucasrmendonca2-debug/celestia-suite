@@ -72,7 +72,7 @@ const command: SlashCommand = {
         .sort({ scheduledFor: 1 })
         .limit(10);
       if (items.length === 0) {
-        await interaction.reply({ content: "Nenhum anúncio agendado.", ephemeral: true });
+        await interaction.reply({ content: "Nenhum anúncio agendado.", flags: MessageFlags.Ephemeral });
         return;
       }
       await interaction.reply({
@@ -88,7 +88,7 @@ const command: SlashCommand = {
               .join("\n\n"),
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -105,7 +105,7 @@ const command: SlashCommand = {
       if (!ms || ms < 30_000 || ms > 30 * 86_400_000) {
         await interaction.reply({
           content: "Tempo inválido. Use 30s a 30d (ex.: `10m`, `2h`).",
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
         return;
       }
@@ -137,7 +137,7 @@ const command: SlashCommand = {
       } catch (err) {
         await interaction.reply({
           content: `❌ Falha ao enviar em <#${canal.id}>. O bot tem permissão de **Enviar Mensagens** e **Inserir Links** lá?`,
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
         return;
       }
@@ -151,7 +151,7 @@ const command: SlashCommand = {
         sent: true,
         sentAt: new Date(),
       });
-      await interaction.reply({ content: "✅ Anúncio enviado.", ephemeral: true });
+      await interaction.reply({ content: "✅ Anúncio enviado.", flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -166,7 +166,7 @@ const command: SlashCommand = {
     });
     await interaction.reply({
       content: `⏰ Anúncio agendado para <t:${Math.floor(scheduledFor.getTime() / 1000)}:F> (\`${String(a._id)}\`).`,
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   },
 };

@@ -53,7 +53,7 @@ const command: SlashCommand = {
             image: banner,
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -71,7 +71,7 @@ const command: SlashCommand = {
               : "Nenhum plano de servidor disponível no momento.",
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -85,7 +85,7 @@ const command: SlashCommand = {
               description: "Apenas administradores podem resgatar códigos premium.",
             }),
           ],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       const code = interaction.options.getString("codigo", true);
@@ -98,7 +98,7 @@ const command: SlashCommand = {
               description: REASONS[result.reason] ?? "Tente novamente.",
             }),
           ],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       const banner = await getAsset(guildId, "premium.banner");
@@ -111,7 +111,7 @@ const command: SlashCommand = {
             image: banner,
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   },

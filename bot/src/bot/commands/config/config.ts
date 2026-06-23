@@ -73,7 +73,7 @@ const command: SlashCommand = {
       await GuildConfig.updateOne({ guildId }, { $set: { [tipo]: canal.id } }, { upsert: true });
       return interaction.reply({
         embeds: [brandEmbed({ kind: "success", title: "Canal de log atualizado", description: `${tipo} → <#${canal.id}>` })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -87,7 +87,7 @@ const command: SlashCommand = {
       );
       return interaction.reply({
         embeds: [brandEmbed({ kind: "success", title: "Boas-vindas configuradas", description: `Canal: <#${canal.id}>` })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -97,7 +97,7 @@ const command: SlashCommand = {
       await GuildConfig.updateOne({ guildId }, { $set: { welcomeEnabled: next } }, { upsert: true });
       return interaction.reply({
         embeds: [brandEmbed({ kind: "info", title: `Boas-vindas ${next ? "ativadas" : "desativadas"}` })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -106,7 +106,7 @@ const command: SlashCommand = {
       await GuildConfig.updateOne({ guildId }, { $set: { vipRoleId: cargo.id } }, { upsert: true });
       return interaction.reply({
         embeds: [brandEmbed({ kind: "success", title: "Cargo VIP atualizado", description: `<@&${cargo.id}>` })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   },

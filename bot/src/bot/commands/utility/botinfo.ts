@@ -34,7 +34,7 @@ const command: SlashCommand = {
           ],
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   },
 };

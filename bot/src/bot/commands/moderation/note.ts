@@ -20,7 +20,7 @@ const command: SlashCommand = {
     if (!(await hasModCapability(author, "can_view_history"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para anotações." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const user = interaction.options.getUser("usuario", true);
@@ -51,7 +51,7 @@ const command: SlashCommand = {
           description: `Sobre <@${user.id}>: ${text}`,
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   },
 };

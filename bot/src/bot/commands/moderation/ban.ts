@@ -46,7 +46,7 @@ const command: SlashCommand = {
     if (!config.enabled) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Moderação desativada", description: "Ative o módulo no dashboard." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -56,13 +56,13 @@ const command: SlashCommand = {
     if (!(await hasModCapability(author, capability))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para banir." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     if (durationSec && !config.allow_temporary_ban) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Ban temporário desativado no dashboard." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -74,13 +74,13 @@ const command: SlashCommand = {
     if (user.id === interaction.user.id) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "warn", title: "Auto-ban?", description: "Tá querendo se exilar do servidor? Pensa com calma. 😅" })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     if (user.id === interaction.client.user.id) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "warn", title: "Banir o bot?", description: pick(moderationResponses.banBot) })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -91,13 +91,13 @@ const command: SlashCommand = {
       if (!check.ok) {
         return interaction.reply({
           embeds: [brandEmbed({ kind: "error", title: "Não posso punir", description: check.reason })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       if (!member.bannable) {
         return interaction.reply({
           embeds: [brandEmbed({ kind: "error", title: "Não consigo banir esse usuário (hierarquia/permissões)." })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
     }

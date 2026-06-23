@@ -56,7 +56,7 @@ const command: SlashCommand = {
             ].join("\n"),
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -103,7 +103,7 @@ const command: SlashCommand = {
             footer: "Últimas 15 transações",
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   },

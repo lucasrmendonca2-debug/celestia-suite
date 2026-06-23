@@ -58,7 +58,7 @@ const command: SlashCommand = {
     if (sub === "listar") {
       const all = (await listBadges(guildId)).filter((b) => !b.hidden);
       if (!all.length) {
-        return void interaction.reply({ content: "Nenhuma badge configurada.", ephemeral: true });
+        return void interaction.reply({ content: "Nenhuma badge configurada.", flags: MessageFlags.Ephemeral });
       }
       const lines = all
         .map(
@@ -78,7 +78,7 @@ const command: SlashCommand = {
       if (!owned.length) {
         return void interaction.reply({
           content: `${target.id === interaction.user.id ? "Você" : target.username} ainda não tem badges.`,
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       const lines = owned
@@ -105,7 +105,7 @@ const command: SlashCommand = {
     if (!isStaff) {
       return void interaction.reply({
         content: "Você precisa de **Gerenciar Servidor** para usar isso.",
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -113,7 +113,7 @@ const command: SlashCommand = {
     const code = interaction.options.getString("codigo", true);
     const badge = await getBadgeByCode(guildId, code);
     if (!badge) {
-      return void interaction.reply({ content: `Badge \`${code}\` não encontrada.`, ephemeral: true });
+      return void interaction.reply({ content: `Badge \`${code}\` não encontrada.`, flags: MessageFlags.Ephemeral });
     }
 
     if (sub === "dar") {
@@ -132,7 +132,7 @@ const command: SlashCommand = {
       await revokeBadge(guildId, user.id, badge.id);
       await interaction.reply({
         content: `🗑️ ${badge.emoji} **${badge.name}** removida de <@${user.id}>.`,
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }

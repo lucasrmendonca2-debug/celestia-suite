@@ -28,7 +28,7 @@ const command: SlashCommand = {
             description: `Aguarde **${fmtDuration(remaining)}** antes de tentar de novo.`,
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }

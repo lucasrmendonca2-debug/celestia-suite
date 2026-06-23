@@ -45,7 +45,7 @@ const command: SlashCommand = {
     if (!config.enabled) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Moderação desativada" })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -53,7 +53,7 @@ const command: SlashCommand = {
     if (!(await hasModCapability(author, "can_warn"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para advertir." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -68,19 +68,19 @@ const command: SlashCommand = {
     if (user.id === interaction.user.id) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "warn", title: "Auto-advertência?", description: pick(moderationResponses.warnSelf) })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     if (user.id === interaction.client.user.id) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "warn", title: "Ei, sou eu!", description: pick(moderationResponses.warnBot) })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     if (proof && !/^https?:\/\//i.test(proof)) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Prova deve ser URL http(s)." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -90,7 +90,7 @@ const command: SlashCommand = {
       if (!check.ok) {
         return interaction.reply({
           embeds: [brandEmbed({ kind: "error", title: "Não posso punir", description: check.reason })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
     }

@@ -18,7 +18,7 @@ const command: SlashCommand = {
     if (!(await hasModCapability(author, "can_unlock_channel"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para destrancar canais." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const channel = interaction.channel as TextChannel;

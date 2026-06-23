@@ -30,7 +30,7 @@ const command: SlashCommand = {
     const now = new Date();
 
     if (cfg.economyEnabled === false) {
-      await interaction.reply({ embeds: [ui.warn({ title: "Economia desativada" })], ephemeral: true });
+      await interaction.reply({ embeds: [ui.warn({ title: "Economia desativada" })], flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -43,7 +43,7 @@ const command: SlashCommand = {
             description: `Você pode trabalhar novamente em **${fmtDuration(remaining)}**.`,
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }

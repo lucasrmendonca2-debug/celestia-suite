@@ -21,15 +21,15 @@ const command: SlashCommand = {
     const target = interaction.options.getUser("usuario", true);
     const kind = classifyTarget(interaction, target);
     if (kind === "self") {
-      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.robSelf) })], ephemeral: true });
+      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.robSelf) })], flags: MessageFlags.Ephemeral });
       return;
     }
     if (kind === "bot_self") {
-      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.robBot) })], ephemeral: true });
+      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.robBot) })], flags: MessageFlags.Ephemeral });
       return;
     }
     if (kind === "bot_other") {
-      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.robOtherBot) })], ephemeral: true });
+      await interaction.reply({ embeds: [ui.warn({ description: pick(economyResponses.robOtherBot) })], flags: MessageFlags.Ephemeral });
       return;
     }
     const me = await getAccount(guildId, interaction.user.id);
@@ -39,14 +39,14 @@ const command: SlashCommand = {
       const remaining = COOLDOWN - (now.getTime() - me.lastRob.getTime());
       await interaction.reply({
         embeds: [ui.warn({ title: "Calma, ladrão", description: `Aguarde **${fmtDuration(remaining)}** antes do próximo golpe.` })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
     if (them.wallet < 200) {
       await interaction.reply({
         embeds: [ui.warn({ title: "Alvo sem fundos", description: `${target} não tem nada de valor na carteira.` })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -65,7 +65,7 @@ const command: SlashCommand = {
       if (!updated) {
         await interaction.reply({
           embeds: [ui.warn({ title: "Alvo escapou", description: `${target} esvaziou a carteira antes do golpe.` })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
         return;
       }

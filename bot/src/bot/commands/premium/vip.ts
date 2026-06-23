@@ -57,7 +57,7 @@ const command: SlashCommand = {
             thumbnail: interaction.user.displayAvatarURL(),
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -72,7 +72,7 @@ const command: SlashCommand = {
               : "Nenhum plano VIP disponível no momento.",
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -82,7 +82,7 @@ const command: SlashCommand = {
       if (!result.ok) {
         return interaction.reply({
           embeds: [brandEmbed({ kind: "error", title: "Não foi possível ativar", description: REASONS[result.reason] })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       // aplica cargo VIP no servidor atual, se houver
@@ -97,7 +97,7 @@ const command: SlashCommand = {
             description: `Código resgatado com sucesso! Plano **${result.plan.name}** ativado.\nExpira: ${fmtExpire(result.subscription.expires_at)}`,
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -108,7 +108,7 @@ const command: SlashCommand = {
       if (!result.ok) {
         return interaction.reply({
           embeds: [brandEmbed({ kind: "error", title: "Não foi possível presentear", description: REASONS[result.reason] })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
       }
       return interaction.reply({

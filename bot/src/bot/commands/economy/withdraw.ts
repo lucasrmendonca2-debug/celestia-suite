@@ -21,7 +21,7 @@ const command: SlashCommand = {
     if (!amount || amount > acc.bank) {
       await interaction.reply({
         embeds: [ui.error({ title: "Valor inválido", description: "Você não tem esse valor disponível no banco." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }

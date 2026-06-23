@@ -66,7 +66,7 @@ const command: SlashCommand = {
       if (options.length < 2) {
         await interaction.reply({
           embeds: [brandEmbed({ kind: "error", title: "Opções insuficientes", description: "Você precisa de pelo menos 2 opções separadas por `;`." })],
-          ephemeral: true,
+          flags: MessageFlags.Ephemeral,
         });
         return;
       }
@@ -99,7 +99,7 @@ const command: SlashCommand = {
         .select("*")
         .single();
       if (error || !row) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Erro", description: error?.message ?? "Falha ao criar enquete." })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Erro", description: error?.message ?? "Falha ao criar enquete." })], flags: MessageFlags.Ephemeral });
         return;
       }
 
@@ -117,7 +117,7 @@ const command: SlashCommand = {
             fields: [{ name: "ID", value: `\`${poll.id}\`` }],
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -126,15 +126,15 @@ const command: SlashCommand = {
       const id = interaction.options.getString("id", true);
       const poll = await getPoll(id);
       if (!poll || poll.guild_id !== guildId) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Não encontrada", description: "Enquete inválida." })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Não encontrada", description: "Enquete inválida." })], flags: MessageFlags.Ephemeral });
         return;
       }
       if (sub === "finalizar") {
         await endPoll(interaction.client, id);
-        await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Encerrada", description: "Enquete encerrada e resultado atualizado." })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Encerrada", description: "Enquete encerrada e resultado atualizado." })], flags: MessageFlags.Ephemeral });
       } else {
         await supabase.from("polls").update({ status: "CANCELED" }).eq("id", id);
-        await interaction.reply({ embeds: [brandEmbed({ kind: "warn", title: "Cancelada", description: "Enquete cancelada." })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "warn", title: "Cancelada", description: "Enquete cancelada." })], flags: MessageFlags.Ephemeral });
       }
       return;
     }
@@ -143,11 +143,11 @@ const command: SlashCommand = {
       const id = interaction.options.getString("id", true);
       const poll = await getPoll(id);
       if (!poll || poll.guild_id !== guildId) {
-        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Não encontrada" })], ephemeral: true });
+        await interaction.reply({ embeds: [brandEmbed({ kind: "error", title: "Não encontrada" })], flags: MessageFlags.Ephemeral });
         return;
       }
       const embed = await pollEmbed(poll);
-      await interaction.reply({ embeds: [embed], ephemeral: true });
+      await interaction.reply({ embeds: [embed], flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -163,7 +163,7 @@ const command: SlashCommand = {
       const lines = list.length
         ? list.map((p) => `• \`${p.id}\` — ${p.question}${p.ends_at ? ` (termina <t:${Math.floor(new Date(p.ends_at).getTime() / 1000)}:R>)` : ""}`).join("\n")
         : "Nenhuma enquete ativa.";
-      await interaction.reply({ embeds: [brandEmbed({ title: "Enquetes ativas", description: lines })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ title: "Enquetes ativas", description: lines })], flags: MessageFlags.Ephemeral });
     }
   },
 };

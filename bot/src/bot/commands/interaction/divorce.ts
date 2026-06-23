@@ -17,7 +17,7 @@ const command: SlashCommand = {
       $or: [{ userA: interaction.user.id }, { userB: interaction.user.id }],
     });
     if (!m) {
-      await interaction.reply({ embeds: [brandEmbed({ kind: "warn", title: "Você não é casado(a)" })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ kind: "warn", title: "Você não é casado(a)" })], flags: MessageFlags.Ephemeral });
       return;
     }
     m.status = "DIVORCED";

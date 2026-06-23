@@ -58,7 +58,7 @@ const command: SlashCommand = {
       const state = interaction.options.getBoolean("estado", true);
       cfg.set(key, state);
       await cfg.save();
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "AutoMod atualizado", description: `**${key}** → ${state ? "ON" : "OFF"}` })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "AutoMod atualizado", description: `**${key}** → ${state ? "ON" : "OFF"}` })], flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -66,7 +66,7 @@ const command: SlashCommand = {
       const w = interaction.options.getString("palavra", true).toLowerCase();
       if (!cfg.blacklistedWords.includes(w)) cfg.blacklistedWords.push(w);
       await cfg.save();
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Palavra adicionada" })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Palavra adicionada" })], flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -74,7 +74,7 @@ const command: SlashCommand = {
       const w = interaction.options.getString("palavra", true).toLowerCase();
       cfg.blacklistedWords = cfg.blacklistedWords.filter((x) => x !== w);
       await cfg.save();
-      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Palavra removida" })], ephemeral: true });
+      await interaction.reply({ embeds: [brandEmbed({ kind: "success", title: "Palavra removida" })], flags: MessageFlags.Ephemeral });
       return;
     }
 
@@ -86,7 +86,7 @@ const command: SlashCommand = {
             description: cfg.blacklistedWords.length ? cfg.blacklistedWords.map((w) => `\`${w}\``).join(" ") : "Vazia.",
           }),
         ],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
       return;
     }
@@ -100,7 +100,7 @@ const command: SlashCommand = {
       await cfg.save();
       await interaction.reply({
         embeds: [brandEmbed({ kind: "success", title: exists ? "Cargo removido da whitelist" : "Cargo adicionado à whitelist", description: `<@&${role.id}>` })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
   },

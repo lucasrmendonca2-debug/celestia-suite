@@ -36,7 +36,7 @@ const command: SlashCommand = {
     const target = interaction.options.getUser("usuario", true);
     const member = await interaction.guild!.members.fetch(target.id).catch(() => null);
     if (!member) {
-      await interaction.reply({ ephemeral: true, content: "❌ Usuário não está no servidor." });
+      await interaction.reply({ flags: MessageFlags.Ephemeral, content: "❌ Usuário não está no servidor." });
       return;
     }
 

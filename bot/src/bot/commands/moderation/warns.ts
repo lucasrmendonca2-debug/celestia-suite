@@ -18,7 +18,7 @@ const command: SlashCommand = {
     if (!(await hasModCapability(author, "can_view_history"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para ver histórico." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
     const user = interaction.options.getUser("usuario", true);
@@ -40,7 +40,7 @@ const command: SlashCommand = {
           description: list.slice(0, 4000),
         }),
       ],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   },
 };

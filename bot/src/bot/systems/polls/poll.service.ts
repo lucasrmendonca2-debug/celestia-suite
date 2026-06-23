@@ -120,14 +120,14 @@ export async function handlePollButton(interaction: ButtonInteraction) {
   if (!poll) {
     await interaction.reply({
       embeds: [brandEmbed({ kind: "error", title: "Enquete não encontrada", description: "Essa enquete já foi removida." })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
   if (poll.status !== "ACTIVE") {
     await interaction.reply({
       embeds: [brandEmbed({ kind: "warn", title: "Encerrada", description: "Esta enquete já foi encerrada." })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
     return;
   }
@@ -146,7 +146,7 @@ export async function handlePollButton(interaction: ButtonInteraction) {
     await supabase.from("poll_votes").delete().eq("id", alreadyOnThis.id);
     await interaction.reply({
       embeds: [brandEmbed({ kind: "info", title: "Voto removido", description: `Você não vota mais na opção **${poll.options[optionIndex]}**.` })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   } else {
     if (!poll.multiple_choice && (existing?.length ?? 0) > 0) {
@@ -161,7 +161,7 @@ export async function handlePollButton(interaction: ButtonInteraction) {
     });
     await interaction.reply({
       embeds: [brandEmbed({ kind: "success", title: "Voto computado", description: `Você votou em **${poll.options[optionIndex]}**.` })],
-      ephemeral: true,
+      flags: MessageFlags.Ephemeral,
     });
   }
 

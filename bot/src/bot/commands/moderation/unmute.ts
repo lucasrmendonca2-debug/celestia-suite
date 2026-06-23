@@ -27,7 +27,7 @@ const command: SlashCommand = {
     if (!(await hasModCapability(author, "can_unmute"))) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Sem permissão para desmutar." })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 
@@ -37,7 +37,7 @@ const command: SlashCommand = {
     if (!member) {
       return interaction.reply({
         embeds: [brandEmbed({ kind: "error", title: "Usuário não está no servidor" })],
-        ephemeral: true,
+        flags: MessageFlags.Ephemeral,
       });
     }
 

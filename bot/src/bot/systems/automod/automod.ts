@@ -131,14 +131,16 @@ async function act(
       .catch(() => {});
   }
 
-  // Persistência: Mongo (legado) + Supabase moderation_logs (dashboard).
+  // Persistência: tabela dedicada de incidentes + log unificado de moderação.
   await Promise.allSettled([
-    AutoModIncident.create({
+    createAutomodIncident({
       guildId: msg.guildId!,
       userId: msg.author.id,
-      rule,
-      action: "delete",
-      content: msg.content?.slice(0, 500) ?? "",
+      channelId: msg.channelId,
+      type: rule,
+      reason,
+      messageId: msg.id,
+      detail: { content: msg.content?.slice(0, 500) ?? "", action: "delete" },
     }),
     supabase.from("moderation_logs").insert({
       guild_id: msg.guildId!,

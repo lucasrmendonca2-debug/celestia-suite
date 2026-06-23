@@ -29,6 +29,9 @@ export const DASHBOARD_AREAS = [
   "embeds",
   "commands",
   "reaction_roles",
+  "assets",
+  "badges",
+  "settings",
   "permissions",
   "premium",
 ] as const;
@@ -49,6 +52,9 @@ export const AREA_LABELS: Record<DashboardArea, string> = {
   embeds: "Embeds",
   commands: "Comandos",
   reaction_roles: "Reaction roles",
+  assets: "Assets / Imagens",
+  badges: "Badges",
+  settings: "Configurações gerais",
   permissions: "Permissões",
   premium: "Premium",
 };

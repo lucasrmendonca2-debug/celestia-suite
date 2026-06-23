@@ -33,6 +33,15 @@ const command: SlashCommand = {
       return;
     }
 
+    // Atômico: trava cooldown ANTES de qualquer side-effect — evita race + cooldown perdido se algo lançar.
+    const locked = await claimCooldown(guildId, interaction.user.id, "last_crime_at", COOLDOWN / 1000);
+    if (!locked) {
+      await interaction.reply({
+        embeds: [ui.warn({ title: "A polícia está atenta", description: "Você já cometeu um crime recente." })],
+        flags: MessageFlags.Ephemeral,
+      });
+      return;
+    }
     acc.lastCrime = now;
     const success = Math.random() < 0.6;
     const image = await getAsset(guildId, "economy.crime_image");
@@ -40,8 +49,7 @@ const command: SlashCommand = {
       const { getUserVipMultiplier } = await import("../../systems/premium/premium.features.js");
       const premiumMult = await getUserVipMultiplier(interaction.user.id, guildId, "crime").catch(() => 1);
       const reward = Math.floor((300 + Math.random() * 800) * premiumMult);
-      acc.wallet += reward;
-      await acc.save();
+      await addWallet(guildId, interaction.user.id, reward);
       await interaction.reply({
         embeds: [
           ui.economy({
@@ -54,8 +62,7 @@ const command: SlashCommand = {
       });
     } else {
       const loss = Math.min(acc.wallet, Math.floor(200 + Math.random() * 500));
-      acc.wallet -= loss;
-      await acc.save();
+      await removeWallet(guildId, interaction.user.id, loss);
       await interaction.reply({
         embeds: [
           ui.error({

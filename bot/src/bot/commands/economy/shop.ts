@@ -3,7 +3,7 @@ import type { SlashCommand } from "../../../types/command.js";
 import { brandEmbed } from "../../utils/embed.js";
 import { fmtCoins } from "../../utils/format.js";
 import { ShopItem, InventoryItem } from "../../../database/models.js";
-import { getCurrency, getAccount } from "../../systems/economy/economy.js";
+import { getCurrency, getAccount, shopBuyAtomic } from "../../systems/economy/economy.js";
 import {
   applyRotationPrice,
   ensureRotation,

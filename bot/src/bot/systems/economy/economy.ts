@@ -81,7 +81,7 @@ export async function transferWallet(
 }
 
 export async function isVip(guildId: string, userId: string): Promise<boolean> {
-  const vip = await VipMembership.findOne({ guildId, userId, active: true });
+  const vip = await findActiveUserVip(guildId, userId);
   return !!vip;
 }
 

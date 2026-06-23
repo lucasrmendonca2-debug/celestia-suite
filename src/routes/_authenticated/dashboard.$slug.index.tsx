@@ -406,6 +406,7 @@ function GuildOverviewPage() {
               <QuickAction to={`/dashboard/${slug}/tickets`} icon={Ticket} tone="pink" title="Tickets" desc="Painel de atendimento." />
               <QuickAction to={`/dashboard/${slug}/moderacao`} icon={Shield} tone="mint" title="Moderação" desc="Warns, mutes, kicks e bans." />
               <QuickAction to={`/dashboard/${slug}/economia`} icon={Coins} tone="peach" title="Economia" desc="Moeda, daily, work, loja." />
+              <QuickAction to={`/dashboard/${slug}/loja`} icon={Sparkles} tone="lavender" title="Loja Cosméticos" desc="Rotação diária e itens exclusivos." />
               <QuickAction to={`/dashboard/${slug}/social`} icon={TrendingUp} tone="lavender" title="Social & Level" desc="XP, ranking, recompensas." />
             </div>
           </section>

@@ -7,14 +7,16 @@ import {
   Coins,
   Plus,
   Save,
-  Trash2,
   Sparkles,
   ShoppingBag,
   Target,
   Briefcase,
   Zap,
+  Loader2,
 } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
+import { DashboardErrorBoundary, DashboardNotFound } from "@/components/dashboard/RouteBoundaries";
+import { EmptyMascot } from "@/components/profile/EmptyMascot";
 import {
   getEconomyConfig,
   listEconomyMissions,

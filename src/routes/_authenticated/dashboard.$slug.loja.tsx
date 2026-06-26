@@ -512,6 +512,7 @@ function CreateCosmeticDialog({
             onClick={submit}
             disabled={saving || !form.name || !form.slug || !form.image_url}
           >
+            {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {saving ? "Criando..." : "Criar"}
           </Button>
         </DialogFooter>

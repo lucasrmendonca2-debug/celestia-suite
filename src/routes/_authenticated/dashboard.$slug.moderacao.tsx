@@ -76,18 +76,37 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/moderacao"
     ]);
     return { guildId, user, config, stats, automodConfig };
   },
-  errorComponent: ({ error }) => (
-    <div className="p-8">
-      <div className="flex items-center gap-2 text-destructive">
-        <AlertCircle className="size-4" /> {error.message}
-      </div>
-    </div>
-  ),
+  errorComponent: ({ error, reset }) => <ModerationError error={error} reset={reset} />,
   notFoundComponent: () => (
-    <div className="p-8 text-muted-foreground">Servidor não encontrado.</div>
+    <div className="flex flex-col items-center justify-center gap-3 p-10 text-center">
+      <Mascot variant="sleeping" size={88} />
+      <p className="text-sm text-muted-foreground">Servidor não encontrado.</p>
+    </div>
   ),
   component: ModerationPage,
 });
+
+function ModerationError({ error, reset }: { error: Error; reset: () => void }) {
+  const router = useRouter();
+  return (
+    <div className="flex flex-col items-center justify-center gap-3 p-10 text-center">
+      <Mascot variant="error" size={88} glow />
+      <div className="flex items-center gap-2 text-destructive">
+        <AlertCircle className="size-4" /> {error.message}
+      </div>
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => {
+          reset();
+          router.invalidate();
+        }}
+      >
+        Tentar novamente
+      </Button>
+    </div>
+  );
+}
 
 function ModerationPage() {
   const { user, config, stats, automodConfig } = Route.useLoaderData();

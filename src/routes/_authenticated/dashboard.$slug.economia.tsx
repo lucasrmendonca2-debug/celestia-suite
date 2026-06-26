@@ -536,7 +536,12 @@ function EconomyPage() {
                 onClick={() => addMission.mutate()}
                 disabled={!mission.slug || !mission.title || addMission.isPending}
               >
-                <Plus className="mr-1.5 size-4" /> Salvar missão
+                {addMission.isPending ? (
+                  <Loader2 className="mr-1.5 size-4 animate-spin" />
+                ) : (
+                  <Plus className="mr-1.5 size-4" />
+                )}
+                {addMission.isPending ? "Salvando…" : "Salvar missão"}
               </Button>
             </div>
           </AuroraSection>

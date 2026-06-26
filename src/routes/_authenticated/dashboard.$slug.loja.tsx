@@ -277,9 +277,12 @@ function GuildShopPage() {
             />
           </div>
           {exclusives.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Nenhum cosmético exclusivo ainda. Crie o primeiro com o botão acima!
-            </p>
+            <EmptyMascot
+              variant="hero"
+              title="Nenhum cosmético exclusivo"
+              description='Crie o primeiro item exclusivo deste servidor com o botão "Novo cosmético".'
+              size={96}
+            />
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {exclusives.map((c: any) => (

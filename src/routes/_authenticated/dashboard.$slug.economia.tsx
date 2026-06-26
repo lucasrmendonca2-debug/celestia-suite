@@ -255,7 +255,11 @@ function EconomyPage() {
       description="Moeda própria do servidor, daily, work, loja de cargos e missões."
       actions={
         <Button onClick={() => save.mutate()} disabled={save.isPending}>
-          <Save className="mr-1.5 size-4" />
+          {save.isPending ? (
+            <Loader2 className="mr-1.5 size-4 animate-spin" />
+          ) : (
+            <Save className="mr-1.5 size-4" />
+          )}
           {save.isPending ? "Salvando…" : "Salvar"}
         </Button>
       }

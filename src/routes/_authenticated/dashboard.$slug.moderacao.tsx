@@ -1,7 +1,7 @@
 import { AutomodTab } from "@/components/dashboard/moderation/AutomodTab";
 import { HistoryTab } from "@/components/dashboard/moderation/HistoryTab";
 import { useState } from "react";
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, useRouter } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";

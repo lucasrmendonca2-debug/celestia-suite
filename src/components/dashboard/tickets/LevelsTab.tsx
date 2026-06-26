@@ -15,6 +15,12 @@ import { Label } from "@/components/ui/label";
 import { RoleBadge } from "@/components/dashboard/DiscordBadges";
 import { ListSkeleton } from "./_skeletons";
 import { Mascot } from "@/components/Mascot";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type Level = Awaited<ReturnType<typeof listAccessLevels>>[number];
 

@@ -682,12 +682,12 @@ function EconomyPage() {
 
           <div className="aurora-panel overflow-hidden">
             {multipliers.length === 0 ? (
-              <div className="flex flex-col items-center gap-3 p-10 text-center">
-                <Mascot variant="sleeping" size={72} />
-                <p className="text-sm text-muted-foreground">
-                  Nenhum multiplicador ativo. Adicione um boost acima!
-                </p>
-              </div>
+              <EmptyMascot
+                variant="sleeping"
+                title="Sem multiplicadores ativos"
+                description="Adicione um boost para premiar cargos VIP ou canais especiais com mais XP ou moedas."
+                size={96}
+              />
             ) : (
               <ul className="divide-y divide-border/60">
                 {multipliers.map((mp) => (

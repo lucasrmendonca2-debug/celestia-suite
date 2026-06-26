@@ -64,7 +64,7 @@ export function PermissionsTab({ guildId }: { guildId: string }) {
   });
   const [editing, setEditing] = useState<Perm | null>(null);
 
-  if (isLoading) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  if (isLoading) return <ListSkeleton rows={3} />;
 
   return (
     <div className="space-y-4">

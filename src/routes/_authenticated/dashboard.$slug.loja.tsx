@@ -253,6 +253,7 @@ function GuildShopPage() {
           </div>
           <div className="mt-4 flex items-center gap-3">
             <Button onClick={() => tune.mutate()} disabled={tune.isPending}>
+              {tune.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {tune.isPending ? "Salvando..." : "Salvar tuning"}
             </Button>
             <Badge variant="outline" className="text-xs">

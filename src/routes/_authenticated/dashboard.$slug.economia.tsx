@@ -397,7 +397,12 @@ function EconomyPage() {
                 onClick={() => addItem.mutate()}
                 disabled={!item.name || !item.role_id || addItem.isPending}
               >
-                <Plus className="mr-1.5 size-4" /> Adicionar
+                {addItem.isPending ? (
+                  <Loader2 className="mr-1.5 size-4 animate-spin" />
+                ) : (
+                  <Plus className="mr-1.5 size-4" />
+                )}
+                {addItem.isPending ? "Adicionando…" : "Adicionar"}
               </Button>
             </div>
           </AuroraSection>

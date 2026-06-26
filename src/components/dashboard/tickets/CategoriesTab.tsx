@@ -16,6 +16,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ChannelPicker, MultiRolePicker, RolePicker } from "./DiscordPickers";
+import { ListSkeleton } from "./_skeletons";
+import { Mascot } from "@/components/Mascot";
 
 type Category = Awaited<ReturnType<typeof listTicketCategories>>[number];
 

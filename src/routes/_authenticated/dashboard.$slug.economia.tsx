@@ -7,14 +7,16 @@ import {
   Coins,
   Plus,
   Save,
-  Trash2,
   Sparkles,
   ShoppingBag,
   Target,
   Briefcase,
   Zap,
+  Loader2,
 } from "lucide-react";
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
+import { DashboardErrorBoundary, DashboardNotFound } from "@/components/dashboard/RouteBoundaries";
+import { EmptyMascot } from "@/components/profile/EmptyMascot";
 import {
   getEconomyConfig,
   listEconomyMissions,
@@ -46,6 +48,7 @@ import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
 import { ChannelSelect } from "@/components/dashboard/selectors/ChannelSelect";
 import { RoleBadge, ChannelBadge } from "@/components/dashboard/DiscordBadges";
+
 
 const MISSION_KIND_LABELS: Record<string, { label: string; emoji: string }> = {
   daily: { label: "Diária", emoji: "🌅" },
@@ -84,14 +87,9 @@ export const Route = createFileRoute("/_authenticated/dashboard/$slug/economia")
     return { guildId, user, config };
   },
   component: EconomyPage,
-  errorComponent: ({ error }) => (
-    <div className="p-6 text-sm text-muted-foreground">
-      Falha ao carregar economia: {error instanceof Error ? error.message : String(error)}
-    </div>
-  ),
-  notFoundComponent: () => (
-    <div className="p-6 text-sm text-muted-foreground">Servidor não encontrado.</div>
-  ),
+  errorComponent: DashboardErrorBoundary,
+  notFoundComponent: () => <DashboardNotFound message="Servidor não encontrado." />,
+  head: () => ({ meta: [{ title: "Economia — Zenox" }] }),
 });
 
 function EconomyPage() {
@@ -257,7 +255,11 @@ function EconomyPage() {
       description="Moeda própria do servidor, daily, work, loja de cargos e missões."
       actions={
         <Button onClick={() => save.mutate()} disabled={save.isPending}>
-          <Save className="mr-1.5 size-4" />
+          {save.isPending ? (
+            <Loader2 className="mr-1.5 size-4 animate-spin" />
+          ) : (
+            <Save className="mr-1.5 size-4" />
+          )}
           {save.isPending ? "Salvando…" : "Salvar"}
         </Button>
       }
@@ -395,17 +397,24 @@ function EconomyPage() {
                 onClick={() => addItem.mutate()}
                 disabled={!item.name || !item.role_id || addItem.isPending}
               >
-                <Plus className="mr-1.5 size-4" /> Adicionar
+                {addItem.isPending ? (
+                  <Loader2 className="mr-1.5 size-4 animate-spin" />
+                ) : (
+                  <Plus className="mr-1.5 size-4" />
+                )}
+                {addItem.isPending ? "Adicionando…" : "Adicionar"}
               </Button>
             </div>
           </AuroraSection>
 
           <div className="aurora-panel overflow-hidden">
             {shop.length === 0 ? (
-              <div className="flex flex-col items-center gap-3 p-10 text-center">
-                <Mascot variant="sleeping" size={72} />
-                <p className="text-sm text-muted-foreground">Loja vazia. Adicione o primeiro item!</p>
-              </div>
+              <EmptyMascot
+                variant="sleeping"
+                title="Loja vazia"
+                description="Adicione o primeiro item acima para começar a vender cargos por moedas."
+                size={96}
+              />
             ) : (
               <ul className="divide-y divide-border/60">
                 {(shop as any[]).map((s) => (
@@ -527,17 +536,24 @@ function EconomyPage() {
                 onClick={() => addMission.mutate()}
                 disabled={!mission.slug || !mission.title || addMission.isPending}
               >
-                <Plus className="mr-1.5 size-4" /> Salvar missão
+                {addMission.isPending ? (
+                  <Loader2 className="mr-1.5 size-4 animate-spin" />
+                ) : (
+                  <Plus className="mr-1.5 size-4" />
+                )}
+                {addMission.isPending ? "Salvando…" : "Salvar missão"}
               </Button>
             </div>
           </AuroraSection>
 
           <div className="aurora-panel overflow-hidden">
             {missions.length === 0 ? (
-              <div className="flex flex-col items-center gap-3 p-10 text-center">
-                <Mascot variant="sleeping" size={72} />
-                <p className="text-sm text-muted-foreground">Nenhuma missão configurada.</p>
-              </div>
+              <EmptyMascot
+                variant="sleeping"
+                title="Nenhuma missão configurada"
+                description="Crie a primeira missão para premiar atividades como /daily, /work ou roubos."
+                size={96}
+              />
             ) : (
               <ul className="divide-y divide-border/60">
                 {(missions as any[]).map((m) => (
@@ -669,19 +685,24 @@ function EconomyPage() {
                 onClick={() => addMult.mutate()}
                 disabled={!mult.target_id || addMult.isPending}
               >
-                <Plus className="mr-1.5 size-4" /> Adicionar
+                {addMult.isPending ? (
+                  <Loader2 className="mr-1.5 size-4 animate-spin" />
+                ) : (
+                  <Plus className="mr-1.5 size-4" />
+                )}
+                {addMult.isPending ? "Adicionando…" : "Adicionar"}
               </Button>
             </div>
           </AuroraSection>
 
           <div className="aurora-panel overflow-hidden">
             {multipliers.length === 0 ? (
-              <div className="flex flex-col items-center gap-3 p-10 text-center">
-                <Mascot variant="sleeping" size={72} />
-                <p className="text-sm text-muted-foreground">
-                  Nenhum multiplicador ativo. Adicione um boost acima!
-                </p>
-              </div>
+              <EmptyMascot
+                variant="sleeping"
+                title="Sem multiplicadores ativos"
+                description="Adicione um boost para premiar cargos VIP ou canais especiais com mais XP ou moedas."
+                size={96}
+              />
             ) : (
               <ul className="divide-y divide-border/60">
                 {multipliers.map((mp) => (

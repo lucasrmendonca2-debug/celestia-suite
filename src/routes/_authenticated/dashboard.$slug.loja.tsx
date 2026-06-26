@@ -5,7 +5,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ShoppingBag, RefreshCw, Sparkles, Plus, Coins, TrendingUp, Settings2 } from "lucide-react";
+import { ShoppingBag, RefreshCw, Sparkles, Plus, Coins, TrendingUp, Settings2, Loader2 } from "lucide-react";
+import { EmptyMascot } from "@/components/profile/EmptyMascot";
+
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getGuildShopOverview,
@@ -159,13 +161,15 @@ function GuildShopPage() {
         <Button
           size="sm"
           variant="outline"
+          aria-label="Forçar nova rotação da loja"
           disabled={rotate.isPending}
           onClick={() => rotate.mutate()}
         >
           <RefreshCw
             className={`mr-2 h-4 w-4 ${rotate.isPending ? "animate-spin" : ""}`}
+            aria-hidden
           />
-          Forçar rotação
+          {rotate.isPending ? "Rodando…" : "Forçar rotação"}
         </Button>
       }
     >
@@ -199,9 +203,12 @@ function GuildShopPage() {
           tone="peach"
         >
           {rotationItems.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Sem itens na rotação ainda. Clique em "Forçar rotação" no topo.
-            </p>
+            <EmptyMascot
+              variant="sleeping"
+              title="Sem rotação hoje"
+              description='A próxima rotação automática começa à meia-noite. Quer adiantar? Clique em "Forçar rotação" no topo.'
+              size={96}
+            />
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {rotationItems.map((c: any) => (
@@ -246,6 +253,7 @@ function GuildShopPage() {
           </div>
           <div className="mt-4 flex items-center gap-3">
             <Button onClick={() => tune.mutate()} disabled={tune.isPending}>
+              {tune.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               {tune.isPending ? "Salvando..." : "Salvar tuning"}
             </Button>
             <Badge variant="outline" className="text-xs">
@@ -269,9 +277,12 @@ function GuildShopPage() {
             />
           </div>
           {exclusives.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Nenhum cosmético exclusivo ainda. Crie o primeiro com o botão acima!
-            </p>
+            <EmptyMascot
+              variant="hero"
+              title="Nenhum cosmético exclusivo"
+              description='Crie o primeiro item exclusivo deste servidor com o botão "Novo cosmético".'
+              size={96}
+            />
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {exclusives.map((c: any) => (
@@ -501,6 +512,7 @@ function CreateCosmeticDialog({
             onClick={submit}
             disabled={saving || !form.name || !form.slug || !form.image_url}
           >
+            {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {saving ? "Criando..." : "Criar"}
           </Button>
         </DialogFooter>

@@ -66,7 +66,7 @@ export function CategoriesTab({ guildId }: { guildId: string }) {
       }),
   });
 
-  if (isLoading) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  if (isLoading) return <ListSkeleton rows={4} />;
 
   return (
     <div className="space-y-4">

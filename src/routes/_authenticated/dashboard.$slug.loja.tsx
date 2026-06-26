@@ -7,7 +7,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ShoppingBag, RefreshCw, Sparkles, Plus, Coins, TrendingUp, Settings2, Loader2 } from "lucide-react";
 import { EmptyMascot } from "@/components/profile/EmptyMascot";
-import { CosmeticGridSkeleton } from "@/components/dashboard/economy/_skeletons";
+
 import { listMyGuilds, requireUser } from "@/lib/auth/auth.functions";
 import {
   getGuildShopOverview,

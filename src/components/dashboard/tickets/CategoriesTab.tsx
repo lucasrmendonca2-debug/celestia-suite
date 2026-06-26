@@ -102,9 +102,13 @@ export function CategoriesTab({ guildId }: { guildId: string }) {
       </div>
 
       {cats.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-card/30 p-10 text-center text-sm text-muted-foreground">
-          Nenhuma categoria ainda. Use <strong>Carregar modelos</strong> para começar com tipos prontos
-          (Suporte, Dúvida, Denúncia, Parcerias) ou crie a sua.
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card/30 p-10 text-center text-sm text-muted-foreground">
+          <Mascot variant="hero" size={80} glow />
+          <p>
+            Nenhuma categoria ainda. Use <strong>Carregar modelos</strong> para
+            começar com tipos prontos (Suporte, Dúvida, Denúncia, Parcerias) ou
+            crie a sua.
+          </p>
         </div>
       ) : (
         <div className="grid gap-2">

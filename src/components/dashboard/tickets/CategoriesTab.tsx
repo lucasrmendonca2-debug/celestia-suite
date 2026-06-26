@@ -18,6 +18,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { ChannelPicker, MultiRolePicker, RolePicker } from "./DiscordPickers";
 import { ListSkeleton } from "./_skeletons";
 import { Mascot } from "@/components/Mascot";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type Category = Awaited<ReturnType<typeof listTicketCategories>>[number];
 

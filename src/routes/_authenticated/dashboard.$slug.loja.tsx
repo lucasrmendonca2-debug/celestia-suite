@@ -203,9 +203,12 @@ function GuildShopPage() {
           tone="peach"
         >
           {rotationItems.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Sem itens na rotação ainda. Clique em "Forçar rotação" no topo.
-            </p>
+            <EmptyMascot
+              variant="sleeping"
+              title="Sem rotação hoje"
+              description='A próxima rotação automática começa à meia-noite. Quer adiantar? Clique em "Forçar rotação" no topo.'
+              size={96}
+            />
           ) : (
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {rotationItems.map((c: any) => (

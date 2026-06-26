@@ -685,7 +685,12 @@ function EconomyPage() {
                 onClick={() => addMult.mutate()}
                 disabled={!mult.target_id || addMult.isPending}
               >
-                <Plus className="mr-1.5 size-4" /> Adicionar
+                {addMult.isPending ? (
+                  <Loader2 className="mr-1.5 size-4 animate-spin" />
+                ) : (
+                  <Plus className="mr-1.5 size-4" />
+                )}
+                {addMult.isPending ? "Adicionando…" : "Adicionar"}
               </Button>
             </div>
           </AuroraSection>

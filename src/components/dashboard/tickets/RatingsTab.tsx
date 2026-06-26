@@ -2,6 +2,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery } from "@tanstack/react-query";
 import { Star } from "lucide-react";
 import { getTicketRatings } from "@/lib/guild/tickets.functions";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Mascot } from "@/components/Mascot";
 
 function Stars({ value, size = "size-4" }: { value: number; size?: string }) {
   return (

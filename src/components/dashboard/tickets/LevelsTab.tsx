@@ -276,8 +276,9 @@ export function Field({
 
 export function Empty({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-dashed border-border bg-card/30 p-10 text-center text-sm text-muted-foreground">
-      {children}
+    <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card/30 p-10 text-center text-sm text-muted-foreground">
+      <Mascot variant="sleeping" size={72} />
+      <div>{children}</div>
     </div>
   );
 }

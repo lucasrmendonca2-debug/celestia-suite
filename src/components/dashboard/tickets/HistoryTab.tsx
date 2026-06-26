@@ -3,6 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { History, RefreshCw } from "lucide-react";
 import { listTicketLogs } from "@/lib/guild/tickets.functions";
 import { Button } from "@/components/ui/button";
+import { TableSkeleton } from "./_skeletons";
+import { Mascot } from "@/components/Mascot";
 
 const ACTION_META: Record<string, { label: string; emoji: string; color: string }> = {
   opened: { label: "Aberto", emoji: "🟢", color: "text-emerald-300" },

@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MultiChannelPicker, MultiRolePicker } from "@/components/dashboard/tickets/DiscordPickers";
+import { Mascot } from "@/components/Mascot";
 
 type AutomodPunishment = "delete" | "warn" | "mute" | "kick" | "ban";
 const isAutomodPunishment = (value: string): value is AutomodPunishment =>
@@ -388,27 +389,33 @@ function BlacklistEditor({
   };
   return (
     <div className="space-y-3">
-      <div className="flex flex-wrap gap-1.5 rounded-lg border border-border/50 bg-background/40 p-3 min-h-[60px]">
-        {words.length === 0 && (
-          <span className="text-xs text-muted-foreground italic">Nenhuma palavra filtrada.</span>
-        )}
-        {words.map((w) => (
-          <span
-            key={w}
-            className="inline-flex items-center gap-1 rounded-full border border-rose-500/40 bg-rose-500/10 px-2.5 py-1 text-xs font-medium text-rose-300"
-          >
-            {w}
-            <button
-              type="button"
-              onClick={() => onChange(words.filter((x) => x !== w))}
-              className="rounded-full p-0.5 hover:bg-rose-500/20"
-              aria-label={`Remover ${w}`}
+      {words.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-dashed border-border/50 bg-background/40 px-4 py-6 text-center">
+          <Mascot variant="hero" size={56} />
+          <p className="text-xs text-muted-foreground">
+            Nenhuma palavra filtrada ainda. Adicione termos abaixo para o AutoMod agir.
+          </p>
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-1.5 rounded-lg border border-border/50 bg-background/40 p-3 min-h-[60px]">
+          {words.map((w) => (
+            <span
+              key={w}
+              className="inline-flex items-center gap-1 rounded-full border border-rose-500/40 bg-rose-500/10 px-2.5 py-1 text-xs font-medium text-rose-300"
             >
-              <X className="size-3" />
-            </button>
-          </span>
-        ))}
-      </div>
+              {w}
+              <button
+                type="button"
+                onClick={() => onChange(words.filter((x) => x !== w))}
+                className="rounded-full p-0.5 hover:bg-rose-500/20"
+                aria-label={`Remover ${w}`}
+              >
+                <X className="size-3" />
+              </button>
+            </span>
+          ))}
+        </div>
+      )}
       <div className="flex gap-2">
         <Input
           placeholder="Adicionar palavra(s) — separe por vírgula"

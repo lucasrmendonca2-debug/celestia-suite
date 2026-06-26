@@ -10,6 +10,7 @@ import {
 } from "@/lib/guild/moderation.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -17,9 +18,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { UserBadge } from "@/components/dashboard/DiscordBadges";
+import { Mascot } from "@/components/Mascot";
+import { CasesTableSkeleton } from "./_skeletons";
 
 const ACTION_COLORS: Record<string, string> = {
   BAN: "bg-red-500/20 text-red-300",
@@ -65,6 +78,7 @@ export function HistoryTab({ guildId }: { guildId: string }) {
     null,
   );
   const [editText, setEditText] = useState("");
+  const [confirmInvalidate, setConfirmInvalidate] = useState<number | null>(null);
 
   const editMut = useMutation({
     mutationFn: (input: { caseNumber: number; reason: string }) =>
@@ -106,26 +120,45 @@ export function HistoryTab({ guildId }: { guildId: string }) {
       </div>
 
       <div className="mb-4 grid gap-2 sm:grid-cols-4">
-        <Input
-          placeholder="ID do usuário"
-          value={userFilter}
-          onChange={(e) => setUserFilter(e.target.value.trim())}
-        />
-        <Input
-          placeholder="ID do moderador"
-          value={modFilter}
-          onChange={(e) => setModFilter(e.target.value.trim())}
-        />
-        <Input
-          placeholder="Ação (ex: WARN, BAN, NOTE)"
-          value={actionFilter}
-          onChange={(e) => setActionFilter(e.target.value.trim().toUpperCase())}
-        />
+        <div>
+          <Label htmlFor="mod-hist-user" className="sr-only">
+            Filtrar por ID do usuário
+          </Label>
+          <Input
+            id="mod-hist-user"
+            placeholder="ID do usuário"
+            value={userFilter}
+            onChange={(e) => setUserFilter(e.target.value.trim())}
+          />
+        </div>
+        <div>
+          <Label htmlFor="mod-hist-mod" className="sr-only">
+            Filtrar por ID do moderador
+          </Label>
+          <Input
+            id="mod-hist-mod"
+            placeholder="ID do moderador"
+            value={modFilter}
+            onChange={(e) => setModFilter(e.target.value.trim())}
+          />
+        </div>
+        <div>
+          <Label htmlFor="mod-hist-action" className="sr-only">
+            Filtrar por tipo de ação
+          </Label>
+          <Input
+            id="mod-hist-action"
+            placeholder="Ação (ex: WARN, BAN, NOTE)"
+            value={actionFilter}
+            onChange={(e) => setActionFilter(e.target.value.trim().toUpperCase())}
+          />
+        </div>
         <Button
           variant="outline"
           size="sm"
           onClick={() => query.refetch()}
           disabled={query.isFetching}
+          aria-label="Atualizar lista de casos"
         >
           {query.isFetching ? (
             <Loader2 className="mr-2 size-4 animate-spin" />
@@ -136,86 +169,100 @@ export function HistoryTab({ guildId }: { guildId: string }) {
         </Button>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border bg-background/40">
-        <table className="w-full min-w-[760px] text-sm">
-          <thead className="bg-muted/30 text-xs uppercase tracking-wide text-muted-foreground">
-            <tr>
-              <th className="px-3 py-2 text-left">#</th>
-              <th className="px-3 py-2 text-left">Ação</th>
-              <th className="px-3 py-2 text-left">Usuário</th>
-              <th className="px-3 py-2 text-left">Moderador</th>
-              <th className="px-3 py-2 text-left">Motivo</th>
-              <th className="px-3 py-2 text-left">Quando</th>
-              <th className="px-3 py-2 text-left">Origem</th>
-              <th className="px-3 py-2"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.length === 0 && !query.isLoading && (
+      {query.isLoading ? (
+        <CasesTableSkeleton rows={6} />
+      ) : rows.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed bg-background/40 py-10 text-center">
+          <Mascot variant="sleeping" size={72} />
+          <div>
+            <p className="text-sm font-medium">Nenhum caso por aqui</p>
+            <p className="text-xs text-muted-foreground">
+              Servidor calmo — ou ajuste os filtros acima.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="overflow-x-auto rounded-lg border bg-background/40">
+          <table className="w-full min-w-[760px] text-sm">
+            <thead className="bg-muted/30 text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
-                <td colSpan={8} className="px-3 py-6 text-center text-muted-foreground">
-                  Nenhum caso encontrado.
-                </td>
+                <th className="px-3 py-2 text-left">#</th>
+                <th className="px-3 py-2 text-left">Ação</th>
+                <th className="px-3 py-2 text-left">Usuário</th>
+                <th className="px-3 py-2 text-left">Moderador</th>
+                <th className="px-3 py-2 text-left">Motivo</th>
+                <th className="px-3 py-2 text-left">Quando</th>
+                <th className="px-3 py-2 text-left">Origem</th>
+                <th className="px-3 py-2"></th>
               </tr>
-            )}
-            {rows.map((r) => (
-              <tr key={r.id} className="border-t hover:bg-muted/10">
-                <td className="px-3 py-2 font-mono text-xs">#{r.case_number}</td>
-                <td className="px-3 py-2">
-                  <Badge className={ACTION_COLORS[r.action] ?? ""}>{r.action}</Badge>
-                </td>
-                <td className="px-3 py-2">
-                  <UserBadge userId={r.user_id} userTag={r.user_tag} />
-                </td>
-                <td className="px-3 py-2">
-                  <UserBadge userId={r.moderator_id} userTag={r.moderator_tag} />
-                </td>
-                <td className="px-3 py-2 max-w-[280px]" title={r.reason ?? ""}>
-                  {r.reason ? (
-                    <span className="inline-block max-w-full truncate rounded-md border border-border/50 bg-muted/30 px-2 py-1 text-xs">
-                      {r.reason}
-                    </span>
-                  ) : (
-                    <span className="text-muted-foreground">—</span>
-                  )}
-                </td>
-                <td className="px-3 py-2 text-xs text-muted-foreground">
-                  {new Date(r.created_at).toLocaleString()}
-                </td>
-                <td className="px-3 py-2 text-xs">
-                  <Badge variant="outline">{r.source}</Badge>
-                  {!r.active && (
-                    <Badge variant="outline" className="ml-1 opacity-60">
-                      inativo
+            </thead>
+            <tbody>
+              {rows.map((r) => (
+                <tr key={r.id} className="border-t hover:bg-muted/10">
+                  <td className="px-3 py-2 font-mono text-xs">#{r.case_number}</td>
+                  <td className="px-3 py-2">
+                    <Badge
+                      role="status"
+                      className={ACTION_COLORS[r.action] ?? ""}
+                    >
+                      {r.action}
                     </Badge>
-                  )}
-                </td>
-                <td className="px-3 py-2 text-right">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setEditing({ caseNumber: r.case_number, reason: r.reason ?? "" });
-                      setEditText(r.reason ?? "");
-                    }}
-                  >
-                    <Pencil className="size-3" />
-                  </Button>
-                  {r.active && (
+                  </td>
+                  <td className="px-3 py-2">
+                    <UserBadge userId={r.user_id} userTag={r.user_tag} />
+                  </td>
+                  <td className="px-3 py-2">
+                    <UserBadge userId={r.moderator_id} userTag={r.moderator_tag} />
+                  </td>
+                  <td className="px-3 py-2 max-w-[280px]" title={r.reason ?? ""}>
+                    {r.reason ? (
+                      <span className="inline-block max-w-full truncate rounded-md border border-border/50 bg-muted/30 px-2 py-1 text-xs">
+                        {r.reason}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2 text-xs text-muted-foreground">
+                    {new Date(r.created_at).toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2 text-xs">
+                    <Badge variant="outline">{r.source}</Badge>
+                    {!r.active && (
+                      <Badge variant="outline" className="ml-1 opacity-60">
+                        inativo
+                      </Badge>
+                    )}
+                  </td>
+                  <td className="px-3 py-2 text-right">
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => invalidMut.mutate(r.case_number)}
+                      aria-label={`Editar motivo do caso #${r.case_number}`}
+                      onClick={() => {
+                        setEditing({ caseNumber: r.case_number, reason: r.reason ?? "" });
+                        setEditText(r.reason ?? "");
+                      }}
                     >
-                      <X className="size-3" />
+                      <Pencil className="size-3" />
                     </Button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                    {r.active && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        aria-label={`Marcar caso #${r.case_number} como inativo`}
+                        onClick={() => setConfirmInvalidate(r.case_number)}
+                      >
+                        <X className="size-3" />
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent>
@@ -226,6 +273,7 @@ export function HistoryTab({ guildId }: { guildId: string }) {
             value={editText}
             onChange={(e) => setEditText(e.target.value)}
             rows={5}
+            aria-label="Novo motivo do caso"
           />
           <DialogFooter>
             <Button variant="ghost" onClick={() => setEditing(null)}>
@@ -238,11 +286,44 @@ export function HistoryTab({ guildId }: { guildId: string }) {
               }
               disabled={editMut.isPending || !editText.trim()}
             >
+              {editMut.isPending && (
+                <Loader2 className="mr-2 size-4 animate-spin" />
+              )}
               Salvar
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={confirmInvalidate !== null}
+        onOpenChange={(o) => !o && setConfirmInvalidate(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Marcar caso #{confirmInvalidate} como inativo?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              O caso continua no histórico, mas deixa de contar como punição
+              ativa. Use isso para registrar reversões manuais ou erros.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (confirmInvalidate !== null) {
+                  invalidMut.mutate(confirmInvalidate);
+                  setConfirmInvalidate(null);
+                }
+              }}
+            >
+              Marcar como inativo
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 }

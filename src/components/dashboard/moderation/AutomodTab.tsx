@@ -17,6 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MultiChannelPicker, MultiRolePicker } from "@/components/dashboard/tickets/DiscordPickers";
+import { Mascot } from "@/components/Mascot";
 
 type AutomodPunishment = "delete" | "warn" | "mute" | "kick" | "ban";
 const isAutomodPunishment = (value: string): value is AutomodPunishment =>

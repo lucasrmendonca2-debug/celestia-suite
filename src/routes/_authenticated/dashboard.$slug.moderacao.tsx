@@ -128,7 +128,7 @@ function ModerationPage() {
         <div className="min-w-0 flex-1">
           <h2 className="font-display text-lg font-bold tracking-tight">
             {stats.active > 0
-              ? `${stats.active} punição${stats.active > 1 ? "ões" : ""} em vigor agora 👀`
+              ? `${stats.active} ${stats.active === 1 ? "punição em vigor" : "punições em vigor"} agora 👀`
               : "Tudo tranquilo por aqui ✨"}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">

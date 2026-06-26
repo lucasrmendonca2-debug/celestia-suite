@@ -78,6 +78,7 @@ export function HistoryTab({ guildId }: { guildId: string }) {
     null,
   );
   const [editText, setEditText] = useState("");
+  const [confirmInvalidate, setConfirmInvalidate] = useState<number | null>(null);
 
   const editMut = useMutation({
     mutationFn: (input: { caseNumber: number; reason: string }) =>

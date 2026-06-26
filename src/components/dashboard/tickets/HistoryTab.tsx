@@ -42,10 +42,14 @@ export function HistoryTab({ guildId }: { guildId: string }) {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Carregando…</p>
+        <TableSkeleton rows={6} />
       ) : data.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-card/30 p-10 text-center text-sm text-muted-foreground">
-          Nenhuma ação registrada ainda. Abra um ticket no Discord pra começar a história.
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card/30 p-10 text-center text-sm text-muted-foreground">
+          <Mascot variant="sleeping" size={72} />
+          <p>
+            Nenhuma ação registrada ainda.<br />
+            Abra um ticket no Discord pra começar a história.
+          </p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-xl border border-border bg-card/40">

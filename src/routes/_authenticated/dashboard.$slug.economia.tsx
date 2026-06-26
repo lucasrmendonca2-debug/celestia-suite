@@ -48,6 +48,7 @@ import { resolveGuildIdFromSlug } from "@/lib/guild/slug";
 import { RoleSelect } from "@/components/dashboard/selectors/RoleSelect";
 import { ChannelSelect } from "@/components/dashboard/selectors/ChannelSelect";
 import { RoleBadge, ChannelBadge } from "@/components/dashboard/DiscordBadges";
+import { ShopItemsSkeleton } from "@/components/dashboard/economy/_skeletons";
 
 const MISSION_KIND_LABELS: Record<string, { label: string; emoji: string }> = {
   daily: { label: "Diária", emoji: "🌅" },

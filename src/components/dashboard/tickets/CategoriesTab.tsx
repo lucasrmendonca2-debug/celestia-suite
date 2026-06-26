@@ -214,16 +214,13 @@ function CategoryEditor({
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-border bg-card p-6 shadow-2xl">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold">
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto border border-border bg-card p-6 shadow-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-lg font-semibold">
             {c.id ? "Editar categoria" : "Nova categoria"}
-          </h3>
-          <Button size="sm" variant="ghost" onClick={onClose}>
-            Fechar
-          </Button>
-        </div>
+          </DialogTitle>
+        </DialogHeader>
 
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-[80px_1fr]">

@@ -16,6 +16,14 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ChannelPicker, MultiRolePicker, RolePicker } from "./DiscordPickers";
+import { ListSkeleton } from "./_skeletons";
+import { Mascot } from "@/components/Mascot";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type Category = Awaited<ReturnType<typeof listTicketCategories>>[number];
 
@@ -66,7 +74,7 @@ export function CategoriesTab({ guildId }: { guildId: string }) {
       }),
   });
 
-  if (isLoading) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  if (isLoading) return <ListSkeleton rows={4} />;
 
   return (
     <div className="space-y-4">
@@ -100,9 +108,13 @@ export function CategoriesTab({ guildId }: { guildId: string }) {
       </div>
 
       {cats.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-card/30 p-10 text-center text-sm text-muted-foreground">
-          Nenhuma categoria ainda. Use <strong>Carregar modelos</strong> para começar com tipos prontos
-          (Suporte, Dúvida, Denúncia, Parcerias) ou crie a sua.
+        <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card/30 p-10 text-center text-sm text-muted-foreground">
+          <Mascot variant="hero" size={80} glow />
+          <p>
+            Nenhuma categoria ainda. Use <strong>Carregar modelos</strong> para
+            começar com tipos prontos (Suporte, Dúvida, Denúncia, Parcerias) ou
+            crie a sua.
+          </p>
         </div>
       ) : (
         <div className="grid gap-2">
@@ -202,16 +214,13 @@ function CategoryEditor({
   });
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-border bg-card p-6 shadow-2xl">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold">
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto border border-border bg-card p-6 shadow-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-lg font-semibold">
             {c.id ? "Editar categoria" : "Nova categoria"}
-          </h3>
-          <Button size="sm" variant="ghost" onClick={onClose}>
-            Fechar
-          </Button>
-        </div>
+          </DialogTitle>
+        </DialogHeader>
 
         <div className="space-y-4">
           <div className="grid gap-4 sm:grid-cols-[80px_1fr]">
@@ -385,8 +394,8 @@ function CategoryEditor({
             <AlertCircle className="size-3" /> {(saving.error as Error).message}
           </p>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

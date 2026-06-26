@@ -2,13 +2,15 @@ import { useServerFn } from "@tanstack/react-start";
 import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Trash2, Inbox } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import {
   listOpenTickets,
   deleteActiveTicket,
 } from "@/lib/guild/tickets.functions";
 import { Button } from "@/components/ui/button";
 import { ChannelBadge } from "@/components/dashboard/DiscordBadges";
+import { ListSkeleton } from "./_skeletons";
+import { Mascot } from "@/components/Mascot";
 
 export function ActiveTicketsCard({ guildId }: { guildId: string }) {
   const list = useServerFn(listOpenTickets);
@@ -50,10 +52,11 @@ export function ActiveTicketsCard({ guildId }: { guildId: string }) {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-muted-foreground">Carregando…</p>
+        <ListSkeleton rows={3} />
       ) : tickets.length === 0 ? (
-        <div className="flex items-center gap-3 rounded-lg border border-dashed border-border bg-background/30 p-6 text-sm text-muted-foreground">
-          <Inbox className="size-4" /> Nenhum ticket aberto agora.
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-dashed border-border bg-background/30 p-8 text-center text-sm text-muted-foreground">
+          <Mascot variant="celebrate" size={64} />
+          <p>Nenhum ticket aberto agora. Tudo em paz por aqui ✨</p>
         </div>
       ) : (
         <div className="grid gap-2">

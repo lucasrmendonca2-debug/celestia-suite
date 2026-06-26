@@ -13,6 +13,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RoleBadge } from "@/components/dashboard/DiscordBadges";
+import { ListSkeleton } from "./_skeletons";
+import { Mascot } from "@/components/Mascot";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 type Level = Awaited<ReturnType<typeof listAccessLevels>>[number];
 
@@ -34,7 +42,7 @@ export function LevelsTab({ guildId }: { guildId: string }) {
   });
   const [editing, setEditing] = useState<Level | null>(null);
 
-  if (isLoading) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  if (isLoading) return <ListSkeleton rows={3} />;
 
   return (
     <div className="space-y-4">
@@ -237,17 +245,14 @@ export function Modal({
   children: React.ReactNode;
 }) {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-xl border border-border bg-card p-6 shadow-2xl">
-        <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-lg font-semibold">{title}</h3>
-          <Button size="sm" variant="ghost" onClick={onClose}>
-            Fechar
-          </Button>
-        </div>
-        {children}
-      </div>
-    </div>
+    <Dialog open onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto border border-border bg-card p-6 shadow-2xl">
+        <DialogHeader>
+          <DialogTitle className="text-lg font-semibold">{title}</DialogTitle>
+        </DialogHeader>
+        <div className="mt-2">{children}</div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -271,8 +276,9 @@ export function Field({
 
 export function Empty({ children }: { children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-dashed border-border bg-card/30 p-10 text-center text-sm text-muted-foreground">
-      {children}
+    <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card/30 p-10 text-center text-sm text-muted-foreground">
+      <Mascot variant="sleeping" size={72} />
+      <div>{children}</div>
     </div>
   );
 }

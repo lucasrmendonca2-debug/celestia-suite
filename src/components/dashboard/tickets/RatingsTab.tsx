@@ -25,11 +25,25 @@ export function RatingsTab({ guildId }: { guildId: string }) {
     queryFn: () => fetcher({ data: { guildId } }),
   });
 
-  if (isLoading) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  if (isLoading) {
+    return (
+      <div className="space-y-3">
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Skeleton className="h-24 rounded-xl" />
+          <Skeleton className="h-24 rounded-xl" />
+        </div>
+        <Skeleton className="h-40 rounded-xl" />
+      </div>
+    );
+  }
   if (!data || data.count === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-border bg-card/30 p-10 text-center text-sm text-muted-foreground">
-        Sem avaliações ainda. Ative <strong>Pedir avaliação</strong> em Geral para coletar feedback.
+      <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card/30 p-10 text-center text-sm text-muted-foreground">
+        <Mascot variant="sleeping" size={72} />
+        <p>
+          Sem avaliações ainda. Ative <strong>Pedir avaliação</strong> em Geral
+          para coletar feedback dos usuários.
+        </p>
       </div>
     );
   }

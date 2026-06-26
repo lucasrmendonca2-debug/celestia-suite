@@ -161,13 +161,15 @@ function GuildShopPage() {
         <Button
           size="sm"
           variant="outline"
+          aria-label="Forçar nova rotação da loja"
           disabled={rotate.isPending}
           onClick={() => rotate.mutate()}
         >
           <RefreshCw
             className={`mr-2 h-4 w-4 ${rotate.isPending ? "animate-spin" : ""}`}
+            aria-hidden
           />
-          Forçar rotação
+          {rotate.isPending ? "Rodando…" : "Forçar rotação"}
         </Button>
       }
     >

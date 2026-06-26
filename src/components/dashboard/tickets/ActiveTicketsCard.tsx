@@ -2,13 +2,15 @@ import { useServerFn } from "@tanstack/react-start";
 import { ConfirmDeleteButton } from "@/components/ConfirmDeleteButton";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Trash2, Inbox } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import {
   listOpenTickets,
   deleteActiveTicket,
 } from "@/lib/guild/tickets.functions";
 import { Button } from "@/components/ui/button";
 import { ChannelBadge } from "@/components/dashboard/DiscordBadges";
+import { ListSkeleton } from "./_skeletons";
+import { Mascot } from "@/components/Mascot";
 
 export function ActiveTicketsCard({ guildId }: { guildId: string }) {
   const list = useServerFn(listOpenTickets);

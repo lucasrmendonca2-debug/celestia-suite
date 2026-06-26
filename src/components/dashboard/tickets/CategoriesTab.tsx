@@ -394,8 +394,8 @@ function CategoryEditor({
             <AlertCircle className="size-3" /> {(saving.error as Error).message}
           </p>
         )}
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

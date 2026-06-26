@@ -404,10 +404,12 @@ function EconomyPage() {
 
           <div className="aurora-panel overflow-hidden">
             {shop.length === 0 ? (
-              <div className="flex flex-col items-center gap-3 p-10 text-center">
-                <Mascot variant="sleeping" size={72} />
-                <p className="text-sm text-muted-foreground">Loja vazia. Adicione o primeiro item!</p>
-              </div>
+              <EmptyMascot
+                variant="sleeping"
+                title="Loja vazia"
+                description="Adicione o primeiro item acima para começar a vender cargos por moedas."
+                size={96}
+              />
             ) : (
               <ul className="divide-y divide-border/60">
                 {(shop as any[]).map((s) => (

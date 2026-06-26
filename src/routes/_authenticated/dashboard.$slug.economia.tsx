@@ -538,10 +538,12 @@ function EconomyPage() {
 
           <div className="aurora-panel overflow-hidden">
             {missions.length === 0 ? (
-              <div className="flex flex-col items-center gap-3 p-10 text-center">
-                <Mascot variant="sleeping" size={72} />
-                <p className="text-sm text-muted-foreground">Nenhuma missão configurada.</p>
-              </div>
+              <EmptyMascot
+                variant="sleeping"
+                title="Nenhuma missão configurada"
+                description="Crie a primeira missão para premiar atividades como /daily, /work ou roubos."
+                size={96}
+              />
             ) : (
               <ul className="divide-y divide-border/60">
                 {(missions as any[]).map((m) => (

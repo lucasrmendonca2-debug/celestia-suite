@@ -417,6 +417,9 @@ function Landing() {
       </section>
 
 
+      {/* WAVY DIVIDER → dark section */}
+      <WavyDivider color="#1B0E3B" height={80} className="-mb-px" />
+
       {/* HOW IT WORKS */}
       <section className="relative overflow-hidden bg-[#1B0E3B] px-4 py-24 text-white md:px-6">
         {/* Decorative animated orbs */}

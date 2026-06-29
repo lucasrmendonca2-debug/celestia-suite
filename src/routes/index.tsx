@@ -33,6 +33,8 @@ import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/Reveal";
 import { AnimatedBlobs } from "@/components/motion/AnimatedBlobs";
 import { CountUp } from "@/components/motion/CountUp";
 import { Marquee } from "@/components/motion/Marquee";
+import { ScrollProgress } from "@/components/motion/ScrollProgress";
+import { WavyDivider } from "@/components/motion/WavyDivider";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -109,6 +111,7 @@ function Landing() {
   const commandsLabel = `${data.commands}+`;
   return (
     <div className="min-h-dvh overflow-hidden bg-[#FBF7FF] font-['Inter'] text-[#1B0E3B] selection:bg-[#7C3AED] selection:text-white">
+      <ScrollProgress />
       {/* Floating shapes (animated) */}
       <AnimatedBlobs />
 
@@ -145,7 +148,7 @@ function Landing() {
                   />
                 </span>{" "}
                 vai{" "}
-                <span className="bg-gradient-to-r from-[#7C3AED] via-[#A855F7] to-[#EC4899] bg-clip-text text-transparent">
+                <span className="relative inline-block bg-[length:200%_auto] bg-clip-text text-transparent [background-image:linear-gradient(90deg,#7C3AED,#A855F7,#EC4899,#FBBF24,#7C3AED)] [animation:shimmer_6s_linear_infinite]">
                   amar usar.
                 </span>
               </h1>
@@ -414,6 +417,9 @@ function Landing() {
       </section>
 
 
+      {/* WAVY DIVIDER → dark section */}
+      <WavyDivider color="#1B0E3B" height={80} className="-mb-px" />
+
       {/* HOW IT WORKS */}
       <section className="relative overflow-hidden bg-[#1B0E3B] px-4 py-24 text-white md:px-6">
         {/* Decorative animated orbs */}
@@ -474,6 +480,10 @@ function Landing() {
           </StaggerGroup>
         </div>
       </section>
+
+      <WavyDivider color="#1B0E3B" height={80} flip className="-mt-px" />
+
+
 
       {/* PREMIUM TEASER */}
       <section className="px-4 py-24 md:px-6">
@@ -649,6 +659,10 @@ function Landing() {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-12px); }
         }
+        @keyframes shimmer {
+          0%   { background-position: 0% 50%; }
+          100% { background-position: 200% 50%; }
+        }
         @keyframes peek-down {
           0%   { transform: translate(-50%, 40%) rotate(-8deg); opacity: 0; }
           60%  { transform: translate(-50%, 8%)  rotate(4deg);  opacity: 1; }
@@ -721,11 +735,13 @@ function PeekButton({
     ? "bg-white text-[#1B0E3B] border-[#1B0E3B] shadow-[0_6px_0_0_#1B0E3B]"
     : "bg-[#7C3AED] text-white border-[#1B0E3B] shadow-[0_6px_0_0_#1B0E3B]";
   const size = large ? "px-8 py-4 text-lg" : "px-6 py-3.5 text-base";
-  const chibiSize = large ? 130 : 104;
+  const chibiSize = large ? 110 : 90;
 
   const [active, setActive] = useState(false);
   const [frame, setFrame] = useState(0);
   const idleIdx = useRef(0);
+  const wrapRef = useRef<HTMLSpanElement>(null);
+  const [mag, setMag] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!active) {
@@ -740,7 +756,6 @@ function PeekButton({
       if (i < CLIMB_FRAMES.length) {
         setFrame(i);
       } else {
-        // loop idle entre poses sentadas
         setFrame(IDLE_FRAMES[idleIdx.current % IDLE_FRAMES.length]);
         idleIdx.current += 1;
       }
@@ -749,26 +764,40 @@ function PeekButton({
     return () => window.clearInterval(id);
   }, [active]);
 
+  function handleMove(e: React.MouseEvent<HTMLSpanElement>) {
+    const el = wrapRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    setMag({ x: (e.clientX - cx) * 0.15, y: (e.clientY - cy) * 0.2 });
+  }
+
   return (
     <span
+      ref={wrapRef}
       className="relative inline-block"
       onMouseEnter={() => setActive(true)}
-      onMouseLeave={() => setActive(false)}
+      onMouseLeave={() => {
+        setActive(false);
+        setMag({ x: 0, y: 0 });
+      }}
+      onMouseMove={handleMove}
       onFocus={() => setActive(true)}
       onBlur={() => setActive(false)}
     >
-      {/* Chibi escalando por trás do botão */}
-      <span
+      {/* Chibi escalando por trás do botão — limitado pra não invadir o texto acima */}
+      <motion.span
         aria-hidden
-        className="pointer-events-none absolute left-1/2 -translate-x-1/2 z-0"
-        style={{
-          width: chibiSize,
-          height: chibiSize,
-          // posiciona ele subindo: começa atrás/embaixo do botão, sobe pra cima
-          bottom: active ? "55%" : "-20%",
+        className="pointer-events-none absolute left-1/2 z-0 -translate-x-1/2"
+        style={{ width: chibiSize, height: chibiSize, bottom: 0 }}
+        initial={false}
+        animate={{
+          y: active ? -chibiSize * 0.55 : chibiSize * 0.25,
           opacity: active ? 1 : 0,
-          transition: "bottom 0s, opacity 120ms ease-out",
+          rotate: active ? 0 : -8,
         }}
+        transition={{ type: "spring", damping: 14, stiffness: 180 }}
       >
         <img
           src={active ? CLIMB_FRAMES[frame] : chibiPeek}
@@ -776,16 +805,23 @@ function PeekButton({
           className="size-full object-contain drop-shadow-[0_8px_10px_rgba(27,14,59,0.35)]"
           draggable={false}
         />
-      </span>
+      </motion.span>
 
-      <a
+      <motion.a
         href={href}
         onClick={onClick}
-        className={`relative z-10 inline-flex items-center gap-2 rounded-full border-2 font-extrabold transition-transform hover:-translate-y-0.5 ${base} ${size}`}
+        className={`relative z-10 inline-flex items-center gap-2 rounded-full border-2 font-extrabold no-underline ${base} ${size}`}
+        animate={{ x: mag.x, y: mag.y }}
+        transition={{ type: "spring", damping: 18, stiffness: 250 }}
       >
         {label}
-        <ArrowRight className="size-4" />
-      </a>
+        <motion.span
+          animate={active ? { x: [0, 4, 0] } : { x: 0 }}
+          transition={{ duration: 1.1, repeat: active ? Infinity : 0, ease: "easeInOut" }}
+        >
+          <ArrowRight className="size-4" />
+        </motion.span>
+      </motion.a>
     </span>
   );
 }
@@ -893,16 +929,16 @@ function CommunityCard({
   return (
     <Link
       to={to}
-      className={`group relative rounded-3xl border-2 border-[#1B0E3B] bg-white p-6 ${t.ring} transition-transform hover:-translate-y-1`}
+      className={`group relative block rounded-3xl border-2 border-[#1B0E3B] bg-white p-6 no-underline ${t.ring} transition-transform hover:-translate-y-1`}
     >
       <div
         className={`mb-4 inline-flex size-12 items-center justify-center rounded-2xl ${t.soft} ${t.text} border-2 ${t.border}`}
       >
         <Icon className="size-5" />
       </div>
-      <h3 className="font-['Plus_Jakarta_Sans'] text-xl font-extrabold">{title}</h3>
-      <p className="mt-2 text-sm text-[#5B4B7A]">{desc}</p>
-      <span className={`mt-4 inline-flex items-center gap-1 text-sm font-bold ${t.text}`}>
+      <h3 className="font-['Plus_Jakarta_Sans'] text-xl font-extrabold no-underline">{title}</h3>
+      <p className="mt-2 text-sm text-[#5B4B7A] no-underline">{desc}</p>
+      <span className={`mt-4 inline-flex items-center gap-1 text-sm font-bold no-underline ${t.text}`}>
         {cta} <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
       </span>
     </Link>

@@ -3,19 +3,13 @@
  * Chamado por pg_cron diariamente às 06:00 BRT (09:00 UTC).
  */
 import { createFileRoute } from "@tanstack/react-router";
-
-async function isAuthorized(request: Request): Promise<boolean> {
-  const apikey = request.headers.get("apikey");
-  const expected = process.env.SUPABASE_PUBLISHABLE_KEY;
-  if (!apikey || !expected) return false;
-  return apikey === expected;
-}
+import { isAuthorizedCron } from "@/lib/cron/auth.server";
 
 export const Route = createFileRoute("/api/public/cron/daily-missions")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        if (!(await isAuthorized(request))) {
+        if (!isAuthorizedCron(request)) {
           return new Response("unauthorized", { status: 401 });
         }
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

@@ -893,16 +893,16 @@ function CommunityCard({
   return (
     <Link
       to={to}
-      className={`group relative rounded-3xl border-2 border-[#1B0E3B] bg-white p-6 ${t.ring} transition-transform hover:-translate-y-1`}
+      className={`group relative block rounded-3xl border-2 border-[#1B0E3B] bg-white p-6 no-underline ${t.ring} transition-transform hover:-translate-y-1`}
     >
       <div
         className={`mb-4 inline-flex size-12 items-center justify-center rounded-2xl ${t.soft} ${t.text} border-2 ${t.border}`}
       >
         <Icon className="size-5" />
       </div>
-      <h3 className="font-['Plus_Jakarta_Sans'] text-xl font-extrabold">{title}</h3>
-      <p className="mt-2 text-sm text-[#5B4B7A]">{desc}</p>
-      <span className={`mt-4 inline-flex items-center gap-1 text-sm font-bold ${t.text}`}>
+      <h3 className="font-['Plus_Jakarta_Sans'] text-xl font-extrabold no-underline">{title}</h3>
+      <p className="mt-2 text-sm text-[#5B4B7A] no-underline">{desc}</p>
+      <span className={`mt-4 inline-flex items-center gap-1 text-sm font-bold no-underline ${t.text}`}>
         {cta} <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
       </span>
     </Link>

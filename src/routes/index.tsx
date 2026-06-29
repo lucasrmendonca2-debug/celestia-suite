@@ -297,8 +297,67 @@ function Landing() {
         </div>
       </section>
 
+      {/* TRAILER — veja em ação dentro de uma janela MS Paint */}
+      <section className="relative px-4 py-16 md:px-6 md:py-20">
+        <div className="mx-auto max-w-6xl">
+          <Reveal>
+            <div className="mb-8 flex flex-col items-center gap-3 text-center">
+              <span className="inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-white px-3 py-1 text-[11px] font-extrabold uppercase tracking-widest text-[#1B0E3B] shadow-[0_3px_0_0_#1B0E3B]">
+                <Sparkles className="size-3.5" /> Veja em ação
+              </span>
+              <h2 className="font-['Plus_Jakarta_Sans'] text-4xl font-extrabold leading-tight tracking-tight md:text-5xl">
+                Um comando. Um <span className="bg-[#FBBF24] px-2 -rotate-1 inline-block">show</span>.
+              </h2>
+              <p className="max-w-xl text-base text-[#5B4B7A]">
+                Digita um comando no Discord — o Zenox responde com estilo, rápido e bonito.
+              </p>
+            </div>
+          </Reveal>
+
+          <motion.div
+            className="relative mx-auto w-full max-w-4xl"
+            initial={{ opacity: 0, y: 30, rotate: -1 }}
+            whileInView={{ opacity: 1, y: 0, rotate: 0 }}
+            viewport={{ once: true, amount: 0.3 }}
+            transition={{ type: "spring", damping: 16, stiffness: 90 }}
+          >
+            <div className="absolute inset-0 -z-10 translate-x-3 translate-y-3 rounded-md bg-[#1B0E3B]" />
+            <div className="relative overflow-hidden rounded-md border-2 border-[#1B0E3B] bg-white shadow-[6px_6px_0_0_#1B0E3B]">
+              <div className="flex items-center justify-between gap-2 border-b-2 border-[#1B0E3B] bg-gradient-to-r from-[#000080] to-[#1084d0] px-2 py-1 font-mono text-xs font-bold text-white">
+                <div className="flex items-center gap-1.5">
+                  <span className="inline-block size-3 border border-white/40 bg-[#FBBF24]" />
+                  zenox-trailer.mp4 — Reproduzindo
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="flex size-4 items-center justify-center border border-white/40 bg-[#c3c7cb] text-[10px] text-black">_</span>
+                  <span className="flex size-4 items-center justify-center border border-white/40 bg-[#c3c7cb] text-[10px] text-black">▢</span>
+                  <span className="flex size-4 items-center justify-center border border-white/40 bg-[#c3c7cb] text-[10px] text-black">×</span>
+                </div>
+              </div>
+              <video
+                src="/zenox-trailer.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                aria-label="Trailer do Zenox: comando /daily sendo digitado e o bot respondendo"
+                className="block w-full"
+              />
+            </div>
+            <AnimatedFloatingBadge className="-left-3 -top-3 -rotate-6" tone="sun" delay={0.3} drift={6}>
+              <Zap className="size-3.5" /> Sem lag
+            </AnimatedFloatingBadge>
+            <AnimatedFloatingBadge className="-right-3 -bottom-3 rotate-6" tone="mint" delay={0.5} drift={6}>
+              <Check className="size-3.5" /> 22s
+            </AnimatedFloatingBadge>
+          </motion.div>
+        </div>
+      </section>
+
       {/* STATS */}
       <section className="px-4 py-12 md:px-6">
+
         <StaggerGroup
           className="mx-auto grid max-w-6xl grid-cols-2 gap-4 md:grid-cols-4"
           stagger={0.1}

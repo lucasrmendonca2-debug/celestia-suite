@@ -148,7 +148,7 @@ function Landing() {
                   />
                 </span>{" "}
                 vai{" "}
-                <span className="bg-gradient-to-r from-[#7C3AED] via-[#A855F7] to-[#EC4899] bg-clip-text text-transparent">
+                <span className="relative inline-block bg-[length:200%_auto] bg-clip-text text-transparent [background-image:linear-gradient(90deg,#7C3AED,#A855F7,#EC4899,#FBBF24,#7C3AED)] [animation:shimmer_6s_linear_infinite]">
                   amar usar.
                 </span>
               </h1>

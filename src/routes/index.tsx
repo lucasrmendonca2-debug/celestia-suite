@@ -659,6 +659,10 @@ function Landing() {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-12px); }
         }
+        @keyframes shimmer {
+          0%   { background-position: 0% 50%; }
+          100% { background-position: 200% 50%; }
+        }
         @keyframes peek-down {
           0%   { transform: translate(-50%, 40%) rotate(-8deg); opacity: 0; }
           60%  { transform: translate(-50%, 8%)  rotate(4deg);  opacity: 1; }

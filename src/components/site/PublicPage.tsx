@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
+import { motion } from "framer-motion";
 import { SiteHeader, SiteFooter } from "@/components/site/SiteHeader";
+import { AnimatedBlobs } from "@/components/motion/AnimatedBlobs";
 
 export function PublicPage({
   eyebrow,
@@ -18,26 +20,42 @@ export function PublicPage({
 }) {
   return (
     <div className="min-h-dvh overflow-hidden bg-[#FBF7FF] font-['Inter'] text-[#1B0E3B] selection:bg-[#7C3AED] selection:text-white">
-      <div className="pointer-events-none absolute right-[-10%] top-20 -z-10 size-[500px] rounded-full bg-[#EC4899]/20 blur-[120px]" />
-      <div className="pointer-events-none absolute left-[-10%] top-[40%] -z-10 size-[500px] rounded-full bg-[#7C3AED]/20 blur-[120px]" />
+      <AnimatedBlobs />
 
       <SiteHeader />
 
       <section className="px-4 pb-12 pt-32 md:px-6 md:pt-36">
         <div className="mx-auto max-w-5xl">
-          <span className="inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-white px-3 py-1 text-[11px] font-extrabold uppercase tracking-widest text-[#1B0E3B] shadow-[0_3px_0_0_#1B0E3B]">
+          <motion.span
+            className="inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-white px-3 py-1 text-[11px] font-extrabold uppercase tracking-widest text-[#1B0E3B] shadow-[0_3px_0_0_#1B0E3B]"
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
             <span className="size-1.5 rounded-full bg-[#7C3AED]" />
             {eyebrow}
-          </span>
-          <h1 className="mt-4 font-['Plus_Jakarta_Sans'] text-5xl font-extrabold tracking-tight md:text-6xl">
+          </motion.span>
+          <motion.h1
+            className="mt-4 font-['Plus_Jakarta_Sans'] text-5xl font-extrabold tracking-tight md:text-6xl"
+            initial={{ opacity: 0, y: 16, filter: "blur(8px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+          >
             {title}{" "}
             {highlight && (
               <span className="bg-gradient-to-r from-[#7C3AED] via-[#A855F7] to-[#EC4899] bg-clip-text text-transparent">
                 {highlight}
               </span>
             )}
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg text-[#5B4B7A]">{description}</p>
+          </motion.h1>
+          <motion.p
+            className="mt-4 max-w-2xl text-lg text-[#5B4B7A]"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            {description}
+          </motion.p>
         </div>
       </section>
 
@@ -47,6 +65,7 @@ export function PublicPage({
     </div>
   );
 }
+
 
 export function PageCTA() {
   return (

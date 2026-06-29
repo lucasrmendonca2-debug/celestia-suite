@@ -21,6 +21,7 @@ import {
   Check,
   type LucideIcon,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { Mascot } from "@/components/Mascot";
 import chibiPeek from "@/assets/mascot-chibi-peek.png?w=480&format=webp&quality=80";
 // chibi-climb-1 (3 braços) removido propositalmente
@@ -28,6 +29,10 @@ import chibiClimb2 from "@/assets/chibi-climb-2.png?w=480&format=webp&quality=80
 import chibiClimb3 from "@/assets/chibi-climb-3.png?w=480&format=webp&quality=80";
 import paintEscape from "@/assets/mascot-paint-escape.png?w=720&format=webp&quality=82";
 import { SiteHeader, SiteFooter } from "@/components/site/SiteHeader";
+import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/Reveal";
+import { AnimatedBlobs } from "@/components/motion/AnimatedBlobs";
+import { CountUp } from "@/components/motion/CountUp";
+import { Marquee } from "@/components/motion/Marquee";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -95,10 +100,8 @@ const modules: {
   { n: "09", title: "Sugestões", desc: "Canal de feedback com aprovação, rejeição e comentários.", tone: "coral", icon: Lightbulb },
 ];
 
-const staticStats: { v: string; l: string; tone: Tone }[] = [
-  { v: "99.9%", l: "uptime", tone: "mint" },
-  { v: "<80ms", l: "latência", tone: "sky" },
-];
+
+
 
 function Landing() {
   const data = Route.useLoaderData();
@@ -106,78 +109,107 @@ function Landing() {
   const commandsLabel = `${data.commands}+`;
   return (
     <div className="min-h-dvh overflow-hidden bg-[#FBF7FF] font-['Inter'] text-[#1B0E3B] selection:bg-[#7C3AED] selection:text-white">
-      {/* Floating shapes */}
-      <BgBlobs />
+      {/* Floating shapes (animated) */}
+      <AnimatedBlobs />
+
+
 
       <SiteHeader />
 
       {/* HERO */}
       <section className="relative px-4 pb-16 pt-28 md:px-6 md:pt-32">
         <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
-          <div className="relative space-y-7">
-            <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-white px-3 py-1 text-[11px] font-extrabold uppercase tracking-widest text-[#1B0E3B] shadow-[0_3px_0_0_#1B0E3B]">
-              <span className="relative flex size-2">
-                <span className="absolute inset-0 animate-ping rounded-full bg-[#10D9A0]" />
-                <span className="relative size-2 rounded-full bg-[#10D9A0]" />
-              </span>
-              {data.online ? `Online · ${serversLabel} servidores` : `Pronto pra começar · ${serversLabel} servidores`}
-            </div>
+          <StaggerGroup className="relative space-y-7" stagger={0.1} amount={0.1}>
+            <StaggerItem direction="down">
+              <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-white px-3 py-1 text-[11px] font-extrabold uppercase tracking-widest text-[#1B0E3B] shadow-[0_3px_0_0_#1B0E3B]">
+                <span className="relative flex size-2">
+                  <span className="absolute inset-0 animate-ping rounded-full bg-[#10D9A0]" />
+                  <span className="relative size-2 rounded-full bg-[#10D9A0]" />
+                </span>
+                {data.online ? `Online · ${serversLabel} servidores` : `Pronto pra começar · ${serversLabel} servidores`}
+              </div>
+            </StaggerItem>
 
-            <h1 className="font-['Plus_Jakarta_Sans'] text-5xl font-extrabold leading-[0.95] tracking-tight md:text-7xl">
-              O bot que sua{" "}
-              <span className="relative inline-block">
-                <span className="relative z-10">galera</span>
-                <span
-                  aria-hidden
-                  className="absolute -bottom-1 left-0 -z-0 h-3 w-full -rotate-1 rounded-full bg-[#FBBF24]"
-                />
-              </span>{" "}
-              vai{" "}
-              <span className="bg-gradient-to-r from-[#7C3AED] via-[#A855F7] to-[#EC4899] bg-clip-text text-transparent">
-                amar usar.
-              </span>
-            </h1>
+            <StaggerItem direction="blur">
+              <h1 className="font-['Plus_Jakarta_Sans'] text-5xl font-extrabold leading-[0.95] tracking-tight md:text-7xl">
+                O bot que sua{" "}
+                <span className="relative inline-block">
+                  <span className="relative z-10">galera</span>
+                  <motion.span
+                    aria-hidden
+                    className="absolute -bottom-1 left-0 -z-0 h-3 w-full -rotate-1 rounded-full bg-[#FBBF24]"
+                    initial={{ scaleX: 0, transformOrigin: "left center" }}
+                    whileInView={{ scaleX: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.7, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                </span>{" "}
+                vai{" "}
+                <span className="bg-gradient-to-r from-[#7C3AED] via-[#A855F7] to-[#EC4899] bg-clip-text text-transparent">
+                  amar usar.
+                </span>
+              </h1>
+            </StaggerItem>
 
-            <p className="max-w-xl text-lg leading-relaxed text-[#5B4B7A]">
-              Moderação, economia, level, tickets, sorteios, mini-games e um painel web que
-              qualquer um consegue mexer. Tudo num bot só — e de graça pra começar.
-            </p>
+            <StaggerItem>
+              <p className="max-w-xl text-lg leading-relaxed text-[#5B4B7A]">
+                Moderação, economia, level, tickets, sorteios, mini-games e um painel web que
+                qualquer um consegue mexer. Tudo num bot só — e de graça pra começar.
+              </p>
+            </StaggerItem>
 
             {/* CTAs */}
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <PeekButton
-                href="/api/auth/discord/login"
-                onClick={startDiscordLogin}
-                label="Comece agora"
-              />
-              <Link
-                to="/recursos"
-                className="group inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-white px-6 py-3.5 text-base font-bold text-[#1B0E3B] shadow-[0_5px_0_0_#1B0E3B] transition-transform hover:-translate-y-0.5"
-              >
-                Ver recursos
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </div>
+            <StaggerItem>
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+                <PeekButton
+                  href="/api/auth/discord/login"
+                  onClick={startDiscordLogin}
+                  label="Comece agora"
+                />
+                <Link
+                  to="/recursos"
+                  className="group inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-white px-6 py-3.5 text-base font-bold text-[#1B0E3B] shadow-[0_5px_0_0_#1B0E3B] transition-transform hover:-translate-y-0.5"
+                >
+                  Ver recursos
+                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </div>
+            </StaggerItem>
 
             {/* Social proof */}
-            <div className="flex items-center gap-4 pt-2 text-sm text-[#5B4B7A]">
-              <div className="flex -space-x-2">
-                {["#7C3AED", "#EC4899", "#FBBF24", "#10D9A0"].map((c) => (
-                  <span
-                    key={c}
-                    className="size-7 rounded-full border-2 border-white"
-                    style={{ background: c }}
-                  />
-                ))}
+            <StaggerItem>
+              <div className="flex items-center gap-4 pt-2 text-sm text-[#5B4B7A]">
+                <div className="flex -space-x-2">
+                  {["#7C3AED", "#EC4899", "#FBBF24", "#10D9A0"].map((c, i) => (
+                    <motion.span
+                      key={c}
+                      className="size-7 rounded-full border-2 border-white"
+                      style={{ background: c }}
+                      animate={{ y: [0, -3, 0] }}
+                      transition={{
+                        duration: 2.4,
+                        delay: i * 0.18,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    />
+                  ))}
+                </div>
+                <span>
+                  <strong className="text-[#1B0E3B]">{serversLabel}</strong> servidores conectados
+                </span>
               </div>
-              <span>
-                <strong className="text-[#1B0E3B]">{serversLabel}</strong> servidores conectados
-              </span>
-            </div>
-          </div>
+            </StaggerItem>
+          </StaggerGroup>
 
           {/* MS Paint window — mascote quebrando a 4ª parede */}
-          <div className="relative mx-auto w-full max-w-md">
+          <motion.div
+            className="relative mx-auto w-full max-w-md"
+            initial={{ opacity: 0, scale: 0.85, rotate: -6 }}
+            whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ type: "spring", damping: 12, stiffness: 120, delay: 0.2 }}
+          >
             <div className="absolute inset-0 -z-10 translate-x-4 translate-y-4 rounded-md bg-[#1B0E3B]" />
             <div className="paint-window relative overflow-hidden rounded-md border-2 border-[#1B0E3B] bg-white shadow-[6px_6px_0_0_#1B0E3B]">
               {/* Title bar */}
@@ -194,8 +226,16 @@ function Landing() {
               </div>
               {/* Toolbar */}
               <div className="flex items-center gap-1 border-b border-[#1B0E3B]/30 bg-[#dfe3ea] px-2 py-1">
-                {["#000000", "#7C3AED", "#EC4899", "#FBBF24", "#10D9A0", "#38BDF8"].map((c) => (
-                  <span key={c} className="size-3 border border-black/50" style={{ background: c }} />
+                {["#000000", "#7C3AED", "#EC4899", "#FBBF24", "#10D9A0", "#38BDF8"].map((c, i) => (
+                  <motion.span
+                    key={c}
+                    className="size-3 border border-black/50"
+                    style={{ background: c }}
+                    initial={{ scale: 0 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.6 + i * 0.05, type: "spring", damping: 10, stiffness: 220 }}
+                  />
                 ))}
                 <span className="ml-2 font-mono text-[10px] text-[#1B0E3B]">untitled.bmp</span>
               </div>
@@ -210,54 +250,114 @@ function Landing() {
                 <span aria-hidden className="paint-crack pointer-events-none absolute inset-0" />
               </div>
 
-              <FloatingBadge className="-left-4 top-12 -rotate-6" tone="sun">
+              <AnimatedFloatingBadge className="-left-4 top-12 -rotate-6" tone="sun" delay={0.7} drift={6}>
                 <Gamepad2 className="size-3.5" /> Mini games
-              </FloatingBadge>
-              <FloatingBadge className="-right-3 top-24 rotate-6" tone="pink">
+              </AnimatedFloatingBadge>
+              <AnimatedFloatingBadge className="-right-3 top-24 rotate-6" tone="pink" delay={0.85} drift={8}>
                 <Heart className="size-3.5" /> Comunidade
-              </FloatingBadge>
-              <FloatingBadge className="-left-6 bottom-20 -rotate-3" tone="mint">
+              </AnimatedFloatingBadge>
+              <AnimatedFloatingBadge className="-left-6 bottom-20 -rotate-3" tone="mint" delay={1.0} drift={5}>
                 <Zap className="size-3.5" /> 99.9% uptime
-              </FloatingBadge>
-              <FloatingBadge className="-right-4 bottom-8 rotate-3" tone="sky">
+              </AnimatedFloatingBadge>
+              <AnimatedFloatingBadge className="-right-4 bottom-8 rotate-3" tone="sky" delay={1.15} drift={7}>
                 <Bot className="size-3.5" /> {commandsLabel} comandos
-              </FloatingBadge>
+              </AnimatedFloatingBadge>
             </div>
-          </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* MARQUEE — pílulas de recursos rolando */}
+      <section className="relative py-6">
+        <div className="border-y-2 border-[#1B0E3B] bg-[#1B0E3B] py-3">
+          <Marquee speed={35}>
+            {[
+              { label: "Moderação inteligente", color: "#FB7185" },
+              { label: "AutoMod", color: "#38BDF8" },
+              { label: "Tickets v2", color: "#7C3AED" },
+              { label: "Economia & loja", color: "#FBBF24" },
+              { label: "Level & XP", color: "#EC4899" },
+              { label: "Boas-vindas", color: "#10D9A0" },
+              { label: "Sorteios", color: "#A855F7" },
+              { label: "Enquetes", color: "#38BDF8" },
+              { label: "Mini games", color: "#FBBF24" },
+              { label: "Sugestões", color: "#FB7185" },
+              { label: "Painel web", color: "#10D9A0" },
+              { label: "Logs detalhados", color: "#EC4899" },
+            ].map((p, i) => (
+              <span
+                key={`${p.label}-${i}`}
+                className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border-2 border-white/20 bg-white/5 px-4 py-1.5 text-sm font-extrabold uppercase tracking-widest text-white"
+              >
+                <span className="size-2 rounded-full" style={{ background: p.color }} />
+                {p.label}
+              </span>
+            ))}
+          </Marquee>
         </div>
       </section>
 
       {/* STATS */}
-      <section className="px-4 py-8 md:px-6">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 md:grid-cols-4">
+      <section className="px-4 py-12 md:px-6">
+        <StaggerGroup
+          className="mx-auto grid max-w-6xl grid-cols-2 gap-4 md:grid-cols-4"
+          stagger={0.1}
+        >
           {[
-            { v: commandsLabel, l: "comandos", tone: "purple" as Tone },
-            { v: serversLabel, l: "servidores", tone: "pink" as Tone },
-            ...staticStats,
+            {
+              v: commandsLabel,
+              num: data.commands,
+              suffix: "+",
+              l: "comandos",
+              tone: "purple" as Tone,
+            },
+            {
+              v: serversLabel,
+              num: data.servers > 0 ? data.servers : null,
+              suffix: data.servers >= 1000 ? "k+" : data.servers > 0 ? "+" : "",
+              numShown: data.servers >= 1000 ? data.servers / 1000 : data.servers,
+              l: "servidores",
+              tone: "pink" as Tone,
+            },
+            { v: "99.9", num: 99.9, suffix: "%", l: "uptime", tone: "mint" as Tone, decimals: 1 },
+            { v: "<80", num: 80, prefix: "<", suffix: "ms", l: "latência", tone: "sky" as Tone },
           ].map((s) => {
             const t = TONE[s.tone];
             return (
-              <div
-                key={s.l}
-                className={`rounded-3xl border-2 border-[#1B0E3B] bg-white p-5 ${t.ring}`}
-              >
-                <div
-                  className={`font-['Plus_Jakarta_Sans'] text-3xl font-extrabold ${t.text}`}
+              <StaggerItem key={s.l} direction="scale">
+                <motion.div
+                  className={`rounded-3xl border-2 border-[#1B0E3B] bg-white p-5 ${t.ring}`}
+                  whileHover={{ y: -6, rotate: -1 }}
+                  transition={{ type: "spring", damping: 12, stiffness: 220 }}
                 >
-                  {s.v}
-                </div>
-                <div className="mt-1 text-xs font-bold uppercase tracking-widest text-[#5B4B7A]">
-                  {s.l}
-                </div>
-              </div>
+                  <div
+                    className={`font-['Plus_Jakarta_Sans'] text-3xl font-extrabold ${t.text}`}
+                  >
+                    {s.num !== null && s.num !== undefined ? (
+                      <CountUp
+                        to={"numShown" in s && s.numShown !== undefined ? s.numShown : s.num}
+                        prefix={s.prefix ?? ""}
+                        suffix={s.suffix ?? ""}
+                        decimals={s.decimals ?? 0}
+                        duration={1.6}
+                      />
+                    ) : (
+                      s.v
+                    )}
+                  </div>
+                  <div className="mt-1 text-xs font-bold uppercase tracking-widest text-[#5B4B7A]">
+                    {s.l}
+                  </div>
+                </motion.div>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerGroup>
       </section>
 
       {/* MODULES */}
       <section id="recursos" className="mx-auto max-w-7xl px-4 py-24 md:px-6">
-        <div className="mb-14 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
+        <Reveal className="mb-14 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-2xl">
             <SectionLabel tone="purple">Recursos</SectionLabel>
             <h2 className="mt-3 font-['Plus_Jakarta_Sans'] text-4xl font-extrabold tracking-tight md:text-5xl">
@@ -275,39 +375,62 @@ function Landing() {
           >
             Ver todos <ArrowRight className="size-4" />
           </Link>
-        </div>
+        </Reveal>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <StaggerGroup
+          className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+          stagger={0.07}
+          amount={0.15}
+        >
           {modules.map((m) => {
             const t = TONE[m.tone];
             const Icon = m.icon;
             return (
-              <article
-                key={m.n}
-                className={`group relative rounded-3xl border-2 border-[#1B0E3B] bg-white p-6 ${t.ring} transition-transform hover:-translate-y-1`}
-              >
-                <div
-                  className={`mb-5 inline-flex size-12 items-center justify-center rounded-2xl ${t.soft} ${t.text} border-2 ${t.border}`}
+              <StaggerItem key={m.n} direction="up">
+                <motion.article
+                  className={`group relative rounded-3xl border-2 border-[#1B0E3B] bg-white p-6 ${t.ring}`}
+                  whileHover={{ y: -8, rotate: -0.6 }}
+                  transition={{ type: "spring", damping: 14, stiffness: 220 }}
                 >
-                  <Icon className="size-5" />
-                </div>
-                <h3 className="mb-2 font-['Plus_Jakarta_Sans'] text-xl font-extrabold">
-                  {m.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-[#5B4B7A]">{m.desc}</p>
-                <span className="mt-4 inline-block font-mono text-[10px] font-bold uppercase tracking-widest text-[#5B4B7A]/60">
-                  #{m.n}
-                </span>
-              </article>
+                  <motion.div
+                    className={`mb-5 inline-flex size-12 items-center justify-center rounded-2xl ${t.soft} ${t.text} border-2 ${t.border}`}
+                    whileHover={{ rotate: [0, -12, 10, -6, 0], scale: 1.1 }}
+                    transition={{ duration: 0.55 }}
+                  >
+                    <Icon className="size-5" />
+                  </motion.div>
+                  <h3 className="mb-2 font-['Plus_Jakarta_Sans'] text-xl font-extrabold">
+                    {m.title}
+                  </h3>
+                  <p className="text-sm leading-relaxed text-[#5B4B7A]">{m.desc}</p>
+                  <span className="mt-4 inline-block font-mono text-[10px] font-bold uppercase tracking-widest text-[#5B4B7A]/60">
+                    #{m.n}
+                  </span>
+                </motion.article>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerGroup>
       </section>
 
+
       {/* HOW IT WORKS */}
-      <section className="bg-[#1B0E3B] px-4 py-24 text-white md:px-6">
+      <section className="relative overflow-hidden bg-[#1B0E3B] px-4 py-24 text-white md:px-6">
+        {/* Decorative animated orbs */}
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute -left-20 top-10 size-[300px] rounded-full bg-[#7C3AED]/30 blur-[100px]"
+          animate={{ x: [0, 40, 0], y: [0, 20, 0] }}
+          transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute -right-20 bottom-10 size-[300px] rounded-full bg-[#EC4899]/25 blur-[100px]"
+          animate={{ x: [0, -30, 0], y: [0, -20, 0] }}
+          transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+        />
         <div className="mx-auto max-w-7xl">
-          <div className="mb-14 max-w-2xl">
+          <Reveal className="mb-14 max-w-2xl">
             <SectionLabel tone="sun" dark>
               Em 30 segundos
             </SectionLabel>
@@ -317,8 +440,8 @@ function Landing() {
                 três passos.
               </span>
             </h2>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
+          </Reveal>
+          <StaggerGroup className="grid gap-6 md:grid-cols-3" stagger={0.12}>
             {[
               { n: "01", title: "Convide o Zenox", desc: "Adicione o bot no seu servidor com um clique." },
               { n: "02", title: "Entre no painel", desc: "Login com Discord e configure tudo num dashboard simples." },
@@ -327,128 +450,196 @@ function Landing() {
               const tones: Tone[] = ["pink", "sun", "mint"];
               const t = TONE[tones[i]];
               return (
-                <div
-                  key={s.n}
-                  className="rounded-3xl border-2 border-white/10 bg-white/5 p-6 transition-colors hover:bg-white/10"
-                >
-                  <div
-                    className={`mb-4 inline-flex size-10 items-center justify-center rounded-xl ${t.bg} font-['Plus_Jakarta_Sans'] text-sm font-extrabold text-[#1B0E3B]`}
+                <StaggerItem key={s.n} direction="up">
+                  <motion.div
+                    className="h-full rounded-3xl border-2 border-white/10 bg-white/5 p-6"
+                    whileHover={{ y: -6, backgroundColor: "rgba(255,255,255,0.1)" }}
+                    transition={{ type: "spring", damping: 14, stiffness: 200 }}
                   >
-                    {s.n}
-                  </div>
-                  <h3 className="mb-2 font-['Plus_Jakarta_Sans'] text-lg font-extrabold">
-                    {s.title}
-                  </h3>
-                  <p className="text-sm text-white/70">{s.desc}</p>
-                </div>
+                    <motion.div
+                      className={`mb-4 inline-flex size-10 items-center justify-center rounded-xl ${t.bg} font-['Plus_Jakarta_Sans'] text-sm font-extrabold text-[#1B0E3B]`}
+                      whileHover={{ rotate: [0, -15, 12, 0], scale: 1.15 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      {s.n}
+                    </motion.div>
+                    <h3 className="mb-2 font-['Plus_Jakarta_Sans'] text-lg font-extrabold">
+                      {s.title}
+                    </h3>
+                    <p className="text-sm text-white/70">{s.desc}</p>
+                  </motion.div>
+                </StaggerItem>
               );
             })}
-          </div>
+          </StaggerGroup>
         </div>
       </section>
 
       {/* PREMIUM TEASER */}
       <section className="px-4 py-24 md:px-6">
-        <div className="mx-auto max-w-6xl">
+        <Reveal direction="scale" className="mx-auto max-w-6xl">
           <div className="grid items-center gap-10 rounded-[2rem] border-2 border-[#1B0E3B] bg-gradient-to-br from-[#FFE4F1] via-[#F1E9FF] to-[#FFF3D1] p-8 shadow-[0_8px_0_0_#1B0E3B] md:grid-cols-[1.2fr_1fr] md:p-12">
-            <div className="space-y-5">
-              <SectionLabel tone="pink">Zenox+</SectionLabel>
-              <h2 className="font-['Plus_Jakarta_Sans'] text-4xl font-extrabold tracking-tight md:text-5xl">
-                Quer turbinar?{" "}
-                <span className="text-[#EC4899]">Vira Zenox+.</span>
-              </h2>
-              <p className="text-[#5B4B7A]">
-                Mais slots de sorteios, ranks cards exclusivos, ticket panels ilimitados e fila de
-                processamento prioritária. Apoiando o projeto você ajuda a manter o bot gratuito
-                pra todo mundo.
-              </p>
-              <ul className="space-y-2 text-sm font-semibold text-[#1B0E3B]">
-                {[
-                  "Painéis de ticket ilimitados",
-                  "Rank cards com fundo customizado",
-                  "Mais slots de sorteios e auto-roles",
-                  "Selo Zenox+ no seu servidor",
-                ].map((f) => (
-                  <li key={f} className="flex items-center gap-2">
-                    <span className="inline-flex size-5 items-center justify-center rounded-full bg-[#10D9A0] text-white">
-                      <Check className="size-3" />
-                    </span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                to="/premium"
-                className="inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-[#EC4899] px-6 py-3 text-sm font-bold text-white shadow-[0_5px_0_0_#1B0E3B] transition-transform hover:-translate-y-0.5"
-              >
-                Conhecer Zenox+ <ArrowRight className="size-4" />
-              </Link>
-            </div>
-            <div className="relative">
+            <StaggerGroup className="space-y-5">
+              <StaggerItem><SectionLabel tone="pink">Zenox+</SectionLabel></StaggerItem>
+              <StaggerItem>
+                <h2 className="font-['Plus_Jakarta_Sans'] text-4xl font-extrabold tracking-tight md:text-5xl">
+                  Quer turbinar?{" "}
+                  <span className="text-[#EC4899]">Vira Zenox+.</span>
+                </h2>
+              </StaggerItem>
+              <StaggerItem>
+                <p className="text-[#5B4B7A]">
+                  Mais slots de sorteios, ranks cards exclusivos, ticket panels ilimitados e fila de
+                  processamento prioritária. Apoiando o projeto você ajuda a manter o bot gratuito
+                  pra todo mundo.
+                </p>
+              </StaggerItem>
+              <StaggerItem>
+                <ul className="space-y-2 text-sm font-semibold text-[#1B0E3B]">
+                  {[
+                    "Painéis de ticket ilimitados",
+                    "Rank cards com fundo customizado",
+                    "Mais slots de sorteios e auto-roles",
+                    "Selo Zenox+ no seu servidor",
+                  ].map((f, i) => (
+                    <motion.li
+                      key={f}
+                      className="flex items-center gap-2"
+                      initial={{ opacity: 0, x: -12 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.4 + i * 0.08, duration: 0.45 }}
+                    >
+                      <motion.span
+                        className="inline-flex size-5 items-center justify-center rounded-full bg-[#10D9A0] text-white"
+                        initial={{ scale: 0 }}
+                        whileInView={{ scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.5 + i * 0.08, type: "spring", damping: 10, stiffness: 250 }}
+                      >
+                        <Check className="size-3" />
+                      </motion.span>
+                      {f}
+                    </motion.li>
+                  ))}
+                </ul>
+              </StaggerItem>
+              <StaggerItem>
+                <Link
+                  to="/premium"
+                  className="inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-[#EC4899] px-6 py-3 text-sm font-bold text-white shadow-[0_5px_0_0_#1B0E3B] transition-transform hover:-translate-y-0.5"
+                >
+                  Conhecer Zenox+ <ArrowRight className="size-4" />
+                </Link>
+              </StaggerItem>
+            </StaggerGroup>
+            <motion.div
+              className="relative"
+              initial={{ opacity: 0, scale: 0.6, rotate: -10 }}
+              whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", damping: 12, stiffness: 150, delay: 0.3 }}
+            >
               <Mascot variant="celebrate" size={300} className="mx-auto animate-[float_4s_ease-in-out_infinite]" />
-              <FloatingBadge className="left-2 top-2 -rotate-6" tone="sun">
+              <AnimatedFloatingBadge className="left-2 top-2 -rotate-6" tone="sun" delay={0.6}>
                 <Star className="size-3.5" /> Premium
-              </FloatingBadge>
-            </div>
+              </AnimatedFloatingBadge>
+            </motion.div>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* COMMUNITY CTA */}
       <section className="px-4 py-24 md:px-6">
-        <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
-          <CommunityCard
-            tone="purple"
-            icon={Users}
-            title="Comunidade"
-            desc="Entra no servidor oficial e bate papo com a galera."
-            to="/suporte"
-            cta="Entrar no Discord"
-          />
-          <CommunityCard
-            tone="mint"
-            icon={Bot}
-            title="Status do bot"
-            desc="Veja o uptime, latência e incidentes em tempo real."
-            to="/status"
-            cta="Ver status"
-          />
-          <CommunityCard
-            tone="sky"
-            icon={ScrollText}
-            title="Documentação"
-            desc="Tudo o que você precisa saber pra dominar o Zenox."
-            to="/docs"
-            cta="Abrir docs"
-          />
-        </div>
+        <StaggerGroup className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3" stagger={0.1}>
+          <StaggerItem>
+            <CommunityCard
+              tone="purple"
+              icon={Users}
+              title="Comunidade"
+              desc="Entra no servidor oficial e bate papo com a galera."
+              to="/suporte"
+              cta="Entrar no Discord"
+            />
+          </StaggerItem>
+          <StaggerItem>
+            <CommunityCard
+              tone="mint"
+              icon={Bot}
+              title="Status do bot"
+              desc="Veja o uptime, latência e incidentes em tempo real."
+              to="/status"
+              cta="Ver status"
+            />
+          </StaggerItem>
+          <StaggerItem>
+            <CommunityCard
+              tone="sky"
+              icon={ScrollText}
+              title="Documentação"
+              desc="Tudo o que você precisa saber pra dominar o Zenox."
+              to="/docs"
+              cta="Abrir docs"
+            />
+          </StaggerItem>
+        </StaggerGroup>
       </section>
 
       {/* FINAL CTA */}
       <section className="px-4 pb-24 pt-8 md:px-6">
-        <div className="mx-auto max-w-5xl rounded-[2.5rem] border-2 border-[#1B0E3B] bg-[#1B0E3B] p-1 shadow-[0_10px_0_0_#7C3AED]">
-          <div className="relative overflow-hidden rounded-[2.3rem] bg-gradient-to-br from-[#7C3AED] via-[#A855F7] to-[#EC4899] p-10 text-center md:p-16">
-            <div className="absolute -left-10 -top-10 size-40 rounded-full bg-[#FBBF24]/30 blur-3xl" />
-            <div className="absolute -bottom-10 -right-10 size-40 rounded-full bg-[#38BDF8]/30 blur-3xl" />
-            <h2 className="font-['Plus_Jakarta_Sans'] text-4xl font-extrabold tracking-tight text-white md:text-6xl">
-              Pronto pra deixar seu server{" "}
-              <span className="italic">lendário?</span>
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-white/80">
-              Adiciona o Zenox em 30 segundos e configura tudo no painel.
-            </p>
-            <div className="mt-8 inline-block">
-              <PeekButton
-                href="/api/auth/discord/login"
-                onClick={startDiscordLogin}
-                label="Adicionar ao Discord"
-                large
-                dark
+        <Reveal direction="scale" className="mx-auto max-w-5xl">
+          <div className="rounded-[2.5rem] border-2 border-[#1B0E3B] bg-[#1B0E3B] p-1 shadow-[0_10px_0_0_#7C3AED]">
+            <div className="relative overflow-hidden rounded-[2.3rem] bg-gradient-to-br from-[#7C3AED] via-[#A855F7] to-[#EC4899] p-10 text-center md:p-16">
+              <motion.div
+                className="absolute -left-10 -top-10 size-40 rounded-full bg-[#FBBF24]/30 blur-3xl"
+                animate={{ x: [0, 30, 0], y: [0, 20, 0], scale: [1, 1.2, 1] }}
+                transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
               />
+              <motion.div
+                className="absolute -bottom-10 -right-10 size-40 rounded-full bg-[#38BDF8]/30 blur-3xl"
+                animate={{ x: [0, -25, 0], y: [0, -15, 0], scale: [1, 1.15, 1] }}
+                transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+              />
+              {/* sparkle dots */}
+              {Array.from({ length: 8 }).map((_, i) => (
+                <motion.span
+                  key={i}
+                  aria-hidden
+                  className="absolute size-1 rounded-full bg-white"
+                  style={{
+                    left: `${10 + ((i * 37) % 80)}%`,
+                    top: `${15 + ((i * 53) % 70)}%`,
+                  }}
+                  animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }}
+                  transition={{
+                    duration: 2 + (i % 3),
+                    repeat: Infinity,
+                    delay: i * 0.4,
+                    ease: "easeInOut",
+                  }}
+                />
+              ))}
+              <h2 className="relative font-['Plus_Jakarta_Sans'] text-4xl font-extrabold tracking-tight text-white md:text-6xl">
+                Pronto pra deixar seu server{" "}
+                <span className="italic">lendário?</span>
+              </h2>
+              <p className="relative mx-auto mt-4 max-w-xl text-white/80">
+                Adiciona o Zenox em 30 segundos e configura tudo no painel.
+              </p>
+              <div className="relative mt-8 inline-block">
+                <PeekButton
+                  href="/api/auth/discord/login"
+                  onClick={startDiscordLogin}
+                  label="Adicionar ao Discord"
+                  large
+                  dark
+                />
+              </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </section>
+
 
       <SiteFooter />
 
@@ -618,6 +809,51 @@ function FloatingBadge({
   );
 }
 
+function AnimatedFloatingBadge({
+  children,
+  className,
+  tone,
+  delay = 0,
+  drift = 6,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  tone: Tone;
+  delay?: number;
+  drift?: number;
+}) {
+  const t = TONE[tone];
+  return (
+    <motion.span
+      className={`absolute inline-flex items-center gap-1.5 rounded-full border-2 border-[#1B0E3B] bg-white px-3 py-1.5 text-[11px] font-extrabold ${t.text} shadow-[0_3px_0_0_#1B0E3B] ${className ?? ""}`}
+      initial={{ opacity: 0, scale: 0, y: 20 }}
+      whileInView={{ opacity: 1, scale: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{
+        delay,
+        type: "spring",
+        damping: 10,
+        stiffness: 200,
+      }}
+      whileHover={{ scale: 1.1, rotate: 4 }}
+    >
+      <motion.span
+        className="contents"
+        animate={{ y: [0, -drift, 0] }}
+        transition={{
+          duration: 3 + drift * 0.1,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: delay + 0.4,
+        }}
+      >
+        {children}
+      </motion.span>
+    </motion.span>
+  );
+}
+
+
 function SectionLabel({
   children,
   tone,
@@ -673,12 +909,3 @@ function CommunityCard({
   );
 }
 
-function BgBlobs() {
-  return (
-    <>
-      <div className="pointer-events-none absolute right-[-10%] top-20 -z-10 size-[500px] rounded-full bg-[#EC4899]/20 blur-[120px]" />
-      <div className="pointer-events-none absolute left-[-10%] top-[40%] -z-10 size-[500px] rounded-full bg-[#7C3AED]/20 blur-[120px]" />
-      <div className="pointer-events-none absolute right-[20%] top-[80%] -z-10 size-[400px] rounded-full bg-[#FBBF24]/20 blur-[110px]" />
-    </>
-  );
-}

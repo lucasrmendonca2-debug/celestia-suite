@@ -481,6 +481,10 @@ function Landing() {
         </div>
       </section>
 
+      <WavyDivider color="#1B0E3B" height={80} flip className="-mt-px" />
+
+
+
       {/* PREMIUM TEASER */}
       <section className="px-4 py-24 md:px-6">
         <Reveal direction="scale" className="mx-auto max-w-6xl">

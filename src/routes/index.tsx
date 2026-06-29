@@ -111,6 +111,7 @@ function Landing() {
   const commandsLabel = `${data.commands}+`;
   return (
     <div className="min-h-dvh overflow-hidden bg-[#FBF7FF] font-['Inter'] text-[#1B0E3B] selection:bg-[#7C3AED] selection:text-white">
+      <ScrollProgress />
       {/* Floating shapes (animated) */}
       <AnimatedBlobs />
 

@@ -711,13 +711,14 @@ function Landing() {
 
 /* ---------- Pieces ---------- */
 
-const CLIMB_FRAMES = [
-  chibiClimb2, // duas mãos no topo (pendurado)
-  chibiClimb3, // se puxando, suando (pendurado)
-];
-const FRAME_MS = 220; // alternância suave entre as duas poses penduradas
-const IDLE_FRAMES = [0, 1, 0, 1]; // segue pendurado alternando entre as duas poses
-
+/**
+ * PeekButton — refeito do zero
+ * - Mascote dorme atrás do botão (escondido)
+ * - No hover/focus: sobe com spring suave, espia por trás do botão e balança
+ * - Botão ganha leve scale + sombra animada (sem magnético arrastando)
+ * - Mascote e botão são ancorados pelo mesmo wrapper: nunca se descolam
+ * - Seta pulsa lateralmente quando ativo
+ */
 function PeekButton({
   href,
   onClick,
@@ -732,92 +733,107 @@ function PeekButton({
   dark?: boolean;
 }) {
   const base = dark
-    ? "bg-white text-[#1B0E3B] border-[#1B0E3B] shadow-[0_6px_0_0_#1B0E3B]"
-    : "bg-[#7C3AED] text-white border-[#1B0E3B] shadow-[0_6px_0_0_#1B0E3B]";
+    ? "bg-white text-[#1B0E3B] border-[#1B0E3B]"
+    : "bg-[#7C3AED] text-white border-[#1B0E3B]";
   const size = large ? "px-8 py-4 text-lg" : "px-6 py-3.5 text-base";
-  const chibiSize = large ? 110 : 90;
+  const chibiSize = large ? 96 : 78;
 
   const [active, setActive] = useState(false);
-  const [frame, setFrame] = useState(0);
-  const idleIdx = useRef(0);
-  const wrapRef = useRef<HTMLSpanElement>(null);
-  const [mag, setMag] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    if (!active) {
-      setFrame(0);
-      idleIdx.current = 0;
-      return;
-    }
-    let i = 0;
-    setFrame(0);
-    const tick = () => {
-      i += 1;
-      if (i < CLIMB_FRAMES.length) {
-        setFrame(i);
-      } else {
-        setFrame(IDLE_FRAMES[idleIdx.current % IDLE_FRAMES.length]);
-        idleIdx.current += 1;
-      }
-    };
-    const id = window.setInterval(tick, FRAME_MS);
-    return () => window.clearInterval(id);
-  }, [active]);
-
-  function handleMove(e: React.MouseEvent<HTMLSpanElement>) {
-    const el = wrapRef.current;
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const cx = r.left + r.width / 2;
-    const cy = r.top + r.height / 2;
-    setMag({ x: (e.clientX - cx) * 0.15, y: (e.clientY - cy) * 0.2 });
-  }
 
   return (
     <span
-      ref={wrapRef}
-      className="relative inline-block"
+      className="relative inline-flex"
       onMouseEnter={() => setActive(true)}
-      onMouseLeave={() => {
-        setActive(false);
-        setMag({ x: 0, y: 0 });
-      }}
-      onMouseMove={handleMove}
+      onMouseLeave={() => setActive(false)}
       onFocus={() => setActive(true)}
       onBlur={() => setActive(false)}
     >
-      {/* Chibi escalando por trás do botão — limitado pra não invadir o texto acima */}
+      {/* Halo âmbar atrás do botão quando ativo */}
       <motion.span
         aria-hidden
-        className="pointer-events-none absolute left-1/2 z-0 -translate-x-1/2"
-        style={{ width: chibiSize, height: chibiSize, bottom: 0 }}
+        className="pointer-events-none absolute inset-0 -z-10 rounded-full"
         initial={false}
         animate={{
-          y: active ? -chibiSize * 0.55 : chibiSize * 0.25,
           opacity: active ? 1 : 0,
-          rotate: active ? 0 : -8,
+          scale: active ? 1.18 : 0.9,
         }}
-        transition={{ type: "spring", damping: 14, stiffness: 180 }}
+        transition={{ type: "spring", damping: 18, stiffness: 220 }}
+        style={{
+          background:
+            "radial-gradient(closest-side, rgba(245,158,11,0.55), rgba(245,158,11,0) 70%)",
+          filter: "blur(8px)",
+        }}
+      />
+
+      {/* Mascote espiando — POSICIONADO ACIMA do botão, descendo o olhar atrás dele */}
+      <motion.span
+        aria-hidden
+        className="pointer-events-none absolute left-1/2 z-20"
+        style={{
+          width: chibiSize,
+          height: chibiSize,
+          top: 0,
+          // âncora pelo bottom para que o "rosto" sente em cima da borda superior do botão
+          transform: "translate(-50%, -100%)",
+          transformOrigin: "50% 100%",
+        }}
+        initial={false}
+        animate={
+          active
+            ? {
+                y: [0, 0],
+                opacity: 1,
+                scale: 1,
+                rotate: [-3, 3, -3],
+              }
+            : {
+                y: 16,
+                opacity: 0,
+                scale: 0.85,
+                rotate: 0,
+              }
+        }
+        transition={
+          active
+            ? {
+                y: { type: "spring", damping: 14, stiffness: 220 },
+                opacity: { duration: 0.2 },
+                scale: { type: "spring", damping: 12, stiffness: 200 },
+                rotate: { duration: 1.6, repeat: Infinity, ease: "easeInOut" },
+              }
+            : { type: "spring", damping: 20, stiffness: 240 }
+        }
       >
         <img
-          src={active ? CLIMB_FRAMES[frame] : chibiPeek}
+          src={chibiPeek}
           alt=""
-          className="size-full object-contain drop-shadow-[0_8px_10px_rgba(27,14,59,0.35)]"
+          className="size-full object-contain"
+          style={{ filter: "drop-shadow(0 4px 6px rgba(27,14,59,0.35))" }}
           draggable={false}
         />
       </motion.span>
 
+      {/* Botão — apenas scale sutil + sombra reativa, sem magnetic chasing */}
       <motion.a
         href={href}
         onClick={onClick}
         className={`relative z-10 inline-flex items-center gap-2 rounded-full border-2 font-extrabold no-underline ${base} ${size}`}
-        animate={{ x: mag.x, y: mag.y }}
-        transition={{ type: "spring", damping: 18, stiffness: 250 }}
+        initial={false}
+        animate={{
+          scale: active ? 1.04 : 1,
+          boxShadow: active
+            ? "0 10px 0 0 #1B0E3B, 0 14px 30px -8px rgba(124,58,237,0.45)"
+            : "0 6px 0 0 #1B0E3B",
+          y: active ? -2 : 0,
+        }}
+        whileTap={{ scale: 0.97, y: 2, boxShadow: "0 2px 0 0 #1B0E3B" }}
+        transition={{ type: "spring", damping: 18, stiffness: 300 }}
       >
         {label}
         <motion.span
-          animate={active ? { x: [0, 4, 0] } : { x: 0 }}
-          transition={{ duration: 1.1, repeat: active ? Infinity : 0, ease: "easeInOut" }}
+          animate={active ? { x: [0, 5, 0] } : { x: 0 }}
+          transition={{ duration: 0.9, repeat: active ? Infinity : 0, ease: "easeInOut" }}
+          className="inline-flex"
         >
           <ArrowRight className="size-4" />
         </motion.span>

@@ -721,11 +721,13 @@ function PeekButton({
     ? "bg-white text-[#1B0E3B] border-[#1B0E3B] shadow-[0_6px_0_0_#1B0E3B]"
     : "bg-[#7C3AED] text-white border-[#1B0E3B] shadow-[0_6px_0_0_#1B0E3B]";
   const size = large ? "px-8 py-4 text-lg" : "px-6 py-3.5 text-base";
-  const chibiSize = large ? 130 : 104;
+  const chibiSize = large ? 110 : 90;
 
   const [active, setActive] = useState(false);
   const [frame, setFrame] = useState(0);
   const idleIdx = useRef(0);
+  const wrapRef = useRef<HTMLSpanElement>(null);
+  const [mag, setMag] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!active) {
@@ -740,7 +742,6 @@ function PeekButton({
       if (i < CLIMB_FRAMES.length) {
         setFrame(i);
       } else {
-        // loop idle entre poses sentadas
         setFrame(IDLE_FRAMES[idleIdx.current % IDLE_FRAMES.length]);
         idleIdx.current += 1;
       }
@@ -749,26 +750,40 @@ function PeekButton({
     return () => window.clearInterval(id);
   }, [active]);
 
+  function handleMove(e: React.MouseEvent<HTMLSpanElement>) {
+    const el = wrapRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    setMag({ x: (e.clientX - cx) * 0.15, y: (e.clientY - cy) * 0.2 });
+  }
+
   return (
     <span
+      ref={wrapRef}
       className="relative inline-block"
       onMouseEnter={() => setActive(true)}
-      onMouseLeave={() => setActive(false)}
+      onMouseLeave={() => {
+        setActive(false);
+        setMag({ x: 0, y: 0 });
+      }}
+      onMouseMove={handleMove}
       onFocus={() => setActive(true)}
       onBlur={() => setActive(false)}
     >
-      {/* Chibi escalando por trás do botão */}
-      <span
+      {/* Chibi escalando por trás do botão — limitado pra não invadir o texto acima */}
+      <motion.span
         aria-hidden
-        className="pointer-events-none absolute left-1/2 -translate-x-1/2 z-0"
-        style={{
-          width: chibiSize,
-          height: chibiSize,
-          // posiciona ele subindo: começa atrás/embaixo do botão, sobe pra cima
-          bottom: active ? "55%" : "-20%",
+        className="pointer-events-none absolute left-1/2 z-0 -translate-x-1/2"
+        style={{ width: chibiSize, height: chibiSize, bottom: 0 }}
+        initial={false}
+        animate={{
+          y: active ? -chibiSize * 0.55 : chibiSize * 0.25,
           opacity: active ? 1 : 0,
-          transition: "bottom 0s, opacity 120ms ease-out",
+          rotate: active ? 0 : -8,
         }}
+        transition={{ type: "spring", damping: 14, stiffness: 180 }}
       >
         <img
           src={active ? CLIMB_FRAMES[frame] : chibiPeek}
@@ -776,16 +791,23 @@ function PeekButton({
           className="size-full object-contain drop-shadow-[0_8px_10px_rgba(27,14,59,0.35)]"
           draggable={false}
         />
-      </span>
+      </motion.span>
 
-      <a
+      <motion.a
         href={href}
         onClick={onClick}
-        className={`relative z-10 inline-flex items-center gap-2 rounded-full border-2 font-extrabold transition-transform hover:-translate-y-0.5 ${base} ${size}`}
+        className={`relative z-10 inline-flex items-center gap-2 rounded-full border-2 font-extrabold no-underline ${base} ${size}`}
+        animate={{ x: mag.x, y: mag.y }}
+        transition={{ type: "spring", damping: 18, stiffness: 250 }}
       >
         {label}
-        <ArrowRight className="size-4" />
-      </a>
+        <motion.span
+          animate={active ? { x: [0, 4, 0] } : { x: 0 }}
+          transition={{ duration: 1.1, repeat: active ? Infinity : 0, ease: "easeInOut" }}
+        >
+          <ArrowRight className="size-4" />
+        </motion.span>
+      </motion.a>
     </span>
   );
 }

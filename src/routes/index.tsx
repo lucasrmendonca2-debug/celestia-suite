@@ -33,6 +33,8 @@ import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/Reveal";
 import { AnimatedBlobs } from "@/components/motion/AnimatedBlobs";
 import { CountUp } from "@/components/motion/CountUp";
 import { Marquee } from "@/components/motion/Marquee";
+import { ScrollProgress } from "@/components/motion/ScrollProgress";
+import { WavyDivider } from "@/components/motion/WavyDivider";
 
 export const Route = createFileRoute("/")({
   head: () => ({

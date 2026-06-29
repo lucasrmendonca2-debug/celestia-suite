@@ -14,7 +14,9 @@ import {
   Bot,
   type LucideIcon,
 } from "lucide-react";
+import { motion } from "framer-motion";
 import { PublicPage, PageCTA } from "@/components/site/PublicPage";
+import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/Reveal";
 
 export const Route = createFileRoute("/recursos")({
   head: () => ({

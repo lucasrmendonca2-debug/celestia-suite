@@ -75,34 +75,47 @@ function Recursos() {
       description="Mais de 90 comandos slash, organizados em módulos pensados pra comunidades de verdade."
     >
       <div className="mx-auto max-w-6xl space-y-16">
-        {groups.map((g) => (
+        {groups.map((g, gi) => (
           <section key={g.title}>
-            <h2 className="mb-6 font-['Plus_Jakarta_Sans'] text-2xl font-extrabold tracking-tight md:text-3xl">
-              {g.title}
-            </h2>
-            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+            <Reveal>
+              <h2 className="mb-6 font-['Plus_Jakarta_Sans'] text-2xl font-extrabold tracking-tight md:text-3xl">
+                {g.title}
+              </h2>
+            </Reveal>
+            <StaggerGroup
+              className="grid gap-5 md:grid-cols-2 lg:grid-cols-4"
+              stagger={0.06}
+              delayChildren={0.05 + gi * 0.05}
+            >
               {g.items.map((it) => {
                 const Icon = it.icon;
                 return (
-                  <article
-                    key={it.title}
-                    className="group rounded-3xl border-2 border-[#1B0E3B] bg-white p-5 shadow-[0_5px_0_0_#1B0E3B] transition-transform hover:-translate-y-1"
-                  >
-                    <div
-                      className="mb-4 inline-flex size-11 items-center justify-center rounded-2xl border-2"
-                      style={{ background: it.soft, color: it.color, borderColor: it.color }}
+                  <StaggerItem key={it.title} direction="up">
+                    <motion.article
+                      className="group h-full rounded-3xl border-2 border-[#1B0E3B] bg-white p-5 shadow-[0_5px_0_0_#1B0E3B]"
+                      whileHover={{ y: -8, rotate: -0.6 }}
+                      transition={{ type: "spring", damping: 14, stiffness: 220 }}
                     >
-                      <Icon className="size-5" />
-                    </div>
-                    <h3 className="font-['Plus_Jakarta_Sans'] text-base font-extrabold">{it.title}</h3>
-                    <p className="mt-1 text-sm text-[#5B4B7A]">{it.desc}</p>
-                  </article>
+                      <motion.div
+                        className="mb-4 inline-flex size-11 items-center justify-center rounded-2xl border-2"
+                        style={{ background: it.soft, color: it.color, borderColor: it.color }}
+                        whileHover={{ rotate: [0, -15, 12, -8, 0], scale: 1.12 }}
+                        transition={{ duration: 0.55 }}
+                      >
+                        <Icon className="size-5" />
+                      </motion.div>
+                      <h3 className="font-['Plus_Jakarta_Sans'] text-base font-extrabold">{it.title}</h3>
+                      <p className="mt-1 text-sm text-[#5B4B7A]">{it.desc}</p>
+                    </motion.article>
+                  </StaggerItem>
                 );
               })}
-            </div>
+            </StaggerGroup>
           </section>
         ))}
-        <PageCTA />
+        <Reveal direction="scale">
+          <PageCTA />
+        </Reveal>
       </div>
     </PublicPage>
   );

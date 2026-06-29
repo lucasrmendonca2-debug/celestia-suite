@@ -269,38 +269,97 @@ function Landing() {
         </div>
       </section>
 
+      {/* MARQUEE — pílulas de recursos rolando */}
+      <section className="relative py-6">
+        <div className="border-y-2 border-[#1B0E3B] bg-[#1B0E3B] py-3">
+          <Marquee speed={35}>
+            {[
+              { label: "Moderação inteligente", color: "#FB7185" },
+              { label: "AutoMod", color: "#38BDF8" },
+              { label: "Tickets v2", color: "#7C3AED" },
+              { label: "Economia & loja", color: "#FBBF24" },
+              { label: "Level & XP", color: "#EC4899" },
+              { label: "Boas-vindas", color: "#10D9A0" },
+              { label: "Sorteios", color: "#A855F7" },
+              { label: "Enquetes", color: "#38BDF8" },
+              { label: "Mini games", color: "#FBBF24" },
+              { label: "Sugestões", color: "#FB7185" },
+              { label: "Painel web", color: "#10D9A0" },
+              { label: "Logs detalhados", color: "#EC4899" },
+            ].map((p, i) => (
+              <span
+                key={`${p.label}-${i}`}
+                className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border-2 border-white/20 bg-white/5 px-4 py-1.5 text-sm font-extrabold uppercase tracking-widest text-white"
+              >
+                <span className="size-2 rounded-full" style={{ background: p.color }} />
+                {p.label}
+              </span>
+            ))}
+          </Marquee>
+        </div>
+      </section>
 
       {/* STATS */}
-      <section className="px-4 py-8 md:px-6">
-        <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 md:grid-cols-4">
+      <section className="px-4 py-12 md:px-6">
+        <StaggerGroup
+          className="mx-auto grid max-w-6xl grid-cols-2 gap-4 md:grid-cols-4"
+          stagger={0.1}
+        >
           {[
-            { v: commandsLabel, l: "comandos", tone: "purple" as Tone },
-            { v: serversLabel, l: "servidores", tone: "pink" as Tone },
-            ...staticStats,
+            {
+              v: commandsLabel,
+              num: data.commands,
+              suffix: "+",
+              l: "comandos",
+              tone: "purple" as Tone,
+            },
+            {
+              v: serversLabel,
+              num: data.servers > 0 ? data.servers : null,
+              suffix: data.servers >= 1000 ? "k+" : data.servers > 0 ? "+" : "",
+              numShown: data.servers >= 1000 ? data.servers / 1000 : data.servers,
+              l: "servidores",
+              tone: "pink" as Tone,
+            },
+            { v: "99.9", num: 99.9, suffix: "%", l: "uptime", tone: "mint" as Tone, decimals: 1 },
+            { v: "<80", num: 80, prefix: "<", suffix: "ms", l: "latência", tone: "sky" as Tone },
           ].map((s) => {
             const t = TONE[s.tone];
             return (
-              <div
-                key={s.l}
-                className={`rounded-3xl border-2 border-[#1B0E3B] bg-white p-5 ${t.ring}`}
-              >
-                <div
-                  className={`font-['Plus_Jakarta_Sans'] text-3xl font-extrabold ${t.text}`}
+              <StaggerItem key={s.l} direction="scale">
+                <motion.div
+                  className={`rounded-3xl border-2 border-[#1B0E3B] bg-white p-5 ${t.ring}`}
+                  whileHover={{ y: -6, rotate: -1 }}
+                  transition={{ type: "spring", damping: 12, stiffness: 220 }}
                 >
-                  {s.v}
-                </div>
-                <div className="mt-1 text-xs font-bold uppercase tracking-widest text-[#5B4B7A]">
-                  {s.l}
-                </div>
-              </div>
+                  <div
+                    className={`font-['Plus_Jakarta_Sans'] text-3xl font-extrabold ${t.text}`}
+                  >
+                    {s.num !== null && s.num !== undefined ? (
+                      <CountUp
+                        to={"numShown" in s && s.numShown !== undefined ? s.numShown : s.num}
+                        prefix={s.prefix ?? ""}
+                        suffix={s.suffix ?? ""}
+                        decimals={s.decimals ?? 0}
+                        duration={1.6}
+                      />
+                    ) : (
+                      s.v
+                    )}
+                  </div>
+                  <div className="mt-1 text-xs font-bold uppercase tracking-widest text-[#5B4B7A]">
+                    {s.l}
+                  </div>
+                </motion.div>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerGroup>
       </section>
 
       {/* MODULES */}
       <section id="recursos" className="mx-auto max-w-7xl px-4 py-24 md:px-6">
-        <div className="mb-14 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
+        <Reveal className="mb-14 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-2xl">
             <SectionLabel tone="purple">Recursos</SectionLabel>
             <h2 className="mt-3 font-['Plus_Jakarta_Sans'] text-4xl font-extrabold tracking-tight md:text-5xl">
@@ -318,34 +377,44 @@ function Landing() {
           >
             Ver todos <ArrowRight className="size-4" />
           </Link>
-        </div>
+        </Reveal>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <StaggerGroup
+          className="grid gap-6 md:grid-cols-2 lg:grid-cols-3"
+          stagger={0.07}
+          amount={0.15}
+        >
           {modules.map((m) => {
             const t = TONE[m.tone];
             const Icon = m.icon;
             return (
-              <article
-                key={m.n}
-                className={`group relative rounded-3xl border-2 border-[#1B0E3B] bg-white p-6 ${t.ring} transition-transform hover:-translate-y-1`}
-              >
-                <div
-                  className={`mb-5 inline-flex size-12 items-center justify-center rounded-2xl ${t.soft} ${t.text} border-2 ${t.border}`}
+              <StaggerItem key={m.n} direction="up">
+                <motion.article
+                  className={`group relative rounded-3xl border-2 border-[#1B0E3B] bg-white p-6 ${t.ring}`}
+                  whileHover={{ y: -8, rotate: -0.6 }}
+                  transition={{ type: "spring", damping: 14, stiffness: 220 }}
                 >
-                  <Icon className="size-5" />
-                </div>
-                <h3 className="mb-2 font-['Plus_Jakarta_Sans'] text-xl font-extrabold">
-                  {m.title}
-                </h3>
-                <p className="text-sm leading-relaxed text-[#5B4B7A]">{m.desc}</p>
-                <span className="mt-4 inline-block font-mono text-[10px] font-bold uppercase tracking-widest text-[#5B4B7A]/60">
-                  #{m.n}
-                </span>
-              </article>
+                  <motion.div
+                    className={`mb-5 inline-flex size-12 items-center justify-center rounded-2xl ${t.soft} ${t.text} border-2 ${t.border}`}
+                    whileHover={{ rotate: [0, -12, 10, -6, 0], scale: 1.1 }}
+                    transition={{ duration: 0.55 }}
+                  >
+                    <Icon className="size-5" />
+                  </motion.div>
+                  <h3 className="mb-2 font-['Plus_Jakarta_Sans'] text-xl font-extrabold">
+                    {m.title}
+                  </h3>
+                  <p className="text-sm leading-relaxed text-[#5B4B7A]">{m.desc}</p>
+                  <span className="mt-4 inline-block font-mono text-[10px] font-bold uppercase tracking-widest text-[#5B4B7A]/60">
+                    #{m.n}
+                  </span>
+                </motion.article>
+              </StaggerItem>
             );
           })}
-        </div>
+        </StaggerGroup>
       </section>
+
 
       {/* HOW IT WORKS */}
       <section className="bg-[#1B0E3B] px-4 py-24 text-white md:px-6">

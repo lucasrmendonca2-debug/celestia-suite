@@ -417,9 +417,22 @@ function Landing() {
 
 
       {/* HOW IT WORKS */}
-      <section className="bg-[#1B0E3B] px-4 py-24 text-white md:px-6">
+      <section className="relative overflow-hidden bg-[#1B0E3B] px-4 py-24 text-white md:px-6">
+        {/* Decorative animated orbs */}
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute -left-20 top-10 size-[300px] rounded-full bg-[#7C3AED]/30 blur-[100px]"
+          animate={{ x: [0, 40, 0], y: [0, 20, 0] }}
+          transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+        />
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute -right-20 bottom-10 size-[300px] rounded-full bg-[#EC4899]/25 blur-[100px]"
+          animate={{ x: [0, -30, 0], y: [0, -20, 0] }}
+          transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
+        />
         <div className="mx-auto max-w-7xl">
-          <div className="mb-14 max-w-2xl">
+          <Reveal className="mb-14 max-w-2xl">
             <SectionLabel tone="sun" dark>
               Em 30 segundos
             </SectionLabel>
@@ -429,8 +442,8 @@ function Landing() {
                 três passos.
               </span>
             </h2>
-          </div>
-          <div className="grid gap-6 md:grid-cols-3">
+          </Reveal>
+          <StaggerGroup className="grid gap-6 md:grid-cols-3" stagger={0.12}>
             {[
               { n: "01", title: "Convide o Zenox", desc: "Adicione o bot no seu servidor com um clique." },
               { n: "02", title: "Entre no painel", desc: "Login com Discord e configure tudo num dashboard simples." },
@@ -439,128 +452,196 @@ function Landing() {
               const tones: Tone[] = ["pink", "sun", "mint"];
               const t = TONE[tones[i]];
               return (
-                <div
-                  key={s.n}
-                  className="rounded-3xl border-2 border-white/10 bg-white/5 p-6 transition-colors hover:bg-white/10"
-                >
-                  <div
-                    className={`mb-4 inline-flex size-10 items-center justify-center rounded-xl ${t.bg} font-['Plus_Jakarta_Sans'] text-sm font-extrabold text-[#1B0E3B]`}
+                <StaggerItem key={s.n} direction="up">
+                  <motion.div
+                    className="h-full rounded-3xl border-2 border-white/10 bg-white/5 p-6"
+                    whileHover={{ y: -6, backgroundColor: "rgba(255,255,255,0.1)" }}
+                    transition={{ type: "spring", damping: 14, stiffness: 200 }}
                   >
-                    {s.n}
-                  </div>
-                  <h3 className="mb-2 font-['Plus_Jakarta_Sans'] text-lg font-extrabold">
-                    {s.title}
-                  </h3>
-                  <p className="text-sm text-white/70">{s.desc}</p>
-                </div>
+                    <motion.div
+                      className={`mb-4 inline-flex size-10 items-center justify-center rounded-xl ${t.bg} font-['Plus_Jakarta_Sans'] text-sm font-extrabold text-[#1B0E3B]`}
+                      whileHover={{ rotate: [0, -15, 12, 0], scale: 1.15 }}
+                      transition={{ duration: 0.5 }}
+                    >
+                      {s.n}
+                    </motion.div>
+                    <h3 className="mb-2 font-['Plus_Jakarta_Sans'] text-lg font-extrabold">
+                      {s.title}
+                    </h3>
+                    <p className="text-sm text-white/70">{s.desc}</p>
+                  </motion.div>
+                </StaggerItem>
               );
             })}
-          </div>
+          </StaggerGroup>
         </div>
       </section>
 
       {/* PREMIUM TEASER */}
       <section className="px-4 py-24 md:px-6">
-        <div className="mx-auto max-w-6xl">
+        <Reveal direction="scale" className="mx-auto max-w-6xl">
           <div className="grid items-center gap-10 rounded-[2rem] border-2 border-[#1B0E3B] bg-gradient-to-br from-[#FFE4F1] via-[#F1E9FF] to-[#FFF3D1] p-8 shadow-[0_8px_0_0_#1B0E3B] md:grid-cols-[1.2fr_1fr] md:p-12">
-            <div className="space-y-5">
-              <SectionLabel tone="pink">Zenox+</SectionLabel>
-              <h2 className="font-['Plus_Jakarta_Sans'] text-4xl font-extrabold tracking-tight md:text-5xl">
-                Quer turbinar?{" "}
-                <span className="text-[#EC4899]">Vira Zenox+.</span>
-              </h2>
-              <p className="text-[#5B4B7A]">
-                Mais slots de sorteios, ranks cards exclusivos, ticket panels ilimitados e fila de
-                processamento prioritária. Apoiando o projeto você ajuda a manter o bot gratuito
-                pra todo mundo.
-              </p>
-              <ul className="space-y-2 text-sm font-semibold text-[#1B0E3B]">
-                {[
-                  "Painéis de ticket ilimitados",
-                  "Rank cards com fundo customizado",
-                  "Mais slots de sorteios e auto-roles",
-                  "Selo Zenox+ no seu servidor",
-                ].map((f) => (
-                  <li key={f} className="flex items-center gap-2">
-                    <span className="inline-flex size-5 items-center justify-center rounded-full bg-[#10D9A0] text-white">
-                      <Check className="size-3" />
-                    </span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <Link
-                to="/premium"
-                className="inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-[#EC4899] px-6 py-3 text-sm font-bold text-white shadow-[0_5px_0_0_#1B0E3B] transition-transform hover:-translate-y-0.5"
-              >
-                Conhecer Zenox+ <ArrowRight className="size-4" />
-              </Link>
-            </div>
-            <div className="relative">
+            <StaggerGroup className="space-y-5">
+              <StaggerItem><SectionLabel tone="pink">Zenox+</SectionLabel></StaggerItem>
+              <StaggerItem>
+                <h2 className="font-['Plus_Jakarta_Sans'] text-4xl font-extrabold tracking-tight md:text-5xl">
+                  Quer turbinar?{" "}
+                  <span className="text-[#EC4899]">Vira Zenox+.</span>
+                </h2>
+              </StaggerItem>
+              <StaggerItem>
+                <p className="text-[#5B4B7A]">
+                  Mais slots de sorteios, ranks cards exclusivos, ticket panels ilimitados e fila de
+                  processamento prioritária. Apoiando o projeto você ajuda a manter o bot gratuito
+                  pra todo mundo.
+                </p>
+              </StaggerItem>
+              <StaggerItem>
+                <ul className="space-y-2 text-sm font-semibold text-[#1B0E3B]">
+                  {[
+                    "Painéis de ticket ilimitados",
+                    "Rank cards com fundo customizado",
+                    "Mais slots de sorteios e auto-roles",
+                    "Selo Zenox+ no seu servidor",
+                  ].map((f, i) => (
+                    <motion.li
+                      key={f}
+                      className="flex items-center gap-2"
+                      initial={{ opacity: 0, x: -12 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: 0.4 + i * 0.08, duration: 0.45 }}
+                    >
+                      <motion.span
+                        className="inline-flex size-5 items-center justify-center rounded-full bg-[#10D9A0] text-white"
+                        initial={{ scale: 0 }}
+                        whileInView={{ scale: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.5 + i * 0.08, type: "spring", damping: 10, stiffness: 250 }}
+                      >
+                        <Check className="size-3" />
+                      </motion.span>
+                      {f}
+                    </motion.li>
+                  ))}
+                </ul>
+              </StaggerItem>
+              <StaggerItem>
+                <Link
+                  to="/premium"
+                  className="inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-[#EC4899] px-6 py-3 text-sm font-bold text-white shadow-[0_5px_0_0_#1B0E3B] transition-transform hover:-translate-y-0.5"
+                >
+                  Conhecer Zenox+ <ArrowRight className="size-4" />
+                </Link>
+              </StaggerItem>
+            </StaggerGroup>
+            <motion.div
+              className="relative"
+              initial={{ opacity: 0, scale: 0.6, rotate: -10 }}
+              whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+              viewport={{ once: true }}
+              transition={{ type: "spring", damping: 12, stiffness: 150, delay: 0.3 }}
+            >
               <Mascot variant="celebrate" size={300} className="mx-auto animate-[float_4s_ease-in-out_infinite]" />
-              <FloatingBadge className="left-2 top-2 -rotate-6" tone="sun">
+              <AnimatedFloatingBadge className="left-2 top-2 -rotate-6" tone="sun" delay={0.6}>
                 <Star className="size-3.5" /> Premium
-              </FloatingBadge>
-            </div>
+              </AnimatedFloatingBadge>
+            </motion.div>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* COMMUNITY CTA */}
       <section className="px-4 py-24 md:px-6">
-        <div className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3">
-          <CommunityCard
-            tone="purple"
-            icon={Users}
-            title="Comunidade"
-            desc="Entra no servidor oficial e bate papo com a galera."
-            to="/suporte"
-            cta="Entrar no Discord"
-          />
-          <CommunityCard
-            tone="mint"
-            icon={Bot}
-            title="Status do bot"
-            desc="Veja o uptime, latência e incidentes em tempo real."
-            to="/status"
-            cta="Ver status"
-          />
-          <CommunityCard
-            tone="sky"
-            icon={ScrollText}
-            title="Documentação"
-            desc="Tudo o que você precisa saber pra dominar o Zenox."
-            to="/docs"
-            cta="Abrir docs"
-          />
-        </div>
+        <StaggerGroup className="mx-auto grid max-w-6xl gap-6 md:grid-cols-3" stagger={0.1}>
+          <StaggerItem>
+            <CommunityCard
+              tone="purple"
+              icon={Users}
+              title="Comunidade"
+              desc="Entra no servidor oficial e bate papo com a galera."
+              to="/suporte"
+              cta="Entrar no Discord"
+            />
+          </StaggerItem>
+          <StaggerItem>
+            <CommunityCard
+              tone="mint"
+              icon={Bot}
+              title="Status do bot"
+              desc="Veja o uptime, latência e incidentes em tempo real."
+              to="/status"
+              cta="Ver status"
+            />
+          </StaggerItem>
+          <StaggerItem>
+            <CommunityCard
+              tone="sky"
+              icon={ScrollText}
+              title="Documentação"
+              desc="Tudo o que você precisa saber pra dominar o Zenox."
+              to="/docs"
+              cta="Abrir docs"
+            />
+          </StaggerItem>
+        </StaggerGroup>
       </section>
 
       {/* FINAL CTA */}
       <section className="px-4 pb-24 pt-8 md:px-6">
-        <div className="mx-auto max-w-5xl rounded-[2.5rem] border-2 border-[#1B0E3B] bg-[#1B0E3B] p-1 shadow-[0_10px_0_0_#7C3AED]">
-          <div className="relative overflow-hidden rounded-[2.3rem] bg-gradient-to-br from-[#7C3AED] via-[#A855F7] to-[#EC4899] p-10 text-center md:p-16">
-            <div className="absolute -left-10 -top-10 size-40 rounded-full bg-[#FBBF24]/30 blur-3xl" />
-            <div className="absolute -bottom-10 -right-10 size-40 rounded-full bg-[#38BDF8]/30 blur-3xl" />
-            <h2 className="font-['Plus_Jakarta_Sans'] text-4xl font-extrabold tracking-tight text-white md:text-6xl">
-              Pronto pra deixar seu server{" "}
-              <span className="italic">lendário?</span>
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-white/80">
-              Adiciona o Zenox em 30 segundos e configura tudo no painel.
-            </p>
-            <div className="mt-8 inline-block">
-              <PeekButton
-                href="/api/auth/discord/login"
-                onClick={startDiscordLogin}
-                label="Adicionar ao Discord"
-                large
-                dark
+        <Reveal direction="scale" className="mx-auto max-w-5xl">
+          <div className="rounded-[2.5rem] border-2 border-[#1B0E3B] bg-[#1B0E3B] p-1 shadow-[0_10px_0_0_#7C3AED]">
+            <div className="relative overflow-hidden rounded-[2.3rem] bg-gradient-to-br from-[#7C3AED] via-[#A855F7] to-[#EC4899] p-10 text-center md:p-16">
+              <motion.div
+                className="absolute -left-10 -top-10 size-40 rounded-full bg-[#FBBF24]/30 blur-3xl"
+                animate={{ x: [0, 30, 0], y: [0, 20, 0], scale: [1, 1.2, 1] }}
+                transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
               />
+              <motion.div
+                className="absolute -bottom-10 -right-10 size-40 rounded-full bg-[#38BDF8]/30 blur-3xl"
+                animate={{ x: [0, -25, 0], y: [0, -15, 0], scale: [1, 1.15, 1] }}
+                transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+              />
+              {/* sparkle dots */}
+              {Array.from({ length: 8 }).map((_, i) => (
+                <motion.span
+                  key={i}
+                  aria-hidden
+                  className="absolute size-1 rounded-full bg-white"
+                  style={{
+                    left: `${10 + ((i * 37) % 80)}%`,
+                    top: `${15 + ((i * 53) % 70)}%`,
+                  }}
+                  animate={{ opacity: [0, 1, 0], scale: [0, 1.5, 0] }}
+                  transition={{
+                    duration: 2 + (i % 3),
+                    repeat: Infinity,
+                    delay: i * 0.4,
+                    ease: "easeInOut",
+                  }}
+                />
+              ))}
+              <h2 className="relative font-['Plus_Jakarta_Sans'] text-4xl font-extrabold tracking-tight text-white md:text-6xl">
+                Pronto pra deixar seu server{" "}
+                <span className="italic">lendário?</span>
+              </h2>
+              <p className="relative mx-auto mt-4 max-w-xl text-white/80">
+                Adiciona o Zenox em 30 segundos e configura tudo no painel.
+              </p>
+              <div className="relative mt-8 inline-block">
+                <PeekButton
+                  href="/api/auth/discord/login"
+                  onClick={startDiscordLogin}
+                  label="Adicionar ao Discord"
+                  large
+                  dark
+                />
+              </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </section>
+
 
       <SiteFooter />
 

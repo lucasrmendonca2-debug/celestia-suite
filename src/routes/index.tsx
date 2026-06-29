@@ -911,12 +911,3 @@ function CommunityCard({
   );
 }
 
-function BgBlobs() {
-  return (
-    <>
-      <div className="pointer-events-none absolute right-[-10%] top-20 -z-10 size-[500px] rounded-full bg-[#EC4899]/20 blur-[120px]" />
-      <div className="pointer-events-none absolute left-[-10%] top-[40%] -z-10 size-[500px] rounded-full bg-[#7C3AED]/20 blur-[120px]" />
-      <div className="pointer-events-none absolute right-[20%] top-[80%] -z-10 size-[400px] rounded-full bg-[#FBBF24]/20 blur-[110px]" />
-    </>
-  );
-}

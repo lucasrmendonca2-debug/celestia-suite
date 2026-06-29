@@ -730,6 +730,51 @@ function FloatingBadge({
   );
 }
 
+function AnimatedFloatingBadge({
+  children,
+  className,
+  tone,
+  delay = 0,
+  drift = 6,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  tone: Tone;
+  delay?: number;
+  drift?: number;
+}) {
+  const t = TONE[tone];
+  return (
+    <motion.span
+      className={`absolute inline-flex items-center gap-1.5 rounded-full border-2 border-[#1B0E3B] bg-white px-3 py-1.5 text-[11px] font-extrabold ${t.text} shadow-[0_3px_0_0_#1B0E3B] ${className ?? ""}`}
+      initial={{ opacity: 0, scale: 0, y: 20 }}
+      whileInView={{ opacity: 1, scale: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{
+        delay,
+        type: "spring",
+        damping: 10,
+        stiffness: 200,
+      }}
+      whileHover={{ scale: 1.1, rotate: 4 }}
+    >
+      <motion.span
+        className="contents"
+        animate={{ y: [0, -drift, 0] }}
+        transition={{
+          duration: 3 + drift * 0.1,
+          repeat: Infinity,
+          ease: "easeInOut",
+          delay: delay + 0.4,
+        }}
+      >
+        {children}
+      </motion.span>
+    </motion.span>
+  );
+}
+
+
 function SectionLabel({
   children,
   tone,

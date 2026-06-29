@@ -21,7 +21,7 @@ import {
   Check,
   type LucideIcon,
 } from "lucide-react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Mascot } from "@/components/Mascot";
 import chibiPeek from "@/assets/mascot-chibi-peek.png?w=480&format=webp&quality=80";
 // chibi-climb-1 (3 braços) removido propositalmente

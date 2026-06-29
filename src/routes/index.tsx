@@ -121,70 +121,97 @@ function Landing() {
       {/* HERO */}
       <section className="relative px-4 pb-16 pt-28 md:px-6 md:pt-32">
         <div className="mx-auto grid max-w-7xl items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
-          <div className="relative space-y-7">
-            <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-white px-3 py-1 text-[11px] font-extrabold uppercase tracking-widest text-[#1B0E3B] shadow-[0_3px_0_0_#1B0E3B]">
-              <span className="relative flex size-2">
-                <span className="absolute inset-0 animate-ping rounded-full bg-[#10D9A0]" />
-                <span className="relative size-2 rounded-full bg-[#10D9A0]" />
-              </span>
-              {data.online ? `Online · ${serversLabel} servidores` : `Pronto pra começar · ${serversLabel} servidores`}
-            </div>
+          <StaggerGroup className="relative space-y-7" stagger={0.1} amount={0.1}>
+            <StaggerItem direction="down">
+              <div className="inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-white px-3 py-1 text-[11px] font-extrabold uppercase tracking-widest text-[#1B0E3B] shadow-[0_3px_0_0_#1B0E3B]">
+                <span className="relative flex size-2">
+                  <span className="absolute inset-0 animate-ping rounded-full bg-[#10D9A0]" />
+                  <span className="relative size-2 rounded-full bg-[#10D9A0]" />
+                </span>
+                {data.online ? `Online · ${serversLabel} servidores` : `Pronto pra começar · ${serversLabel} servidores`}
+              </div>
+            </StaggerItem>
 
-            <h1 className="font-['Plus_Jakarta_Sans'] text-5xl font-extrabold leading-[0.95] tracking-tight md:text-7xl">
-              O bot que sua{" "}
-              <span className="relative inline-block">
-                <span className="relative z-10">galera</span>
-                <span
-                  aria-hidden
-                  className="absolute -bottom-1 left-0 -z-0 h-3 w-full -rotate-1 rounded-full bg-[#FBBF24]"
-                />
-              </span>{" "}
-              vai{" "}
-              <span className="bg-gradient-to-r from-[#7C3AED] via-[#A855F7] to-[#EC4899] bg-clip-text text-transparent">
-                amar usar.
-              </span>
-            </h1>
+            <StaggerItem direction="blur">
+              <h1 className="font-['Plus_Jakarta_Sans'] text-5xl font-extrabold leading-[0.95] tracking-tight md:text-7xl">
+                O bot que sua{" "}
+                <span className="relative inline-block">
+                  <span className="relative z-10">galera</span>
+                  <motion.span
+                    aria-hidden
+                    className="absolute -bottom-1 left-0 -z-0 h-3 w-full -rotate-1 rounded-full bg-[#FBBF24]"
+                    initial={{ scaleX: 0, transformOrigin: "left center" }}
+                    whileInView={{ scaleX: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.7, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                  />
+                </span>{" "}
+                vai{" "}
+                <span className="bg-gradient-to-r from-[#7C3AED] via-[#A855F7] to-[#EC4899] bg-clip-text text-transparent">
+                  amar usar.
+                </span>
+              </h1>
+            </StaggerItem>
 
-            <p className="max-w-xl text-lg leading-relaxed text-[#5B4B7A]">
-              Moderação, economia, level, tickets, sorteios, mini-games e um painel web que
-              qualquer um consegue mexer. Tudo num bot só — e de graça pra começar.
-            </p>
+            <StaggerItem>
+              <p className="max-w-xl text-lg leading-relaxed text-[#5B4B7A]">
+                Moderação, economia, level, tickets, sorteios, mini-games e um painel web que
+                qualquer um consegue mexer. Tudo num bot só — e de graça pra começar.
+              </p>
+            </StaggerItem>
 
             {/* CTAs */}
-            <div className="flex flex-wrap items-center gap-4 pt-2">
-              <PeekButton
-                href="/api/auth/discord/login"
-                onClick={startDiscordLogin}
-                label="Comece agora"
-              />
-              <Link
-                to="/recursos"
-                className="group inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-white px-6 py-3.5 text-base font-bold text-[#1B0E3B] shadow-[0_5px_0_0_#1B0E3B] transition-transform hover:-translate-y-0.5"
-              >
-                Ver recursos
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </div>
+            <StaggerItem>
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+                <PeekButton
+                  href="/api/auth/discord/login"
+                  onClick={startDiscordLogin}
+                  label="Comece agora"
+                />
+                <Link
+                  to="/recursos"
+                  className="group inline-flex items-center gap-2 rounded-full border-2 border-[#1B0E3B] bg-white px-6 py-3.5 text-base font-bold text-[#1B0E3B] shadow-[0_5px_0_0_#1B0E3B] transition-transform hover:-translate-y-0.5"
+                >
+                  Ver recursos
+                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </div>
+            </StaggerItem>
 
             {/* Social proof */}
-            <div className="flex items-center gap-4 pt-2 text-sm text-[#5B4B7A]">
-              <div className="flex -space-x-2">
-                {["#7C3AED", "#EC4899", "#FBBF24", "#10D9A0"].map((c) => (
-                  <span
-                    key={c}
-                    className="size-7 rounded-full border-2 border-white"
-                    style={{ background: c }}
-                  />
-                ))}
+            <StaggerItem>
+              <div className="flex items-center gap-4 pt-2 text-sm text-[#5B4B7A]">
+                <div className="flex -space-x-2">
+                  {["#7C3AED", "#EC4899", "#FBBF24", "#10D9A0"].map((c, i) => (
+                    <motion.span
+                      key={c}
+                      className="size-7 rounded-full border-2 border-white"
+                      style={{ background: c }}
+                      animate={{ y: [0, -3, 0] }}
+                      transition={{
+                        duration: 2.4,
+                        delay: i * 0.18,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                      }}
+                    />
+                  ))}
+                </div>
+                <span>
+                  <strong className="text-[#1B0E3B]">{serversLabel}</strong> servidores conectados
+                </span>
               </div>
-              <span>
-                <strong className="text-[#1B0E3B]">{serversLabel}</strong> servidores conectados
-              </span>
-            </div>
-          </div>
+            </StaggerItem>
+          </StaggerGroup>
 
           {/* MS Paint window — mascote quebrando a 4ª parede */}
-          <div className="relative mx-auto w-full max-w-md">
+          <motion.div
+            className="relative mx-auto w-full max-w-md"
+            initial={{ opacity: 0, scale: 0.85, rotate: -6 }}
+            whileInView={{ opacity: 1, scale: 1, rotate: 0 }}
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ type: "spring", damping: 12, stiffness: 120, delay: 0.2 }}
+          >
             <div className="absolute inset-0 -z-10 translate-x-4 translate-y-4 rounded-md bg-[#1B0E3B]" />
             <div className="paint-window relative overflow-hidden rounded-md border-2 border-[#1B0E3B] bg-white shadow-[6px_6px_0_0_#1B0E3B]">
               {/* Title bar */}
@@ -201,8 +228,16 @@ function Landing() {
               </div>
               {/* Toolbar */}
               <div className="flex items-center gap-1 border-b border-[#1B0E3B]/30 bg-[#dfe3ea] px-2 py-1">
-                {["#000000", "#7C3AED", "#EC4899", "#FBBF24", "#10D9A0", "#38BDF8"].map((c) => (
-                  <span key={c} className="size-3 border border-black/50" style={{ background: c }} />
+                {["#000000", "#7C3AED", "#EC4899", "#FBBF24", "#10D9A0", "#38BDF8"].map((c, i) => (
+                  <motion.span
+                    key={c}
+                    className="size-3 border border-black/50"
+                    style={{ background: c }}
+                    initial={{ scale: 0 }}
+                    whileInView={{ scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.6 + i * 0.05, type: "spring", damping: 10, stiffness: 220 }}
+                  />
                 ))}
                 <span className="ml-2 font-mono text-[10px] text-[#1B0E3B]">untitled.bmp</span>
               </div>
@@ -217,22 +252,23 @@ function Landing() {
                 <span aria-hidden className="paint-crack pointer-events-none absolute inset-0" />
               </div>
 
-              <FloatingBadge className="-left-4 top-12 -rotate-6" tone="sun">
+              <AnimatedFloatingBadge className="-left-4 top-12 -rotate-6" tone="sun" delay={0.7} drift={6}>
                 <Gamepad2 className="size-3.5" /> Mini games
-              </FloatingBadge>
-              <FloatingBadge className="-right-3 top-24 rotate-6" tone="pink">
+              </AnimatedFloatingBadge>
+              <AnimatedFloatingBadge className="-right-3 top-24 rotate-6" tone="pink" delay={0.85} drift={8}>
                 <Heart className="size-3.5" /> Comunidade
-              </FloatingBadge>
-              <FloatingBadge className="-left-6 bottom-20 -rotate-3" tone="mint">
+              </AnimatedFloatingBadge>
+              <AnimatedFloatingBadge className="-left-6 bottom-20 -rotate-3" tone="mint" delay={1.0} drift={5}>
                 <Zap className="size-3.5" /> 99.9% uptime
-              </FloatingBadge>
-              <FloatingBadge className="-right-4 bottom-8 rotate-3" tone="sky">
+              </AnimatedFloatingBadge>
+              <AnimatedFloatingBadge className="-right-4 bottom-8 rotate-3" tone="sky" delay={1.15} drift={7}>
                 <Bot className="size-3.5" /> {commandsLabel} comandos
-              </FloatingBadge>
+              </AnimatedFloatingBadge>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
+
 
       {/* STATS */}
       <section className="px-4 py-8 md:px-6">

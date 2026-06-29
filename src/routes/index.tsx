@@ -100,10 +100,8 @@ const modules: {
   { n: "09", title: "Sugestões", desc: "Canal de feedback com aprovação, rejeição e comentários.", tone: "coral", icon: Lightbulb },
 ];
 
-const staticStats: { v: string; l: string; tone: Tone }[] = [
-  { v: "99.9%", l: "uptime", tone: "mint" },
-  { v: "<80ms", l: "latência", tone: "sky" },
-];
+
+
 
 function Landing() {
   const data = Route.useLoaderData();

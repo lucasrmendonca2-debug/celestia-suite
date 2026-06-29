@@ -21,6 +21,7 @@ import {
   Check,
   type LucideIcon,
 } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
 import { Mascot } from "@/components/Mascot";
 import chibiPeek from "@/assets/mascot-chibi-peek.png?w=480&format=webp&quality=80";
 // chibi-climb-1 (3 braços) removido propositalmente
@@ -28,6 +29,10 @@ import chibiClimb2 from "@/assets/chibi-climb-2.png?w=480&format=webp&quality=80
 import chibiClimb3 from "@/assets/chibi-climb-3.png?w=480&format=webp&quality=80";
 import paintEscape from "@/assets/mascot-paint-escape.png?w=720&format=webp&quality=82";
 import { SiteHeader, SiteFooter } from "@/components/site/SiteHeader";
+import { Reveal, StaggerGroup, StaggerItem } from "@/components/motion/Reveal";
+import { AnimatedBlobs } from "@/components/motion/AnimatedBlobs";
+import { CountUp } from "@/components/motion/CountUp";
+import { Marquee } from "@/components/motion/Marquee";
 
 export const Route = createFileRoute("/")({
   head: () => ({
